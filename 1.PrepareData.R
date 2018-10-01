@@ -44,18 +44,16 @@ qbs2011 <- crop(bs2011,quebec)
 qbs2011 <- mask(qbs2011,quebec)
 qbs2001 <- crop(bs2001,quebec)
 qbs2001 <- mask(qbs2001,quebec)
-names(qbs2001) <- gsub("NFI_MODIS250m_2001_kNN_","",names(qbs2001))
-names(qbs2011) <- gsub("NFI_MODIS250m_2011_kNN_","",names(qbs2011))
 
 ecor <- rasterize(eco,bs2011[[1]])
 
-dat2011 <- cbind(QCSS, extract(qbs2011,as.matrix(cbind(QCSS$X,QCSS$Y))))
+dat2011 <- cbind(QCSS, extract(bs2011,as.matrix(cbind(QCSS$X,QCSS$Y))))
 dat2011 <-cbind(dat2011,extract(nalc,as.matrix(cbind(dat2011$X,dat2011$Y)))) 
 names(dat2011)[ncol(dat2011)] <- "LCC"
 dat2011 <-cbind(dat2011,extract(ecor,as.matrix(cbind(dat2011$X,dat2011$Y))))
 names(dat2011)[ncol(dat2011)] <- "eco"
 
-dat2001 <- cbind(QCSS, extract(qbs2001,as.matrix(cbind(QCSS$X,QCSS$Y))))
+dat2001 <- cbind(QCSS, extract(bs2001,as.matrix(cbind(QCSS$X,QCSS$Y))))
 dat2001 <-cbind(dat2001,extract(nalc,as.matrix(cbind(dat2001$X,dat2001$Y)))) 
 names(dat2001)[ncol(dat2001)] <- "LCC"
 dat2001 <-cbind(dat2001,extract(ecor,as.matrix(cbind(dat2001$X,dat2001$Y))))
@@ -84,8 +82,8 @@ for (j in 1:length(speclist)) {
   dat2$SPECIES <- as.character(speclist[j])
   dat2$ABUND <- as.integer(ifelse(is.na(dat2$ABUND),0,dat2$ABUND)) 
   d2011 <- merge(dat2, dat2011, by=c("SS","PCODE"),all.x=TRUE) #n=13872  
-  #names(d2001) <- gsub("NFI_MODIS250m_2001_kNN_","",names(d2001))
-  #names(d2011) <- gsub("NFI_MODIS250m_2011_kNN_","",names(d2011))
+  names(d2001) <- gsub("NFI_MODIS250m_2001_kNN_","",names(d2001))
+  names(d2011) <- gsub("NFI_MODIS250m_2011_kNN_","",names(d2011))
   datcombo <- rbind(d2001,d2011)
 
   x1 <- try(brt1 <- gbm.step(datcombo, gbm.y = 5, gbm.x = c(58,64,66,72,79,80,88,96,97,98,102,106,108,110,113,120,124,127,140,141), family = "poisson", tree.complexity = 3, learning.rate = 0.001, bag.fraction = 0.5))

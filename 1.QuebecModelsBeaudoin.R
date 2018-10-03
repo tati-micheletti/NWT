@@ -58,6 +58,13 @@ names(dat2011)[ncol(dat2011)] <- "LCC"
 dat2011 <-cbind(dat2011,extract(ecor,as.matrix(cbind(dat2011$X,dat2011$Y))))
 names(dat2011)[ncol(dat2011)] <- "eco"
 
+r2 <- qbs2011_1km[[1]]
+samprast <- rasterize(cbind(dat2011$X,dat2011$Y), r2, field=1)
+sampsum25 <- focal(samprast, w=5, na.rm=TRUE)
+dat2011 <- cbind(dat2011,extract(sampsum25,as.matrix(cbind(dat2011$X,dat2011$Y))))
+names(dat2011)[ncol(dat2011)] <- "sampsum25"
+dat2011$wt <- 1/dat2011$sampsum25
+
 dat2001 <- cbind(QCSS, extract(qbs2001,as.matrix(cbind(QCSS$X,QCSS$Y))))
 dat2001 <-cbind(dat2001,extract(nalc,as.matrix(cbind(dat2001$X,dat2001$Y)))) 
 names(dat2001)[ncol(dat2001)] <- "LCC"
@@ -92,7 +99,7 @@ for (j in 1:length(speclist)) {
   datcombo <- rbind(d2001,d2011)
   datcombo$eco <- as.factor(datcombo$eco)
 
-  x1 <- try(brt1 <- gbm.step(datcombo, gbm.y = 5, gbm.x = c(58,64,66,72,79,80,88,96,97,98,102,106,108,110,113,120,124,127,140,141), family = "poisson", tree.complexity = 3, learning.rate = 0.001, bag.fraction = 0.5))
+  x1 <- try(brt1 <- gbm.step(datcombo, gbm.y = 5, gbm.x = c(58,64,66,72,79,80,88,96,97,98,102,106,108,110,113,120,124,127,140,141,146,147), family = "poisson", tree.complexity = 3, learning.rate = 0.001, bag.fraction = 0.5, offset=combo$logoffset, site.weights=datcombo$wt))
   if (class(x1) != "try-error") {
     save(brt1,file=paste(w,speclist[j],"brtQC.R",sep=""))
     varimp <- as.data.frame(brt1$contributions)

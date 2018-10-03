@@ -59,6 +59,13 @@ names(dat2001)[ncol(dat2001)] <- "LCC"
 dat2001 <-cbind(dat2001,extract(ecor,as.matrix(cbind(dat2001$X,dat2001$Y))))
 names(dat2001)[ncol(dat2001)] <- "eco"
 
+r2 <- raster(clim[1])
+samprast <- rasterize(datsamp4[,6:7], r2, field=1)
+sampsum25 <- focal(samprast, w=5, na.rm=TRUE)
+datsamp5 <- cbind(datsamp4,extract(sampsum25,as.matrix(cbind(datsamp4[,6],datsamp4[,7]))))
+names(datsamp5)[ncol(datsamp5)] <- "sampsum25"
+datsamp5$wt <- 1/datsamp5$sampsum25
+
 PC <- merge(PCTBL,PKEY[,1:8],by=c("PKEY","SS","PCODE"))
 PC <- merge(PC,SS[,c(2,5)],by="SS")
 QCPC <- PC[PC$JURS=="QC",]

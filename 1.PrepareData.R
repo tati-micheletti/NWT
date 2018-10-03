@@ -86,7 +86,7 @@ for (j in 1:length(speclist)) {
   names(d2011) <- gsub("NFI_MODIS250m_2011_kNN_","",names(d2011))
   datcombo <- rbind(d2001,d2011)
 
-  x1 <- try(brt1 <- gbm.step(datcombo, gbm.y = 5, gbm.x = c(58,64,66,72,79,80,88,96,97,98,102,106,108,110,113,120,124,127,140,141), family = "poisson", tree.complexity = 3, learning.rate = 0.001, bag.fraction = 0.5))
+  x1 <- try(brt1 <- gbm.step(datcombo, gbm.y = 5, gbm.x = c(58,64,66,72,79,80,88,96,97,98,102,106,108,110,113,120,124,127,140,141,146,147), family = "poisson", tree.complexity = 3, learning.rate = 0.001, bag.fraction = 0.5))
   if (class(x1) != "try-error") {
     save(brt1,file=paste(w,speclist[j],"brtQC.R",sep=""))
     varimp <- as.data.frame(brt1$contributions)

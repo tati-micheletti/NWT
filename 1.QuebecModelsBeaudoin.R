@@ -49,7 +49,7 @@ names(qbs2011) <- gsub("NFI_MODIS250m_2011_kNN_","",names(qbs2011))
 qbs2011_1km <- aggregate(qbs2011, fact=4, fun=mean)
 
 ecor <- rasterize(eco,bs2011[[1]])
-ecor1km <- resample(eco4, qbs2011_1km)
+ecor1km <- resample(ecor, qbs2011_1km)
 qbs2011_1km <- addLayer(qbs2011_1km, ecor1km)
 
 dat2011 <- cbind(QCSS, extract(qbs2011,as.matrix(cbind(QCSS$X,QCSS$Y))))
@@ -87,9 +87,10 @@ for (j in 1:length(speclist)) {
   dat2$SPECIES <- as.character(speclist[j])
   dat2$ABUND <- as.integer(ifelse(is.na(dat2$ABUND),0,dat2$ABUND)) 
   d2011 <- merge(dat2, dat2011, by=c("SS","PCODE"),all.x=TRUE) #n=13872  
-  #names(d2001) <- gsub("NFI_MODIS250m_2001_kNN_","",names(d2001))
-  #names(d2011) <- gsub("NFI_MODIS250m_2011_kNN_","",names(d2011))
+  names(d2001) <- gsub("NFI_MODIS250m_2001_kNN_","",names(d2001)) #not necessary if performed with stack
+  names(d2011) <- gsub("NFI_MODIS250m_2011_kNN_","",names(d2011)) #not necessary if performed with stack
   datcombo <- rbind(d2001,d2011)
+  datcombo$eco <- as.factor(datcombo$eco)
 
   x1 <- try(brt1 <- gbm.step(datcombo, gbm.y = 5, gbm.x = c(58,64,66,72,79,80,88,96,97,98,102,106,108,110,113,120,124,127,140,141), family = "poisson", tree.complexity = 3, learning.rate = 0.001, bag.fraction = 0.5))
   if (class(x1) != "try-error") {
@@ -101,9 +102,9 @@ for (j in 1:length(speclist)) {
     pdf(paste(w,speclist[j],"_plot.pdf",sep=""))
     gbm.plot(brt1,n.plots=9,smooth=TRUE)
     dev.off()
-    rast <- predict(qbs2011, brt1, type="response", n.trees=brt1$n.trees)
-    writeRaster(rast, filename=paste(w,speclist[j],"_pred",sep=""), format="geoTiff",overwrite=TRUE)
-    png(paste(w,speclist[j],"_pred.png",sep=""))
+    rast <- predict(qbs2011_1km, brt1, type="response", n.trees=brt1$n.trees)
+    writeRaster(rast, filename=paste(w,speclist[j],"_pred1km",sep=""), format="GTiff",overwrite=TRUE)
+    png(paste(w,speclist[j],"_pred1km.png",sep=""))
     plot(rast, zlim=c(0,1))
     points(datcombo$X, datcombo$Y, cex=0.05)
     dev.off()

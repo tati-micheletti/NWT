@@ -51,6 +51,7 @@ qbs2011_1km <- aggregate(qbs2011, fact=4, fun=mean)
 ecor <- rasterize(eco,bs2011[[1]])
 ecor1km <- resample(ecor, qbs2011_1km)
 qbs2011_1km <- addLayer(qbs2011_1km, ecor1km)
+names(qbs2011_1km)[94] <- "eco"
 
 dat2011 <- cbind(QCSS, extract(qbs2011,as.matrix(cbind(QCSS$X,QCSS$Y))))
 dat2011 <-cbind(dat2011,extract(nalc,as.matrix(cbind(dat2011$X,dat2011$Y)))) 
@@ -59,8 +60,8 @@ dat2011 <-cbind(dat2011,extract(ecor,as.matrix(cbind(dat2011$X,dat2011$Y))))
 names(dat2011)[ncol(dat2011)] <- "eco"
 
 r2 <- qbs2011_1km[[1]]
-samprast <- rasterize(cbind(dat2011$X,dat2011$Y), r2, field=1)
-sampsum25 <- focal(samprast, w=5, na.rm=TRUE)
+samprast2011 <- rasterize(cbind(dat2011$X,dat2011$Y), r2, field=1)
+sampsum25 <- focal(samprast2011, w=matrix(1/25, nc=5, nr=5), na.rm=TRUE)
 dat2011 <- cbind(dat2011,extract(sampsum25,as.matrix(cbind(dat2011$X,dat2011$Y))))
 names(dat2011)[ncol(dat2011)] <- "sampsum25"
 dat2011$wt <- 1/dat2011$sampsum25
@@ -71,6 +72,12 @@ names(dat2001)[ncol(dat2001)] <- "LCC"
 dat2001 <-cbind(dat2001,extract(ecor,as.matrix(cbind(dat2001$X,dat2001$Y))))
 names(dat2001)[ncol(dat2001)] <- "eco"
 
+samprast2001 <- rasterize(cbind(dat2001$X,dat2001$Y), r2, field=1)
+sampsum25 <- focal(samprast2001, w=matrix(1/25, nc=5, nr=5), na.rm=TRUE)
+dat2001 <- cbind(dat2001,extract(sampsum25,as.matrix(cbind(dat2001$X,dat2001$Y))))
+names(dat2001)[ncol(dat2001)] <- "sampsum25"
+dat2001$wt <- 1/dat2001$sampsum25
+
 PC <- merge(PCTBL,PKEY[,1:8],by=c("PKEY","SS","PCODE"))
 PC <- merge(PC,SS[,c(2,5)],by="SS")
 QCPC <- PC[PC$JURS=="QC",]
@@ -80,6 +87,7 @@ w <- "L:/Boreal/NationalModelsV2/"
 setwd(w)
 speclist <- read.csv("I:/BAM/BAMData/SpeciesClassesModv5.csv")
 speclist <- as.factor(as.character(speclist[1:105,1]))
+
 
 for (j in 1:length(speclist)) {
   specdat <- QCPC[QCPC$SPECIES == as.character(speclist[j]),] #n=2918

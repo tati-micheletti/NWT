@@ -66,6 +66,7 @@ names(dat2011)[ncol(dat2011)] <- "sampsum25"
 dat2011$wt <- 1/dat2011$sampsum25
 dat2011$SS <- as.character(dat2011$SS)
 dat2011$PCODE <- as.character(dat2011$PCODE)
+write.csv(dat2011,paste(w,"QCdat2011.csv",sep=""))
 
 dat2001 <- cbind(QCSS, extract(qbs2001,as.matrix(cbind(QCSS$X,QCSS$Y))))
 dat2001 <-cbind(dat2001,extract(nalc,as.matrix(cbind(dat2001$X,dat2001$Y)))) 
@@ -80,6 +81,7 @@ names(dat2001)[ncol(dat2001)] <- "sampsum25"
 dat2001$wt <- 1/dat2001$sampsum25
 dat2001$SS <- as.character(dat2001$SS)
 dat2001$PCODE <- as.character(dat2001$PCODE)
+write.csv(dat2001,paste(w,"QCdat2001.csv",sep=""))
 
 PC <- merge(PCTBL,PKEY[,1:8],by=c("PKEY","SS","PCODE"))
 PC <- merge(PC,SS[,c(2,5)],by="SS")
@@ -98,7 +100,7 @@ setwd(w)
 speclist <- read.csv("I:/BAM/BAMData/SpeciesClassesModv5.csv")
 speclist <- as.factor(as.character(speclist[1:105,1]))
 
-for (j in 1:length(speclist)) {
+for (j in 8:length(speclist)) {
   specoff <- offl[offl$SPECIES==as.character(speclist[j]),]
   
   specdat2001 <- QCPC2001[QCPC2001$SPECIES == as.character(speclist[j]),] #n=444
@@ -118,7 +120,7 @@ for (j in 1:length(speclist)) {
   datcombo <- rbind(d2001,d2011)
   datcombo$eco <- as.factor(datcombo$eco)
 
-  x1 <- try(brt1 <- gbm.step(datcombo, gbm.y = 5, gbm.x = c(59,65,67,73,80,81,89,97,98,99,103,107,109,111,114,121,125,128,141,142,148), family = "poisson", tree.complexity = 3, learning.rate = 0.001, bag.fraction = 0.5, offset=datcombo$logoffset, site.weights=datcombo$wt))
+  x1 <- try(brt1 <- gbm.step(datcombo, gbm.y = 5, gbm.x = c(59,65,67,73,80,81,89,97,98,99,103,107,109,111,114,121,125,128,141,142), family = "poisson", tree.complexity = 3, learning.rate = 0.001, bag.fraction = 0.5, offset=datcombo$logoffset, site.weights=datcombo$wt))
   if (class(x1) != "try-error") {
     save(brt1,file=paste(w,speclist[j],"brtQC.R",sep=""))
     varimp <- as.data.frame(brt1$contributions)

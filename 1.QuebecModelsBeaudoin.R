@@ -56,7 +56,7 @@ qbs2001 <- crop(bs2001,quebec)
 dat2011 <- cbind(QCSS, extract(qbs2011,as.matrix(cbind(QCSS$X,QCSS$Y))))
 dat2011 <-cbind(dat2011,extract(nalc,as.matrix(cbind(dat2011$X,dat2011$Y)))) 
 names(dat2011)[ncol(dat2011)] <- "LCC"
-dat2011 <-cbind(dat2011,extract(ecor,as.matrix(cbind(dat2011$X,dat2011$Y))))
+dat2011 <-cbind(dat2011,extract(eco,as.matrix(cbind(dat2011$X,dat2011$Y))))
 names(dat2011)[ncol(dat2011)] <- "eco"
 
 samprast2011 <- rasterize(cbind(dat2011$X,dat2011$Y), r2, field=1)
@@ -70,7 +70,7 @@ dat2011$PCODE <- as.character(dat2011$PCODE)
 dat2001 <- cbind(QCSS, extract(qbs2001,as.matrix(cbind(QCSS$X,QCSS$Y))))
 dat2001 <-cbind(dat2001,extract(nalc,as.matrix(cbind(dat2001$X,dat2001$Y)))) 
 names(dat2001)[ncol(dat2001)] <- "LCC"
-dat2001 <-cbind(dat2001,extract(ecor,as.matrix(cbind(dat2001$X,dat2001$Y))))
+dat2001 <-cbind(dat2001,extract(eco,as.matrix(cbind(dat2001$X,dat2001$Y))))
 names(dat2001)[ncol(dat2001)] <- "eco"
 
 samprast2001 <- rasterize(cbind(dat2001$X,dat2001$Y), r2, field=1)
@@ -106,19 +106,19 @@ for (j in 1:length(speclist)) {
   dat1$SPECIES <- as.character(speclist[j])
   dat1$ABUND <- as.integer(ifelse(is.na(dat1$ABUND),0,dat1$ABUND)) 
   s2001 <- left_join(dat1,specoff, by=c("SPECIES","PKEY"))
-  d2001 <- left_join(d2001, dat2001@data, by=c("SS","PCODE")) 
+  d2001 <- left_join(s2001, dat2001, by=c("SS","PCODE")) 
   
   specdat2011 <- QCPC2011[QCPC2011$SPECIES == as.character(speclist[j]),] #n=444
   dat1 <- right_join(specdat2011[,c(1:5)],survey2011[,1:3],by=c("SS","PCODE","PKEY")) #n=2610
   dat1$SPECIES <- as.character(speclist[j])
   dat1$ABUND <- as.integer(ifelse(is.na(dat1$ABUND),0,dat1$ABUND)) 
   s2011 <- left_join(dat1,specoff, by=c("SPECIES","PKEY"))
-  d2011 <- left_join(d2011, dat2011@data, by=c("SS","PCODE")) 
+  d2011 <- left_join(s2011, dat2011, by=c("SS","PCODE")) 
 
   datcombo <- rbind(d2001,d2011)
   datcombo$eco <- as.factor(datcombo$eco)
 
-  x1 <- try(brt1 <- gbm.step(datcombo, gbm.y = 5, gbm.x = c(58,64,66,72,79,80,88,96,97,98,102,106,108,110,113,120,124,127,140,141,146,147), family = "poisson", tree.complexity = 3, learning.rate = 0.001, bag.fraction = 0.5, offset=datcombo$logoffset, site.weights=datcombo$wt))
+  x1 <- try(brt1 <- gbm.step(datcombo, gbm.y = 5, gbm.x = c(59,65,67,73,80,81,89,97,98,99,103,107,109,111,114,121,125,128,141,142,148), family = "poisson", tree.complexity = 3, learning.rate = 0.001, bag.fraction = 0.5, offset=datcombo$logoffset, site.weights=datcombo$wt))
   if (class(x1) != "try-error") {
     save(brt1,file=paste(w,speclist[j],"brtQC.R",sep=""))
     varimp <- as.data.frame(brt1$contributions)

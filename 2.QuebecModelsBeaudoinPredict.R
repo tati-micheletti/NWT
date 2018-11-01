@@ -7,7 +7,7 @@ library(data.table)
 
 LCC <- CRS("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs")
 offl <- read.csv("I:/BAM/BAMData/BAMoffsets.csv")
-offla <- read.csv("I:/Atlasoffsets.csv")
+offla <- read.csv("I:/BAM/BAMData/Atlasoffsets.csv")
 
 dat2011 <- read.csv("L:/Boreal/NationalModelsV2/QCdat2011.csv")
 dat2001 <- read.csv("L:/Boreal/NationalModelsV2/QCdat2001.csv")
@@ -25,8 +25,9 @@ survey2011 <- aggregate(QCPC2011$ABUND, by=list("PKEY"=QCPC2011$PKEY,"SS"=QCPC20
 
 w <- "L:/Boreal/NationalModelsV2/"
 setwd(w)
-speclist <- read.csv("I:/BAM/BAMData/SpeciesClassesModv5.csv")
-speclist <- as.factor(as.character(speclist[1:105,1]))
+speclist <- levels(offl)
+#speclist <- read.csv("I:/BAM/BAMData/SpeciesClassesModv5.csv")
+#speclist <- as.factor(as.character(speclist[1:105,1]))
 
 for (j in 1:length(speclist)) {
   specoff <- offl[offl$SPECIES==as.character(speclist[j]),]

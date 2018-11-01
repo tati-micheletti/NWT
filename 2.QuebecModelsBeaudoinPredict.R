@@ -5,40 +5,23 @@ library(maptools)
 library(dplyr)
 library(data.table)
 
-load("I:/BAM/BAMData/data_package_2016-04-18.Rdata")	
-load("I:/BAM/BAMData/offsets-v3_2016-04-18.Rdata")
 LCC <- CRS("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs")
-coordinates(SS) <- c("X", "Y") 
-proj4string(SS) <- CRS("+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0")
-SSLCC <- as.data.frame(spTransform(SS, LCC))
-QCSS <- SSLCC[SSLCC$JURS=="QC",]
-
-#AtlasSS <- read.csv("I:/BAM/BAMData/QCAtlas/SS_QCAtlasv2.csv")
-#AtlasPC <- read.csv("I:/BAM/BAMData/QCAtlas/PC_QCAtlasv2.csv")
-#AtlasPKEY <- read.csv("I:/BAM/BAMData/QCAtlas/PKEY_QCAtlasv2.csv")
-
-offl <- data.table(melt(OFF))
-names(offl) <- c("PKEY","SPECIES","logoffset")
-offl$SPECIES <- as.character(offl$SPECIES)
-offl$PKEY <- as.character(offl$PKEY)
-rm(OFF) #clear space
+offl <- read.csv("I:/BAM/BAMData/BAMoffsets.csv")
+offla <- read.csv("I:/Atlasoffsets.csv")
 
 dat2011 <- read.csv("L:/Boreal/NationalModelsV2/QCdat2011.csv")
 dat2001 <- read.csv("L:/Boreal/NationalModelsV2/QCdat2001.csv")
+adat2001 <- read.csv("I:/BAM/BAMData/QCAtlasdat2001.csv")
+adat2011 <- read.csv("I:/BAM/BAMData/QCAtlasdat2011.csv")
                        
-qbs2011_1km <- raster("L:/Boreal/NationalModelsV2/QC2011rasters.grd")
+qbs2011_1km <- brick("L:/Boreal/NationalModelsV2/QC2011rasters.grd")
 
-PC <- inner_join(PCTBL,PKEY[,1:8],by=c("PKEY","SS","PCODE"))
-PC <- inner_join(PC,SS@data[,c(2,5)],by="SS")
-QCPC <- PC[PC$JURS=="QC",]
-QCPC$SS <- as.character(QCPC$SS)
-QCPC$PKEY <- as.character(QCPC$PKEY)
-QCPC$PCODE <- as.character(QCPC$PCODE)
-QCPC$SPECIES <- as.character(QCPC$SPECIES)
-QCPC2001 <- QCPC[QCPC$YEAR < 2006,] #n=22262
-QCPC2011 <- QCPC[QCPC$YEAR > 2005,] #n=93487
-survey2001 <- aggregate(QCPC2001$ABUND, by=list("PKEY"=QCPC2001$PKEY,"SS"=QCPC2001$SS,"PCODE"=QCPC2001$PCODE), FUN=sum) #n=2458
-survey2011 <- aggregate(QCPC2011$ABUND, by=list("PKEY"=QCPC2011$PKEY,"SS"=QCPC2011$SS,"PCODE"=QCPC2011$PCODE), FUN=sum) #n=11364
+APC2011 <- read.csv("I:/BAM/BAMData/AtlasPC2011.csv")
+QCPC2011 <- read.csv("I:/BAM/BAMData/QCPC2011.csv")
+QCPC2001 <- read.csv("I:/BAM/BAMData/QCPC2011.csv")
+
+survey2001 <- aggregate(QCPC2001$ABUND, by=list("PKEY"=QCPC2001$PKEY,"SS"=QCPC2001$SS,"PCODE"=QCPC2001$PCODE), FUN=sum) #n=26161
+survey2011 <- aggregate(QCPC2011$ABUND, by=list("PKEY"=QCPC2011$PKEY,"SS"=QCPC2011$SS,"PCODE"=QCPC2011$PCODE), FUN=sum) #n=31276
 
 w <- "L:/Boreal/NationalModelsV2/"
 setwd(w)

@@ -25,7 +25,7 @@ survey2011 <- aggregate(QCPC2011$ABUND, by=list("PKEY"=QCPC2011$PKEY,"SS"=QCPC20
 
 w <- "L:/Boreal/NationalModelsV2/"
 setwd(w)
-speclist <- levels(offl)
+speclist <- levels(offl$SPECIES)
 #speclist <- read.csv("I:/BAM/BAMData/SpeciesClassesModv5.csv")
 #speclist <- as.factor(as.character(speclist[1:105,1]))
 

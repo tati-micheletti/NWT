@@ -76,8 +76,7 @@ dat2001$PCODE <- as.character(dat2001$PCODE)
 write.csv(dat2001,paste(w,"QCdat2001.csv",sep=""),row.names=FALSE)
 
 PC <- inner_join(PCTBL[,2:10],PKEY[,1:8],by=c("PKEY","SS")) #n=5808402
-PC <- inner_join(PC, SSLCC[,c(2,5)], by=c("SS"))
-QCPC <- PC[PC$JURS=="QC",] #n=465693
+QCPC <- inner_join(PC, QCSS[,c(2,5)], by=c("SS")) #n=465693
 QCPC$SS <- as.character(QCPC$SS)
 QCPC$PKEY <- as.character(QCPC$PKEY)
 QCPC$PCODE <- as.character(QCPC$PCODE)
@@ -85,4 +84,4 @@ QCPC$SPECIES <- as.character(QCPC$SPECIES)
 QCPC2001 <- QCPC[QCPC$YEAR < 2006,] #n=212901
 QCPC2011 <- QCPC[QCPC$YEAR > 2005,] #n=252792
 write.csv(QCPC2011,paste(w,"QCPC2011.csv",sep=""),row.names=FALSE)
-write.csv(QCPC2001,paste(w,"QCPC2011.csv",sep=""),row.names=FALSE)
+write.csv(QCPC2001,paste(w,"QCPC2001.csv",sep=""),row.names=FALSE)

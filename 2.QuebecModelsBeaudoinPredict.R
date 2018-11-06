@@ -3,7 +3,6 @@ library(dismo)
 library(rpart)
 library(maptools)
 library(dplyr)
-#library(data.table)
 
 qbs2011_1km <- brick("L:/Boreal/NationalModelsV2/QC2011rasters.grd")
 r2 <- qbs2011_1km[[1]]
@@ -14,7 +13,7 @@ offla <- read.csv("I:/BAM/BAMData/Atlasoffsets.csv")
 offlc <- rbind(offl[2:4],offla[2:4])
 offlc$PKEY <- as.character(offlc$PKEY)
 offlc$SPECIES <- as.character(offlc$SPECIES)
-#offlu <- unique(offlc)
+rm(offla,offl)
 
 dat2001 <- read.csv("L:/Boreal/NationalModelsV2/QCdat2001.csv")
 dat2001 <- dat2001[,c(1:2,48:142)]
@@ -34,19 +33,23 @@ adat2011$SS <- as.character(adat2011$SS)
 d2011 <- rbind(dat2011,adat2011) #n=52560
 dat_2011 <- d2011[!duplicated(d2011[, 1:2]), ] #n=42210
 
+#calculating sample weights as inverse of number of survey points within 5x5 pixel radius
 samprast2011 <- rasterize(cbind(dat_2011$X,dat_2011$Y), r2, field=1)
-sampsum25 <- focal(samprast, w=matrix(1/25, nc=5, nr=5), na.rm=TRUE)
+sampsum25 <- focal(samprast2011, w=matrix(1/25, nc=5, nr=5), na.rm=TRUE)
 dat_2011 <- cbind(dat_2011,extract(sampsum25,as.matrix(cbind(dat_2011$X,dat_2011$Y))))
 names(dat_2011)[ncol(dat_2011)] <- "sampsum25"
 dat_2011$wt <- 1/dat_2011$sampsum25
 dat_2011$SS <- as.character(dat_2011$SS) #n=42210
+rm(samprast2011)
 
 samprast2001 <- rasterize(cbind(dat_2001$X,dat_2001$Y), r2, field=1)
-sampsum25 <- focal(samprast, w=matrix(1/25, nc=5, nr=5), na.rm=TRUE)
+sampsum25 <- focal(samprast2001, w=matrix(1/25, nc=5, nr=5), na.rm=TRUE)
 dat_2001 <- cbind(dat_2001,extract(sampsum25,as.matrix(cbind(dat_2001$X,dat_2001$Y))))
 names(dat_2001)[ncol(dat_2001)] <- "sampsum25"
 dat_2001$wt <- 1/dat_2001$sampsum25
 dat_2001$SS <- as.character(dat_2001$SS) 
+rm(samprast2001)
+rm(r2)
 
 APC2011 <- read.csv("I:/BAM/BAMData/AtlasPC2011.csv")
 QCPC2011 <- read.csv("I:/BAM/BAMData/QCPC2011.csv")
@@ -63,30 +66,26 @@ survey2011 <- aggregate(PC2011$ABUND, by=list("PKEY"=PC2011$PKEY,"SS"=PC2011$SS)
 
 w <- "L:/Boreal/NationalModelsV2/"
 setwd(w)
-speclist <- levels(offlc$SPECIES)
-#speclist <- read.csv("I:/BAM/BAMData/SpeciesClassesModv5.csv")
-#speclist <- as.factor(as.character(speclist[1:105,1]))
+speclist <- levels(as.factor(offlc$SPECIES))
 
 for (j in 1:length(speclist)) {
-  #specoff <- offlc[offlc$SPECIES==as.character(speclist[j]),]
-  #specoff <- specoff[!duplicated(speoff)]
   specoff <- filter(offlc, SPECIES==as.character(speclist[j]))
-  specoff <- distinct(specoff) #n=1024745
+  specoff <- distinct(specoff) 
   
   specdat2001 <- filter(QCPC2001, SPECIES == as.character(speclist[j]))
   dat1 <- right_join(specdat2001[,c(1:4)],survey2001[,1:3],by=c("SS","PKEY")) 
   dat1$SPECIES <- as.character(speclist[j])
   dat1$ABUND <- as.integer(ifelse(is.na(dat1$ABUND),0,dat1$ABUND)) 
   s2001 <- left_join(dat1,specoff, by=c("SPECIES","PKEY"))
-  d2001 <- left_join(s2001, dat_2001, by=c("SS")) #n=26313
+  d2001 <- left_join(s2001, dat_2001, by=c("SS")) 
   
-  specdat2011 <- filter(PC2011, SPECIES == as.character(speclist[j])) #n=16406
-  dat2 <- right_join(specdat2011[,c(1:4)],survey2011[,1:3],by=c("SS","PKEY")) #n=90007
+  specdat2011 <- filter(PC2011, SPECIES == as.character(speclist[j])) 
+  dat2 <- right_join(specdat2011[,c(1:4)],survey2011[,1:3],by=c("SS","PKEY"))
   dat2$SPECIES <- as.character(speclist[j])
   dat2$ABUND <- as.integer(ifelse(is.na(dat2$ABUND),0,dat2$ABUND)) 
   s2011 <- left_join(dat1,specoff, by=c("SPECIES","PKEY"))
   d2011 <- left_join(s2011, dat_2011, by=c("SS")) 
-  d2011 <- na.omit(d2011) #eliminate non-Quebec data (n=65641)
+  d2011 <- na.omit(d2011) #eliminate non-Quebec data 
 
   datcombo <- rbind(d2001,d2011)
   datcombo <- na.omit(datcombo)
@@ -128,6 +127,7 @@ for (j in 1:length(speclist)) {
     dev.off()
     rast <- predict(qbs2011_1km, brt1, type="response", n.trees=brt1$n.trees)
     writeRaster(rast, filename=paste(w,speclist[j],"_pred1km2",sep=""), format="GTiff",overwrite=TRUE)
-    }
+  }
+  gc()
 
 }

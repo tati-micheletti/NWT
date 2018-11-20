@@ -1,31 +1,31 @@
 library(raster)
 library(dismo)
-library(rpart)
+#library(rpart)
 library(maptools)
 library(dplyr)
 
-qbs2011_1km <- brick("L:/Boreal/NationalModelsV2/QC2011rasters.grd")
+qbs2011_1km <- brick("G:/Boreal/NationalModelsV2/QC2011rasters.grd")
 r2 <- qbs2011_1km[[1]]
 
 LCC <- CRS("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs")
-offl <- read.csv("I:/BAM/BAMData/BAMoffsets.csv")
-offla <- read.csv("I:/BAM/BAMData/Atlasoffsets.csv")
+offl <- read.csv("F:/BAM/BAMData/BAMoffsets.csv")
+offla <- read.csv("F:/BAM/BAMData/Atlasoffsets.csv")
 offlc <- rbind(offl[2:4],offla[2:4])
 offlc$PKEY <- as.character(offlc$PKEY)
 offlc$SPECIES <- as.character(offlc$SPECIES)
 rm(offla,offl)
 
-dat2001 <- read.csv("L:/Boreal/NationalModelsV2/QCdat2001.csv")
+dat2001 <- read.csv("G:/Boreal/NationalModelsV2/QCdat2001.csv")
 dat2001 <- dat2001[,c(1:2,48:142)]
 dat2001$PCODE <- as.character(dat2001$PCODE)
 dat2001$SS <- as.character(dat2001$SS)
 dat_2001 <- dat2001
 
-dat2011 <- read.csv("L:/Boreal/NationalModelsV2/QCdat2011.csv")
+dat2011 <- read.csv("G:/Boreal/NationalModelsV2/QCdat2011.csv")
 dat2011 <- dat2011[,c(1:2,48:142)]
 dat2011$PCODE <- as.character(dat2011$PCODE)
 dat2011$SS <- as.character(dat2011$SS)
-adat2011 <- read.csv("I:/BAM/BAMData/QCAtlasdat2011.csv")
+adat2011 <- read.csv("F:/BAM/BAMData/QCAtlasdat2011.csv")
 adat2011 <- adat2011[,c(1:2,6:100)]
 adat2011$PCODE <- as.character(adat2011$PCODE)
 adat2011$SS <- as.character(adat2011$SS)
@@ -51,9 +51,9 @@ dat_2001$SS <- as.character(dat_2001$SS)
 rm(samprast2001)
 rm(r2)
 
-APC2011 <- read.csv("I:/BAM/BAMData/AtlasPC2011.csv")
-QCPC2011 <- read.csv("I:/BAM/BAMData/QCPC2011.csv")
-QCPC2001 <- read.csv("I:/BAM/BAMData/QCPC2001.csv") #n=212901
+APC2011 <- read.csv("F:/BAM/BAMData/AtlasPC2011.csv")
+QCPC2011 <- read.csv("F:/BAM/BAMData/QCPC2011.csv")
+QCPC2001 <- read.csv("F:/BAM/BAMData/QCPC2001.csv") #n=212901
 QCPC2001$PKEY <- as.character(QCPC2001$PKEY)
 QCPC2001$SS <- as.character(QCPC2001$SS)
 PC2011 <- rbind(APC2011[,1:4],QCPC2011[,1:4]) #n=881579
@@ -64,7 +64,7 @@ PC2011$SS <- as.character(PC2011$SS)
 survey2001 <- aggregate(QCPC2001$ABUND, by=list("PKEY"=QCPC2001$PKEY,"SS"=QCPC2001$SS), FUN=sum) #n=26161
 survey2011 <- aggregate(PC2011$ABUND, by=list("PKEY"=PC2011$PKEY,"SS"=PC2011$SS), FUN=sum) #n=89289
 
-w <- "L:/Boreal/NationalModelsV2/"
+w <- "G:/Boreal/NationalModelsV2/"
 setwd(w)
 speclist <- levels(as.factor(offlc$SPECIES))
 

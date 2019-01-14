@@ -1,5 +1,6 @@
 library(raster)
 library(dismo)
+library(gbm)
 library(maptools)
 library(dplyr)
 
@@ -128,11 +129,27 @@ for (j in 1:length(speclist)) {
     cvstats <- t(as.data.frame(brt1$cv.statistics))
     write.csv(cvstats,file=paste(w,speclist[j],"cvstats3.csv",sep=""))
     pdf(paste(w,speclist[j],"_plot3.pdf",sep=""))
-    gbm.plot(brt1,n.plots=9,smooth=TRUE)
+    gbm.plot(brt1,n.plots=12,smooth=TRUE)
     dev.off()
-    rast <- predict(qbs2011_1km, brt1, type="response", n.trees=brt1$n.trees)
+    rast <- raster::predict(qbs2011_1km, brt1, type="response", n.trees=brt1$n.trees)
     writeRaster(rast, filename=paste(w,speclist[j],"_pred1km3",sep=""), format="GTiff",overwrite=TRUE)
   }
   gc()
 
+}
+
+#make maps and update plots
+for (j in 1:length(speclist)) {
+    load(paste(w,speclist[j],"brtQC3.R",sep=""))
+    varimp <- as.data.frame(brt1$contributions)
+    #write.csv(varimp,file=paste(w,speclist[j],"varimp3.csv",sep=""))
+    cvstats <- t(as.data.frame(brt1$cv.statistics))
+    #write.csv(cvstats,file=paste(w,speclist[j],"cvstats3.csv",sep=""))
+    pdf(paste(w,speclist[j],"_plot3.pdf",sep=""))
+    gbm.plot(brt1,n.plots=12,smooth=TRUE)
+    dev.off()
+    rast <- raster(paste(w,speclist[j],"_pred1km3.tif",sep=""))
+  }
+  gc()
+  
 }

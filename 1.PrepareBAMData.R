@@ -26,6 +26,7 @@ nalc <- raster("F:/GIS/landcover/NALC/LandCover_IMG/NA_LandCover_2005/data/NA_La
 quebec <- raster("F:/GIS/basemaps/quebec250m1.tif")
 urbag <- raster("G:/Boreal/NationalModelsV2/urbag2011_lcc1.tif")
 uaq <- crop(urbag,quebec)
+dev25 <- focal(uaq, fun=mean, w=w=matrix(1/25, nc=5, nr=5), na.rm=TRUE)
 lf <- raster("D:/NorthAmerica/topo/lf_lcc1.tif")
 lfq <- crop(lf,quebec)
 #hli <- raster("D:/NorthAmerica/topo/nahli_lcc1.tif")
@@ -40,22 +41,39 @@ for (i in 2:length(b2011)) {bs2011 <- addLayer(bs2011, raster(b2011[i]))}
 names(bs2011) <- gsub("NFI_MODIS250m_2011_kNN_","",names(bs2011))
 qbs2011 <- crop(bs2011,quebec)
 
+qbs2011_1km <- aggregate(qbs2011, fact=4, fun=mean)
+wat1km <- resample(watq, qbs2011_1km, method='ngb')
+qbs2011_1km <- addLayer(qbs2011_1km, wat1km)
+names(qbs2011_1km)[nlayers(qbs2011_1km)] <- "wat"
+led251km <- resample(led25, qbs2011_1km, method='bilinear')
+qbs2011_1km <- addLayer(qbs2011_1km, led251km)
+names(qbs2011_1km)[nlayers(qbs2011_1km)] <- "led25"
+urbag1km <- resample(uaq, qbs2011_1km, method='ngb')
+qbs2011_1km <- addLayer(qbs2011_1km, urbag1km)
+names(qbs2011_1km)[nlayers(qbs2011_1km)] <- "urbag"
+# ecor1km <- resample(eco, qbs2011_1km, method='ngb')
+# qbs2011_1km <- addLayer(qbs2011_1km, ecor1km)
+# names(qbs2011_1km)[nlayers(qbs2011_1km)] <- "eco"
+dev251km <- resample(dev25, qbs2011_1km, method='bilinear')
+qbs2011_1km <- addLayer(qbs2011_1km, dev251km)
+names(qbs2011_1km)[nlayers(qbs2011_1km)] <- "dev25"
+lf_1km <- resample(lfq, qbs2011_1km, method='ngb')
+qbs2011_1km <- addLayer(qbs2011_1km, lf_1km)
+names(qbs2011_1km)[nlayers(qbs2011_1km)] <- "landform"
+writeRaster(qbs2011_1km,file=paste(w,"QC2011rasters",sep=""),overwrite=TRUE)
+
 qbs2011 <- addLayer(qbs2011,watq)
 names(qbs2011)[nlayers(qbs2011)] <- "wat"
 qbs2011 <- addLayer(qbs2011,led25)
 names(qbs2011)[nlayers(qbs2011)] <- "led25"
 qbs2011 <- addLayer(qbs2011,uaq)
 names(qbs2011)[nlayers(qbs2011)] <- "urbag"
+qbs2011 <- addLayer(qbs2011,dev25)
+names(qbs2011)[nlayers(qbs2011)] <- "dev25"
+lf250 <- resample(lfq, qbs2011, method='ngb')
+qbs2011 <- addLayer(qbs2011, lf250)
+names(qbs2011)[nlayers(qbs2011)] <- "landform"
 writeRaster(qbs2011,file=paste(w,"QC2011rasters250",sep=""),overwrite=TRUE)
-
-qbs2011_1km <- aggregate(qbs2011, fact=4, fun=mean)
-ecor1km <- resample(eco, qbs2011_1km, method='ngb')
-qbs2011_1km <- addLayer(qbs2011_1km, ecor1km)
-names(qbs2011_1km)[nlayers(qbs2011_1km)] <- "eco"
-lf_1km <- resample(lfq, qbs2011_1km, method='ngb')
-qbs2011_1km <- addLayer(qbs2011_1km, lf_1km)
-names(qbs2011_1km)[nlayers(qbs2011_1km)] <- "landform"
-writeRaster(qbs2011_1km,file=paste(w,"QC2011rasters",sep=""),overwrite=TRUE)
 
 b2001 <- list.files("F:/GIS/landcover/Beaudoin/Processed_sppBiomass/2001/",pattern="tif$")
 setwd("F:/GIS/landcover/Beaudoin/Processed_sppBiomass/2001/")
@@ -70,6 +88,11 @@ qbs2001 <- addLayer(qbs2001,led25)
 names(qbs2001)[nlayers(qbs2001)] <- "led25"
 qbs2001 <- addLayer(qbs2001,uaq)
 names(qbs2001)[nlayers(qbs2001)] <- "urbag"
+qbs2001 <- addLayer(qbs2001,dev25)
+names(qbs2001)[nlayers(qbs2001)] <- "dev25"
+lf250 <- resample(lfq, qbs2001, method='ngb')
+qbs2001 <- addLayer(qbs2001, lf250)
+names(qbs2001)[nlayers(qbs2001)] <- "landform"
 writeRaster(qbs2001,file=paste(w,"QC2001rasters250",sep=""),overwrite=TRUE)
 
 dat2011 <- cbind(QCSS, extract(qbs2011,as.matrix(cbind(QCSS$X,QCSS$Y))))

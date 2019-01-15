@@ -19,13 +19,13 @@ offlc$SPECIES <- as.character(offlc$SPECIES)
 rm(offla,offl)
 
 dat2001 <- read.csv("G:/Boreal/NationalModelsV2/Quebec/QCdat2001.csv") #n=20765
-dat2001 <- dat2001[,c(1:2,48:145,148)]
+dat2001 <- dat2001[,c(1:2,48:146,149)]
 dat2001$PCODE <- as.character(dat2001$PCODE)
 dat2001$SS <- as.character(dat2001$SS)
 dat_2001 <- dat2001
 
 dat2011 <- read.csv("G:/Boreal/NationalModelsV2/Quebec/QCdat2011.csv") #n=20765
-dat2011 <- dat2011[,c(1:2,48:145,148)]
+dat2011 <- dat2011[,c(1:2,48:146,149)]
 dat2011$PCODE <- as.character(dat2011$PCODE)
 dat2011$SS <- as.character(dat2011$SS)
 adat2011 <- read.csv("G:/Boreal/NationalModelsV2/Quebec/QCAtlasdat2011.csv") #n=31456

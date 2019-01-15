@@ -26,7 +26,7 @@ nalc <- raster("F:/GIS/landcover/NALC/LandCover_IMG/NA_LandCover_2005/data/NA_La
 quebec <- raster("F:/GIS/basemaps/quebec250m1.tif")
 urbag <- raster("G:/Boreal/NationalModelsV2/urbag2011_lcc1.tif")
 uaq <- crop(urbag,quebec)
-dev25 <- focal(uaq, fun=mean, w=w=matrix(1/25, nc=5, nr=5), na.rm=TRUE)
+dev25 <- focal(uaq, fun=mean, w=matrix(1/25, nc=5, nr=5), na.rm=TRUE)
 lf <- raster("D:/NorthAmerica/topo/lf_lcc1.tif")
 lfq <- crop(lf,quebec)
 #hli <- raster("D:/NorthAmerica/topo/nahli_lcc1.tif")
@@ -95,6 +95,7 @@ qbs2001 <- addLayer(qbs2001, lf250)
 names(qbs2001)[nlayers(qbs2001)] <- "landform"
 writeRaster(qbs2001,file=paste(w,"QC2001rasters250",sep=""),overwrite=TRUE)
 
+qbs2011 <- dropLayer(qbs2011,98)
 dat2011 <- cbind(QCSS, extract(qbs2011,as.matrix(cbind(QCSS$X,QCSS$Y))))
 dat2011 <-cbind(dat2011,extract(nalc,as.matrix(cbind(dat2011$X,dat2011$Y)))) 
 names(dat2011)[ncol(dat2011)] <- "LCC"
@@ -113,6 +114,7 @@ dat2011$SS <- as.character(dat2011$SS)
 dat2011$PCODE <- as.character(dat2011$PCODE)
 write.csv(dat2011,paste(w,"QCdat2011.csv",sep=""),row.names=FALSE)
 
+qbs2001 <- dropLayer(qbs2001,98)
 dat2001 <- cbind(QCSS, extract(qbs2001,as.matrix(cbind(QCSS$X,QCSS$Y))))
 dat2001 <-cbind(dat2001,extract(nalc,as.matrix(cbind(dat2001$X,dat2001$Y)))) 
 names(dat2001)[ncol(dat2001)] <- "LCC"

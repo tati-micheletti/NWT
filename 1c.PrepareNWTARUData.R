@@ -14,3 +14,15 @@ dat <- cbind(dat, extract(treecov,as.matrix(cbind(dat$X,dat$Y))))
 names(dat)[ncol(dat)] <- "treecov"
 
 write.csv(dat,file="F:/BAM/BAMData/calculate_offsets/NWTpkey.csv",row.names=FALSE)
+
+wildtrax <- read.csv("F:/BAM/BAMData/ARU/speciesReport.csv")
+wt <- na.omit(wildtrax[,1:20])
+wt <- wt[wt$latitude > 0,]
+coordinates(wt) <- c("longitude","latitude")
+proj4string(wt) <- CRS("+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0")
+WTLCC <- as.data.frame(spTransform(wt, LCC))
+names(WTLCC)[19:20] <- c("X","Y")
+dat <- cbind(WTLCC, extract(landcov,as.matrix(cbind(WTLCC$X,WTLCC$Y))))
+names(dat)[ncol(dat)] <- "landcov"
+dat <- cbind(dat, extract(treecov,as.matrix(cbind(dat$X,dat$Y))))
+names(dat)[ncol(dat)] <- "treecov"

@@ -4,6 +4,9 @@ library(gbm)
 library(maptools)
 library(dplyr)
 
+bluegreen.colors <- colorRampPalette(c("#FFFACD", "lemonchiffon","#FFF68F", "khaki1","#ADFF2F", "greenyellow", "#00CD00", "green3", "#48D1CC", "mediumturquoise", "#007FFF", "blue"), space="Lab", bias=0.5)
+provstate <- rgdal::readOGR("F:/GIS/basemaps/province_state_line.shp")
+
 speclist <- read.csv("G:/Boreal/NationalModelsV2/Quebec/QCspecies.csv")
 speclist <- speclist[,1]
 
@@ -29,7 +32,7 @@ dat2011 <- dat2011[,c(1:2,48:146,149)]
 dat2011$PCODE <- as.character(dat2011$PCODE)
 dat2011$SS <- as.character(dat2011$SS)
 adat2011 <- read.csv("G:/Boreal/NationalModelsV2/Quebec/QCAtlasdat2011.csv") #n=31456
-adat2011 <- adat2011[,c(1:2,6:103,106)]
+adat2011 <- adat2011[,c(1:2,6:104,107)]
 adat2011$PCODE <- as.character(adat2011$PCODE)
 adat2011$SS <- as.character(adat2011$SS)
 
@@ -71,21 +74,24 @@ survey2011 <- aggregate(PC2011$ABUND, by=list("PKEY"=PC2011$PKEY,"SS"=PC2011$SS)
 
 w <- "G:/Boreal/NationalModelsV2/Quebec/"
 setwd(w)
-#speclist <- levels(as.factor(offlc$SPECIES))
 
 for (j in 1:length(speclist)) {
   specoff <- filter(offlc, SPECIES==as.character(speclist[j]))
   specoff <- distinct(specoff) 
   
   specdat2001 <- filter(QCPC2001, SPECIES == as.character(speclist[j]))
-  dat1 <- right_join(specdat2001[,c(1:4)],survey2001[,1:3],by=c("SS","PKEY")) 
+  specdat2001x <- aggregate(specdat2001$ABUND,by=list("PKEY"=specdat2001$PKEY,"SS"=specdat2001$SS), FUN=sum)
+  names(specdat2001x)[3] <- "ABUND"
+  dat1 <- right_join(specdat2001x,survey2001[,1:3],by=c("SS","PKEY")) 
   dat1$SPECIES <- as.character(speclist[j])
   dat1$ABUND <- as.integer(ifelse(is.na(dat1$ABUND),0,dat1$ABUND)) 
   s2001 <- left_join(dat1,specoff, by=c("SPECIES","PKEY"))
   d2001 <- left_join(s2001, dat_2001, by=c("SS")) 
   
   specdat2011 <- filter(PC2011, SPECIES == as.character(speclist[j])) 
-  dat2 <- right_join(specdat2011[,c(1:4)],survey2011[,1:3],by=c("SS","PKEY"))
+  specdat2011x <- aggregate(specdat2011$ABUND,by=list("PKEY"=specdat2011$PKEY,"SS"=specdat2011$SS), FUN=sum)
+  names(specdat2011x)[3] <- "ABUND"  
+  dat2 <- right_join(specdat2011x,survey2011[,1:3],by=c("SS","PKEY"))
   dat2$SPECIES <- as.character(speclist[j])
   dat2$ABUND <- as.integer(ifelse(is.na(dat2$ABUND),0,dat2$ABUND)) 
   s2011 <- left_join(dat1,specoff, by=c("SPECIES","PKEY"))
@@ -121,7 +127,7 @@ for (j in 1:length(speclist)) {
   # Structure_Biomass_TotalLiveAboveGround_v1
   # Structure_Stand_Age_v1  
 
-  x1 <- try(brt1 <- gbm.step(datcombo, gbm.y = 4, gbm.x = c(15,21,23,29,30,36,37,45,53,54,55,59,63,65,67,70,77,81,84,97,98,103,104,105,106), family = "poisson", tree.complexity = 3, learning.rate = 0.001, bag.fraction = 0.5, offset=datcombo$logoffset, site.weights=datcombo$wt))
+  x1 <- try(brt1 <- gbm.step(datcombo, gbm.y = 3, gbm.x = c(15,21,23,29,30,36,37,45,53,54,55,59,63,65,67,70,77,81,84,97,98,103,104,105,106,107), family = "poisson", tree.complexity = 3, learning.rate = 0.001, bag.fraction = 0.5, offset=datcombo$logoffset, site.weights=datcombo$wt))
   if (class(x1) != "try-error") {
     save(brt1,file=paste(w,speclist[j],"brtQC3.R",sep=""))
     varimp <- as.data.frame(brt1$contributions)
@@ -133,23 +139,54 @@ for (j in 1:length(speclist)) {
     dev.off()
     rast <- raster::predict(qbs2011_1km, brt1, type="response", n.trees=brt1$n.trees)
     writeRaster(rast, filename=paste(w,speclist[j],"_pred1km3",sep=""), format="GTiff",overwrite=TRUE)
+    
+    q99 <- quantile(rast, probs=c(0.99))	
+    prev <- cellStats(rast, 'mean')	
+    max <- 3*prev
+    png(file=paste(w,speclist[j],"_pred1km3.png",sep=""), height=600, width=850)
+    par(cex.main=1.8, mfcol=c(1,1), oma=c(0,0,0,0))
+    par(mar=c(0,0,5,0))
+    plot(rast, col="blue", axes=FALSE, legend=FALSE, main=paste(as.character(speclist[j]),"current prediction"))
+    plot(rast, col=bluegreen.colors(15), zlim=c(0,max), axes=FALSE, main=paste(as.character(speclist[j]),", 1961-1990"), add=TRUE, legend.width=1.5, horizontal = TRUE, smallplot = c(0.60,0.85,0.82,0.87), axis.args=list(cex.axis=1.5))
+    plot(provstate, col="gray", add=TRUE)
+    text(2400000,7950000,"Potential density (males/ha)", cex=1.3)
+    dev.off()
+    
+  }
+  if(class(x1)=="try-error"){
+
   }
   gc()
 
 }
 
-#make maps and update plots
+#generate predictions and plots from models
 for (j in 1:length(speclist)) {
     load(paste(w,speclist[j],"brtQC3.R",sep=""))
     varimp <- as.data.frame(brt1$contributions)
-    #write.csv(varimp,file=paste(w,speclist[j],"varimp3.csv",sep=""))
+    write.csv(varimp,file=paste(w,speclist[j],"varimp3.csv",sep=""))
     cvstats <- t(as.data.frame(brt1$cv.statistics))
-    #write.csv(cvstats,file=paste(w,speclist[j],"cvstats3.csv",sep=""))
+    write.csv(cvstats,file=paste(w,speclist[j],"cvstats3.csv",sep=""))
     pdf(paste(w,speclist[j],"_plot3.pdf",sep=""))
     gbm.plot(brt1,n.plots=12,smooth=TRUE)
     dev.off()
-    rast <- raster(paste(w,speclist[j],"_pred1km3.tif",sep=""))
+    rast <- raster::predict(qbs2011_1km, brt1, type="response", n.trees=brt1$n.trees)
+    writeRaster(rast, filename=paste(w,speclist[j],"_pred1km3",sep=""), format="GTiff",overwrite=TRUE)
+    
+    q99 <- quantile(rast, probs=c(0.99))	
+    prev <- cellStats(rast, 'mean')	
+    max <- 3*prev
+    png(file=paste(w,speclist[j],"_pred1km3.png",sep=""), height=600, width=850)
+    par(cex.main=1.8, mfcol=c(1,1), oma=c(0,0,0,0))
+    par(mar=c(0,0,5,0))
+    plot(rast, col="blue", axes=FALSE, legend=FALSE, main=paste(as.character(speclist[j]),"current prediction"))
+    plot(rast, col=bluegreen.colors(15), zlim=c(0,max), axes=FALSE, main=paste(as.character(speclist[j]),", 1961-1990"), add=TRUE, legend.width=1.5, horizontal = TRUE, smallplot = c(0.60,0.85,0.82,0.87), axis.args=list(cex.axis=1.5))
+    plot(provstate, col="gray", add=TRUE)
+    text(2400000,7950000,"Potential density (males/ha)", cex=1.3)
+    dev.off()
+    
   }
   gc()
   
 }
+

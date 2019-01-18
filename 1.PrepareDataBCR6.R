@@ -6,6 +6,7 @@ library(reshape2)
 
 LCC <- CRS("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs")
 w <-"G:/Boreal/NationalModelsV2/BCR6/"
+bcr6 <- raster("G:/Boreal/NationalModelsV2/BCR6/bcr6.tif")
 
 offl <- read.csv("G:/Boreal/NationalModelsV2/Quebec/BAMoffsets.csv")
 offla <- read.csv("G:/Boreal/NationalModelsV2/Quebec/Atlasoffsets.csv")
@@ -25,14 +26,31 @@ proj4string(SS) <- CRS("+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0")
 SSAtlas <- as.data.frame(spTransform(SS, LCC))
 PCAtlas <- PCTBL
 PKEYAtlas <- PKEY
+names(PKEYAtlas)[4] <- "YEAR"
 
 load("F:/BAM/BamData/ARU/nwt-wildtrax-offsets-2019-01-16.RData")
-#SS1 <- reshape2::melt(dd)
+SSWT <- unique(dd[,c(33,39:40)])
+PKEYWT <- unique(dd[,c(33,34,36)])
+#PCWT <- dd[,c(33,34,36,38,47)]
+PCWT <- melt(y)
+names(PCBU) <- c("PKEY","SPECIES","ABUND")
+offWT <- data.table(melt(off))
+names(offWT) <- c("PKEY","SPECIES","logoffset")
+offWT$SPECIES <- as.character(offWT$SPECIES)
+offWT$PKEY <- as.character(offWT$PKEY)
 
 load("F:/BAM/BamData/ARU/nwt-BU-offsets-2019-01-14.RData")
+SSBU <- unique(dd[,c(14,20:21)])
+PKEYBU <- unique(dd[,c(14,15,17)])
+PCBU <- melt(y)
+names(PCBU) <- c("PKEY","SPECIES","ABUND")
+offBU <- data.table(melt(off))
+names(offBU) <- c("PKEY","SPECIES","logoffset")
+offBU$SPECIES <- as.character(offBU$SPECIES)
+offBU$PKEY <- as.character(offBU$PKEY)
 
-
-SScombo <- rbind(SSBAM[,c(2,48,49)],SSAtlas[,c(1,6,7)])
+SScombo <- rbind(SSBAM[,c(2,48,49)],SSAtlas[,c(1,6,7)],SSWT,SSBU)
+PKEYcombo <- rbind(PKEYBAM[,c(1,2,8)],PKEYAtlas[,c(1,2,4)],PKEYWT,PKEYBU)
 
 eco <- raster("F:/GIS/ecoregions/CEC/quebececo1.tif")
 nalc <- raster("F:/GIS/landcover/NALC/LandCover_IMG/NA_LandCover_2005/data/NA_LandCover_2005/NA_LandCover_2005_LCC.img")
@@ -95,24 +113,24 @@ for (i in 2:length(b2001)) {bs2001 <- addLayer(bs2001, raster(b2001[i]))}
 names(bs2001) <- gsub("NFI_MODIS250m_2001_kNN_","",names(bs2001))
 bs2001bcr6 <- crop(bs2001,bcr6)
 bs2001bcf6 <- mask(bs2001bcr6,bcr6)
-
-bs2001bcr6_1km <- aggregate(bs2001bcr6, fact=4, fun=mean)
-wat1km <- resample(wat6, bs2001bcr6_1km, method='ngb')
-bs2001bcr6_1km <- addLayer(bs2001bcr6_1km, wat1km)
-names(bs2001bcr6_1km)[nlayers(bs2001bcr6_1km)] <- "wat"
-led251km <- resample(led25, bs2001bcr6_1km, method='bilinear')
-bs2001bcr6_1km <- addLayer(bs2001bcr6_1km, led251km)
-names(bs2001bcr6_1km)[nlayers(bs2001bcr6_1km)] <- "led25"
-urbag1km <- resample(ua6, bs2001bcr6_1km, method='ngb')
-bs2001bcr6_1km <- addLayer(bs2001bcr6_1km, urbag1km)
-names(bs2001bcr6_1km)[nlayers(bs2001bcr6_1km)] <- "urbag"
-dev251km <- resample(dev25, bs2001bcr6_1km, method='bilinear')
-bs2001bcr6_1km <- addLayer(bs2001bcr6_1km, dev251km)
-names(bs2001bcr6_1km)[nlayers(bs2001bcr6_1km)] <- "dev25"
-lf_1km <- resample(lf6, bs2001bcr6_1km, method='ngb')
-bs2001bcr6_1km <- addLayer(bs2001bcr6_1km, lf_1km)
-names(bs2001bcr6_1km)[nlayers(bs2001bcr6_1km)] <- "landform"
-writeRaster(bs2001bcr6_1km,file=paste(w,"bcr6_2001rasters",sep=""),overwrite=TRUE)
+# 
+# bs2001bcr6_1km <- aggregate(bs2001bcr6, fact=4, fun=mean)
+# wat1km <- resample(wat6, bs2001bcr6_1km, method='ngb')
+# bs2001bcr6_1km <- addLayer(bs2001bcr6_1km, wat1km)
+# names(bs2001bcr6_1km)[nlayers(bs2001bcr6_1km)] <- "wat"
+# led251km <- resample(led25, bs2001bcr6_1km, method='bilinear')
+# bs2001bcr6_1km <- addLayer(bs2001bcr6_1km, led251km)
+# names(bs2001bcr6_1km)[nlayers(bs2001bcr6_1km)] <- "led25"
+# urbag1km <- resample(ua6, bs2001bcr6_1km, method='ngb')
+# bs2001bcr6_1km <- addLayer(bs2001bcr6_1km, urbag1km)
+# names(bs2001bcr6_1km)[nlayers(bs2001bcr6_1km)] <- "urbag"
+# dev251km <- resample(dev25, bs2001bcr6_1km, method='bilinear')
+# bs2001bcr6_1km <- addLayer(bs2001bcr6_1km, dev251km)
+# names(bs2001bcr6_1km)[nlayers(bs2001bcr6_1km)] <- "dev25"
+# lf_1km <- resample(lf6, bs2001bcr6_1km, method='ngb')
+# bs2001bcr6_1km <- addLayer(bs2001bcr6_1km, lf_1km)
+# names(bs2001bcr6_1km)[nlayers(bs2001bcr6_1km)] <- "landform"
+# writeRaster(bs2001bcr6_1km,file=paste(w,"bcr6_2001rasters",sep=""),overwrite=TRUE)
 
 bs2001bcr6 <- addLayer(bs2001bcr6,wat6)
 names(bs2001bcr6)[nlayers(bs2001bcr6)] <- "wat"

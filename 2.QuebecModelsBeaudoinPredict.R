@@ -216,29 +216,28 @@ for (j in 1:length(speclist)) {
     datcombo$landform <- as.factor(datcombo$landform)
     
     x1 <- try(brt1 <- gbm.step(datcombo, gbm.y = 3, gbm.x = c(15,21,23,29,30,36,37,45,53,54,55,59,63,65,67,70,77,81,84,97,98,103,104,105,106,107), family = "poisson", tree.complexity = 3, learning.rate = 0.01, bag.fraction = 0.5, offset=datcombo$logoffset, site.weights=datcombo$wt))
-  }
-  varimp <- as.data.frame(brt1$contributions)
-  write.csv(varimp,file=paste(w,speclist[j],"varimp3.csv",sep=""))
-  cvstats <- t(as.data.frame(brt1$cv.statistics))
-  write.csv(cvstats,file=paste(w,speclist[j],"cvstats3.csv",sep=""))
-  pdf(paste(w,speclist[j],"_plot3.pdf",sep=""))
-  gbm.plot(brt1,n.plots=12,smooth=TRUE)
-  dev.off()
-  rast <- raster::predict(qbs2011_1km, brt1, type="response", n.trees=brt1$n.trees)
-  writeRaster(rast, filename=paste(w,speclist[j],"_pred1km3",sep=""), format="GTiff",overwrite=TRUE)
-  
-  q99 <- quantile(rast, probs=c(0.99))	
-  prev <- cellStats(rast, 'mean')	
-  max <- 3*prev
-  png(file=paste(w,speclist[j],"_pred1km3.png",sep=""), height=600, width=850)
-  par(cex.main=1.8, mfcol=c(1,1), oma=c(0,0,0,0))
-  par(mar=c(0,0,5,0))
-  plot(rast, col="blue", axes=FALSE, legend=FALSE, main=paste(as.character(speclist[j]),"current prediction"))
-  plot(rast, col=bluegreen.colors(15), zlim=c(0,max), axes=FALSE, main=paste(as.character(speclist[j]),", 1961-1990"), add=TRUE, legend.width=1.5, horizontal = TRUE, smallplot = c(0.60,0.85,0.82,0.87), axis.args=list(cex.axis=1.5))
-  plot(provstate, col="gray", add=TRUE)
-  text(2400000,7950000,"Potential density (males/ha)", cex=1.3)
-  dev.off()
-  
+    save(brt1,file=paste(w,speclist[j],"brtQC3.R",sep=""))
+    varimp <- as.data.frame(brt1$contributions)
+    write.csv(varimp,file=paste(w,speclist[j],"varimp3.csv",sep=""))
+    cvstats <- t(as.data.frame(brt1$cv.statistics))
+    write.csv(cvstats,file=paste(w,speclist[j],"cvstats3.csv",sep=""))
+    pdf(paste(w,speclist[j],"_plot3.pdf",sep=""))
+    gbm.plot(brt1,n.plots=12,smooth=TRUE)
+    dev.off()
+    rast <- raster::predict(qbs2011_1km, brt1, type="response", n.trees=brt1$n.trees)
+    writeRaster(rast, filename=paste(w,speclist[j],"_pred1km3",sep=""), format="GTiff",overwrite=TRUE)
+    
+    q99 <- quantile(rast, probs=c(0.99))	
+    prev <- cellStats(rast, 'mean')	
+    max <- 3*prev
+    png(file=paste(w,speclist[j],"_pred1km3.png",sep=""), height=600, width=850)
+    par(cex.main=1.8, mfcol=c(1,1), oma=c(0,0,0,0))
+    par(mar=c(0,0,5,0))
+    plot(rast, col="blue", axes=FALSE, legend=FALSE, main=paste(as.character(speclist[j]),"current prediction"))
+    plot(rast, col=bluegreen.colors(15), zlim=c(0,max), axes=FALSE, main=paste(as.character(speclist[j]),", 1961-1990"), add=TRUE, legend.width=1.5, horizontal = TRUE, smallplot = c(0.60,0.85,0.82,0.87), axis.args=list(cex.axis=1.5))
+    plot(provstate, col="gray", add=TRUE)
+    text(2400000,7950000,"Potential density (males/ha)", cex=1.3)
+    dev.off()
 }
 gc()
 

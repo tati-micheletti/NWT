@@ -1,0 +1,51 @@
+---
+title: "runMe"
+author: "Tati Micheletti"
+date: "1/17/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Simulation of effects of climate change on fire regime: implications for Boreal Caribou and
+landbird communities in the Northwest Territories
+
+The proposed work integrates simulation models of vegetation dynamics and wildfire with 
+statistical models of songbird abundances and woodland caribou demographic parameters. The
+integrated model is used to forecast the spatial distribution of selected songbird species and
+the regional potential to sustain viable populations of woodland caribou, under climate change
+over the 21 st century. Other applications are quantifying the overlap
+between areas of high conservation value for birds and for caribou, and evaluating the
+conservation potential in these respects of specific candidate protected areas. The integrated
+model is implemented as a suite of modules in SpaDES, a new R-based environment for
+developing and running spatial simulations over large spatial extents. The spatial extent of this
+work is BCR 6 as contained within the Northwest Territories of Canada. The spatial resolution of 
+the vegetation dynamics and avian habitat forecasts is 250m.
+
+### General objectives
+
+Item #1: Species Abundance Models (SAMs) for landbirds under current conditions.
+Item #2: Land change simulation (2000-2100)
+Item #3 Demographic models for caribou, SAMs for landbirds, co-occurrence under future
+conditions
+
+### Integrated modules overview
+
+The metamodule is composed of 8 parent modules (i.e. groups of modules), as follows:
+![Module structure that composes the NWT project.](https://github.com/tati-micheletti/NWT/raw/master/data/modelStructureTM.jpg)
+
+The structure of each one of the modules is as follows:
+
+\textcolor{blue}{LandR}: This group of modules is composed of one module and one group of modules. The first module, `Boreal_LBMRDataPrep` creates the specific parameters to be used on the specified study area (BRC6 within NWT). The group of modules (`LandR_Biomass`) is composed of (1) `LandR_BiomassGMOrig`: is responsible for growth and mortality, (2) `Biomass_regeneration`: does post-disturbance biomass regeneration for LandR, and (3) `LBMR`: this is the module in LandR that is responsible for the forest succession. LandR needs at least these last three modules to work.
+
+\textcolor{blue}{birdsNWT}: To be completed later by TM.
+
+\textcolor{blue}{caribou}: The `caribou` module is composed of two modules: `caribouRSF` and `caribouPopGrowth` (names to be fixed by FS) 
+
+\textcolor{blue}{FireSense}: To be completed by JM.
+
+\textcolor{blue}{anthropogenic}: To be completed by MT.
+
+

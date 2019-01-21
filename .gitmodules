@@ -1,3 +1,15 @@
 [submodule "NationalModel"]
 	path = NationalModel
 	url = https://github.com/tati-micheletti/NationalModel.git
+[submodule "modules/Boreal_LBMRDataPrep"]
+	path = modules/Boreal_LBMRDataPrep
+	url = git@github.com:eliotmcintire/Boreal_LBMRDataPrep.git
+[submodule "modules/LandR_BiomassGMOrig"]
+	path = modules/LandR_BiomassGMOrig
+	url = git@github.com:eliotmcintire/LandR_BiomassGMOrig.git
+[submodule "modules/Biomass_regeneration"]
+	path = modules/Biomass_regeneration
+	url = git@github.com:eliotmcintire/Biomass_regeneration.git
+[submodule "modules/LBMR"]
+	path = modules/LBMR
+	url = git@github.com:eliotmcintire/LBMR.git

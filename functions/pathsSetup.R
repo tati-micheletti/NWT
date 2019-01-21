@@ -18,15 +18,17 @@ pathsSetup <- function(whichComputer, setTmpFolder){
   }
 
   # Make a temporary folder for downloading files
-  tempFolder <- reproducible::checkPath(file.path(paths$cachePath, "tmp"), create = TRUE)
-  
-  # Set a temporary folder
-  if (Sys.info()['sysname'] == "Windows"){
-    write(paste0("TMPDIR = '", tempFolder, "'"), file = file.path(Sys.getenv('R_USER'), '.Renviron'))
-  } else {
-    tryCatch(library(unixtools),
-             error = function(e) install.packages("unixtools", repos = 'http://www.rforge.net/'))
-    unixtools::set.tempdir(tempFolder)
+  if (setTmpFolder == TRUE){
+    tempFolder <- reproducible::checkPath(file.path(paths$cachePath, "tmp"), create = TRUE)
+    
+    # Set a temporary folder
+    if (Sys.info()['sysname'] == "Windows"){
+      write(paste0("TMPDIR = '", tempFolder, "'"), file = file.path(Sys.getenv('R_USER'), '.Renviron'))
+    } else {
+      tryCatch(library(unixtools),
+               error = function(e) install.packages("unixtools", repos = 'http://www.rforge.net/'))
+      unixtools::set.tempdir(tempFolder)
+    }
   }
   
   return(paths)

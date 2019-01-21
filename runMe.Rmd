@@ -71,8 +71,15 @@ paths <- pathsSetup(whichComputer = whichComputer, setTmpFolder = TRUE) # If set
 #   error = function(e) install.packages("unixtools", repos = 'http://www.rforge.net/'))
 #   unixtools::set.tempdir(<path/to/tempFolder>)
 
+# Sessting up the cache folder: it is hosted in the project's GDrive
+cloudFolderID <- "https://drive.google.com/open?id=1PoEkOkg_ixnAdDqqTQcun77nUvkEHDc0"
+
+# Setting all SpaDES options to be used in the project
 options("reproducible.useMemoise" = TRUE) # Brings cached stuff to memory during the second run
-options("reproducible.cachePath" = paths$cachePath)
+options("reproducible.cachePath" = paths$cachePath) # Set cachePath globally
+options("reproducible.useNewDigestAlgorithm" = TRUE) # use the new less strict hashing algo
+options("reproducible.useCloud" = TRUE) # use cloudCache in GDrive
+
 SpaDES.core::setPaths(modulePath = paths$modulePath, inputPath = paths$inputPath, outputPath = paths$outputPath, cachePath = paths$cachePath)
 
 ```
@@ -81,10 +88,15 @@ SpaDES.core::setPaths(modulePath = paths$modulePath, inputPath = paths$inputPath
 ```{r studyArea}
 
 # For NWT inside the boreal region:
-studyArea <- defineStudyArea(testArea = TRUE, specificTestArea = "BCR6", mapSubset = "Northwest Territories")
+studyArea <- Cache(defineStudyArea, testArea = TRUE, specificTestArea = "BCR6", 
+                        mapSubset = "Northwest Territories", destinationFolder = tempdir()) %>%
+  rgeos::gUnaryUnion()
+
+# studyArea <- cloudCache(defineStudyArea, testArea = TRUE, specificTestArea = "BCR6", 
+#                         mapSubset = "Northwest Territories", destinationFolder = paths$inputPath,
+#                         useCloud = getOption("reproducible.useCloud", TRUE), 
+#                         checksumsFileID = NULL, cloudFolderID = cloudFolderID)
 ```
-
-
 
 ### Running `LandR_Biomass`
 

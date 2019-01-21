@@ -40,5 +40,9 @@ rsconnect/
 tmp/
 /tmp/
 
+# Ignore cache
+/cache/
+
+# Don't ignore the following folders:
 !data/
 

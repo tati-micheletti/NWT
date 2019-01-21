@@ -14,12 +14,11 @@ pathsSetup <- function(whichComputer, setTmpFolder){
     cachePath388 <- reproducible::checkPath(file.path("/mnt/storage", "NWT"), create = TRUE)
     paths$cachePath <- file.path(cachePath388, "cache")
   } else {
-    paths$cachePath <- file.path(workDirectory, "cache"
-      )
+    paths$cachePath <- file.path(workDirectory, "cache")
   }
 
   # Make a temporary folder for downloading files
-  tempFolder <- reproducible::checkPath(file.path(dirname(paths$cachePath), "tmp"), create = TRUE)
+  tempFolder <- reproducible::checkPath(file.path(paths$cachePath, "tmp"), create = TRUE)
   
   # Set a temporary folder
   if (Sys.info()['sysname'] == "Windows"){

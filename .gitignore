@@ -36,5 +36,9 @@ vignettes/*.pdf
 rsconnect/
 .Rproj.user
 
+# Ignore temporary folder
+tmp/
+/tmp/
+
 !data/
 

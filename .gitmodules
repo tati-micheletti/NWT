@@ -10,3 +10,6 @@
 [submodule "modules/LBMR"]
 	path = modules/LBMR
 	url = git@github.com:eliotmcintire/LBMR.git
+[submodule "NationalModel"]
+	path = NationalModel
+	url = git@github.com:dstralberg/NationalModel.git

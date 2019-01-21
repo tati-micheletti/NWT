@@ -7,6 +7,11 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(SpaDES.core)
+library(SpaDES.tools)
+
+# Source all common functions
+invisible(sapply(X = list.files(file.path(getwd(), "functions"), full.names = TRUE), FUN = source))
 ```
 
 ## Simulation of effects of climate change on fire regime: implications for Boreal Caribou and
@@ -34,7 +39,7 @@ conditions
 ### Integrated modules overview
 
 The metamodule is composed of 8 parent modules (i.e. groups of modules), as follows:
-![Module structure that composes the NWT project.](https://github.com/tati-micheletti/NWT/raw/master/data/modelStructureTM.jpg)
+![Module structure that composes the NWT project.](https://github.com/tati-micheletti/NWT/raw/master/data/ModelStructure_2.jpg)
 
 The structure of each one of the modules is as follows:
 
@@ -48,4 +53,42 @@ The structure of each one of the modules is as follows:
 
 \textcolor{blue}{anthropogenic}: To be completed by MT.
 
+### Setting up directories and paths for the simulation
+
+```{r setup}
+
+# Which computer is this being run on?
+whichComputer <- "388"
+# Other options are: BorealCloud, LocalMachine
+
+paths <- pathsSetup(whichComputer = whichComputer, setTmpFolder = TRUE) # If setTmpFolder == TRUE, 
+ # a temporary folder will be created inside the cache folder set. This can/should be changed later for 
+ # other projects using:
+# ===> In Windows:
+# write(TMPDIR = '<path/to/tempFolder>'), file = file.path(Sys.getenv('R_USER'), '.Renviron'))
+# ===> In Linux/MacOS:
+# tryCatch(library(unixtools),
+#   error = function(e) install.packages("unixtools", repos = 'http://www.rforge.net/'))
+#   unixtools::set.tempdir(<path/to/tempFolder>)
+
+options("reproducible.useMemoise" = TRUE) # Brings cached stuff to memory during the second run
+options("reproducible.cachePath" = paths$cachePath)
+SpaDES.core::setPaths(modulePath = paths$modulePath, inputPath = paths$inputPath, outputPath = paths$outputPath, cachePath = paths$cachePath)
+
+```
+
+### Creating study area
+```{r studyArea}
+
+# For NWT inside the boreal region:
+studyArea <- defineStudyArea(testArea = TRUE, specificTestArea = "BCR6", mapSubset = "Northwest Territories")
+```
+
+
+
+### Running `LandR_Biomass`
+
+```{r run_LandR, echo=TRUE}
+
+```
 

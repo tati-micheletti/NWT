@@ -14,6 +14,16 @@ qbs2011_1km <- brick("G:/Boreal/NationalModelsV2/Quebec/QC2011rasters.grd")
 r2 <- qbs2011_1km[[1]]
 
 LCC <- CRS("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs")
+quebec <- raster("F:/GIS/basemaps/quebec250m1.tif")
+cur <- "E:/CMIP5/baseline19812010/"
+setwd(cur)
+clim <- list.files(cur, pattern =".asc$")
+curclim<-stack(clim)
+qclim <- crop(curclim,quebec)
+projection(qclim) <- LCC
+qclima <- resample(qclim,r2)
+pred <- stack(qbs2011_1km,qclima)
+
 offl <- read.csv("G:/Boreal/NationalModelsV2/Quebec/BAMoffsets.csv")
 offla <- read.csv("G:/Boreal/NationalModelsV2/Quebec/Atlasoffsets.csv")
 offlc <- rbind(offl[2:4],offla[2:4])
@@ -48,6 +58,7 @@ names(dat_2011)[ncol(dat_2011)] <- "sampsum25"
 dat_2011$wt <- 1/dat_2011$sampsum25
 dat_2011$SS <- as.character(dat_2011$SS) #n=42210
 rm(samprast2011)
+dat_2011 <- cbind(dat_2011, extract(qclima,as.matrix(cbind(dat_2011$X,dat_2011$Y))))
 
 samprast2001 <- rasterize(cbind(dat_2001$X,dat_2001$Y), r2, field=1)
 gf <- focalWeight(samprast2001, 25, "Gauss")
@@ -57,7 +68,7 @@ names(dat_2001)[ncol(dat_2001)] <- "sampsum25"
 dat_2001$wt <- 1/dat_2001$sampsum25
 dat_2001$SS <- as.character(dat_2001$SS) #n=20765
 rm(samprast2001)
-# rm(r2)
+dat_2001 <- cbind(dat_2001, extract(qclima,as.matrix(cbind(dat_2001$X,dat_2001$Y))))
 
 APC2011 <- read.csv("G:/Boreal/NationalModelsV2/Quebec/AtlasPC2011.csv")
 QCPC2011 <- read.csv("G:/Boreal/NationalModelsV2/Quebec/QCPC2011.csv")
@@ -74,32 +85,6 @@ survey2011 <- aggregate(PC2011$ABUND, by=list("PKEY"=PC2011$PKEY,"SS"=PC2011$SS)
 
 w <- "G:/Boreal/NationalModelsV2/Quebec/"
 setwd(w)
-
-#generate predictions and plots from models
-brtplot <- function (j) {
-  load(paste(w,speclist[j],"brtQC3.R",sep=""))
-  varimp <- as.data.frame(brt1$contributions)
-  write.csv(varimp,file=paste(w,speclist[j],"varimp3.csv",sep=""))
-  cvstats <- t(as.data.frame(brt1$cv.statistics))
-  write.csv(cvstats,file=paste(w,speclist[j],"cvstats3.csv",sep=""))
-  pdf(paste(w,speclist[j],"_plot3.pdf",sep=""))
-  gbm.plot(model,n.plots=12,smooth=TRUE)
-  dev.off()
-  rast <- raster::predict(qbs2011_1km, brt1, type="response", n.trees=brt1$n.trees)
-  writeRaster(rast, filename=paste(w,speclist[j],"_pred1km3",sep=""), format="GTiff",overwrite=TRUE)
-  
-  q99 <- quantile(rast, probs=c(0.99))	
-  prev <- cellStats(rast, 'mean')	
-  max <- 3*prev
-  png(file=paste(w,speclist[j],"_pred1km3.png",sep=""), height=600, width=850)
-  par(cex.main=1.8, mfcol=c(1,1), oma=c(0,0,0,0))
-  par(mar=c(0,0,5,0))
-  plot(rast, col="blue", axes=FALSE, legend=FALSE, main=paste(as.character(speclist[j]),"current prediction"))
-  plot(rast, col=bluegreen.colors(15), zlim=c(0,max), axes=FALSE, main=paste(as.character(speclist[j]),", 1961-1990"), add=TRUE, legend.width=1.5, horizontal = TRUE, smallplot = c(0.60,0.85,0.82,0.87), axis.args=list(cex.axis=1.5))
-  plot(provstate, col="gray", add=TRUE)
-  text(2400000,7950000,"Potential density (males/ha)", cex=1.3)
-  dev.off()
-}
 
 for (j in 1:length(speclist)) {
   specoff <- filter(offlc, SPECIES==as.character(speclist[j]))
@@ -130,54 +115,65 @@ for (j in 1:length(speclist)) {
   datcombo$urbag <- as.factor(datcombo$urbag)
   datcombo$landform <- as.factor(datcombo$landform)
 
-  # Beaudoin covariates for model 
-  # Species_Abie_Bal_v1                                                                                    
-  # Species_Acer_Rub_v1                      
-  # Species_Acer_Sah_v1                      
-  # Species_Betu_All_v1                  
-  # Species_Betu_Pap_v1                      
-  # Species_Fagu_Gra_v1                      
-  # Species_Frax_Ame_v1                      
-  # Species_Lari_Lar_v1                      
-  # Species_Pice_Gla_v1                      
-  # Species_Pice_Mar_v1                      
-  # Species_Pice_Rub_v1                                            
-  # Species_Pinu_Ban_v1    
-  # Species_Pinu_Res_v1                                           
-  # Species_Pinu_Str_v1                      
-  # Species_Popu_Bal_v1                      
-  # Species_Popu_Tre_v1                                           
-  # Species_Quer_Rub_v1                                           
-  # Species_Thuj_Occ_v1                                         
-  # Species_Tsug_Can_v1                                                                                 
-  # Structure_Biomass_TotalLiveAboveGround_v1
-  # Structure_Stand_Age_v1  
-
-  x1 <- try(brt1 <- gbm.step(datcombo, gbm.y = 3, gbm.x = c(15,21,23,29,30,36,37,45,53,54,55,59,63,65,67,70,77,81,84,97,98,103,104,105,106,107), family = "poisson", tree.complexity = 3, learning.rate = 0.001, bag.fraction = 0.5, offset=datcombo$logoffset, site.weights=datcombo$wt))
+  x1 <- try(brt1 <- gbm.step(datcombo, gbm.y = 3, gbm.x = c(15,21,23,29,30,36,37,45,53,54,55,59,63,65,67,70,77,81,84,97,98,103:133), family = "poisson", tree.complexity = 3, learning.rate = 0.001, bag.fraction = 0.5, offset=datcombo$logoffset, site.weights=datcombo$wt))
   if (class(x1) != "NULL") {
-    save(brt1,file=paste(w,speclist[j],"brtQC3.R",sep=""))
-    brtplot(j)
+    save(brt1,file=paste(w,speclist[j],"brtQC4.R",sep=""))
+    varimp <- as.data.frame(brt1$contributions)
+    write.csv(varimp,file=paste(w,speclist[j],"varimp4.csv",sep=""))
+    cvstats <- t(as.data.frame(brt1$cv.statistics))
+    write.csv(cvstats,file=paste(w,speclist[j],"cvstats4.csv",sep=""))
+    pdf(paste(w,speclist[j],"_plot4.pdf",sep=""))
+    gbm.plot(brt1,n.plots=12,smooth=TRUE)
+    dev.off()
+    rast <- raster::predict(pred, brt1, type="response", n.trees=brt1$n.trees)
+    writeRaster(rast, filename=paste(w,speclist[j],"_pred1km4",sep=""), format="GTiff",overwrite=TRUE)
+    
+    q99 <- quantile(rast, probs=c(0.99))	
+    prev <- cellStats(rast, 'mean')	
+    max <- 3*prev
+    png(file=paste(w,speclist[j],"_pred1km4.png",sep=""), height=600, width=850)
+    par(cex.main=1.8, mfcol=c(1,1), oma=c(0,0,0,0))
+    par(mar=c(0,0,5,0))
+    plot(rast, col="blue", axes=FALSE, legend=FALSE, main=paste(as.character(speclist[j]),"current prediction"))
+    plot(rast, col=bluegreen.colors(15), zlim=c(0,max), axes=FALSE, main=paste(as.character(speclist[j]),", 1961-1990"), add=TRUE, legend.width=1.5, horizontal = TRUE, smallplot = c(0.60,0.85,0.82,0.87), axis.args=list(cex.axis=1.5))
+    plot(provstate, col="gray", add=TRUE)
+    text(2400000,7950000,"Potential density (males/ha)", cex=1.3)
+    dev.off()
   }
   if(class(x1)=="NULL"){ #retry models that didn't converge with smaller learning rate
-    x1 <- try(brt1 <- gbm.step(datcombo, gbm.y = 3, gbm.x = c(15,21,23,29,30,36,37,45,53,54,55,59,63,65,67,70,77,81,84,97,98,103,104,105,106,107), family = "poisson", tree.complexity = 3, learning.rate = 0.0001, bag.fraction = 0.5, offset=datcombo$logoffset, site.weights=datcombo$wt))
+    x1 <- try(brt1 <- gbm.step(datcombo, gbm.y = 3, gbm.x = c(15,21,23,29,30,36,37,45,53,54,55,59,63,65,67,70,77,81,84,97,98,103:133), family = "poisson", tree.complexity = 3, learning.rate = 0.0001, bag.fraction = 0.5, offset=datcombo$logoffset, site.weights=datcombo$wt))
     if (class(x1) != "NULL") {
-      save(brt1,file=paste(w,speclist[j],"brtQC3.R",sep=""))
-      brtplot(j)
+      save(brt1,file=paste(w,speclist[j],"brtQC4.R",sep=""))
+      varimp <- as.data.frame(brt1$contributions)
+      write.csv(varimp,file=paste(w,speclist[j],"varimp4.csv",sep=""))
+      cvstats <- t(as.data.frame(brt1$cv.statistics))
+      write.csv(cvstats,file=paste(w,speclist[j],"cvstats4.csv",sep=""))
+      pdf(paste(w,speclist[j],"_plot4.pdf",sep=""))
+      gbm.plot(brt1,n.plots=12,smooth=TRUE)
+      dev.off()
+      rast <- raster::predict(pred, brt1, type="response", n.trees=brt1$n.trees)
+      writeRaster(rast, filename=paste(w,speclist[j],"_pred1km4",sep=""), format="GTiff",overwrite=TRUE)
+      
+      q99 <- quantile(rast, probs=c(0.99))	
+      prev <- cellStats(rast, 'mean')	
+      max <- 3*prev
+      png(file=paste(w,speclist[j],"_pred1km4.png",sep=""), height=600, width=850)
+      par(cex.main=1.8, mfcol=c(1,1), oma=c(0,0,0,0))
+      par(mar=c(0,0,5,0))
+      plot(rast, col="blue", axes=FALSE, legend=FALSE, main=paste(as.character(speclist[j]),"current prediction"))
+      plot(rast, col=bluegreen.colors(15), zlim=c(0,max), axes=FALSE, main=paste(as.character(speclist[j]),", 1961-1990"), add=TRUE, legend.width=1.5, horizontal = TRUE, smallplot = c(0.60,0.85,0.82,0.87), axis.args=list(cex.axis=1.5))
+      plot(provstate, col="gray", add=TRUE)
+      text(2400000,7950000,"Potential density (males/ha)", cex=1.3)
+      dev.off()
     }
-    if(class(x1)=="NULL"){ #retry models that didn't converge with smaller learning rate
-      x1 <- try(brt1 <- gbm.step(datcombo, gbm.y = 3, gbm.x = c(15,21,23,29,30,36,37,45,53,54,55,59,63,65,67,70,77,81,84,97,98,103,104,105,106,107), family = "poisson", tree.complexity = 3, learning.rate = 0.00001, bag.fraction = 0.5, offset=datcombo$logoffset, site.weights=datcombo$wt))
-      if (class(x1) != "NULL") {
-        save(brt1,file=paste(w,speclist[j],"brtQC3.R",sep=""))
-        brtplot(j)
-      }  
-    }
-  gc()
   }
+  gc()
+
 }
 
 #rerun models that may not be optimal with faster learning rate
 for (j in 1:length(speclist)) {
-  load(paste(w,speclist[j],"brtQC3.R",sep=""))
+  load(paste(w,speclist[j],"brtQC4.R",sep=""))
   if (brt1$n.trees == 10000) {
     specoff <- filter(offlc, SPECIES==as.character(speclist[j]))
     specoff <- distinct(specoff) 
@@ -207,16 +203,30 @@ for (j in 1:length(speclist)) {
     datcombo$urbag <- as.factor(datcombo$urbag)
     datcombo$landform <- as.factor(datcombo$landform)
     
-    x1 <- try(brt1 <- gbm.step(datcombo, gbm.y = 3, gbm.x = c(15,21,23,29,30,36,37,45,53,54,55,59,63,65,67,70,77,81,84,97,98,103,104,105,106,107), family = "poisson", tree.complexity = 3, learning.rate = 0.01, bag.fraction = 0.5, offset=datcombo$logoffset, site.weights=datcombo$wt))
-    save(brt1,file=paste(w,speclist[j],"brtQC3.R",sep=""))
-    brtplot(j)
+    x1 <- try(brt1 <- gbm.step(datcombo, gbm.y = 3, gbm.x = c(15,21,23,29,30,36,37,45,53,54,55,59,63,65,67,70,77,81,84,97,98,103:133), family = "poisson", tree.complexity = 3, learning.rate = 0.01, bag.fraction = 0.5, offset=datcombo$logoffset, site.weights=datcombo$wt))
+    save(brt1,file=paste(w,speclist[j],"brtQC4.R",sep=""))
+    varimp <- as.data.frame(brt1$contributions)
+    write.csv(varimp,file=paste(w,speclist[j],"varimp4.csv",sep=""))
+    cvstats <- t(as.data.frame(brt1$cv.statistics))
+    write.csv(cvstats,file=paste(w,speclist[j],"cvstats4.csv",sep=""))
+    pdf(paste(w,speclist[j],"_plot3.pdf",sep=""))
+    gbm.plot(brt1,n.plots=12,smooth=TRUE)
+    dev.off()
+    rast <- raster::predict(pred, brt1, type="response", n.trees=brt1$n.trees)
+    writeRaster(rast, filename=paste(w,speclist[j],"_pred1km4",sep=""), format="GTiff",overwrite=TRUE)
+    
+    q99 <- quantile(rast, probs=c(0.99))	
+    prev <- cellStats(rast, 'mean')	
+    max <- 3*prev
+    png(file=paste(w,speclist[j],"_pred1km4.png",sep=""), height=600, width=850)
+    par(cex.main=1.8, mfcol=c(1,1), oma=c(0,0,0,0))
+    par(mar=c(0,0,5,0))
+    plot(rast, col="blue", axes=FALSE, legend=FALSE, main=paste(as.character(speclist[j]),"current prediction"))
+    plot(rast, col=bluegreen.colors(15), zlim=c(0,max), axes=FALSE, main=paste(as.character(speclist[j]),", 1961-1990"), add=TRUE, legend.width=1.5, horizontal = TRUE, smallplot = c(0.60,0.85,0.82,0.87), axis.args=list(cex.axis=1.5))
+    plot(provstate, col="gray", add=TRUE)
+    text(2400000,7950000,"Potential density (males/ha)", cex=1.3)
+    dev.off()
 }
 gc()
 
 }
-
-
-for (j in 1:length(speclist)) {
-  brtplot(j)
-}
-

@@ -14,8 +14,7 @@ pathsSetup <- function(whichComputer, setTmpFolder){
     cachePath388 <- reproducible::checkPath(file.path("/mnt/storage", "NWT"), create = TRUE)
     paths$cachePath <- file.path(cachePath388, "cache")
   } else {
-    paths <- list(
-      inputPath = file.path(workDirectory, "cache")
+    paths$cachePath <- file.path(workDirectory, "cache"
       )
   }
 

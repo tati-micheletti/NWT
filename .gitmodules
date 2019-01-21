@@ -1,6 +1,3 @@
-[submodule "NationalModel"]
-	path = NationalModel
-	url = https://github.com/tati-micheletti/NationalModel.git
 [submodule "modules/Boreal_LBMRDataPrep"]
 	path = modules/Boreal_LBMRDataPrep
 	url = git@github.com:eliotmcintire/Boreal_LBMRDataPrep.git

@@ -29,7 +29,7 @@
 #' rp <- defineStudyArea(testArea = TRUE, specificTestArea = "BCR6", mapSubset = "Northwest Territories") ## Nortwest Territories inside BCR6
 #' 
 
-library(SpaDES)
+library(SpaDES.tools)
 library(reproducible)
 
 defineStudyArea <- function(testArea = NULL, specificTestArea = NULL, mapSubset = NULL, destinationFolder = tempdir()) {
@@ -108,8 +108,3 @@ defineStudyArea <- function(testArea = NULL, specificTestArea = NULL, mapSubset 
   }
   return(rP)
 }
-
-
-# For NWT inside the boreal region:
-studyArea <- defineStudyArea(testArea = TRUE, specificTestArea = "BCR6", mapSubset = "Northwest Territories")
-

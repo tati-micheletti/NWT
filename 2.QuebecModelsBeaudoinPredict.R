@@ -83,7 +83,7 @@ brtplot <- function (j) {
   cvstats <- t(as.data.frame(brt1$cv.statistics))
   write.csv(cvstats,file=paste(w,speclist[j],"cvstats3.csv",sep=""))
   pdf(paste(w,speclist[j],"_plot3.pdf",sep=""))
-  gbm.plot(model,n.plots=12,smooth=TRUE)
+  gbm.plot(brt1,n.plots=12,smooth=TRUE)
   dev.off()
   rast <- raster::predict(qbs2011_1km, brt1, type="response", n.trees=brt1$n.trees)
   writeRaster(rast, filename=paste(w,speclist[j],"_pred1km3",sep=""), format="GTiff",overwrite=TRUE)

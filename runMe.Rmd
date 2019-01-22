@@ -88,8 +88,8 @@ SpaDES.core::setPaths(modulePath = paths$modulePath, inputPath = paths$inputPath
 ```{r studyArea}
 
 # For NWT inside the boreal region:
-studyArea <- Cache(defineStudyArea, testArea = TRUE, specificTestArea = "BCR6", 
-                        mapSubset = "Northwest Territories", destinationFolder = tempdir()) %>%
+studyArea <- Cache(defineStudyArea, testArea = TRUE, specificTestArea = "BCR6",
+                   mapSubset = "Northwest Territories", destinationPath = tempdir(), overwrite = TRUE) %>%
   rgeos::gUnaryUnion()
 
 # studyArea <- cloudCache(defineStudyArea, testArea = TRUE, specificTestArea = "BCR6", 

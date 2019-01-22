@@ -50,4 +50,4 @@ tmp/
 
 /outputs/
 outputs/
-
+/outputs/*.gr*

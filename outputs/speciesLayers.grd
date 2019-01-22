@@ -1,0 +1,25 @@
+[general]
+creator=R package 'raster'
+created=2019-01-22 12:11:06
+[georeference]
+nrows=5326
+ncols=2926
+xmin=-1614000.00000023
+ymin=7904500
+xmax=-882500.000000228
+ymax=9236000
+projection=+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-95 +x_0=0 +y_0=0 +ellps=GRS80 +units=m +no_defs
+[data]
+datatype=FLT4S
+byteorder=little
+nbands=6
+bandorder=BIL
+minvalue=0:0:0:0:0:0
+maxvalue=33:89:100:91:99:46
+nodatavalue=-3.4e+38
+[legend]
+legendtype=
+values=
+color=
+[description]
+layername=Betu_pap:Pice_gla:Pice_mar:Pinu_ban:Popu_sp:Popu_bal

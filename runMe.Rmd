@@ -102,5 +102,126 @@ studyArea <- Cache(defineStudyArea, testArea = TRUE, specificTestArea = "BCR6",
 
 ```{r run_LandR, echo=TRUE}
 
+# FROM HERE ON ......
+
+library(SpaDES)
+library(raster)
+
+spadesModulesDirectory <- file.path("modules") # where modules are 
+modules <- list("Boreal_LBMRDataPrep", "LBMR", "LandR_BiomassGMOrig","Biomass_regeneration", "group_scfm")
+#, BiomassSpeciesData, #
+
+times <- list(start = 0, end = 20)
+
+#scfm global parameters
+defaultInterval <- 1.0
+defaultPlotInterval <- 1.0
+defaultInitialSaveTime <- NA #don't be saving nuffink
+
+# shpStudyRegionFull <- shapefile("C:/Ian/Tati/Edehzhie/Edehzhie_subset.shp")
+ecoDistricts <- shapefile("C:/Ian/Git/scfm/modules/scfmLandcoverInit/data/ecodistricts_shp/Ecodistricts/ecodistricts.shp")
+studyArea <- ecoDistricts[ecoDistricts$DISTRICT_I %in% c(387, 390, 372),] #3 small contiguous ecodistricts in the RIA
+# studyArea$Name <- "District 387-390-372"
+studyAreaLarge <- ecoDistricts[ecoDistricts$ECOREGION %in% c(137, 200),] #the two larger ecoregions
+
+# rasterToMatch <- reproducible::Cache(pemisc::prepInputsLCC, 
+#                        studyArea = studyArea, year = 2005, 
+#                        filename2 = "rasterToMatch.tif", overwrite = TRUE)
+rasterToMatch <- raster("rasterToMatch.tif") #debugging cache
+studyArea <- spTransform(x = studyArea, CRSobj = crs(rasterToMatch))
+studyAreaLarge <- spTransform(x = studyAreaLarge, CRSobj = crs(rasterToMatch))
+parameters <- list(
+  LBMR = list(.plotInitialTime = 0,
+              seedingAlgorithm = "wardDispersal",
+              useCache = TRUE,
+              successionTimestep = 10), 
+  LandR_BiomassGMOrig = list( # dev branch
+    growthInitialTime = 0,
+    successionTimestep = 10),
+  # BiomassSpeciesData = list( #proprietary data
+  #   .useCache = TRUE,
+  #   omitNonTreePixels = FALSE),
+  Boreal_LBMRDataPrep = list(
+    successionTimeStep = 10
+  ),
+  Biomass_regeneration = list(),
+  #SCFM MODULES
+  ageModule = list(
+    initialAge = 100,
+    maxAge = 200,
+    returnInterval = defaultInterval,
+    startTime = times$start,
+    .plotInitialTime =  NA,
+    .plotInterval = defaultPlotInterval,
+    .saveInitialTime = defaultInitialSaveTime,
+    .saveInterval = defaultInterval),
+  scfmIgnition = list(
+    pIgnition = 0.0001,
+    returnInterval = defaultInterval,
+    startTime = times$start,
+    .plotInitialTime = NA,
+    .plotInterval = defaultPlotInterval,
+    .saveInitialTime = defaultInitialSaveTime,
+    .saveInterval = defaultInterval),
+  scfmEscape = list(
+    p0 = 0.05,
+    returnInterval = defaultInterval,
+    startTime = times$start,
+    .plotInitialTime = NA,
+    .plotInterval = defaultPlotInterval,
+    .saveInitialTime = defaultInitialSaveTime,
+    .saveInterval = defaultInterval),
+  scfmSpread = list(
+    pSpread = 0.235,
+    returnInterval = defaultInterval,
+    startTime = times$start,
+    .plotInitialTime = times$start,
+    .plotInterval = defaultPlotInterval,
+    .saveInitialTime = defaultInitialSaveTime,
+    .saveInterval = defaultInterval),
+  scfmRegime = list(fireCause=c("L", "H"))
+)
+
+## Paths are not workign with multiple module paths yet
+setPaths(cachePath =  file.path("cache2"),
+         modulePath = c(spadesModulesDirectory, file.path("C:/Ian/Git/scfm/modules")),
+         inputPath = file.path(getwd(), "inputs"),
+         outputPath = file.path("outputs"))
+paths <- SpaDES.core::getPaths()
+#
+options("spades.moduleCodeChecks" = FALSE)
+# clearCache("cache2/")
+
+
+#Tree species that are important to us
+data("sppEquivalencies_CA", package = "LandR", envir = environment())
+sppEquivalencies_CA
+test <- sppEquivalencies_CA[LandR %in% c("Abie_sp", "Pice_gla", "Pice_mar", "Popu_tre",
+                                         "Betu_pap", "Pinu_con", "Pinu_ban")]
+
+objects <- list(
+  studyArea = studyArea,
+  rasterToMatch = rasterToMatch,
+  sppEquiv = test,
+  studyAreaLarge = studyAreaLarge
+  )
+#                 
+
+#You have to supply all possible studyArea combinations here or the simInit will source the wrong things.
+#This is a good argument for all modules only ever using studyArea. Never studyArea0 or SA or ROI
+myObjectSynonyms <- list(c("LCC2005", "vegMap")) 
+
+options(reproducible.overwrite = TRUE)
+options(reproducible.cachePath = "C:/Ian/Campbell/RIA/cache2")#necessary for some reason
+options(reproducible.inputPathsRecursive = "C:/Ian/Data")
+
+mySim <- simInit(times = times, params = parameters, modules = modules, objects = objects,
+                 paths = list(cachePath = paths$cachePath, modulePath = paths$modulePath, 
+                              inputPath = paths$inputPath, outputPath = paths$outputPath),
+                 loadOrder = unlist(modules))
+
+dev.off()
+dev() 
+mySimOut <- spades(mySim, debug = TRUE)
 ```
 

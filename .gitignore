@@ -39,10 +39,15 @@ rsconnect/
 # Ignore temporary folder
 tmp/
 /tmp/
+!/temp/
 
 # Ignore cache
 /cache/
 
 # Don't ignore the following folders:
-!data/
+/inputs/
+!ModelStructure_2.jpg
+
+/outputs/
+outputs/
 

@@ -59,12 +59,12 @@ The structure of each one of the modules is as follows:
 ```{r setup}
 
 # Which computer is this being run on?
+# Options are: BorealCloud, LocalMachine, 388
 whichComputer <- "388"
-# Other options are: BorealCloud, LocalMachine
 
-paths <- pathsSetup(whichComputer = whichComputer, setTmpFolder = TRUE) # If setTmpFolder == TRUE, 
- # a temporary folder will be created inside the cache folder set. This can/should be changed later for 
- # other projects using:
+paths <- pathsSetup(whichComputer = whichComputer, setTmpFolder = TRUE) 
+# If setTmpFolder == TRUE, a temporary folder will be created inside the cache folder set. 
+# This can/should be changed later for other projects using:
 # ===> In Windows:
 # write(TMPDIR = '<path/to/tempFolder>'), file = file.path(Sys.getenv('R_USER'), '.Renviron'))
 # ===> In Linux/MacOS:
@@ -83,14 +83,19 @@ options("reproducible.useNewDigestAlgorithm" = TRUE) # use the new less strict h
 options("reproducible.useCloud" = TRUE) # use cloudCache in GDrive
 options("spades.moduleCodeChecks" = FALSE) # Turn off all module's code checking
 
-SpaDES.core::setPaths(modulePath = paths$modulePath, inputPath = paths$inputPath, outputPath = paths$outputPath, cachePath = paths$cachePath)
+SpaDES.core::setPaths(modulePath = paths$modulePath, inputPath = paths$inputPath, 
+                      outputPath = paths$outputPath, cachePath = paths$cachePath)
 
 ```
 
 ### Creating study area
+
+The study area is comprised of the *BCR6* (Bird Conservation Regions no. 6) within the *Northwest Territories*.  
+We have developed a specific function to select this area, which is cached both locally and remotely 
+in a google drive's folder (`cloudFolderID`), which is sharable with all project's team members.
+
 ```{r studyArea}
-# cloudCache
-# For NWT inside the boreal region:
+
 studyArea <- cloudCache(defineStudyArea, testArea = TRUE, mapSubset = "Northwest Territories",
                         destinationPath = paths$inputPath, specificTestArea = "BCR6",
                         useCloud = TRUE, cloudFolderID = cloudFolderID) %>%  rgeos::gUnaryUnion()
@@ -99,26 +104,20 @@ studyArea <- cloudCache(defineStudyArea, testArea = TRUE, mapSubset = "Northwest
 
 ### Running `LandR_Biomass`
 
-```{r run_LandR, echo=TRUE}
+To run the first set of modules, both the parametrization model (`Boreal_LBMRDataPrep`) and the forest succession group of modules (`LandR_Biomass`), 
+we explicitly specify the modules to be run, and the running time for the simulations:
 
-# spadesModulesDirectory <- file.path("modules") # where modules are
+```{r run_LandR}
+
 modules <- list("Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR")
-
 times <- list(start = 0, end = 20)
 
-# #scfm global parameters
-# defaultInterval <- 1.0
-# defaultPlotInterval <- 1.0
-# defaultInitialSaveTime <- NA #don't be saving nuffink
+```
 
-# shpStudyRegionFull <- shapefile("C:/Ian/Tati/Edehzhie/Edehzhie_subset.shp")
+Then we need to set the parameters for the simulation call:
 
-# rasterToMatch <- reproducible::Cache(pemisc::prepInputsLCC, 
-#                        studyArea = studyArea, year = 2005, 
-#                        filename2 = "rasterToMatch.tif", overwrite = TRUE)
-# rasterToMatch <- raster("rasterToMatch.tif") #debugging cache
-# studyArea <- spTransform(x = studyArea, CRSobj = crs(rasterToMatch))
-# studyAreaLarge <- spTransform(x = studyAreaLarge, CRSobj = crs(rasterToMatch))
+``` {r params}
+
 parameters <- list(
   LBMR = list(.plotInitialTime = 0,
               seedingAlgorithm = "wardDispersal",
@@ -127,50 +126,18 @@ parameters <- list(
   LandR_BiomassGMOrig = list( # dev branch
     growthInitialTime = 0,
     successionTimestep = 10),
-  # BiomassSpeciesData = list( #proprietary data
-  #   .useCache = TRUE,
-  #   omitNonTreePixels = FALSE),
   Boreal_LBMRDataPrep = list(
     successionTimeStep = 10
-  )#,
-  # Biomass_regeneration = list(),
-  #SCFM MODULES
-  # ageModule = list(
-  #   initialAge = 100,
-  #   maxAge = 200,
-  #   returnInterval = defaultInterval,
-  #   startTime = times$start,
-  #   .plotInitialTime =  NA,
-  #   .plotInterval = defaultPlotInterval,
-  #   .saveInitialTime = defaultInitialSaveTime,
-  #   .saveInterval = defaultInterval),
-  # scfmIgnition = list(
-  #   pIgnition = 0.0001,
-  #   returnInterval = defaultInterval,
-  #   startTime = times$start,
-  #   .plotInitialTime = NA,
-  #   .plotInterval = defaultPlotInterval,
-  #   .saveInitialTime = defaultInitialSaveTime,
-  #   .saveInterval = defaultInterval),
-  # scfmEscape = list(
-  #   p0 = 0.05,
-  #   returnInterval = defaultInterval,
-  #   startTime = times$start,
-  #   .plotInitialTime = NA,
-  #   .plotInterval = defaultPlotInterval,
-  #   .saveInitialTime = defaultInitialSaveTime,
-  #   .saveInterval = defaultInterval),
-  # scfmSpread = list(
-  #   pSpread = 0.235,
-  #   returnInterval = defaultInterval,
-  #   startTime = times$start,
-  #   .plotInitialTime = times$start,
-  #   .plotInterval = defaultPlotInterval,
-  #   .saveInitialTime = defaultInitialSaveTime,
-  #   .saveInterval = defaultInterval),
-  # scfmRegime = list(fireCause=c("L", "H"))
+  )
 )
 
+```
+
+Now we have to set the objects. The first object is a list of trees of interest:
+
+~~~~ HERE: Make this as a nice table
+
+``` {r objects}
 # Tree species specified for the project (see "Meeting minute January 16th, 2019" from Google Drive)
 # CommonName = scientificName = LandRName
 # Jack pine = Pinus banksiana = Pinu_ban
@@ -191,13 +158,22 @@ objects <- list(
   sppEquiv = speciesNWT
   )
 
-# myObjectSynonyms <- list(c("LCC2005", "vegMap")) # I assume this is for SCFM ~TM
+```
+
+After supplying the objects, we run the simulation initialization function, passing all arguments of interest:
+
+``` {r simInit}
 
 mySim <- simInit(times = times, params = parameters, modules = modules, objects = objects,
                  paths = paths, loadOrder = unlist(modules))
 
-dev.off()
-dev() 
-mySimOut <- spades(mySim, debug = TRUE)
+```
+
+And finally the simulation call (note that the argument `debug = TRUE` lists all processes that are happening):
+
+```{r call}
+
+LandR_Biomass <- spades(mySim, debug = TRUE)
+
 ```
 

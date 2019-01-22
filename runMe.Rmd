@@ -7,8 +7,9 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library(SpaDES.core)
-library(SpaDES.tools)
+library("SpaDES")
+library("raster")
+library("magrittr") # for piping
 
 # Source all common functions
 invisible(sapply(X = list.files(file.path(getwd(), "functions"), full.names = TRUE), FUN = source))
@@ -39,7 +40,7 @@ conditions
 ### Integrated modules overview
 
 The metamodule is composed of 8 parent modules (i.e. groups of modules), as follows:
-![Module structure that composes the NWT project.](https://github.com/tati-micheletti/NWT/raw/master/data/ModelStructure_2.jpg)
+![Module structure that composes the NWT project.](https://github.com/tati-micheletti/NWT/raw/master/inputs/ModelStructure_2.jpg)
 
 The structure of each one of the modules is as follows:
 
@@ -75,10 +76,12 @@ paths <- pathsSetup(whichComputer = whichComputer, setTmpFolder = TRUE) # If set
 cloudFolderID <- "https://drive.google.com/open?id=1PoEkOkg_ixnAdDqqTQcun77nUvkEHDc0"
 
 # Setting all SpaDES options to be used in the project
-options("reproducible.useMemoise" = TRUE) # Brings cached stuff to memory during the second run
+options("reproducible.overwrite" = TRUE)
+options("reproducible.useMemoise" = FALSE) # Brings cached stuff to memory during the second run
 options("reproducible.cachePath" = paths$cachePath) # Set cachePath globally
 options("reproducible.useNewDigestAlgorithm" = TRUE) # use the new less strict hashing algo
 options("reproducible.useCloud" = TRUE) # use cloudCache in GDrive
+options("spades.moduleCodeChecks" = FALSE) # Turn off all module's code checking
 
 SpaDES.core::setPaths(modulePath = paths$modulePath, inputPath = paths$inputPath, outputPath = paths$outputPath, cachePath = paths$cachePath)
 
@@ -86,50 +89,36 @@ SpaDES.core::setPaths(modulePath = paths$modulePath, inputPath = paths$inputPath
 
 ### Creating study area
 ```{r studyArea}
-
+# cloudCache
 # For NWT inside the boreal region:
-studyArea <- Cache(defineStudyArea, testArea = TRUE, specificTestArea = "BCR6",
-                   mapSubset = "Northwest Territories", destinationPath = tempdir(), overwrite = TRUE) %>%
-  rgeos::gUnaryUnion()
+studyArea <- cloudCache(defineStudyArea, testArea = TRUE, mapSubset = "Northwest Territories",
+                        destinationPath = paths$inputPath, specificTestArea = "BCR6",
+                        useCloud = TRUE, cloudFolderID = cloudFolderID) %>%  rgeos::gUnaryUnion()
 
-# studyArea <- cloudCache(defineStudyArea, testArea = TRUE, specificTestArea = "BCR6", 
-#                         mapSubset = "Northwest Territories", destinationFolder = paths$inputPath,
-#                         useCloud = getOption("reproducible.useCloud", TRUE), 
-#                         checksumsFileID = NULL, cloudFolderID = cloudFolderID)
 ```
 
 ### Running `LandR_Biomass`
 
 ```{r run_LandR, echo=TRUE}
 
-# FROM HERE ON ......
-
-library(SpaDES)
-library(raster)
-
-spadesModulesDirectory <- file.path("modules") # where modules are 
-modules <- list("Boreal_LBMRDataPrep", "LBMR", "LandR_BiomassGMOrig","Biomass_regeneration", "group_scfm")
-#, BiomassSpeciesData, #
+# spadesModulesDirectory <- file.path("modules") # where modules are
+modules <- list("Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR")
 
 times <- list(start = 0, end = 20)
 
-#scfm global parameters
-defaultInterval <- 1.0
-defaultPlotInterval <- 1.0
-defaultInitialSaveTime <- NA #don't be saving nuffink
+# #scfm global parameters
+# defaultInterval <- 1.0
+# defaultPlotInterval <- 1.0
+# defaultInitialSaveTime <- NA #don't be saving nuffink
 
 # shpStudyRegionFull <- shapefile("C:/Ian/Tati/Edehzhie/Edehzhie_subset.shp")
-ecoDistricts <- shapefile("C:/Ian/Git/scfm/modules/scfmLandcoverInit/data/ecodistricts_shp/Ecodistricts/ecodistricts.shp")
-studyArea <- ecoDistricts[ecoDistricts$DISTRICT_I %in% c(387, 390, 372),] #3 small contiguous ecodistricts in the RIA
-# studyArea$Name <- "District 387-390-372"
-studyAreaLarge <- ecoDistricts[ecoDistricts$ECOREGION %in% c(137, 200),] #the two larger ecoregions
 
 # rasterToMatch <- reproducible::Cache(pemisc::prepInputsLCC, 
 #                        studyArea = studyArea, year = 2005, 
 #                        filename2 = "rasterToMatch.tif", overwrite = TRUE)
-rasterToMatch <- raster("rasterToMatch.tif") #debugging cache
-studyArea <- spTransform(x = studyArea, CRSobj = crs(rasterToMatch))
-studyAreaLarge <- spTransform(x = studyAreaLarge, CRSobj = crs(rasterToMatch))
+# rasterToMatch <- raster("rasterToMatch.tif") #debugging cache
+# studyArea <- spTransform(x = studyArea, CRSobj = crs(rasterToMatch))
+# studyAreaLarge <- spTransform(x = studyAreaLarge, CRSobj = crs(rasterToMatch))
 parameters <- list(
   LBMR = list(.plotInitialTime = 0,
               seedingAlgorithm = "wardDispersal",
@@ -143,82 +132,69 @@ parameters <- list(
   #   omitNonTreePixels = FALSE),
   Boreal_LBMRDataPrep = list(
     successionTimeStep = 10
-  ),
-  Biomass_regeneration = list(),
+  )#,
+  # Biomass_regeneration = list(),
   #SCFM MODULES
-  ageModule = list(
-    initialAge = 100,
-    maxAge = 200,
-    returnInterval = defaultInterval,
-    startTime = times$start,
-    .plotInitialTime =  NA,
-    .plotInterval = defaultPlotInterval,
-    .saveInitialTime = defaultInitialSaveTime,
-    .saveInterval = defaultInterval),
-  scfmIgnition = list(
-    pIgnition = 0.0001,
-    returnInterval = defaultInterval,
-    startTime = times$start,
-    .plotInitialTime = NA,
-    .plotInterval = defaultPlotInterval,
-    .saveInitialTime = defaultInitialSaveTime,
-    .saveInterval = defaultInterval),
-  scfmEscape = list(
-    p0 = 0.05,
-    returnInterval = defaultInterval,
-    startTime = times$start,
-    .plotInitialTime = NA,
-    .plotInterval = defaultPlotInterval,
-    .saveInitialTime = defaultInitialSaveTime,
-    .saveInterval = defaultInterval),
-  scfmSpread = list(
-    pSpread = 0.235,
-    returnInterval = defaultInterval,
-    startTime = times$start,
-    .plotInitialTime = times$start,
-    .plotInterval = defaultPlotInterval,
-    .saveInitialTime = defaultInitialSaveTime,
-    .saveInterval = defaultInterval),
-  scfmRegime = list(fireCause=c("L", "H"))
+  # ageModule = list(
+  #   initialAge = 100,
+  #   maxAge = 200,
+  #   returnInterval = defaultInterval,
+  #   startTime = times$start,
+  #   .plotInitialTime =  NA,
+  #   .plotInterval = defaultPlotInterval,
+  #   .saveInitialTime = defaultInitialSaveTime,
+  #   .saveInterval = defaultInterval),
+  # scfmIgnition = list(
+  #   pIgnition = 0.0001,
+  #   returnInterval = defaultInterval,
+  #   startTime = times$start,
+  #   .plotInitialTime = NA,
+  #   .plotInterval = defaultPlotInterval,
+  #   .saveInitialTime = defaultInitialSaveTime,
+  #   .saveInterval = defaultInterval),
+  # scfmEscape = list(
+  #   p0 = 0.05,
+  #   returnInterval = defaultInterval,
+  #   startTime = times$start,
+  #   .plotInitialTime = NA,
+  #   .plotInterval = defaultPlotInterval,
+  #   .saveInitialTime = defaultInitialSaveTime,
+  #   .saveInterval = defaultInterval),
+  # scfmSpread = list(
+  #   pSpread = 0.235,
+  #   returnInterval = defaultInterval,
+  #   startTime = times$start,
+  #   .plotInitialTime = times$start,
+  #   .plotInterval = defaultPlotInterval,
+  #   .saveInitialTime = defaultInitialSaveTime,
+  #   .saveInterval = defaultInterval),
+  # scfmRegime = list(fireCause=c("L", "H"))
 )
 
-## Paths are not workign with multiple module paths yet
-setPaths(cachePath =  file.path("cache2"),
-         modulePath = c(spadesModulesDirectory, file.path("C:/Ian/Git/scfm/modules")),
-         inputPath = file.path(getwd(), "inputs"),
-         outputPath = file.path("outputs"))
-paths <- SpaDES.core::getPaths()
-#
-options("spades.moduleCodeChecks" = FALSE)
-# clearCache("cache2/")
+# Tree species specified for the project (see "Meeting minute January 16th, 2019" from Google Drive)
+# CommonName = scientificName = LandRName
+# Jack pine = Pinus banksiana = Pinu_ban
+# Black spruce = Picea mariana = Pice_mar
+# White spruce = Picea glauca = Pice_gla
+# Balsam poplar = Populus balsamifera = Popu_bal
+# aspen = Populus tremuloides = Popu_tre, Popu_sp * Check this table with Steve
+# Paper birch = Betula papyrifera = Betu_pap
 
-
-#Tree species that are important to us
+# Equivalency table for tree species
 data("sppEquivalencies_CA", package = "LandR", envir = environment())
-sppEquivalencies_CA
-test <- sppEquivalencies_CA[LandR %in% c("Abie_sp", "Pice_gla", "Pice_mar", "Popu_tre",
-                                         "Betu_pap", "Pinu_con", "Pinu_ban")]
+print(sppEquivalencies_CA[,.(LandR, EN_generic_full, Latin_full)], nrow = nrow(sppEquivalencies_CA))
 
+speciesNWT <- sppEquivalencies_CA[LandR %in% c("Pinu_ban", "Pice_mar", "Pice_gla", "Popu_bal",
+                                         "Popu_tre", "Popu_sp", "Betu_pap")]
 objects <- list(
   studyArea = studyArea,
-  rasterToMatch = rasterToMatch,
-  sppEquiv = test,
-  studyAreaLarge = studyAreaLarge
+  sppEquiv = speciesNWT
   )
-#                 
 
-#You have to supply all possible studyArea combinations here or the simInit will source the wrong things.
-#This is a good argument for all modules only ever using studyArea. Never studyArea0 or SA or ROI
-myObjectSynonyms <- list(c("LCC2005", "vegMap")) 
-
-options(reproducible.overwrite = TRUE)
-options(reproducible.cachePath = "C:/Ian/Campbell/RIA/cache2")#necessary for some reason
-options(reproducible.inputPathsRecursive = "C:/Ian/Data")
+# myObjectSynonyms <- list(c("LCC2005", "vegMap")) # I assume this is for SCFM ~TM
 
 mySim <- simInit(times = times, params = parameters, modules = modules, objects = objects,
-                 paths = list(cachePath = paths$cachePath, modulePath = paths$modulePath, 
-                              inputPath = paths$inputPath, outputPath = paths$outputPath),
-                 loadOrder = unlist(modules))
+                 paths = paths, loadOrder = unlist(modules))
 
 dev.off()
 dev() 

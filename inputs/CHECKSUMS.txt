@@ -1,0 +1,7 @@
+"file" "checksum" "filesize" "algorithm"
+"92-160-g2011001-eng.pdf" "766a6352f60a7826" "559881" "xxhash64"
+"gpr_000b11a_e.dbf" "7ccb26c36c2bb00c" "2020" "xxhash64"
+"gpr_000b11a_e.prj" "0e057404aaeb8ebc" "167" "xxhash64"
+"gpr_000b11a_e.shp" "1651a2fb0f087e89" "54339372" "xxhash64"
+"gpr_000b11a_e.shx" "a98e13a8cdf848ad" "204" "xxhash64"
+"gpr_000b11a_e.zip" "6c82c75cd7ee3d2b" "41951324" "xxhash64"

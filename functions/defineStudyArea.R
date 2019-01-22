@@ -15,7 +15,7 @@
 #'                          as a character string with a province or territory that is contained 
 #'                          in the BCR6 or 'Canada' if the whole Canadian BCR6 is wanted.
 #'                          Default is `NULL`.
-#' @param destinationFolder Path to where to save downloaded files. Default is `tempdir()`.
+#' @param destinationPath   Path to where to save downloaded files. Default is `tempdir()`.
 #' 
 #' @param ...               Arguments to be passed to `prepInputs` or `Cache` (i.e. targetFile, 
 #'                          cacheId, destinationPath, overwrite, etc.).

@@ -36,7 +36,7 @@ vignettes/*.pdf
 rsconnect/
 .Rproj.user
 
-# Ignore temporary folder
+# Ignore temporary folder but not temp folder
 tmp/
 /tmp/
 !/temp/
@@ -49,10 +49,12 @@ tmp/
 !/inputs/BCR6.*
 !/inputs/bcr6.*
 !ModelStructure_2.jpg
-
 /outputs/
 outputs/
 /outputs/*.gr*
+
+# Don't ignore submodules' file
+!.gitmodules
 
 # Files added by automatic detection on files over a certain threshold
 ./inputs/gpr_000b11a_e.shp
@@ -81,3 +83,9 @@ outputs/
 ./modules/Boreal_LBMRDataPrep/data/NFI_MODIS250m_kNN_Species_Pice_Gla_v0.zip
 ./modules/Boreal_LBMRDataPrep/data/LCC2005_V1_4a.tif
 ./modules/Boreal_LBMRDataPrep/data/NFI_MODIS250m_kNN_Species_Popu_Bal_v0.zip
+./outputs/speciesLayers.gri
+./inputs/gpr_000b11a_e.shp
+./outputs/speciesLayers.gri
+./inputs/gpr_000b11a_e.shp
+./outputs/speciesLayers.gri
+./inputs/gpr_000b11a_e.shp

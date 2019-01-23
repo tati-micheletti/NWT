@@ -80,7 +80,35 @@ Make sure you restart your session after installing all packages.
 
 ```
 
-After having all installed correctly, we can start setting up the simulations.
+After having all installed correctly, we need to make sure all the submodules are sync to your machine: 
+```{r initSubmodules}
+system("git submodule init", wait = TRUE)
+
+# Set origin for all submodules
+system(paste0("cd ", getwd(), 
+              " && cd modules/LBMR ",
+              " && git remote set-url origin git@github.com:eliotmcintire/LBMR.git"), wait = TRUE)
+system(paste0("cd ", getwd(), 
+              " && cd modules/Boreal_LBMRDataPrep ",
+              " && git remote set-url origin git@github.com:eliotmcintire/Boreal_LBMRDataPrep.git"), wait = TRUE)
+system(paste0("cd ", getwd(), 
+              " && cd modules/LandR_BiomassGMOrig ",
+              " && git remote set-url origin git@github.com:eliotmcintire/LandR_BiomassGMOrig.git"), wait = TRUE)
+system(paste0("cd ", getwd(), 
+              " && cd modules/Biomass_regeneration ",
+              " && git remote set-url origin git@github.com:eliotmcintire/Biomass_regeneration.git"), wait = TRUE)
+system(paste0("cd ", getwd(), 
+              " && cd NationalModel ",
+              " && git remote set-url origin git@github.com:dstralberg/NationalModel.git"), wait = TRUE)
+system(paste0("cd ", getwd(), 
+              " && git submodule foreach git fetch"), wait = TRUE) # make sure you have development branch as an option")
+system(paste0("cd ", getwd(), 
+              " && git submodule foreach git pull"), wait = TRUE) # make sure you have development branch as an option")
+system(paste0("cd ", getwd(), 
+              " && git pull"), wait = TRUE)
+```
+
+Now we can start setting up the simulations.
 First we will set paths to the directories, the cloud cache folder and some 
 options used by SpaDES.
 

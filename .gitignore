@@ -41,11 +41,13 @@ tmp/
 /tmp/
 !/temp/
 
-# Ignore cache
+# Ignore cache and inputs
 /cache/
-
-# Don't ignore the following folders:
 /inputs/
+/inputs/*.*
+/outputs/*.*
+!/inputs/BCR6.*
+!/inputs/bcr6.*
 !ModelStructure_2.jpg
 
 /outputs/

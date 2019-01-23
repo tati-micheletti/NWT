@@ -74,14 +74,30 @@ paths <- pathsSetup(whichComputer = whichComputer, setTmpFolder = TRUE)
 
 # Sessting up the cache folder: it is hosted in the project's GDrive
 cloudFolderID <- "https://drive.google.com/open?id=1PoEkOkg_ixnAdDqqTQcun77nUvkEHDc0"
+tilePath <- file.path(paths$outputPath, "tiles")
 
 # Setting all SpaDES options to be used in the project
-options("reproducible.overwrite" = TRUE)
-options("reproducible.useMemoise" = FALSE) # Brings cached stuff to memory during the second run
-options("reproducible.cachePath" = paths$cachePath) # Set cachePath globally
-options("reproducible.useNewDigestAlgorithm" = TRUE) # use the new less strict hashing algo
-options("reproducible.useCloud" = TRUE) # use cloudCache in GDrive
-options("spades.moduleCodeChecks" = FALSE) # Turn off all module's code checking
+.plotInitialTime <- 0
+opts <- options(
+  "future.globals.maxSize" = 1000*1024^2,
+  "LandR.assertions" = FALSE,
+  "LandR.verbose" = 1,
+  "map.dataPath" = paths$inputPath,
+  "map.overwrite" = TRUE,
+  "map.tilePath" = tilePath,
+  "map.useParallel" = TRUE, #!identical("windows", .Platform$OS.type),
+  "reproducible.futurePlan" = FALSE,
+  "reproducible.inputPaths" = NULL,
+  "reproducible.quick" = FALSE,
+  "reproducible.overwrite" = TRUE,
+  "reproducible.useMemoise" = TRUE, # Brings cached stuff to memory during the second run
+  "reproducible.useNewDigestAlgorithm" = TRUE,  # use the new less strict hashing algo
+  "reproducible.useCache" = if (pemisc::user("emcintir")) "devMode" else TRUE,
+  "reproducible.cachePath" = paths$cachePath,
+  "reproducible.useCloud" = TRUE,
+  "spades.moduleCodeChecks" = FALSE, # Turn off all module's code checking
+  "spades.useRequire" = FALSE # assuming all pkgs installed correctly
+)
 
 SpaDES.core::setPaths(modulePath = paths$modulePath, inputPath = paths$inputPath, 
                       outputPath = paths$outputPath, cachePath = paths$cachePath)
@@ -127,7 +143,8 @@ parameters <- list(
     growthInitialTime = 0,
     successionTimestep = 10),
   Boreal_LBMRDataPrep = list(
-    successionTimeStep = 10
+    successionTimestep = 10,
+    pixelGroupAgeClass = 10
   )
 )
 
@@ -135,25 +152,34 @@ parameters <- list(
 
 Now we have to set the objects. The first object is a list of trees of interest:
 
-~~~~ HERE: Make this as a nice table
+```{r treeSp, echo = FALSE}
 
-``` {r objects}
 # Tree species specified for the project (see "Meeting minute January 16th, 2019" from Google Drive)
-# CommonName = scientificName = LandRName
-# Jack pine = Pinus banksiana = Pinu_ban
-# Black spruce = Picea mariana = Pice_mar
-# White spruce = Picea glauca = Pice_gla
-# Balsam poplar = Populus balsamifera = Popu_bal
-# aspen = Populus tremuloides = Popu_tre, Popu_sp * Check this table with Steve
-# Paper birch = Betula papyrifera = Betu_pap
+spTable <- data.frame(CommonName = c("Jack pine", "Black spruce", "White spruce", 
+                                     "Balsam poplar", "Trembling aspen", "Paper birch"),
+                      ScientificName = c("Pinus banksian", "Picea mariana", "Picea glauca", 
+                                         "Populus balsamifera", "Populus tremuloides", 
+                                         "Betula papyrifera"),
+                      LandR = c("Pinu_ban", "Pice_mar", "Pice_gla", "Popu_bal", 
+                                "Popu_tre, Popu_sp", "Betu_pap"))
+knitr::kable(spTable)
 
 # Equivalency table for tree species
 data("sppEquivalencies_CA", package = "LandR", envir = environment())
-print(sppEquivalencies_CA[,.(LandR, EN_generic_full, Latin_full)], nrow = nrow(sppEquivalencies_CA))
+
+# print(sppEquivalencies_CA[,.(LandR, EN_generic_full, Latin_full)], 
+#                 nrow = nrow(sppEquivalencies_CA))
 
 speciesNWT <- sppEquivalencies_CA[LandR %in% c("Pinu_ban", "Pice_mar", "Pice_gla", "Popu_bal",
                                          "Popu_tre", "Popu_sp", "Betu_pap")]
-objects <- list(
+```
+
+
+And finally, we load the objects used by this group of modules:
+
+``` {r objects}
+
+.objects <- list(
   studyArea = studyArea,
   sppEquiv = speciesNWT
   )
@@ -164,8 +190,9 @@ After supplying the objects, we run the simulation initialization function, pass
 
 ``` {r simInit}
 
-mySim <- simInit(times = times, params = parameters, modules = modules, objects = objects,
+mySim <- simInit(times = times, params = parameters, modules = modules, objects = .objects,
                  paths = paths, loadOrder = unlist(modules))
+objectSynonyms(envir = mySim@.envir, synonyms = list(c("studyArea", "studyAreaLarge"))) # Why do I have to pass this?
 
 ```
 

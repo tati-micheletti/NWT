@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library("SpaDES")
 library("raster")
 library("magrittr") # for piping
-system(paste0("find . -size +5M | cat >> .gitignore"), wait = TRUE)
+system(paste0("find . -size +50M | cat >> .gitignore"), wait = TRUE)
 
 # Source all common functions
 invisible(sapply(X = list.files(file.path(getwd(), "functions"), full.names = TRUE), FUN = source))

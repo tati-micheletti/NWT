@@ -5,18 +5,6 @@ date: "1/17/2019"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-library("SpaDES")
-library("raster")
-library("magrittr") # for piping
-library("LandR")
-invisible(system(paste0("find . -size +50M | cat >> .gitignore | 
-                        sort .gitignore | uniq "), wait = TRUE))
-# Source all common functions
-invisible(sapply(X = list.files(file.path(getwd(), "functions"), full.names = TRUE), FUN = source))
-```
-
 ## Simulation of effects of climate change on fire regime: implications for Boreal Caribou and
 landbird communities in the Northwest Territories
 
@@ -56,6 +44,24 @@ The structure of each one of the modules is as follows:
 
 \textcolor{blue}{anthropogenic}: To be completed by MT.
 
+### Update and/or install all needed packages
+
+If you don't have all packages installed yet, please 
+first update all your packages and then install SpaDES. 
+Make sure you restart your session after installing all packages.
+
+```{r setup, include=FALSE, eval = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+update.packages(checkBuilt = TRUE)
+devtools::install_github("PredictiveEcology/LandR@development")
+devtools::install_github("PredictiveEcology/reproducible@development")
+devtools::install_github("PredictiveEcology/quickPlot@development")
+devtools::install_github("PredictiveEcology/SpaDES.core@development")
+devtools::install_github("PredictiveEcology/SpaDES.tools@development")
+
+```
+
 ### Setting up directories and paths for the simulation
 
 First, make sure you have the correct R version. These model was created using 
@@ -63,22 +69,23 @@ the following R version and might not workcorrectly in other versions:
 
 ```{r rVersion}
 
-message(paste0("This model uses ", sessionInfo()[["R.version"]][["version.string"]]))
+message(paste0("This model uses R version 3.5.2 (2018-12-20). Your session runs ", 
+               sessionInfo()[["R.version"]][["version.string"]]))
 
 ```
 
-Second, please make sure you have all needed dependencies. If you don't have all 
-packages installed yet, please first update all your packages and install SpaDES. 
-Make sure you restart your session after installing all packages.
+Second, load all needed dependencies. 
 
-```{r packages, eval = FALSE}
+```{r libraries}
 
-# update.packages(checkBuilt = TRUE)
-# devtools::install_github("PredictiveEcology/LandR")
-# devtools::install_github("PredictiveEcology/reproducible@development")
-# devtools::install_github("PredictiveEcology/quickPlot@development")
-# devtools::install_github("PredictiveEcology/SpaDES.core@development")
-# devtools::install_github("PredictiveEcology/SpaDES.tools@development")
+library("LandR")
+library("SpaDES")
+library("raster")
+library("magrittr") # for piping
+invisible(system(paste0("find . -size +50M | cat >> .gitignore | 
+                        sort .gitignore | uniq "), wait = TRUE))
+# Source all common functions
+invisible(sapply(X = list.files(file.path(getwd(), "functions"), full.names = TRUE), FUN = source))
 
 ```
 
@@ -94,6 +101,8 @@ system(paste0("cd ", getwd(),
               " && git submodule foreach git pull"), wait = TRUE)
 system(paste0("cd ", getwd(),
               " && git pull"), wait = TRUE)
+message("These are the specific commits and branches of each submodule:")
+system("git submodule", wait = TRUE) # checks if the branches and commits you are using are the correct ones
 ```
 
 Now we can start setting up the simulations.
@@ -173,9 +182,22 @@ times <- list(start = 0, end = 20)
 
 ```
 
+### TRYING THE .RMD FILE:
+
+```{r originalRmd}
+
+```
+
+
+
+
+
+
+
 Then we need to set the parameters for the simulation call:
 
 ``` {r params}
+rasterToMatch <- reproducible::prepInputs(url = "https://drive.google.com/open?id=1fo08FMACr_aTV03lteQ7KsaoN9xGx1Df", studyArea = studyArea)
 sppEquivCol <- "LandWeb"
 parameters <- list(
   LBMR = list(".plotInitialTime" = 0,
@@ -199,14 +221,14 @@ Now we have to set the objects. The first object is a list of trees of interest:
 ```{r treeSp, echo = FALSE}
 
 # Tree species specified for the project (see "Meeting minute January 16th, 2019" from Google Drive)
-spTable <- data.frame(CommonName = c("Jack pine", "Black spruce", "White spruce", 
-                                     "Balsam poplar", "Trembling aspen", "Paper birch"),
-                      ScientificName = c("Pinus banksian", "Picea mariana", "Picea glauca", 
-                                         "Populus balsamifera", "Populus tremuloides", 
-                                         "Betula papyrifera"),
-                      LandR = c("Pinu_ban", "Pice_mar", "Pice_gla", "Popu_bal", 
-                                "Popu_tre", "Betu_pap"))
-knitr::kable(spTable)
+# spTable <- data.frame(CommonName = c("Jack pine", "Black spruce", "White spruce", 
+#                                      "Balsam poplar", "Trembling aspen", "Paper birch"),
+#                       ScientificName = c("Pinus banksian", "Picea mariana", "Picea glauca", 
+#                                          "Populus balsamifera", "Populus tremuloides", 
+#                                          "Betula papyrifera"),
+#                       LandR = c("Pinu_ban", "Pice_mar", "Pice_gla", "Popu_bal", 
+#                                 "Popu_tre", "Betu_pap"))
+# knitr::kable(spTable)
 
 # Equivalency table for tree species
 data("sppEquivalencies_CA", package = "LandR")
@@ -240,6 +262,7 @@ And finally, we load the objects used by this group of modules:
 ``` {r objects}
 
 .objects <- list(
+  "rasterToMatch" = rasterToMatch,
   "studyArea" = studyArea,
   "studyAreaLarge" = studyArea, # Passing to try to see if I can fix the recursive problem without having to give it too much thought...
   "sppEquiv" = sppEquivalencies_CA,

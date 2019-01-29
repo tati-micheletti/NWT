@@ -54,11 +54,14 @@ Make sure you restart your session after installing all packages.
 knitr::opts_chunk$set(echo = TRUE)
 
 update.packages(checkBuilt = TRUE)
-devtools::install_github("PredictiveEcology/LandR@development")
 devtools::install_github("PredictiveEcology/reproducible@development")
+devtools::install_github("achubaty/amc@development")
+devtools::install_github("PredictiveEcology/pemisc@development")
+devtools::install_github("PredictiveEcology/map@development")
+devtools::install_github("PredictiveEcology/LandR@development")
 devtools::install_github("PredictiveEcology/quickPlot@development")
-devtools::install_github("PredictiveEcology/SpaDES.core@development")
 devtools::install_github("PredictiveEcology/SpaDES.tools@development")
+devtools::install_github("PredictiveEcology/SpaDES.core@development")
 
 ```
 
@@ -82,8 +85,8 @@ library("LandR")
 library("SpaDES")
 library("raster")
 library("magrittr") # for piping
-invisible(system(paste0("find . -size +50M | cat >> .gitignore | 
-                        sort .gitignore | uniq "), wait = TRUE))
+system(paste0("find . -size +50M | cat >> .gitignore | 
+                        sort .gitignore | uniq "), ignore.stdout = TRUE, wait = TRUE)
 # Source all common functions
 invisible(sapply(X = list.files(file.path(getwd(), "functions"), full.names = TRUE), FUN = source))
 
@@ -93,8 +96,8 @@ After having all installed correctly, we need to make sure all the submodules ar
 
 ```{r initSubmodules, eval = FALSE}
 
-# system("git submodule init", wait = TRUE)
-# system("git submodule sync | git submodule update --init --recursive --remote", wait = TRUE)
+# system("git submodule init", wait = TRUE) # Use only the first time you are running the project
+# system("git submodule sync | git submodule update --init --recursive --remote", wait = TRUE) # Use only the first time you are running the project
 system(paste0("cd ", getwd(),
               " && git submodule foreach git fetch"), wait = TRUE)
 system(paste0("cd ", getwd(),
@@ -112,7 +115,7 @@ options used by SpaDES.
 ```{r setup}
 # Which computer is this being run on?
 # Options are: BorealCloud, LocalMachine, 388
-whichComputer <- "BorealCloud"
+whichComputer <- "388"
 
 paths <- pathsSetup(whichComputer = whichComputer, setTmpFolder = TRUE) 
 # If setTmpFolder == TRUE, a temporary folder will be created inside the cache folder set. 
@@ -177,33 +180,25 @@ we explicitly specify the modules to be run, and the running time for the simula
 
 ```{r run_LandR}
 
-modules <- list("Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR")
-times <- list(start = 0, end = 20)
+modules <- list("waterlandClassification")
+times <- list(start = 1, end = 1)
 
 ```
-
-### TRYING THE .RMD FILE:
-
-```{r originalRmd}
-
-```
-
-
-
-
-
-
 
 Then we need to set the parameters for the simulation call:
 
 ``` {r params}
-rasterToMatch <- reproducible::prepInputs(url = "https://drive.google.com/open?id=1fo08FMACr_aTV03lteQ7KsaoN9xGx1Df", studyArea = studyArea)
+rasterToMatch <- reproducible::prepInputs(url = "https://drive.google.com/open?id=1fo08FMACr_aTV03lteQ7KsaoN9xGx1Df", studyArea = studyArea,
+                                          destinationPath = paths$inputPath)
+rasterToMatch[7080245] <- NA # Quick fix for the NA in the newLCCClasses table (hopefully) 
 sppEquivCol <- "LandWeb"
 parameters <- list(
   LBMR = list(".plotInitialTime" = 0,
               "seedingAlgorithm" = "wardDispersal",
               "useCache" = TRUE,
               "successionTimestep" = 10), 
+  waterlandClassification = list("baseLayer" = c("LCC05", "LCC10"),
+              wetValue = NA),
   LandR_BiomassGMOrig = list( # dev branch
     "growthInitialTime" = 0,
     "successionTimestep" = 10),
@@ -262,9 +257,9 @@ And finally, we load the objects used by this group of modules:
 ``` {r objects}
 
 .objects <- list(
-  "rasterToMatch" = rasterToMatch,
+  # "rasterToMatch" = rasterToMatch,
   "studyArea" = studyArea,
-  "studyAreaLarge" = studyArea, # Passing to try to see if I can fix the recursive problem without having to give it too much thought...
+  "studyAreaLarge" = studyArea,
   "sppEquiv" = sppEquivalencies_CA,
   "sppEquivCol" = sppEquivCol,
   "sppColors" = sppColors,
@@ -279,7 +274,6 @@ After supplying the objects, we run the simulation initialization function, pass
 
 mySim <- simInit(times = times, params = parameters, modules = modules, objects = .objects,
                  paths = paths, loadOrder = unlist(modules))
-# SpaDES.core::objectSynonyms(envir = mySim@.envir, synonyms = list(c("studyArea", "studyAreaLarge"))) # Why do I have to pass this?
 
 ```
 
@@ -287,6 +281,6 @@ And finally the simulation call (note that the argument `debug = TRUE` lists all
 
 ```{r call}
 
-LandR_Biomass <- spades(mySim, debug = TRUE)
+Wetlands <- spades(mySim, debug = TRUE)
 
 ```

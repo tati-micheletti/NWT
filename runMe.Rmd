@@ -55,6 +55,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 update.packages(checkBuilt = TRUE)
 devtools::install_github("PredictiveEcology/reproducible@development")
+devtools::install_github("achubaty/amc@development")
+devtools::install_github("PredictiveEcology/pemisc@development")
+devtools::install_github("PredictiveEcology/map@development")
 devtools::install_github("PredictiveEcology/LandR@development")
 devtools::install_github("PredictiveEcology/quickPlot@development")
 devtools::install_github("PredictiveEcology/SpaDES.tools@development")
@@ -185,7 +188,8 @@ times <- list(start = 1, end = 1)
 Then we need to set the parameters for the simulation call:
 
 ``` {r params}
-rasterToMatch <- reproducible::prepInputs(url = "https://drive.google.com/open?id=1fo08FMACr_aTV03lteQ7KsaoN9xGx1Df", studyArea = studyArea)
+rasterToMatch <- reproducible::prepInputs(url = "https://drive.google.com/open?id=1fo08FMACr_aTV03lteQ7KsaoN9xGx1Df", studyArea = studyArea,
+                                          destinationPath = paths$inputPath)
 rasterToMatch[7080245] <- NA # Quick fix for the NA in the newLCCClasses table (hopefully) 
 sppEquivCol <- "LandWeb"
 parameters <- list(

@@ -5,16 +5,6 @@ date: "1/17/2019"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-library("SpaDES")
-library("raster")
-library("magrittr") # for piping
-system(paste0("find . -size +50M | cat >> .gitignore"), wait = TRUE)
-# Source all common functions
-invisible(sapply(X = list.files(file.path(getwd(), "functions"), full.names = TRUE), FUN = source))
-```
-
 ## Simulation of effects of climate change on fire regime: implications for Boreal Caribou and
 landbird communities in the Northwest Territories
 
@@ -54,6 +44,24 @@ The structure of each one of the modules is as follows:
 
 \textcolor{blue}{anthropogenic}: To be completed by MT.
 
+### Update and/or install all needed packages
+
+If you don't have all packages installed yet, please 
+first update all your packages and then install SpaDES. 
+Make sure you restart your session after installing all packages.
+
+```{r setup, include=FALSE, eval = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+update.packages(checkBuilt = TRUE)
+devtools::install_github("PredictiveEcology/reproducible@development")
+devtools::install_github("PredictiveEcology/LandR@development")
+devtools::install_github("PredictiveEcology/quickPlot@development")
+devtools::install_github("PredictiveEcology/SpaDES.tools@development")
+devtools::install_github("PredictiveEcology/SpaDES.core@development")
+
+```
+
 ### Setting up directories and paths for the simulation
 
 First, make sure you have the correct R version. These model was created using 
@@ -61,51 +69,40 @@ the following R version and might not workcorrectly in other versions:
 
 ```{r rVersion}
 
-message(paste0("This model uses ", sessionInfo()[["R.version"]][["version.string"]]))
+message(paste0("This model uses R version 3.5.2 (2018-12-20). Your session runs ", 
+               sessionInfo()[["R.version"]][["version.string"]]))
 
 ```
 
-Second, please make sure you have all needed dependencies. If you don't have all 
-packages installed yet, please first update all your packages and install SpaDES. 
-Make sure you restart your session after installing all packages.
+Second, load all needed dependencies. 
 
-```{r packages, eval = FALSE}
+```{r libraries}
 
-# update.packages(checkBuilt = TRUE)
-# devtools::install_github("PredictiveEcology/LandR")
-# devtools::install_github("PredictiveEcology/reproducible@development")
-# devtools::install_github("PredictiveEcology/quickPlot@development")
-# devtools::install_github("PredictiveEcology/SpaDES.core@development")
-# devtools::install_github("PredictiveEcology/SpaDES.tools@development")
+library("LandR")
+library("SpaDES")
+library("raster")
+library("magrittr") # for piping
+system(paste0("find . -size +50M | cat >> .gitignore | 
+                        sort .gitignore | uniq "), ignore.stdout = TRUE, wait = TRUE)
+# Source all common functions
+invisible(sapply(X = list.files(file.path(getwd(), "functions"), full.names = TRUE), FUN = source))
 
 ```
 
-After having all installed correctly, we need to make sure all the submodules are sync to your machine: 
-```{r initSubmodules}
-system("git submodule init", wait = TRUE)
+After having all installed correctly, we need to make sure all the submodules are sync to your machine:
 
-# Set origin for all submodules
-system(paste0("cd ", getwd(), 
-              " && cd modules/LBMR ",
-              " && git remote set-url origin git@github.com:eliotmcintire/LBMR.git"), wait = TRUE)
-system(paste0("cd ", getwd(), 
-              " && cd modules/Boreal_LBMRDataPrep ",
-              " && git remote set-url origin git@github.com:eliotmcintire/Boreal_LBMRDataPrep.git"), wait = TRUE)
-system(paste0("cd ", getwd(), 
-              " && cd modules/LandR_BiomassGMOrig ",
-              " && git remote set-url origin git@github.com:eliotmcintire/LandR_BiomassGMOrig.git"), wait = TRUE)
-system(paste0("cd ", getwd(), 
-              " && cd modules/Biomass_regeneration ",
-              " && git remote set-url origin git@github.com:eliotmcintire/Biomass_regeneration.git"), wait = TRUE)
-system(paste0("cd ", getwd(), 
-              " && cd NationalModel ",
-              " && git remote set-url origin git@github.com:dstralberg/NationalModel.git"), wait = TRUE)
-system(paste0("cd ", getwd(), 
-              " && git submodule foreach git fetch"), wait = TRUE) # make sure you have development branch as an option")
-system(paste0("cd ", getwd(), 
-              " && git submodule foreach git pull"), wait = TRUE) # make sure you have development branch as an option")
-system(paste0("cd ", getwd(), 
+```{r initSubmodules, eval = FALSE}
+
+# system("git submodule init", wait = TRUE) # Use only the first time you are running the project
+# system("git submodule sync | git submodule update --init --recursive --remote", wait = TRUE) # Use only the first time you are running the project
+system(paste0("cd ", getwd(),
+              " && git submodule foreach git fetch"), wait = TRUE)
+system(paste0("cd ", getwd(),
+              " && git submodule foreach git pull"), wait = TRUE)
+system(paste0("cd ", getwd(),
               " && git pull"), wait = TRUE)
+message("These are the specific commits and branches of each submodule:")
+system("git submodule", wait = TRUE) # checks if the branches and commits you are using are the correct ones
 ```
 
 Now we can start setting up the simulations.
@@ -188,18 +185,21 @@ times <- list(start = 0, end = 20)
 Then we need to set the parameters for the simulation call:
 
 ``` {r params}
-
+rasterToMatch <- reproducible::prepInputs(url = "https://drive.google.com/open?id=1fo08FMACr_aTV03lteQ7KsaoN9xGx1Df", studyArea = studyArea)
+rasterToMatch[7080245] <- NA # Quick fix for the NA in the newLCCClasses table (hopefully) 
+sppEquivCol <- "LandWeb"
 parameters <- list(
-  LBMR = list(.plotInitialTime = 0,
-              seedingAlgorithm = "wardDispersal",
-              useCache = TRUE,
-              successionTimestep = 10), 
+  LBMR = list(".plotInitialTime" = 0,
+              "seedingAlgorithm" = "wardDispersal",
+              "useCache" = TRUE,
+              "successionTimestep" = 10), 
   LandR_BiomassGMOrig = list( # dev branch
-    growthInitialTime = 0,
-    successionTimestep = 10),
+    "growthInitialTime" = 0,
+    "successionTimestep" = 10),
   Boreal_LBMRDataPrep = list(
-    successionTimestep = 10,
-    pixelGroupAgeClass = 10
+    "sppEquivCol" = sppEquivCol,
+    "successionTimestep" = 10,
+    "pixelGroupAgeClass" = 10
   )
 )
 
@@ -210,23 +210,39 @@ Now we have to set the objects. The first object is a list of trees of interest:
 ```{r treeSp, echo = FALSE}
 
 # Tree species specified for the project (see "Meeting minute January 16th, 2019" from Google Drive)
-spTable <- data.frame(CommonName = c("Jack pine", "Black spruce", "White spruce", 
-                                     "Balsam poplar", "Trembling aspen", "Paper birch"),
-                      ScientificName = c("Pinus banksian", "Picea mariana", "Picea glauca", 
-                                         "Populus balsamifera", "Populus tremuloides", 
-                                         "Betula papyrifera"),
-                      LandR = c("Pinu_ban", "Pice_mar", "Pice_gla", "Popu_bal", 
-                                "Popu_tre, Popu_sp", "Betu_pap"))
-knitr::kable(spTable)
+# spTable <- data.frame(CommonName = c("Jack pine", "Black spruce", "White spruce", 
+#                                      "Balsam poplar", "Trembling aspen", "Paper birch"),
+#                       ScientificName = c("Pinus banksian", "Picea mariana", "Picea glauca", 
+#                                          "Populus balsamifera", "Populus tremuloides", 
+#                                          "Betula papyrifera"),
+#                       LandR = c("Pinu_ban", "Pice_mar", "Pice_gla", "Popu_bal", 
+#                                 "Popu_tre", "Betu_pap"))
+# knitr::kable(spTable)
 
 # Equivalency table for tree species
-data("sppEquivalencies_CA", package = "LandR", envir = environment())
+data("sppEquivalencies_CA", package = "LandR")
+sppEquivalencies_CA[grep("Pin", LandR), `:=`(EN_generic_short = "Pine",
+                                             EN_generic_full = "Pine",
+                                             Leading = "Pine leading")]
 
-# print(sppEquivalencies_CA[,.(LandR, EN_generic_full, Latin_full)], 
-#                 nrow = nrow(sppEquivalencies_CA))
+# Make LandWeb spp equivalencies
+sppEquivalencies_CA[, LandWeb := c(Pice_mar = "Pice_mar", Pice_gla = "Pice_gla",
+                                   Pinu_con = "Pinu_sp", Pinu_ban = "Pinu_sp",
+                                   Popu_tre = "Popu_sp", Betu_pap = "Popu_sp",
+                                   Abie_bal = "Abie_sp", Abie_las = "Abie_sp", Abie_sp = "Abie_sp")[LandR]]
 
-speciesNWT <- sppEquivalencies_CA[LandR %in% c("Pinu_ban", "Pice_mar", "Pice_gla", "Popu_bal",
-                                         "Popu_tre", "Popu_sp", "Betu_pap")]
+sppEquivalencies_CA[LandWeb == "Abie_sp", EN_generic_full := "Fir"]
+sppEquivalencies_CA[LandWeb == "Abie_sp", EN_generic_short := "Fir"]
+sppEquivalencies_CA[LandWeb == "Abie_sp", Leading := "Fir leading"]
+
+sppEquivalencies_CA[LandWeb == "Popu_sp", EN_generic_full := "Deciduous"]
+sppEquivalencies_CA[LandWeb == "Popu_sp", EN_generic_short := "Decid"]
+sppEquivalencies_CA[LandWeb == "Popu_sp", Leading := "Deciduous leading"]
+
+# create color palette for species used in model
+
+sppColors <- LandR::sppColors(sppEquivalencies_CA, sppEquivCol, newVals = "Mixed", palette = "Accent")
+
 ```
 
 
@@ -235,8 +251,13 @@ And finally, we load the objects used by this group of modules:
 ``` {r objects}
 
 .objects <- list(
-  studyArea = studyArea,
-  sppEquiv = speciesNWT
+  "rasterToMatch" = rasterToMatch,
+  "studyArea" = studyArea,
+  "studyAreaLarge" = studyArea, # Passing to try to see if I can fix the recursive problem without having to give it too much thought...
+  "sppEquiv" = sppEquivalencies_CA,
+  "sppEquivCol" = sppEquivCol,
+  "sppColors" = sppColors,
+  "omitNonVegPixels" = TRUE
   )
 
 ```
@@ -247,7 +268,6 @@ After supplying the objects, we run the simulation initialization function, pass
 
 mySim <- simInit(times = times, params = parameters, modules = modules, objects = .objects,
                  paths = paths, loadOrder = unlist(modules))
-SpaDES.core::objectSynonyms(envir = mySim@.envir, synonyms = list(c("studyArea", "studyAreaLarge"))) # Why do I have to pass this?
 
 ```
 
@@ -258,4 +278,3 @@ And finally the simulation call (note that the argument `debug = TRUE` lists all
 LandR_Biomass <- spades(mySim, debug = TRUE)
 
 ```
-

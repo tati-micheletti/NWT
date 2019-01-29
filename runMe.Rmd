@@ -112,7 +112,7 @@ options used by SpaDES.
 ```{r setup}
 # Which computer is this being run on?
 # Options are: BorealCloud, LocalMachine, 388
-whichComputer <- "BorealCloud"
+whichComputer <- "388"
 
 paths <- pathsSetup(whichComputer = whichComputer, setTmpFolder = TRUE) 
 # If setTmpFolder == TRUE, a temporary folder will be created inside the cache folder set. 
@@ -177,8 +177,8 @@ we explicitly specify the modules to be run, and the running time for the simula
 
 ```{r run_LandR}
 
-modules <- list("Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR")
-times <- list(start = 0, end = 20)
+modules <- list("waterlandClassification")
+times <- list(start = 1, end = 1)
 
 ```
 
@@ -193,6 +193,8 @@ parameters <- list(
               "seedingAlgorithm" = "wardDispersal",
               "useCache" = TRUE,
               "successionTimestep" = 10), 
+  waterlandClassification = list("baseLayer" = c("LCC05", "LCC10"),
+              wetValue = NA),
   LandR_BiomassGMOrig = list( # dev branch
     "growthInitialTime" = 0,
     "successionTimestep" = 10),
@@ -251,9 +253,9 @@ And finally, we load the objects used by this group of modules:
 ``` {r objects}
 
 .objects <- list(
-  "rasterToMatch" = rasterToMatch,
+  # "rasterToMatch" = rasterToMatch,
   "studyArea" = studyArea,
-  "studyAreaLarge" = studyArea, # Passing to try to see if I can fix the recursive problem without having to give it too much thought...
+  "studyAreaLarge" = studyArea,
   "sppEquiv" = sppEquivalencies_CA,
   "sppEquivCol" = sppEquivCol,
   "sppColors" = sppColors,
@@ -275,6 +277,6 @@ And finally the simulation call (note that the argument `debug = TRUE` lists all
 
 ```{r call}
 
-LandR_Biomass <- spades(mySim, debug = TRUE)
+Wetlands <- spades(mySim, debug = TRUE)
 
 ```

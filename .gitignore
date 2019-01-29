@@ -1853,3 +1853,4 @@ outputs/
 ./modules/Boreal_LBMRDataPrep/data/LCC2005_V1_4a.tif
 ./modules/Boreal_LBMRDataPrep/data/NFI_MODIS250m_kNN_Species_Popu_Bal_v0.zip
 ./outputs/speciesLayers.gri
+./modules/waterlandClassification/data/HybridWetlandLayer2_1.gdb

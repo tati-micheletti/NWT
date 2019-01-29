@@ -1854,3 +1854,8 @@ outputs/
 ./modules/Boreal_LBMRDataPrep/data/NFI_MODIS250m_kNN_Species_Popu_Bal_v0.zip
 ./outputs/speciesLayers.gri
 ./modules/waterlandClassification/data/HybridWetlandLayer2_1.gdb
+./modules/waterlandClassification/data/HybridWetlandLayer2_1.gdb/
+./modules/waterlandClassification/data/HybridWetlandLayer2_1.gdb/*.*
+./modules/waterlandClassification/data/HybridWetlandLayer2_1.gdb/a00000053.gdbtable
+./modules/waterlandClassification/data/HybridWetlandLayer2_1.gdb/a00000041.gdbtable
+

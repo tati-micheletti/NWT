@@ -142,7 +142,7 @@ opts <- options(
   "map.tilePath" = tilePath,
   "map.useParallel" = TRUE, #!identical("windows", .Platform$OS.type),
   "reproducible.futurePlan" = FALSE,
-  "reproducible.inputPaths" = NULL,
+  "reproducible.inputPaths" = if (pemisc::user("emcintir")) "~/data" else NULL,
   "reproducible.quick" = FALSE,
   "reproducible.overwrite" = TRUE,
   "reproducible.useMemoise" = TRUE, # Brings cached stuff to memory during the second run
@@ -166,7 +166,7 @@ We have developed a specific function to select this area, which is cached both 
 in a google drive's folder (`cloudFolderID`), which is sharable with all project's team members.
 
 ```{r studyArea}
-
+options(httr_oob_default = TRUE) # Allows it to work on a Linux server
 studyArea <- cloudCache(defineStudyArea, testArea = TRUE, mapSubset = "Northwest Territories",
                         destinationPath = paths$inputPath, specificTestArea = "BCR6",
                         useCloud = TRUE, cloudFolderID = cloudFolderID) %>%  rgeos::gUnaryUnion()

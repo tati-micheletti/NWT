@@ -18,6 +18,7 @@ tmp/
 /tmp/
 !/temp/
 ./cache/
+<<<<<<< HEAD
 ./modules/LBMR/data/
 ./modules/waterlandClassification/data/
 ./modules/LandR_BiomassGMOrig/data/
@@ -34,3 +35,5 @@ tmp/
 *.gdbtable
 *.zip
 !CHEKCSUMS.txt
+./modules/Boreal_LBMRDataPrep/data/*
+./.git

@@ -1,6 +1,3 @@
-[submodule "modules/Boreal_LBMRDataPrep"]
-	path = modules/Boreal_LBMRDataPrep
-	url = git@github.com:eliotmcintire/Boreal_LBMRDataPrep.git
 [submodule "modules/LandR_BiomassGMOrig"]
 	path = modules/LandR_BiomassGMOrig
 	url = git@github.com:eliotmcintire/LandR_BiomassGMOrig.git

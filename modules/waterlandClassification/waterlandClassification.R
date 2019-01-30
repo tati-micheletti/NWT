@@ -96,15 +96,19 @@ doEvent.waterlandClassification = function(sim, eventTime, eventType) {
             reproducible::Checksums(path = dPath, write = TRUE)
             # [ FIX ] reproducible is not loading the file...
             # ???
-            library(rgdal)
-            sim$wetlandRaster <- rgdal::readOGR(dsn = file.path(dPath, "HybridWetlandLayer2_1.gdb"), layer = "HybridWetlandLayer2_1")
+            browser()
+            prepSpeciesLayers_DUCKS()
+            
+            sim$wetlandRaster <- rgdal::readOGR(dsn = file.path(dPath), layer = "HybridWetlandLayer2_1")
             # (studyArea = studyArea, rasterToMatch = sim$RTM)
-      sim$wetlandRaster <- reproducible::prepInputs(targetFile = "HybridWetlandLayer2_1.gdb",
-                                                    destinationPath = dPath,
+      sim$wetlandRaster <- reproducible::prepInputs(url = "https://drive.google.com/open?id=1MglGyEw3ajuFB9Unu1s8NCZFnPlVxahE",
+                                                    archive = "HybridWetlandLayer2_1.zip",
+                                                    dsn = dPath, layer = "HybridWetlandLayer2_1",
+                                                    destinationPath = dPath, fun = "rgdal::readOGR",
                                                     userTags = c(cacheTags, "objectName:wetlandRaster"))
   }
 
-  if (is.null(P(sim)$baseLayer)) 
+  if (is.null(P(sim)$baseLayer))
     P(sim)$baseLayer  <- c("LCC05", "LCC10")
 
   return(invisible(sim))

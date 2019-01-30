@@ -188,9 +188,12 @@ times <- list(start = 1, end = 1)
 Then we need to set the parameters for the simulation call:
 
 ``` {r params}
-rasterToMatch <- reproducible::prepInputs(url = "https://drive.google.com/open?id=1fo08FMACr_aTV03lteQ7KsaoN9xGx1Df", studyArea = studyArea,
-                                          destinationPath = paths$inputPath)
-rasterToMatch[7080245] <- NA # Quick fix for the NA in the newLCCClasses table (hopefully) 
+
+rasterToMatch <- cloudCache(prepInputs, url = "https://drive.google.com/open?id=1fo08FMACr_aTV03lteQ7KsaoN9xGx1Df", studyArea = studyArea,
+                            targetFile = "RTM.tif", destinationPath = paths$inputPath, 
+                            useCloud = TRUE, cloudFolderID = cloudFolderID)
+
+# rasterToMatch[7080245] <- NA # Quick fix for the NA in the newLCCClasses table (hopefully) 
 sppEquivCol <- "LandWeb"
 parameters <- list(
   LBMR = list(".plotInitialTime" = 0,

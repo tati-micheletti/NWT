@@ -33,3 +33,4 @@ tmp/
 !modules/Boreal_LBMRDataPrep/data/RTM.tif
 *.gdbtable
 *.zip
+!CHEKCSUMS.txt

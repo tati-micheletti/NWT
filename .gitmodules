@@ -13,3 +13,6 @@
 [submodule "modules/fireSense_NWT_DataPrep"]
 	path = modules/fireSense_NWT_DataPrep
 	url = git@github.com:ygc2l/fireSense_NWT_DataPrep.git
+[submodule "modules/Boreal_LBMRDataPrep"]
+	path = modules/Boreal_LBMRDataPrep
+	url = git@github.com:eliotmcintire/Boreal_LBMRDataPrep.git

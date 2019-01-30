@@ -13,3 +13,6 @@
 [submodule "NationalModel"]
 	path = NationalModel
 	url = git@github.com:dstralberg/NationalModel.git
+[submodule "modules/fireSense_NWT_DataPrep"]
+	path = modules/fireSense_NWT_DataPrep
+	url = C:/Users/jemar270/Documents/GitHub/fireSense_NWT_DataPrep/.git

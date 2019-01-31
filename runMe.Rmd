@@ -50,7 +50,7 @@ If you don't have all packages installed yet, please
 first update all your packages and then install SpaDES. 
 Make sure you restart your session after installing all packages.
 
-```{r setup, include=FALSE, eval = FALSE}
+```{r github, include=FALSE, eval = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
 update.packages(checkBuilt = TRUE)

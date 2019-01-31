@@ -101,7 +101,10 @@ After having all installed correctly, we need to make sure all the submodules ar
 # system(paste0("cd ", getwd(),
 #               " && git submodule foreach git fetch"), wait = TRUE) # Only need to run when you need to fetch other branches
 system(paste0("cd ", getwd(),
-              " && git submodule foreach git pull"), wait = TRUE) # Ian, if you have all your upstream set as the orignal repos where you want to pull from, add 'upstream' after pull
+              " && git submodule foreach git pull"), wait = TRUE)
+system(paste0("cd ", getwd(), "/modules/Boreal_LBMRDataPrep",
+              " && git pull upstream development"), wait = TRUE)
+add 'upstream' after pull
 system(paste0("cd ", getwd(),
               " && git pull"), wait = TRUE)
 message("These are the specific commits and branches of each submodule:")
@@ -115,7 +118,7 @@ options used by SpaDES.
 ```{r setup}
 # Which computer is this being run on?
 # Options are: BorealCloud, LocalMachine, 388
-whichComputer <- "388"
+whichComputer <- "BorealCloud"
 
 paths <- pathsSetup(whichComputer = whichComputer, setTmpFolder = TRUE) 
 # If setTmpFolder == TRUE, a temporary folder will be created inside the cache folder set. 
@@ -180,7 +183,7 @@ we explicitly specify the modules to be run, and the running time for the simula
 
 ```{r run_LandR}
 
-modules <- list("waterlandClassification")
+modules <- list("Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR") #list("waterlandClassification")
 times <- list(start = 1, end = 1)
 
 ```
@@ -261,7 +264,7 @@ And finally, we load the objects used by this group of modules:
 ``` {r objects}
 
 .objects <- list(
-  # "rasterToMatch" = rasterToMatch,
+  "rasterToMatch" = rasterToMatch,
   "studyArea" = studyArea,
   "studyAreaLarge" = studyArea,
   "sppEquiv" = sppEquivalencies_CA,

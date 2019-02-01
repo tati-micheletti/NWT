@@ -1,0 +1,3 @@
+setwd("/mnt/data/Micheletti/NWT")
+knitr::purl(file.path(getwd(), "runMe.Rmd"), output = "runMeTranslated.R", documentation = 1)
+source(file.path(getwd(), "runMeTranslated.R"))

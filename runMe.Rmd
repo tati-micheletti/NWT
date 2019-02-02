@@ -102,9 +102,6 @@ After having all installed correctly, we need to make sure all the submodules ar
 #               " && git submodule foreach git fetch"), wait = TRUE) # Only need to run when you need to fetch other branches
 system(paste0("cd ", getwd(),
               " && git submodule foreach git pull"), wait = TRUE)
-system(paste0("cd ", getwd(), "/modules/Boreal_LBMRDataPrep",
-              " && git pull upstream development"), wait = TRUE)
-add 'upstream' after pull
 system(paste0("cd ", getwd(),
               " && git pull"), wait = TRUE)
 message("These are the specific commits and branches of each submodule:")
@@ -209,7 +206,7 @@ rasterToMatch <- cloudCache(prepInputs, url = "https://drive.google.com/open?id=
 # rasterToMatch[7080245] <- NA # Quick fix for the NA in the newLCCClasses table (hopefully) 
 sppEquivCol <- "LandWeb"
 parameters <- list(
-  LBMR = list(".plotInitialTime" = 0,
+  LBMR = list(".plotInitialTime" = NA,
               "seedingAlgorithm" = "wardDispersal",
               "useCache" = TRUE,
               "successionTimestep" = 10,

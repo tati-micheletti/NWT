@@ -120,15 +120,25 @@ options used by SpaDES.
 # Options are: BorealCloud, LocalMachine, 388
 whichComputer <- "BorealCloud"
 
-paths <- pathsSetup(whichComputer = whichComputer, setTmpFolder = TRUE) 
+paths <- pathsSetup(whichComputer = whichComputer) 
+
+setTempFolder(paths = paths, setTmpFolder = TRUE) 
+
+# <<!!!>> ATTENTION <<!!!>>
+
 # If setTmpFolder == TRUE, a temporary folder will be created inside the cache folder set. 
 # This can/should be changed later for other projects using:
+
 # ===> In Windows:
-# write(TMPDIR = '<path/to/tempFolder>'), file = file.path(Sys.getenv('R_USER'), '.Renviron'))
+# file.edit(file.path(Sys.getenv('R_USER'), '.Renviron'))
+# Change the path in TMPDIR to the desired path to temp folder and save the file. 
+# Restart your R session for the changes to take effect.
+
 # ===> In Linux/MacOS:
 # tryCatch(library(unixtools),
 #   error = function(e) install.packages("unixtools", repos = 'http://www.rforge.net/'))
 #   unixtools::set.tempdir(<path/to/tempFolder>)
+# Restart your R session for the changes to take effect.
 
 # Sessting up the cache folder: it is hosted in the project's GDrive
 cloudFolderID <- "https://drive.google.com/open?id=1PoEkOkg_ixnAdDqqTQcun77nUvkEHDc0"

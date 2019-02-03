@@ -1,3 +1,7 @@
 setwd("/mnt/data/Micheletti/NWT")
+system(paste0("cd ", getwd(),
+              " && git submodule foreach git pull"), wait = TRUE)
+system(paste0("cd ", getwd(),
+              " && git pull"), wait = TRUE)
 knitr::purl(file.path(getwd(), "runMe.Rmd"), output = "runMeTranslated.R", documentation = 1)
 source(file.path(getwd(), "runMeTranslated.R"))

@@ -119,7 +119,7 @@ whichComputer <- "BorealCloud"
 
 paths <- pathsSetup(whichComputer = whichComputer) 
 
-setTempFolder(paths = paths, setTmpFolder = TRUE) 
+if (pemisc::user() %in% c("Tati", "tmichele")) setTempFolder(paths = paths, setTmpFolder = TRUE)
 
 # <<!!!>> ATTENTION <<!!!>>
 

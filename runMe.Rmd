@@ -54,7 +54,8 @@ Make sure you restart your session after installing all packages.
 knitr::opts_chunk$set(echo = TRUE)
 
 update.packages(checkBuilt = TRUE)
-devtools::install_github("PredictiveEcology/reproducible@development")
+# devtools::install_github("PredictiveEcology/reproducible@development")
+devtools::install_github("tati-micheletti/reproducible@development")
 devtools::install_github("achubaty/amc@development")
 devtools::install_github("PredictiveEcology/pemisc@development")
 devtools::install_github("PredictiveEcology/map@development")
@@ -201,7 +202,7 @@ Then we need to set the parameters for the simulation call:
 
 rasterToMatch <- cloudCache(prepInputs, url = "https://drive.google.com/open?id=1fo08FMACr_aTV03lteQ7KsaoN9xGx1Df", studyArea = studyArea,
                             targetFile = "RTM.tif", destinationPath = paths$inputPath, 
-                            fun = "raster::raster", useCloud = TRUE, 
+                            useCloud = TRUE, 
                             cloudFolderID = cloudFolderID)
 
 

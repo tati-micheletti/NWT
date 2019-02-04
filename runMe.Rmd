@@ -36,7 +36,18 @@ The structure of each one of the modules is as follows:
 
 \textcolor{blue}{LandR}: This group of modules is composed of one module and one group of modules. The first module, `Boreal_LBMRDataPrep` creates the specific parameters to be used on the specified study area (BRC6 within NWT). The group of modules (`LandR_Biomass`) is composed of (1) `LandR_BiomassGMOrig`: is responsible for growth and mortality, (2) `Biomass_regeneration`: does post-disturbance biomass regeneration for LandR, and (3) `LBMR`: this is the module in LandR that is responsible for the forest succession. LandR needs at least these last three modules to work.
 
-\textcolor{blue}{birdsNWT}: To be completed later by TM.
+\textcolor{blue}{birdsNWT}: The birds module loads an existing glm object for each sp located in  
+                            https://drive.google.com/open?id=1obSvU4ml8xa8WMQhQprd6heRrN47buvI. 
+                            The model uses dynamic (vegetation: biomass of tree species) and static
+                            layers (Non-veg: WAT = water (1/0), URBAG = urban/agriculture (1/0),
+                            lLED25 = lake edge density with 5x5 moving window (continuous), 
+                            DEV25 = development proportion within 5x5 moving window (continuous),
+                            and landform (categorical). North American landcover 2005 (MODIS) is
+                            source for all but landform (from AdaptWest land facet datset). 
+                            Vector ruggedness (already available - 
+                            https://drive.google.com/open?id=1dgIw70mDpDYrBExA52SkPoS1TFaZdLE9) 
+                            and road density (that should be available from the Anthropogenic
+                            module) will be added to the nect version of these models.
 
 \textcolor{blue}{caribou}: The `caribou` module is composed of two modules: `caribouRSF` and `caribouPopGrowth` (names to be fixed by FS) 
 

@@ -136,8 +136,9 @@ whichComputer <- "BorealCloud"
 
 paths <- pathsSetup(whichComputer = whichComputer) 
 
-if (pemisc::user() %in% c("Tati", "tmichele")) 
-  setTempFolder(paths = paths, setTmpFolder = TRUE, usr = pemisc::user())
+if (pemisc::user() %in% c("Tati", "tmichele")) {
+    setTempFolder(paths = paths, setTmpFolder = TRUE, usr = pemisc::user())
+}
 
 # <<!!!>> ATTENTION <<!!!>>
 
@@ -221,7 +222,7 @@ rasterToMatch <- cloudCache(prepInputs, url = "https://drive.google.com/open?id=
                             targetFile = "RTM.tif", destinationPath = paths$inputPath, 
                             useCloud = TRUE, 
                             cloudFolderID = cloudFolderID)
-sppEquivCol <- "LandWeb"
+sppEquivCol <- "NWT"
 parameters <- list(
   LBMR = list(".plotInitialTime" = NA,
               "seedingAlgorithm" = "wardDispersal",
@@ -255,31 +256,36 @@ Now we have to set the objects. The first object is a list of trees of interest:
 #                       LandR = c("Pinu_ban", "Pice_mar", "Pice_gla", "Popu_bal", 
 #                                 "Popu_tre", "Betu_pap"))
 # knitr::kable(spTable)
+# Bird model's tree species [30JAN19]:
+NWTsp <- c("Abie_Bal", "Acer_Neg", "Betu_Pap", "Lari_Lar", "Pice_Gla",
+                "Pice_Mar", "Pinu_Ban", "Pinu_Con", "Popu_Bal", "Popu_Tre",
+                "Quer_Mac")
 
 # Equivalency table for tree species
 data("sppEquivalencies_CA", package = "LandR")
-sppEquivalencies_CA[grep("Pin", LandR), `:=`(EN_generic_short = "Pine",
-                                             EN_generic_full = "Pine",
-                                             Leading = "Pine leading")]
 
-# Make LandWeb spp equivalencies
-sppEquivalencies_CA[, LandWeb := c(Pice_mar = "Pice_mar", Pice_gla = "Pice_gla",
-                                   Pinu_con = "Pinu_sp", Pinu_ban = "Pinu_sp",
-                                   Popu_tre = "Popu_sp", Betu_pap = "Popu_sp",
-                                   Abie_bal = "Abie_sp", Abie_las = "Abie_sp", Abie_sp = "Abie_sp")[LandR]]
+# Make NWT spp equivalencies
+# Popu_Tri == Popu_Bal in NWT
+# Quer_mac in LandR needs to be Quer_Mac in NWT
+sppEquivalencies_CA[, NWT := c(Abie_Bal = "Abie_Bal", 
+                               Acer_Neg = "Acer_Neg", 
+                               Betu_Pap = "Betu_Pap", 
+                               Lari_Lar = "Lari_Lar", 
+                               Pice_Gla = "Pice_Gla",
+                               Pice_Mar = "Pice_Mar", 
+                               Pinu_Ban = "Pinu_Ban", 
+                               Pinu_Con = "Pinu_Con", 
+                               Popu_Bal = "Popu_Bal", 
+                               Popu_Tre = "Popu_Tre",
+                               Popu_Tri = "Popu_Bal",
+                               Quer_Mac = "Quer_Mac")[Boreal]]
+sppEquivalencies_CA[LandR == "Quer_mac"]$NWT <- "Quer_Mac"
 
-sppEquivalencies_CA[LandWeb == "Abie_sp", EN_generic_full := "Fir"]
-sppEquivalencies_CA[LandWeb == "Abie_sp", EN_generic_short := "Fir"]
-sppEquivalencies_CA[LandWeb == "Abie_sp", Leading := "Fir leading"]
-
-sppEquivalencies_CA[LandWeb == "Popu_sp", EN_generic_full := "Deciduous"]
-sppEquivalencies_CA[LandWeb == "Popu_sp", EN_generic_short := "Decid"]
-sppEquivalencies_CA[LandWeb == "Popu_sp", Leading := "Deciduous leading"]
-
+knitr::kable(sppEquivalencies_CA[NWT %in% NWTsp])
 # create color palette for species used in model
 
-sppColors <- LandR::sppColors(sppEquivalencies_CA, sppEquivCol, newVals = "Mixed", palette = "Accent")
-
+sppColors <- LandR::sppColors(sppEquiv = sppEquivalencies_CA, sppEquivCol = sppEquivCol,
+                              palette = "Set3")
 ```
 
 

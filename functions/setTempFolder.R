@@ -11,6 +11,7 @@ setTempFolder <- function(paths, setTmpFolder){
                               file.path(paths$cachePath, "tmp"), "\nAre you sure you ",
                               "want to continue? [YES/NO/CANCEL]"))
     if (answer == "YES") {
+      unlink(file.path(paths$cachePath, "tmp"), recursive = TRUE, force = TRUE)
       tempFolder <- asPath(reproducible::checkPath(file.path(paths$cachePath, "tmp"), create = TRUE))
       
       # Set a temporary folder

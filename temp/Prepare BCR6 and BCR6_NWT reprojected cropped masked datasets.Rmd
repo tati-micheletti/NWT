@@ -1,0 +1,329 @@
+---
+title: "Generate reprojected, cropped, masked versions of datasets"
+author: "Jean Marchal, Geneviève Degré-Timmons"
+date: "January 31, 2019"
+output: html_document
+---
+##Simulation of effects of climate change on fire regime: implications for Boreal Caribou and landbird communities in the Northwest Territories - Data preparation
+
+Geneviève Degré-Timmons^1^, Jean Marchal^1^, Tati Micheletti^2^, Diana Stralberg^3^, Mario van Telgen^1^, Frances Stewart^2^, Nicole Barker^3^, Erin Bayne^3^, Amanda Dookie^4^, Isabelle Duclos^4^, James Hodson^5^, Lisa Mahon^4^, Eliot McIntire^4^, Rhiannon Pankratz^4^, Ana Raymundo^1^, Fiona Schmiegelow^3^, Steven Van Wilgenburg^4^, Mathieu Leblond^4^, Junior Tremblay^4^, Samuel Haché^4^ and Steven Cumming^1^
+
+^1^ Université Laval
+^2^ University of British Columbia
+^3^ University of Alberta
+^4^ Environment and Climate Change Canada
+^5^ Government of the Northwest Territories
+
+This document was produced with R version `r getRversion()` (2019).
+
+This document contains the spatial data sets required for the simulation of effects of climate change on fire regime: implications for Boreal Caribou and landbird communities in the Northwest Territories project (Led by Steve Cumming). Many data sets are used repeatedly through out the developped of different modules. The script allows to reproduce consistently the reproject, crop and mask function using prepInput.
+
+For general information about the acquired spatial data sets prior to extracting specific attributes and generating reprojected, cropped, masked versions of datasets, please refer to the *read me file* hosted in the GoogleDrive (NWT-cc-Fire/Data). 
+
+***
+
+# Setup
+
+```{r setup}
+library(raster)
+library(reproducible)
+library(sp)
+
+options(reproducible.overwrite = TRUE)
+
+preCropInputs <- function(r1, r2)
+{
+  # Speed-up process by pre-cropping: 110% of the extent of r1
+  e <- as(extent(r1) * 1.1, "SpatialPolygons")
+  proj4string(e) <- proj4string(r1)
+  e <- spTransform(e, CRSobj = proj4string(r2))
+  cropInputs(x = r2, studyArea = e)
+}
+```
+
+# Create BCR6_NWT Raster/Vector by intersecting BCR6 with NWT shapefile
+BCR6_NWT is BCR6 as contained in the Northwest Territories
+
+Spatial data layer detailing ecologically distinct regions in North America with similar bird communities, habitats, and resource management issues (e.g. Bird Conservation Regions (BCRs)) (Table 1).
+
+Table 1: Decription of the layers
+
+Layers          | Description
+----------------|--------------------------------------------------------
+BCR6_VT         | Vector layer of the BCR6.
+BCR6_RT         | Raster layer of the BCR6.
+BCR6_NWT_VT     | Vector layer of the BCR6 within the NWT.
+BCR6_NWT_RT     | Raster layer of the BCR6 within the NWT.
+
+```{R}
+#
+# Load BCR6
+#
+## BCR6's Shapefile
+#
+BCR6_VT <- prepInputs(
+  url = "https://drive.google.com/open?id=1sEiXKnAOCi-f1BF7b4kTg-6zFlGr0YOH",
+  targetFile = "BCR6.shp",
+  alsoExtract = "similar"
+)
+
+#
+## BCR6's Raster
+#
+#
+BCR6_RT <- prepInputs(
+  url = "https://drive.google.com/open?id=1sEiXKnAOCi-f1BF7b4kTg-6zFlGr0YOH",
+  targetFile = "bcr6.tif"
+)
+
+#
+# Prepare BCR6_NWT versions
+#
+## Produce NWT from Canadian Political Boundaries
+#
+NWT <- Cache(
+  projectInputs,
+  x = prepInputs(
+    url = "https://drive.google.com/open?id=1na9YaY8s3tB1o1xlZWe5jCqi48NOx13A"
+  ),
+  targetCRS = proj4string(BCR6_VT)
+)
+NWT <- NWT[NWT$PREABBR == "N.W.T.", ]
+
+## BCR6_NWT Vector version
+#
+BCR6_NWT_VT <- Cache(
+  postProcess,
+  BCR6_VT,
+  studyArea = NWT,
+  filename2 = "BCR6_NWT.shp"
+)
+
+#
+## BCR6_NWT Raster version
+#
+BCR6_NWT_RT <- Cache(
+  postProcess,
+  BCR6_RT,
+  studyArea = BCR6_NWT_VT,
+  filename2 = "BCR6_NWT.tif"
+)
+```
+
+# DEM
+
+100-m DEM for North America developed by AdaptWest (Table 2). 
+
+Table 2: Decription of the layers
+
+Layers          | Description
+----------------|--------------------------------------------------------
+DEM_BCR6        | Raster layer of the DEM in BCR6.
+DEM_BCR6_NWT    | Raster layer of the DEM in BCR6 contained in the NWT.
+
+```{R}
+#
+# DEM
+#
+## Load DEM raster
+#
+DEM <- Cache(
+  prepInputs,
+  url = "https://drive.google.com/open?id=1WHZnpWokgjraR7tGz0mIJEr9klLGUzB0",
+  targetFile = "nadem100laz.tif" # Be explicit and tractable
+)
+
+#
+## DEM_BCR6
+#
+DEM_BCR6 <- Cache(
+  postProcess,
+  x = preCropInputs(BCR6_RT, DEM),
+  rasterToMatch = BCR6_RT, 
+  maskWithRTM = TRUE,
+  filename2 = "nadem100laz_BCR6.tif"
+)
+
+#
+## DEM_BCR6_NWT
+#
+DEM_BCR6_NWT <- Cache(
+  postProcess,
+  DEM_BCR6,
+  studyArea = BCR6_NWT_VT,
+  filename2 = "nadem100laz_BCR6_NWT.tif"
+)
+```
+
+# LCC05
+
+Land Cover Map of Canada 2005 (LCC05) is a product derived from MODIS with a spatial resolution of 250 m spatial resolution. It contains 39 distinct land cover classes (Table 3).
+
+Table 3: Decription of the layers
+
+Layers          | Description
+----------------|--------------------------------------------------------
+LCC05           | Raster layer of LCC05.
+LCC05_BCR6      | Raster layer of the LCC05 contained in BCR6.
+LCC05_BCR6_NWT  | Raster layer of the LCC05 contained in BCR6 within the NWT.
+
+```{R}
+#
+# LCC05
+#
+## Load LCC05 raster
+#
+LCC05 <- prepInputs(
+  url = "https://drive.google.com/open?id=1ziUPnFZMamA5Yi6Hhex9aZKerXLpVxvz",
+  targetFile = "LCC2005_V1_4a.tif"
+)
+
+#
+## LCC05_BCR6
+#
+LCC05_BCR6 <- Cache(
+  postProcess,
+  x = preCropInputs(BCR6_RT, LCC05),
+  method = "ngb",
+  datatype = dataType(LCC05),
+  rasterToMatch = BCR6_RT,
+  maskWithRTM = TRUE,
+  filename2 = "LCC2005_V1_4a_BCR6.tif"
+)
+
+#
+## LCC05_BCR6_NWT
+#
+LCC05_BCR6_NWT <- Cache(
+  postProcess,
+  LCC05_BCR6,
+  studyArea = BCR6_NWT_VT,
+  method = "ngb",
+  datatype = dataType(LCC05),
+  filename2 = "LCC2005_V1_4a_BCR6_NWT.tif"
+)
+```
+
+# NFDB_PO
+
+National Fire DataBase fire polygon data (NFDB) is a collection of forest fire perimeters as provided by Canadian fire management agencies (Table 4).
+
+Table 4: Decription of the layers
+
+Layers            | Description
+------------------|--------------------------------------------------------
+NFDB_PO           | Vector layer (Polygon) of the NFDB.
+NFDB_PO_BCR6      | Vector layer (Polygon) of the NFDB contained in BCR6.
+NFDB_PO_BCR6_NWT  | Vector layer (Polygon) of the NFDB contained in BCR6 within the NWT.
+
+```{R}
+#
+# NFDB PO
+#
+## Load NFDB polygon data
+#
+NFDB_PO <- Cache(
+  prepInputs,
+  url = "https://drive.google.com/open?id=1rle7_YR-mPRxxVEO1uTfYApAzyhUgTYU",
+  targetFile = "NFDB_poly_20180726.shp",
+  alsoExtract = "similar"
+)
+
+#
+## NFDB_BCR6
+#
+NFDB_PO_BCR6 <- Cache(
+  postProcess,
+  NFDB_PO,
+  studyArea = BCR6_VT,
+  filename2 = "NFDB_poly_20180726_BCR6.shp"
+)
+
+#
+## NFDB_BCR6_NWT
+#
+NFDB_PO_BCR6_NWT <- Cache(
+  postProcess,
+  NFDB_PO_BCR6,
+  studyArea = BCR6_NWT_VT,
+  filename2 = "NFDB_poly_20180726_BCR6_NWT.shp"
+)
+```
+
+# NFDB_PT
+
+National Fire DataBase fire point data is a collection of forest fire locations as provided by Canadian fire management agencies (Table 5).
+
+Table 5: Decription of the layers
+
+Layers            | Description
+------------------|--------------------------------------------------------
+NFDB_PT           | Vector layer (Points) of the NFDB.
+NFDB_PT_BCR6      | Vector layer (Points) of the NFDB contained in BCR6.
+NFDB_PT_BCR6_NWT  | Vector layer (Points) of the NFDB contained in BCR6 within the NWT.
+
+```{R}
+#
+# NFDB PT
+#
+## Load NFDB point data
+#
+NFDB_PT <- Cache(
+  prepInputs,
+  url = "https://drive.google.com/open?id=1fvi4Xx56j2mDzQIr5Up5sIdWFZhJF-r1",
+  targetFile = "NFDB_point_20181129.shp",
+  alsoExtract = "similar",
+  fun = sf::st_read
+)
+
+#
+## NFDB_BCR6
+#
+NFDB_PT_BCR6 <- Cache(
+  postProcess,
+  NFDB_PT,
+  studyArea = BCR6_VT,
+  filename2 = "NFDB_point_20181129_BCR6.shp"
+)
+
+#
+## NFDB_BCR6_NWT
+#
+NFDB_PT_BCR6_NWT <- Cache(
+  postProcess,
+  NFDB_PT_BCR6,
+  studyArea = BCR6_NWT_VT,
+  filename2 = "NFDB_point_20181129_BCR6_NWT.shp"
+)
+```
+
+
+# Vrug
+
+Ruggedness (Vrug) calculated using ArcScripts (https://www.arcgis.com/home/item.html?id=9e4210b3ee7b413bbb1f98fb9c5b22d4) based on Sappington et al. (2007) by Environment Canada. Product derived from the AdaptWest 100-m DEM (Table 6).
+
+Table 6: Decription of the layers
+
+Layers            | Description
+------------------|--------------------------------------------------------
+VRUG_BCR6         | Raster layer of the vrug contained in BCR6.
+VRUG_BCR6_NWT     | Raster layer of the vrug contained in BCR6 within the NWT.
+
+```{R}
+#
+## Load vrug_bcr6 (tif format)
+#
+VRUG_BCR6 <- prepInputs(
+  url = "https://drive.google.com/open?id=15Kcs83EyHnc-7vVbrg48srFrlD91WDtp",
+  targetFile = "vrug_bcr6.tif"
+)
+
+#
+## vrug_bcr6_nwt
+#
+VRUG_BCR6_NWT <- Cache(
+  postProcess,
+  VRUG_BCR6,
+  studyArea = BCR6_NWT_VT,
+  filename2 = "VRUG_BCR6_NWT.tif"
+)

@@ -1,4 +1,4 @@
-setTempFolder <- function(paths, setTmpFolder){
+setTempFolder <- function(paths, setTmpFolder, usr){
   # Set a storage project folder
   require("reproducible")
   workDirectory <- getwd()
@@ -7,9 +7,13 @@ setTempFolder <- function(paths, setTmpFolder){
   # Make a temporary folder for downloading files
   answer <- "NO"
   if (setTmpFolder == TRUE){
-    answer <- readline(paste0("[ ATTENTION: ] \nYou are changing you temporary folder to \n",
-                              file.path(paths$cachePath, "tmp"), "\nAre you sure you ",
-                              "want to continue? [YES/NO/CANCEL]"))
+    if (usr %in% c("tmichele", "Tati")) {
+      answer <- "YES"
+    } else {
+      answer <- readline(paste0("[ ATTENTION: ] \nYou are changing you temporary folder to \n",
+                                file.path(paths$cachePath, "tmp"), "\nAre you sure you ",
+                                "want to continue? [YES/NO/CANCEL]"))
+    }
     if (answer == "YES") {
       unlink(file.path(paths$cachePath, "tmp"), recursive = TRUE, force = TRUE)
       tempFolder <- asPath(reproducible::checkPath(file.path(paths$cachePath, "tmp"), create = TRUE))

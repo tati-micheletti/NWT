@@ -209,7 +209,7 @@ we explicitly specify the modules to be run, and the running time for the simula
 
 ```{r run_LandR}
 
-modules <- list("Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR") #list("waterlandClassification")
+modulesLandR <- list("Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR") #list("waterlandClassification")
 times <- list(start = 1, end = 20)
 
 ```
@@ -309,8 +309,22 @@ After supplying the objects, we run the simulation initialization function, pass
 
 ``` {r simInit}
 
-mySim <- simInit(times = times, params = parameters, modules = modules, objects = .objects,
-                 paths = paths, loadOrder = unlist(modules))
+outputsLandR <- data.frame(
+  objectName = c("cohortData", 
+                 "simulationTreeOutput", 
+                 "summaryBySpecies", 
+                 "summaryBySpecies1", 
+                 "simulationOutput"), 
+  file = c(paste0("cohortData_", toupper(format(Sys.time(), "%d%b%y"))), 
+           paste0("simulationTreeOutput_", toupper(format(Sys.time(), "%d%b%y"))), 
+           paste0("summaryBySpecies_", toupper(format(Sys.time(), "%d%b%y"))), 
+           paste0("summaryBySpecies1_",toupper(format(Sys.time(), "%d%b%y"))), 
+           paste0("simulationOutput_",toupper(format(Sys.time(), "%d%b%y")))))
+simLandR <- simInit(times = times, params = parameters, 
+                    modules = modulesLandR, 
+                    objects = .objects, paths = paths, 
+                    loadOrder = unlist(modulesLandR), 
+                    outputs = outputsLandR)
 
 ```
 
@@ -318,6 +332,6 @@ And finally the simulation call (note that the argument `debug = TRUE` lists all
 
 ```{r call}
 
-LandR_BiomassNoFire <- spades(mySim, debug = TRUE)
+LandR_Biomass <- spades(simLandR, debug = TRUE)
 
 ```

@@ -34,7 +34,13 @@ The metamodule is composed of 8 parent modules (i.e. groups of modules), as foll
 
 The structure of each one of the modules is as follows:
 
-\textcolor{blue}{LandR}: This group of modules is composed of one module and one group of modules. The first module, `Boreal_LBMRDataPrep` creates the specific parameters to be used on the specified study area (BRC6 within NWT). The group of modules (`LandR_Biomass`) is composed of (1) `LandR_BiomassGMOrig`: is responsible for growth and mortality, (2) `Biomass_regeneration`: does post-disturbance biomass regeneration for LandR, and (3) `LBMR`: this is the module in LandR that is responsible for the forest succession. LandR needs at least these last three modules to work.
+\textcolor{blue}{LandR}: This group of modules is composed of one module and one group of modules.                          The first module, `Boreal_LBMRDataPrep` creates the specific parameters 
+                         to be used on the specified study area (BRC6 within NWT). The group of 
+                         modules (`LandR_Biomass`) is composed of (1) `LandR_BiomassGMOrig`: is 
+                         responsible for growth and mortality, (2) `Biomass_regeneration`: does 
+                         post-disturbance biomass regeneration for LandR, and (3) `LBMR`: this is 
+                         the module in LandR that is responsible for the forest succession. LandR 
+                         needs at least these last three modules to work.
 
 \textcolor{blue}{birdsNWT}: The birds module loads an existing glm object for each sp located in  
                             https://drive.google.com/open?id=1obSvU4ml8xa8WMQhQprd6heRrN47buvI. 
@@ -65,8 +71,7 @@ Make sure you restart your session after installing all packages.
 knitr::opts_chunk$set(echo = TRUE)
 
 update.packages(checkBuilt = TRUE)
-# devtools::install_github("PredictiveEcology/reproducible@development")
-devtools::install_github("tati-micheletti/reproducible@development")
+devtools::install_github("PredictiveEcology/reproducible@development")
 devtools::install_github("achubaty/amc@development")
 devtools::install_github("PredictiveEcology/pemisc@development")
 devtools::install_github("PredictiveEcology/map@development")
@@ -131,7 +136,8 @@ whichComputer <- "BorealCloud"
 
 paths <- pathsSetup(whichComputer = whichComputer) 
 
-if (pemisc::user() %in% c("Tati", "tmichele")) setTempFolder(paths = paths, setTmpFolder = TRUE)
+if (pemisc::user() %in% c("Tati", "tmichele")) 
+  setTempFolder(paths = paths, setTmpFolder = TRUE)
 
 # <<!!!>> ATTENTION <<!!!>>
 
@@ -215,10 +221,6 @@ rasterToMatch <- cloudCache(prepInputs, url = "https://drive.google.com/open?id=
                             targetFile = "RTM.tif", destinationPath = paths$inputPath, 
                             useCloud = TRUE, 
                             cloudFolderID = cloudFolderID)
-
-
-
-# rasterToMatch[7080245] <- NA # Quick fix for the NA in the newLCCClasses table (hopefully) 
 sppEquivCol <- "LandWeb"
 parameters <- list(
   LBMR = list(".plotInitialTime" = NA,
@@ -310,6 +312,6 @@ And finally the simulation call (note that the argument `debug = TRUE` lists all
 
 ```{r call}
 
-Wetlands <- spades(mySim, debug = TRUE)
+LandR_BiomassNoFire <- spades(mySim, debug = TRUE)
 
 ```

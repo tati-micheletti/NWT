@@ -132,13 +132,13 @@ options used by SpaDES.
 ```{r setup}
 # Which computer is this being run on?
 # Options are: BorealCloud, LocalMachine, 388
-whichComputer <- "BorealCloud"
+whichComputer <- "LocalMachine"
 
 paths <- pathsSetup(whichComputer = whichComputer) 
 
-if (pemisc::user() %in% c("Tati", "tmichele")) {
-    setTempFolder(paths = paths, setTmpFolder = TRUE, usr = pemisc::user())
-}
+# if (pemisc::user() %in% c("Tati", "tmichele")) {
+#     setTempFolder(paths = paths, setTmpFolder = TRUE, usr = pemisc::user())
+# }
 
 # <<!!!>> ATTENTION <<!!!>>
 
@@ -195,10 +195,12 @@ We have developed a specific function to select this area, which is cached both 
 in a google drive's folder (`cloudFolderID`), which is sharable with all project's team members.
 
 ```{r studyArea}
-options(httr_oob_default = TRUE) # Allows it to work on a Linux server
-studyArea <- cloudCache(defineStudyArea, testArea = TRUE, mapSubset = "Northwest Territories",
-                        destinationPath = paths$inputPath, specificTestArea = "BCR6",
-                        useCloud = TRUE, cloudFolderID = cloudFolderID) %>%  rgeos::gUnaryUnion()
+# options(httr_oob_default = TRUE) # Allows it to work on a Linux server
+studyArea <- cloudCache(prepInputs, 
+                        url = "https://drive.google.com/open?id=1LUxoY2-pgkCmmNH5goagBp3IMpj6YrdU",
+                        destinationPath = paths$inputPath, 
+                        useCloud = TRUE, cloudFolderID = cloudFolderID)
+# %>%  rgeos::gUnaryUnion()
 
 ```
 
@@ -209,7 +211,9 @@ we explicitly specify the modules to be run, and the running time for the simula
 
 ```{r run_LandR}
 
-modulesLandR <- list("Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR") #list("waterlandClassification")
+#modulesLandR <- list("Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR")
+modulesBirds <- list("birdsNWT")
+#list("waterlandClassification")
 times <- list(start = 1, end = 20)
 
 ```
@@ -281,7 +285,7 @@ sppEquivalencies_CA[, NWT := c(Abie_Bal = "Abie_Bal",
                                Quer_Mac = "Quer_Mac")[Boreal]]
 sppEquivalencies_CA[LandR == "Quer_mac"]$NWT <- "Quer_Mac"
 
-knitr::kable(sppEquivalencies_CA[NWT %in% NWTsp])
+# knitr::kable(sppEquivalencies_CA[NWT %in% NWTsp])
 # create color palette for species used in model
 
 sppColors <- LandR::sppColors(sppEquiv = sppEquivalencies_CA, sppEquivCol = sppEquivCol,
@@ -294,13 +298,15 @@ And finally, we load the objects used by this group of modules:
 ``` {r objects}
 
 .objects <- list(
+  "birdsList" = c("REVI", "HETH"), ### JUST TO TEST. REMOVE ONCE WORKING
   "rasterToMatch" = rasterToMatch,
   "studyArea" = studyArea,
   "studyAreaLarge" = studyArea,
   "sppEquiv" = sppEquivalencies_CA,
   "sppEquivCol" = sppEquivCol,
   "sppColors" = sppColors,
-  "omitNonVegPixels" = TRUE
+  "omitNonVegPixels" = TRUE,
+  "cloudFolderID" = cloudFolderID
   )
 
 ```
@@ -309,22 +315,27 @@ After supplying the objects, we run the simulation initialization function, pass
 
 ``` {r simInit}
 
-outputsLandR <- data.frame(
-  objectName = c("cohortData", 
-                 "simulationTreeOutput", 
-                 "summaryBySpecies", 
-                 "summaryBySpecies1", 
-                 "simulationOutput"), 
-  file = c(paste0("cohortData_", toupper(format(Sys.time(), "%d%b%y"))), 
-           paste0("simulationTreeOutput_", toupper(format(Sys.time(), "%d%b%y"))), 
-           paste0("summaryBySpecies_", toupper(format(Sys.time(), "%d%b%y"))), 
-           paste0("summaryBySpecies1_",toupper(format(Sys.time(), "%d%b%y"))), 
-           paste0("simulationOutput_",toupper(format(Sys.time(), "%d%b%y")))))
-simLandR <- simInit(times = times, params = parameters, 
-                    modules = modulesLandR, 
+# outputsLandR <- data.frame(
+#   objectName = c("cohortData", 
+#                  "simulationTreeOutput", 
+#                  "summaryBySpecies", 
+#                  "summaryBySpecies1", 
+#                  "simulationOutput"), 
+#   file = c(paste0("cohortData_", toupper(format(Sys.time(), "%d%b%y"))), 
+#            paste0("simulationTreeOutput_", toupper(format(Sys.time(), "%d%b%y"))), 
+#            paste0("summaryBySpecies_", toupper(format(Sys.time(), "%d%b%y"))), 
+#            paste0("summaryBySpecies1_",toupper(format(Sys.time(), "%d%b%y"))), 
+#            paste0("simulationOutput_",toupper(format(Sys.time(), "%d%b%y")))))
+
+# simLandR <- simInit(times = times, params = parameters, 
+#                     modules = modulesLandR, 
+#                     objects = .objects, paths = paths, 
+#                     loadOrder = unlist(modulesLandR), 
+#                     outputs = outputsLandR)
+simBirds <- simInit(times = times, params = parameters, 
+                    modules = modulesBirds, 
                     objects = .objects, paths = paths, 
-                    loadOrder = unlist(modulesLandR), 
-                    outputs = outputsLandR)
+                    loadOrder = unlist(modulesBirds))
 
 ```
 
@@ -332,6 +343,7 @@ And finally the simulation call (note that the argument `debug = TRUE` lists all
 
 ```{r call}
 
-LandR_Biomass <- spades(simLandR, debug = TRUE)
+# LandR_Biomass <- spades(simLandR, debug = TRUE)
+birds <- spades(simBirds, debug = TRUE)
 
 ```

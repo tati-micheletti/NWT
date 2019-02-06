@@ -18,12 +18,13 @@ tmp/
 /tmp/
 !/temp/
 ./cache/
-<<<<<<< HEAD
 ./modules/LBMR/data/
 ./modules/waterlandClassification/data/
 ./modules/LandR_BiomassGMOrig/data/
 ./modules/Boreal_LBMRDataPrep/data/
 ./modules/Biomass_regeneration/data/
+./modules/birdsNWT/data/models/
+./modules/birdsNWT/data/models/*.R
 ./inputs/
 ./outputs/
 ./inputs/*.*

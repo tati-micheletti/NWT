@@ -132,7 +132,7 @@ options used by SpaDES.
 ```{r setup}
 # Which computer is this being run on?
 # Options are: BorealCloud, LocalMachine, 388
-whichComputer <- "LocalMachine"
+whichComputer <- "BorealCloud"
 
 paths <- pathsSetup(whichComputer = whichComputer) 
 
@@ -298,7 +298,7 @@ And finally, we load the objects used by this group of modules:
 ``` {r objects}
 
 .objects <- list(
-  "birdsList" = c("REVI", "HETH"), ### JUST TO TEST. REMOVE ONCE WORKING
+  "birdsList" = c("BBWA", "BOCH"), ### JUST TO TEST. REMOVE ONCE WORKING
   "rasterToMatch" = rasterToMatch,
   "studyArea" = studyArea,
   "studyAreaLarge" = studyArea,

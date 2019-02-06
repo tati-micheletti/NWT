@@ -24,7 +24,7 @@ tmp/
 ./modules/Boreal_LBMRDataPrep/data/
 ./modules/Biomass_regeneration/data/
 ./modules/birdsNWT/data/models/
-./modules/birdsNWT/data/models/*.R
+/modules/birdsNWT/data/models/*.R
 ./inputs/
 ./outputs/
 ./inputs/*.*

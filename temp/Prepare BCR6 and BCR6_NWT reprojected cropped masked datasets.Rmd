@@ -236,7 +236,8 @@ NFDB_PO_BCR6 <- Cache(
   postProcess,
   NFDB_PO,
   studyArea = BCR6_VT,
-  filename2 = "NFDB_poly_20180726_BCR6.shp"
+  useSAcrs = TRUE,
+  filename2 = "NFDB_poly_20180726_BCR6.shp"    
 )
 
 #
@@ -246,6 +247,7 @@ NFDB_PO_BCR6_NWT <- Cache(
   postProcess,
   NFDB_PO_BCR6,
   studyArea = BCR6_NWT_VT,
+  useSAcrs = TRUE,
   filename2 = "NFDB_poly_20180726_BCR6_NWT.shp"
 )
 ```
@@ -283,6 +285,7 @@ NFDB_PT_BCR6 <- Cache(
   postProcess,
   NFDB_PT,
   studyArea = BCR6_VT,
+  useSAcrs = TRUE,
   filename2 = "NFDB_point_20181129_BCR6.shp"
 )
 
@@ -293,6 +296,7 @@ NFDB_PT_BCR6_NWT <- Cache(
   postProcess,
   NFDB_PT_BCR6,
   studyArea = BCR6_NWT_VT,
+  useSAcrs = TRUE,
   filename2 = "NFDB_point_20181129_BCR6_NWT.shp"
 )
 ```

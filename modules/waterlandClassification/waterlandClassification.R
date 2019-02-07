@@ -25,7 +25,7 @@ defineModule(sim, list(
     expectsInput(objectName = "wetlandRaster", objectClass = "RasterLayer", 
                  desc = paste0("Any raster layer with wetlands. Default in this project is", 
                  " Hybrid Wetland Layer from Ducks Unlimited Canada v. 2.1"), 
-                 sourceURL = "https://drive.google.com/open?id=1sQBdeCyWvVH-aYcWNGyo6w8x6RNYMJgk"),
+                 sourceURL = "https://drive.google.com/open?id=1wNpBdLICWDJ-DGwDboPb9wVwRwtGm1go"),
     expectsInput(objectName = "studyArea", objectClass = "shapefile", 
                  desc = "Shapefile of the studyArea to be used",
                  sourceURL = NA)
@@ -45,23 +45,24 @@ doEvent.waterlandClassification = function(sim, eventTime, eventType) {
   switch(
     eventType,
     init = {
-      
+
       # schedule future event(s)
-      sim <- scheduleEvent(sim, start(sim), "waterlandClassification", "testStudyArea")
+      sim <- scheduleEvent(sim, start(sim), "waterlandClassification", "loadWetlandLayer")
       sim <- scheduleEvent(sim, start(sim), "waterlandClassification", "createWetZone")
       sim <- scheduleEvent(sim, start(sim), "waterlandClassification", "diagnostics")
     },
-    testStudyArea = {
+    loadWetlandLayer = {
       
-      browser()
-      # 2. Test that the study area is inside the DUCKS layer. 
-      # If not, return warning that only the area (%?) is inside and will be assessed
-      
+      sim$wetlandRaster <- Cache(prepSpeciesLayers_DUCKS, destinationPath = dataPath(sim), 
+                                 studyArea = sim$studyArea, 
+                                 userTags = "objectName:wetlandRaster")
       },
     createWetZone = {
-    
+      
       sim$wetLCC <- classifyWetlands(LCC = P(sim)$baseLayer,
-                                     wetLayerInput = sim$rasterDUCKS) # Create the function
+                                     wetLayerInput = sim$wetlandRaster,
+                                     pathData = dataPath(sim),
+                                     studyArea = sim$studyArea)
     },
     diagnostics = {
       
@@ -81,31 +82,15 @@ doEvent.waterlandClassification = function(sim, eventTime, eventType) {
   message(currentModule(sim), ": using dataPath '", dPath, "'.")
   
   if (!suppliedElsewhere("studyArea", sim)) 
-    sim$studyArea <- SpaDES.tools::randomPolygon(x = matrix(-119.226553, 62.528916, ncol = 2), 
-                                                 area = 10^5)
+    sim$studyArea <- cloudCache(prepInputs, 
+                                url = "https://drive.google.com/open?id=1LUxoY2-pgkCmmNH5goagBp3IMpj6YrdU",
+                                destinationPath = paths$inputPath, 
+                                useCloud = TRUE, cloudFolderID = "https://drive.google.com/open?id=1PoEkOkg_ixnAdDqqTQcun77nUvkEHDc0")
+  
   if (!suppliedElsewhere("wetlandRaster", sim)){
     message("wetlandRaster not supplied, default is Hybrid Wetland from DUCKS Unlimited Canada")
-    if (!suppliedElsewhere("RTM", sim))
-      message("RTM not supplied, wetlandRaster will not be reprojected nor resampled")
-    # [ FIX ] prepInputs for it to download and read ".gdb"
-    browser()
-    message(paste0("googledrive package still doesn't support *.gdb files.", 
-            " \nPlease, download the file manually and place it \n", dPath, ".\n",
-            "Download from: ", extractURL(objectName = "wetlandRaster"))) 
-            invisible(readline(prompt = "Press [ ENTER ] when ready..."))
-            reproducible::Checksums(path = dPath, write = TRUE)
-            # [ FIX ] reproducible is not loading the file...
-            # ???
-            browser()
-            prepSpeciesLayers_DUCKS()
-            
-            sim$wetlandRaster <- rgdal::readOGR(dsn = file.path(dPath), layer = "HybridWetlandLayer2_1")
-            # (studyArea = studyArea, rasterToMatch = sim$RTM)
-      sim$wetlandRaster <- reproducible::prepInputs(url = "https://drive.google.com/open?id=1MglGyEw3ajuFB9Unu1s8NCZFnPlVxahE",
-                                                    archive = "HybridWetlandLayer2_1.zip",
-                                                    dsn = dPath, layer = "HybridWetlandLayer2_1",
-                                                    destinationPath = dPath, fun = "rgdal::readOGR",
-                                                    userTags = c(cacheTags, "objectName:wetlandRaster"))
+    if (!suppliedElsewhere("rasterToMatch", sim))
+      message("rasterToMatch not supplied, wetlandRaster will not be reprojected nor resampled")
   }
 
   if (is.null(P(sim)$baseLayer))

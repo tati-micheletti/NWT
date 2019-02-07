@@ -24,7 +24,7 @@ defineModule(sim, list(
   inputObjects = bind_rows(
     expectsInput(objectName = "wetlandRaster", objectClass = "RasterLayer", 
                  desc = paste0("Any raster layer with wetlands. Default in this project is", 
-                 " Hybrid Wetland Layer from Ducks Unlimited Canada v. 2.1"), 
+                               " Hybrid Wetland Layer from Ducks Unlimited Canada v. 2.1"), 
                  sourceURL = "https://drive.google.com/open?id=1wNpBdLICWDJ-DGwDboPb9wVwRwtGm1go"),
     expectsInput(objectName = "studyArea", objectClass = "shapefile", 
                  desc = "Shapefile of the studyArea to be used",
@@ -45,7 +45,7 @@ doEvent.waterlandClassification = function(sim, eventTime, eventType) {
   switch(
     eventType,
     init = {
-
+      
       # schedule future event(s)
       sim <- scheduleEvent(sim, start(sim), "waterlandClassification", "loadWetlandLayer")
       sim <- scheduleEvent(sim, start(sim), "waterlandClassification", "createWetZone")
@@ -56,7 +56,7 @@ doEvent.waterlandClassification = function(sim, eventTime, eventType) {
       sim$wetlandRaster <- Cache(prepSpeciesLayers_DUCKS, destinationPath = dataPath(sim), 
                                  studyArea = sim$studyArea, 
                                  userTags = "objectName:wetlandRaster")
-      },
+    },
     createWetZone = {
       
       sim$wetLCC <- classifyWetlands(LCC = P(sim)$baseLayer,
@@ -92,9 +92,9 @@ doEvent.waterlandClassification = function(sim, eventTime, eventType) {
     if (!suppliedElsewhere("rasterToMatch", sim))
       message("rasterToMatch not supplied, wetlandRaster will not be reprojected nor resampled")
   }
-
+  
   if (is.null(P(sim)$baseLayer))
     P(sim)$baseLayer  <- c("LCC05", "LCC10")
-
+  
   return(invisible(sim))
 }

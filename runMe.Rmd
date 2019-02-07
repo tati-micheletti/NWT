@@ -262,9 +262,8 @@ Now we have to set the objects. The first object is a list of trees of interest:
 #                                 "Popu_tre", "Betu_pap"))
 # knitr::kable(spTable)
 # Bird model's tree species [30JAN19]:
-NWTsp <- c("Abie_Bal", "Acer_Neg", "Betu_Pap", "Lari_Lar", "Pice_Gla",
-                "Pice_Mar", "Pinu_Ban", "Pinu_Con", "Popu_Bal", "Popu_Tre",
-                "Quer_Mac")
+NWTsp <- c("Abie_Bal", "Betu_Pap", "Lari_Lar", "Pice_Gla",
+                "Pice_Mar", "Pinu_Ban", "Pinu_Con", "Popu_Bal", "Popu_Tre")
 
 # Equivalency table for tree species
 data("sppEquivalencies_CA", package = "LandR")
@@ -273,7 +272,6 @@ data("sppEquivalencies_CA", package = "LandR")
 # Popu_Tri == Popu_Bal in NWT
 # Quer_mac in LandR needs to be Quer_Mac in NWT
 sppEquivalencies_CA[, NWT := c(Abie_Bal = "Abie_Bal", 
-                               Acer_Neg = "Acer_Neg", 
                                Betu_Pap = "Betu_Pap", 
                                Lari_Lar = "Lari_Lar", 
                                Pice_Gla = "Pice_Gla",
@@ -282,9 +280,7 @@ sppEquivalencies_CA[, NWT := c(Abie_Bal = "Abie_Bal",
                                Pinu_Con = "Pinu_Con", 
                                Popu_Bal = "Popu_Bal", 
                                Popu_Tre = "Popu_Tre",
-                               Popu_Tri = "Popu_Bal",
-                               Quer_Mac = "Quer_Mac")[Boreal]]
-sppEquivalencies_CA[LandR == "Quer_mac"]$NWT <- "Quer_Mac"
+                               Popu_Tri = "Popu_Bal")[Boreal]]
 
 # knitr::kable(sppEquivalencies_CA[NWT %in% NWTsp])
 # create color palette for species used in model
@@ -299,7 +295,7 @@ And finally, we load the objects used by this group of modules:
 ``` {r objects}
 
 .objects <- list(
-  "birdsList" = c("REVI", "HETH"), ### JUST TO TEST. REMOVE ONCE WORKING
+  "birdsList" = c("BBWA", "BOCH"), ### JUST TO TEST. REMOVE ONCE WORKING
   # "rasterToMatch" = rasterToMatch,
   "studyArea" = studyArea,
   "studyAreaLarge" = studyArea,

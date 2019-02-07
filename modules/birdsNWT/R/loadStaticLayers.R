@@ -6,6 +6,4 @@ loadStaticLayers <- function(fileURL = extractURL("urlStaticLayers"),
   stk <- prepInputs(url = fileURL, targetFile = "bcr6_2011rasters250.grd",
                     destinationPath = pathData, archive = "bcr6_2011rasters250.zip",
                     cloudFolderID = cloudFolderID, fun = "raster::stack")
-  
-  
 }

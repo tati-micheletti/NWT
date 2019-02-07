@@ -45,7 +45,7 @@ doEvent.birdsNWT = function(sim, eventTime, eventType) {
   switch(
     eventType,
     init = {
-
+      
       # schedule future event(s)
       sim <- scheduleEvent(sim, start(sim), "birdsNWT", "loadModels")
       sim <- scheduleEvent(sim, start(sim), "birdsNWT", "loadFixedLayers")
@@ -54,28 +54,28 @@ doEvent.birdsNWT = function(sim, eventTime, eventType) {
     },
     loadModels = {
       sim$birdModels <- Cache(loadBirdModels, birdsList = sim$birdsList,
-                                       folderUrl = extractURL("urlModels"),
-                                       cloudFolderID = sim$cloudFolderID,
-                                       pathData = dataPath(sim))
+                              folderUrl = extractURL("urlModels"),
+                              cloudFolderID = sim$cloudFolderID,
+                              pathData = dataPath(sim))
       message("Bird models loaded for: \n", paste(sim$birdsList, collapse = "\n"))
     },
     loadFixedLayers = {
       sim$staticLayers <- Cache(loadStaticLayers, fileURL = extractURL("urlStaticLayers"),
-                                     pathData = dataPath(sim), 
-                                     cloudFolderID = sim$cloudFolderID)
+                                pathData = dataPath(sim), 
+                                cloudFolderID = sim$cloudFolderID)
       message("The following static layers have been loaded: \n", paste(names(sim$staticLayers), collapse = "\n"))
-
+      
     },
     predictBirds = {
       sim$birdPrediction[[paste0("Year", time(sim))]] <- Cache(predictDensities, birdSpecies = sim$birdsList,
-                                                           successionTable = "TO CHECK FROM LandR",
-                                                           staticLayers = sim$staticLayers,
-                                                           currentTime = time(sim),
-                                                           modelList = sim$birdModels,
-                                                           pathData = dataPath(sim),
-                                                           cacheId = paste0("predicted", time(sim)))
+                                                               successionTable = "TO CHECK FROM LandR",
+                                                               staticLayers = sim$staticLayers,
+                                                               currentTime = time(sim),
+                                                               modelList = sim$birdModels,
+                                                               pathData = dataPath(sim),
+                                                               cacheId = paste0("predicted", time(sim)))
       sim <- scheduleEvent(sim, end(sim), "birdsNWT", "predictBirds")
-
+      
     },
     warning(paste("Undefined event type: '", current(sim)[1, "eventType", with = FALSE],
                   "' in module '", current(sim)[1, "moduleName", with = FALSE], "'", sep = ""))
@@ -99,6 +99,6 @@ doEvent.birdsNWT = function(sim, eventTime, eventType) {
                        "BAOR", "HOWR", "WTSP", "CAWA", "RUBL", "AMRO", "HOLA", "AMRE", 
                        "AMGO", "AMCR", "ALFL")  
   }
-
+  
   return(invisible(sim))
 }

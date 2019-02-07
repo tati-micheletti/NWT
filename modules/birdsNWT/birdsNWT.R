@@ -21,12 +21,14 @@ defineModule(sim, list(
   inputObjects = bind_rows(
     expectsInput(objectName = "birdsList", objectClass = "character", 
                  desc = "Bird species to be predicted", sourceURL = NA),
+    expectsInput(objectName = "cloudFolderID", objectClass = "character", 
+                 desc = "Folder ID for cloud caching", sourceURL = NA),
     expectsInput(objectName = "urlModels", objectClass = "character", 
                  desc = "Url for the GDrive folder that has all model objects",
                  sourceURL = "BAM.SharedDrive/RshProjs/CC/CCImpacts/NWT-cc-fire/Models/BirdModelsv1/"),
     expectsInput(objectName = "urlStaticLayers", objectClass = "RasterLayer", 
                  desc = "Static Layers (WAT, URBAG, lLED25, DEV25 and landform) url", 
-                 sourceURL = "https://drive.google.com/open?id=13B-WH-D8iHUWKiwYGpoO3rJhBvkZYTZo")
+                 sourceURL = "https://drive.google.com/open?id=1_zC_M55f5u8BjvISawmmuAsJCzrmyKp8")
   ),
   outputObjects = bind_rows(
     createsOutput(objectName = "birdPrediction", objectClass = "list", 
@@ -55,13 +57,13 @@ doEvent.birdsNWT = function(sim, eventTime, eventType) {
                                        folderUrl = extractURL("urlModels"),
                                        cloudFolderID = sim$cloudFolderID,
                                        pathData = dataPath(sim))
-      message("Bird models loaded for: ", sim$birdsList)
+      message("Bird models loaded for: \n", paste(sim$birdsList, collapse = "\n"))
     },
     loadFixedLayers = {
       sim$staticLayers <- Cache(loadStaticLayers, folderUrl = extractURL("urlStaticLayers"),
                                      pathData = dataPath(sim), 
                                      cloudFolderID = sim$cloudFolderID)
-      message("The following static layers have been loaded: ", names(sim$staticLayers))
+      message("The following static layers have been loaded: \n", paste(names(sim$staticLayers), collapse = "\n"))
 
     },
     predictBirds = {
@@ -84,7 +86,7 @@ doEvent.birdsNWT = function(sim, eventTime, eventType) {
 .inputObjects <- function(sim) {
   dPath <- asPath(getOption("reproducible.destinationPath", dataPath(sim)), 1)
   message(currentModule(sim), ": using dataPath '", dPath, "'.")
-  if (!suppliedElsewhere(object = "birdsList", sim = sim))
+  if (!suppliedElsewhere(object = "birdsList", sim = sim)){
     sim$birdsList <- c("REVI", "HETH", "RCKI", "HAFL", "WIWR", "GRCA", "RBNU", "WIWA", 
                        "GRAJ", "RBGR", "WEWP", "GCKI", "PUFI", "WETA", "FOSP", "PISI", 
                        "WCSP", "EVGR", "WBNU", "PIGR", "BTNW", "EAPH", "PHVI", "WAVI", 
@@ -95,6 +97,8 @@ doEvent.birdsNWT = function(sim, eventTime, eventType) {
                        "SOSP", "BCCH", "LISP", "YRWA", "CHSP", "SEWR", "BBWA", "LEFL", 
                        "YBFL", "CEDW", "SAVS", "BAWW", "LCSP", "WWCR", "CCSP", "RWBL", 
                        "BAOR", "HOWR", "WTSP", "CAWA", "RUBL", "AMRO", "HOLA", "AMRE", 
-                       "AMGO", "AMCR", "ALFL")
+                       "AMGO", "AMCR", "ALFL")  
+  }
+
   return(invisible(sim))
 }

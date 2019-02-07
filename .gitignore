@@ -25,6 +25,7 @@ tmp/
 ./modules/Biomass_regeneration/data/
 ./modules/birdsNWT/data/models/
 /modules/birdsNWT/data/models/*.R
+/modules/waterlandClassification/data/
 ./inputs/
 ./outputs/
 ./inputs/*.*

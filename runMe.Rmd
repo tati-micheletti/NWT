@@ -211,9 +211,10 @@ we explicitly specify the modules to be run, and the running time for the simula
 
 ```{r run_LandR}
 
-#modulesLandR <- list("Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR")
-modulesBirds <- list("birdsNWT")
-#list("waterlandClassification")
+# modulesLandR <- list("Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR")
+# modulesBirds <- list("birdsNWT")
+modulesWetland <- list("waterlandClassification")
+
 times <- list(start = 1, end = 20)
 
 ```
@@ -261,9 +262,8 @@ Now we have to set the objects. The first object is a list of trees of interest:
 #                                 "Popu_tre", "Betu_pap"))
 # knitr::kable(spTable)
 # Bird model's tree species [30JAN19]:
-NWTsp <- c("Abie_Bal", "Acer_Neg", "Betu_Pap", "Lari_Lar", "Pice_Gla",
-                "Pice_Mar", "Pinu_Ban", "Pinu_Con", "Popu_Bal", "Popu_Tre",
-                "Quer_Mac")
+NWTsp <- c("Abie_Bal", "Betu_Pap", "Lari_Lar", "Pice_Gla",
+                "Pice_Mar", "Pinu_Ban", "Pinu_Con", "Popu_Bal", "Popu_Tre")
 
 # Equivalency table for tree species
 data("sppEquivalencies_CA", package = "LandR")
@@ -272,7 +272,6 @@ data("sppEquivalencies_CA", package = "LandR")
 # Popu_Tri == Popu_Bal in NWT
 # Quer_mac in LandR needs to be Quer_Mac in NWT
 sppEquivalencies_CA[, NWT := c(Abie_Bal = "Abie_Bal", 
-                               Acer_Neg = "Acer_Neg", 
                                Betu_Pap = "Betu_Pap", 
                                Lari_Lar = "Lari_Lar", 
                                Pice_Gla = "Pice_Gla",
@@ -281,9 +280,7 @@ sppEquivalencies_CA[, NWT := c(Abie_Bal = "Abie_Bal",
                                Pinu_Con = "Pinu_Con", 
                                Popu_Bal = "Popu_Bal", 
                                Popu_Tre = "Popu_Tre",
-                               Popu_Tri = "Popu_Bal",
-                               Quer_Mac = "Quer_Mac")[Boreal]]
-sppEquivalencies_CA[LandR == "Quer_mac"]$NWT <- "Quer_Mac"
+                               Popu_Tri = "Popu_Bal")[Boreal]]
 
 # knitr::kable(sppEquivalencies_CA[NWT %in% NWTsp])
 # create color palette for species used in model
@@ -299,7 +296,7 @@ And finally, we load the objects used by this group of modules:
 
 .objects <- list(
   "birdsList" = c("BBWA", "BOCH"), ### JUST TO TEST. REMOVE ONCE WORKING
-  "rasterToMatch" = rasterToMatch,
+  # "rasterToMatch" = rasterToMatch,
   "studyArea" = studyArea,
   "studyAreaLarge" = studyArea,
   "sppEquiv" = sppEquivalencies_CA,
@@ -332,10 +329,14 @@ After supplying the objects, we run the simulation initialization function, pass
 #                     objects = .objects, paths = paths, 
 #                     loadOrder = unlist(modulesLandR), 
 #                     outputs = outputsLandR)
-simBirds <- simInit(times = times, params = parameters, 
-                    modules = modulesBirds, 
+# simBirds <- simInit(times = times, params = parameters, 
+#                     modules = modulesBirds, 
+#                     objects = .objects, paths = paths, 
+#                     loadOrder = unlist(modulesBirds))
+simWet <- simInit(times = times, params = parameters, 
+                    modules = modulesWetland, 
                     objects = .objects, paths = paths, 
-                    loadOrder = unlist(modulesBirds))
+                    loadOrder = unlist(modulesWetland))
 
 ```
 
@@ -344,6 +345,7 @@ And finally the simulation call (note that the argument `debug = TRUE` lists all
 ```{r call}
 
 # LandR_Biomass <- spades(simLandR, debug = TRUE)
-birds <- spades(simBirds, debug = TRUE)
+# birds <- spades(simBirds, debug = TRUE)
+wetlands <- spades(simWet, debug = TRUE)
 
 ```

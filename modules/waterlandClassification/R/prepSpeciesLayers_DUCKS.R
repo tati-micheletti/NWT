@@ -15,19 +15,24 @@
 #' @importFrom reproducible asPath Cache prepInputs
 #' @rdname prepSpeciesLayers
 prepSpeciesLayers_DUCKS <- function(destinationPath,
-                                     url = NULL,
-                                     studyArea, rasterToMatch) {
+                                     url = NULL, archive = NULL,
+                                     targetFile = NULL,
+                                     studyArea = NULL, rasterToMatch = NULL) {
   if (is.null(url))
-    url <- ""
+    url <- "https://drive.google.com/open?id=1wNpBdLICWDJ-DGwDboPb9wVwRwtGm1go"
+  if (is.null(targetFile))
+    targetFile <- "HWL_BCR6.tif"
+  if (is.null(archive))
+    archive <- "HWL_BCR6.zip"
 
   message("  Loading DUCKS Unlimited Hybrid Wetland v. 2.1 layers...")
   DUCKSlayer <- Cache(prepInputs,
-                     targetFile = ,
-                     archive = ,
+                     targetFile = targetFile,
+                     archive = archive,
                      url = url,
-                     alsoExtract = NULL,
+                     alsoExtract = "similar",
                      destinationPath = destinationPath,
-                     fun = "rgdal::readOGR",
+                     fun = "raster::raster",
                      studyArea = studyArea,
                      rasterToMatch = rasterToMatch,
                      datatype = "INT1U",

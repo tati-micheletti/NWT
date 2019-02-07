@@ -28,7 +28,7 @@ defineModule(sim, list(
                  sourceURL = "BAM.SharedDrive/RshProjs/CC/CCImpacts/NWT-cc-fire/Models/BirdModelsv1/"),
     expectsInput(objectName = "urlStaticLayers", objectClass = "RasterLayer", 
                  desc = "Static Layers (WAT, URBAG, lLED25, DEV25 and landform) url", 
-                 sourceURL = "https://drive.google.com/open?id=1_zC_M55f5u8BjvISawmmuAsJCzrmyKp8")
+                 sourceURL = "https://drive.google.com/open?id=1OzWUtBvVwBPfYiI_L_2S1kj8V6CzB92D")
   ),
   outputObjects = bind_rows(
     createsOutput(objectName = "birdPrediction", objectClass = "list", 
@@ -45,7 +45,7 @@ doEvent.birdsNWT = function(sim, eventTime, eventType) {
   switch(
     eventType,
     init = {
-
+      
       # schedule future event(s)
       sim <- scheduleEvent(sim, start(sim), "birdsNWT", "loadModels")
       sim <- scheduleEvent(sim, start(sim), "birdsNWT", "loadFixedLayers")
@@ -54,28 +54,28 @@ doEvent.birdsNWT = function(sim, eventTime, eventType) {
     },
     loadModels = {
       sim$birdModels <- Cache(loadBirdModels, birdsList = sim$birdsList,
-                                       folderUrl = extractURL("urlModels"),
-                                       cloudFolderID = sim$cloudFolderID,
-                                       pathData = dataPath(sim))
+                              folderUrl = extractURL("urlModels"),
+                              cloudFolderID = sim$cloudFolderID,
+                              pathData = dataPath(sim))
       message("Bird models loaded for: \n", paste(sim$birdsList, collapse = "\n"))
     },
     loadFixedLayers = {
-      sim$staticLayers <- Cache(loadStaticLayers, folderUrl = extractURL("urlStaticLayers"),
-                                     pathData = dataPath(sim), 
-                                     cloudFolderID = sim$cloudFolderID)
+      sim$staticLayers <- Cache(loadStaticLayers, fileURL = extractURL("urlStaticLayers"),
+                                pathData = dataPath(sim), 
+                                cloudFolderID = sim$cloudFolderID)
       message("The following static layers have been loaded: \n", paste(names(sim$staticLayers), collapse = "\n"))
-
+      
     },
     predictBirds = {
       sim$birdPrediction[[paste0("Year", time(sim))]] <- Cache(predictDensities, birdSpecies = sim$birdsList,
-                                                           successionTable = "TO CHECK FROM LandR",
-                                                           staticLayers = sim$staticLayers,
-                                                           currentTime = time(sim),
-                                                           modelList = sim$birdModels,
-                                                           pathData = dataPath(sim),
-                                                           cacheId = paste0("predicted", time(sim)))
-      sim <- scheduleEvent(sim, time(sim) + 10, "birdsNWT", "predictBirds")
-
+                                                               successionTable = "TO CHECK FROM LandR",
+                                                               staticLayers = sim$staticLayers,
+                                                               currentTime = time(sim),
+                                                               modelList = sim$birdModels,
+                                                               pathData = dataPath(sim),
+                                                               cacheId = paste0("predicted", time(sim)))
+      sim <- scheduleEvent(sim, end(sim), "birdsNWT", "predictBirds")
+      
     },
     warning(paste("Undefined event type: '", current(sim)[1, "eventType", with = FALSE],
                   "' in module '", current(sim)[1, "moduleName", with = FALSE], "'", sep = ""))
@@ -99,6 +99,6 @@ doEvent.birdsNWT = function(sim, eventTime, eventType) {
                        "BAOR", "HOWR", "WTSP", "CAWA", "RUBL", "AMRO", "HOLA", "AMRE", 
                        "AMGO", "AMCR", "ALFL")  
   }
-
+  
   return(invisible(sim))
 }

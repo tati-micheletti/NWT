@@ -13,8 +13,8 @@
 #'
 #' @export
 #' @importFrom reproducible asPath Cache prepInputs
-#' @rdname prepSpeciesLayers
-prepSpeciesLayers_DUCKS <- function(destinationPath,
+#' @rdname prepInputsLayers_DUCKS
+prepInputsLayers_DUCKS <- function(destinationPath,
                                      url = NULL, archive = NULL,
                                      targetFile = NULL,
                                      studyArea = NULL, rasterToMatch = NULL) {

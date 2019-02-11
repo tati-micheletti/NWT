@@ -7,3 +7,5 @@
 "HWL_BCR6.zip" "c4d760632fbbfa47" "493083177" "xxhash64"
 "LandCoverOfCanada2005_V1_4.zip" "e100c037a257e377" "47185238" "xxhash64"
 "LCC2005_V1_4a.tif" "b50567fc83bcc5de" "437916202" "xxhash64"
+"CanadaLandcover2010.zip" "311717c93e2f95eb" "2015562454" "xxhash64"
+"CAN_NALCMS_LC_30m_LAEA_mmu12_urb05_CAL.tif" "e66aa98243d5473c" "1658307841" "xxhash64"

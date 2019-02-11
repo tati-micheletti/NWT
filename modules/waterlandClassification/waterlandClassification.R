@@ -53,19 +53,21 @@ doEvent.waterlandClassification = function(sim, eventTime, eventType) {
     },
     loadWetlandLayer = {
       
-      sim$wetlandRaster <- Cache(prepSpeciesLayers_DUCKS, destinationPath = dataPath(sim), 
+      sim$wetlandRaster <- Cache(prepInputsLayers_DUCKS, destinationPath = dataPath(sim), 
                                  studyArea = sim$studyArea, 
                                  userTags = "objectName:wetlandRaster")
     },
     createWetZone = {
       
-      sim$wetLCC <- classifyWetlands(LCC = P(sim)$baseLayer,
+      sim$wetLCC <- Cache(classifyWetlands, LCC = P(sim)$baseLayer,
                                      wetLayerInput = sim$wetlandRaster,
                                      pathData = dataPath(sim),
-                                     studyArea = sim$studyArea)
+                                     studyArea = sim$studyArea,
+                          userTags = c("objectName:wetLCC"))
     },
     diagnostics = {
-      
+      browser()
+      # DUCS Layer has 0 = NA, 1 = Water, 2 = Wetland, 3+ = Upland
       # 4. run diagnostics comparing to pure layer
       
     },

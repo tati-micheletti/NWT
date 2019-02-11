@@ -62,13 +62,17 @@ doEvent.birdsNWT = function(sim, eventTime, eventType) {
     loadFixedLayers = {
       sim$staticLayers <- Cache(loadStaticLayers, fileURL = extractURL("urlStaticLayers"),
                                 pathData = dataPath(sim), 
-                                cloudFolderID = sim$cloudFolderID)
+                                cloudFolderID = sim$cloudFolderID,
+                                studyArea = sim$studyArea)
       message("The following static layers have been loaded: \n", paste(names(sim$staticLayers), collapse = "\n"))
       
     },
     predictBirds = {
+      
+      sim$successionLayers <- convertSuccessionTableToLayers(successionTables = sim$successionTables)
+      
       sim$birdPrediction[[paste0("Year", time(sim))]] <- Cache(predictDensities, birdSpecies = sim$birdsList,
-                                                               successionTable = "TO CHECK FROM LandR",
+                                                               successionLayers = "TO CHECK FROM LandR",
                                                                staticLayers = sim$staticLayers,
                                                                currentTime = time(sim),
                                                                modelList = sim$birdModels,
@@ -84,6 +88,7 @@ doEvent.birdsNWT = function(sim, eventTime, eventType) {
 }
 
 .inputObjects <- function(sim) {
+  
   dPath <- asPath(getOption("reproducible.destinationPath", dataPath(sim)), 1)
   message(currentModule(sim), ": using dataPath '", dPath, "'.")
   if (!suppliedElsewhere(object = "birdsList", sim = sim)){
@@ -98,6 +103,10 @@ doEvent.birdsNWT = function(sim, eventTime, eventType) {
                        "YBFL", "CEDW", "SAVS", "BAWW", "LCSP", "WWCR", "CCSP", "RWBL", 
                        "BAOR", "HOWR", "WTSP", "CAWA", "RUBL", "AMRO", "HOLA", "AMRE", 
                        "AMGO", "AMCR", "ALFL")  
+  }
+  
+  if (!suppliedElsewhere(object = "successionTables", sim = sim)) {
+    sim$successionTables <- NA
   }
   
   return(invisible(sim))

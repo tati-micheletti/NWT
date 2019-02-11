@@ -1,1 +1,3 @@
 "file" "checksum" "filesize" "algorithm"
+"bcr6_2011rasters250.grd" "37444acde1b827c9" "1069" "xxhash64"
+"bcr6_2011rasters250.gri" "0dba36fa261564cd" "4745545200" "xxhash64"

@@ -7,33 +7,21 @@ output: pdf_document
 
 # Overview
 
-Provide an overview of what the module does / how to use the module.
-
-Module documentation should be written so that others can use your module.
-This is a template for module documentation, and should be changed to reflect your module.
-
-## R Markdown
-
-R Markdown syntax allows R code, outputs, and figures to be rendered in the documentation.
-
-For help writing in R Markdown, see http://rmarkdown.rstudio.com/.
+This is a module to define water, wetland and uplands based on Hybrid Wetland Layer from Ducks Unlimited Canada v. 2.1.
+It creates a classified with 250m resolution, and projection from the Hybrid Wetland Layer using the dominant (> 50%) classification 
+from DUCK's layer.
 
 # Usage
 
 ```{r module_usage}
 library(SpaDES)
 
-setPaths(modulePath = file.path("/home/tmichele/Documents/GitHub/NWT/modules"))
+setPaths(modulePath = file.path(getwd(), "modules"))
 getPaths() # shows where the 4 relevant paths are
 
-times <- list(start = 0, end = 10)
+times <- list(start = 0, end = 1)
 
-parameters <- list(
-  #.progress = list(type = "text", interval = 1), # for a progress bar
-  ## If there are further modules, each can have its own set of parameters:
-  #module1 = list(param1 = value1, param2 = value2),
-  #module2 = list(param1 = value1, param2 = value2)
-)
+parameters <- list()
 modules <- list("waterlandClassification")
 objects <- list()
 inputs <- list()
@@ -42,33 +30,29 @@ outputs <- list()
 mySim <- simInit(times = times, params = parameters, modules = modules,
                  objects = objects)
 
-mySimOut <- spades(mySim)
+mySimOut <- spades(mySim, debug = 2)
+
+raster::plot(mySimOut$wetLCC)
 ```
-
-# Events
-
-Describe what happens for each event type.
-
-## Plotting
-
-Write what is plotted.
-
-## Saving
-
-Write what is saved.
-
-# Data dependencies
-
-## Input data
-
-How to obtain input data, and a description of the data required by the module.
-If `sourceURL` is specified, `downloadData("waterlandClassification", "path/to/modules/dir")` may be sufficient.
 
 ## Output data
 
-Description of the module outputs.
+The following code can access the layer:
+```{r output}
 
-# Links to other modules
+mySimOut$wetLCC
 
-Describe any anticipated linkages to other modules.
+```
+
+## Output data
+
+Alternatively, the layer can be easily created outside of a `SpaDES` module accessible from:
+
+```{r output}
+
+wetLCC <- reproducible::prepInputs(url = "https://drive.google.com/open?id=1YVTcIexNk-obATw2ahrgxA6uvIlr-6xm",
+                                   targetFile = "wetlandsNWT250m.tif", 
+                                   destinationPath = getPaths()$output)
+
+```
 

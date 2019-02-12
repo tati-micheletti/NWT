@@ -17,9 +17,7 @@ defineModule(sim, list(
     defineParameter(name = ".useCache", class = "logical", default = FALSE, min = NA, max = NA, 
                     desc = "Should this entire module be run with caching activated?"),
     defineParameter(name = "baseLayer", class = "character", default = c("LCC05", "LCC10"), min = NA, max = NA, 
-                    desc = "Which layer should be used? LCC05, LCC10 or both?"),
-    defineParameter(name = "wetValue", class = "numeric", default = NA, min = NA, max = NA, 
-                    desc = "Which value represents wetland in the wetlandRaster?")
+                    desc = "Which layer should be used? LCC05, LCC10 or both?")
   ),
   inputObjects = bind_rows(
     expectsInput(objectName = "wetlandRaster", objectClass = "RasterLayer", 
@@ -32,12 +30,8 @@ defineModule(sim, list(
   ),
   outputObjects = bind_rows(
     createsOutput(objectName = "wetLCC", objectClass = "list", 
-                  desc = paste0("List of RasterLayers containing identifying", 
-                                " uplands and lowlands in a given study", 
-                                " area based on LCC05 and/or 2010")),
-    createsOutput(objectName = "wetDiagnostics", objectClass = "list", 
-                  desc = paste0(" It returns the diagnostics on which approach should be used:", 
-                                "pixel based, or class using XXXXXX"))
+                  desc = paste0("Raster with 3 values: 1 = Water; 2 = Wetlands, 3 = Uplands", 
+                                " created based on the DUCKS layer and the LCC05 (250m res)"))
   )
 ))
 
@@ -49,7 +43,6 @@ doEvent.waterlandClassification = function(sim, eventTime, eventType) {
       # schedule future event(s)
       sim <- scheduleEvent(sim, start(sim), "waterlandClassification", "loadWetlandLayer")
       sim <- scheduleEvent(sim, start(sim), "waterlandClassification", "createWetZone")
-      sim <- scheduleEvent(sim, start(sim), "waterlandClassification", "diagnostics")
     },
     loadWetlandLayer = {
       
@@ -65,12 +58,6 @@ doEvent.waterlandClassification = function(sim, eventTime, eventType) {
                                      studyArea = sim$studyArea,
                           userTags = c("objectName:wetLCC"))
     },
-    diagnostics = {
-      browser()
-      # DUCS Layer has 0 = NA, 1 = Water, 2 = Wetland, 3+ = Upland
-      # 4. run diagnostics comparing to pure layer
-      
-    },
     warning(paste("Undefined event type: '", current(sim)[1, "eventType", with = FALSE],
                   "' in module '", current(sim)[1, "moduleName", with = FALSE], "'", sep = ""))
   )
@@ -83,10 +70,10 @@ doEvent.waterlandClassification = function(sim, eventTime, eventType) {
   dPath <- asPath(getOption("reproducible.destinationPath", dataPath(sim)), 1)
   message(currentModule(sim), ": using dataPath '", dPath, "'.")
   
-  if (!suppliedElsewhere("studyArea", sim)) 
+  if (!suppliedElsewhere("studyArea", sim))
     sim$studyArea <- cloudCache(prepInputs, 
                                 url = "https://drive.google.com/open?id=1LUxoY2-pgkCmmNH5goagBp3IMpj6YrdU",
-                                destinationPath = paths$inputPath, 
+                                destinationPath = inputPath(sim), 
                                 useCloud = TRUE, cloudFolderID = "https://drive.google.com/open?id=1PoEkOkg_ixnAdDqqTQcun77nUvkEHDc0")
   
   if (!suppliedElsewhere("wetlandRaster", sim)){
@@ -96,7 +83,7 @@ doEvent.waterlandClassification = function(sim, eventTime, eventType) {
   }
   
   if (is.null(P(sim)$baseLayer))
-    P(sim)$baseLayer  <- c("LCC05", "LCC10")
+    P(sim)$baseLayer  <- "LCC05"
   
   return(invisible(sim))
 }

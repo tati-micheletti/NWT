@@ -6,37 +6,52 @@ classifyWetlands <- function(LCC = P(sim)$baseLayer,
   Require("LandR")
   Require("sf")
   Require("sp")
+  Require("raster")
 
-  listLCC <- lapply(X = LCC, FUN = function(yearLCC){
-  if (!any(yearLCC %in% c("LCC10", "LCC05"))) message(paste0("Currently, only LCC10 and LCC05 are available.\n",
-                                                        "LCC05 will be returned unless LCC10 was specified."))
-    year <- if (grepl(x = yearLCC, pattern = "10")) 2010 else 2005
+  # Load LCC05
+    rasLCC <- LandR::prepInputsLCC(year = 2005, destinationPath = pathData, 
+                         studyArea = studyArea, filename2 = "LCC05", 
+                         format = "GTiff", overwrite = TRUE)
+    if (as.character(crs(rasLCC))!=as.character(crs(wetLayerInput))){
+      rasLCC <- raster::projectRaster(from = rasLCC, crs = crs(wetLayerInput))      
+    }
 
-    rasLCC <- LandR::prepInputsLCC(year = year, destinationPath = pathData, 
-                         studyArea = studyArea, filename2 = yearLCC, format = "GTiff")
-    if (as.character(crs(rasLCC))!=as.character(crs(wetLayerInput)))
-      rasLCC <- raster::projectRaster(from = rasLCC, crs = crs(wetLayerInput))
-      
-    return(rasLCC)
-  })
-  names(listLCC) <- LCC
-  
-  # Generate random points and extract a table with the value of those points from LCC10, LCC05 and DUCKS
-  notna <- which(!is.na(values(wetLayerInput)) & values(wetLayerInput)!=0)
-  set.seed(1983)
-  samp <- Cache(sample, x = notna, size = 10^6, replace = FALSE)
-  wetLayerInputPoints <- wetLayerInput[samp]
-  samplocs <- xyFromCell(wetLayerInput, samp)
-  
-  lcc05Points <- raster::extract(listLCC$LCC05, samplocs)
-  lcc10Points <- raster::extract(listLCC$LCC10, samplocs)
-  
-  wetLCC <- as.data.table(cbind(samplocs, samp, wetLayerInputPoints, lcc05Points, lcc10Points))
-  names(wetLCC) <- c('x', 'y', 'indexDUCKS', 'valueDUCKS', 'valueLCC05', 'valueLCC10')
-  
-  # To check where the points lay
-  # samp_sf <- st_as_sf(as.data.frame(wetLCC), coords = c('x', 'y'), crs = as.character(crs(wetLayerInput)))
-  # raster::plot(samp_sf, add = T, col = 'red')
-  
-  return(wetLCC)
+    # get xy of all pixels in DUCKS that are 1, 2 or 3+
+    watIndex <- which(values(wetLayerInput)==1)
+    wetIndex <- which(values(wetLayerInput)==2)
+    upIndex <- which(values(wetLayerInput)>2)
+    
+    # extract the pixel numbers of these xy from LCC05.
+    wetLocations <- xyFromCell(wetLayerInput, wetIndex)
+    watLocations <- xyFromCell(wetLayerInput, watIndex)
+    upLocations <- xyFromCell(wetLayerInput, upIndex)
+    
+    lcc05Wetlands <- as.data.table(raster::extract(rasLCC, wetLocations, cellnumbers = TRUE))
+    lcc05Water <- as.data.table(raster::extract(rasLCC, watLocations, cellnumbers = TRUE))
+    lcc05Uplands <- as.data.table(raster::extract(rasLCC, upLocations, cellnumbers = TRUE))
+    
+    # Calculate how many of times each pixel index exists
+    countWet <- lcc05Wetlands[, .N, by = cells]
+    countWat <- lcc05Water[, .N, by = cells]
+    countUp <- lcc05Uplands[, .N, by = cells]
+
+    # 50 or more pixels (50%) are 1, 2 or , that pixel index in LCC05 is actually a wetland
+    lccWetIndex <- countWet[N > 49]
+    lccWatIndex <- countWat[N > 49]
+    lccUpIndex <- countUp[N > 49]
+    wetVector <- lccWetIndex$cells 
+    watVector <- lccWatIndex$cells 
+    upVector <- lccUpIndex$cells 
+    
+    # Generate and return the mask layer
+    lccWetLayer <- rasLCC
+    lccWetLayer[!is.na(lccWetLayer)] <- -1
+    lccWetLayer[watVector] <- 1
+    lccWetLayer[wetVector] <- 2
+    lccWetLayer[upVector] <- 3
+    lccWetLayer[lccWetLayer == -1] <- NA
+
+    storage.mode(lccWetLayer[]) <- "integer"
+
+  return(lccWetLayer)
 }

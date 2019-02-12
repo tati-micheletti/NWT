@@ -68,8 +68,8 @@ doEvent.birdsNWT = function(sim, eventTime, eventType) {
       
     },
     predictBirds = {
-      
-      sim$successionLayers <- convertSuccessionTableToLayers(successionTables = sim$successionTables)
+      sim$successionLayers <- convertSuccessionTableToLayers(successionTables = sim$successionTables,
+                                                             pathData = dataPath(sim))
       
       sim$birdPrediction[[paste0("Year", time(sim))]] <- Cache(predictDensities, birdSpecies = sim$birdsList,
                                                                successionLayers = "TO CHECK FROM LandR",

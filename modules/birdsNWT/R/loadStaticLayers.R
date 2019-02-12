@@ -14,5 +14,6 @@ loadStaticLayers <- function(fileURL = extractURL("urlStaticLayers"),
   names(stk) <- stkNames
   fixedLayers <- stkNames[!grepl(pattern = "Species", x = stkNames)]
   staticLayers <- raster::subset(x = stk, subset = fixedLayers)
+  browser()
   return(staticLayers)
 }

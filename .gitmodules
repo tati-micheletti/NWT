@@ -13,3 +13,6 @@
 [submodule "modules/Boreal_LBMRDataPrep"]
 	path = modules/Boreal_LBMRDataPrep
 	url = git@github.com:eliotmcintire/Boreal_LBMRDataPrep.git
+[submodule "modules/waterlandClassification"]
+	path = modules/waterlandClassification
+	url = git@github.com:tati-micheletti/waterlandClassification.git

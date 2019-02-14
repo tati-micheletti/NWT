@@ -75,11 +75,7 @@ devtools::install_github("PredictiveEcology/reproducible@development")
 devtools::install_github("achubaty/amc@development")
 devtools::install_github("PredictiveEcology/pemisc@development")
 devtools::install_github("PredictiveEcology/map@development")
-devtools::install_github("PredictiveEcology/LandR@development")
-devtools::install_github("PredictiveEcology/quickPlot@development")
-devtools::install_github("PredictiveEcology/SpaDES.tools@development")
-devtools::install_github("PredictiveEcology/SpaDES.core@development")
-devtools::install_github("achubaty/amc@development")
+devtools::install_github("PredictiveEcology/LandR@development") # Updates SpaDES.tools and SpaDES.core quickPlot
 
 ```
 
@@ -132,9 +128,10 @@ options used by SpaDES.
 ```{r setup}
 # Which computer is this being run on?
 # Options are: BorealCloud, LocalMachine, 388
-whichComputer <- "BorealCloud"
+whichComputer <- "388"
 
 paths <- pathsSetup(whichComputer = whichComputer) 
+if (length(paths$inputPath) == 1) paths$inputPath <- c(paths$inputPath, file.path(paths$modulePath, "scfm/modules"))
 
 if (pemisc::user() %in% c("Tati", "tmichele")) {
     setTempFolder(paths = paths, setTmpFolder = TRUE, usr = pemisc::user())
@@ -198,7 +195,7 @@ in a google drive's folder (`cloudFolderID`), which is sharable with all project
 # options(httr_oob_default = TRUE) # Allows it to work on a Linux server
 studyArea <- cloudCache(prepInputs, 
                         url = "https://drive.google.com/open?id=1LUxoY2-pgkCmmNH5goagBp3IMpj6YrdU",
-                        destinationPath = paths$inputPath, 
+                        destinationPath = paths$inputPath[[1]], 
                         useCloud = TRUE, cloudFolderID = cloudFolderID)
 # %>%  rgeos::gUnaryUnion()
 
@@ -211,7 +208,8 @@ we explicitly specify the modules to be run, and the running time for the simula
 
 ```{r run_LandR}
 
-modulesLandR <- list("Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR")
+modulesSCFM <- list("group_scfm")
+# modulesLandR <- list("Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR")
 # modulesBirds <- list("birdsNWT")
 # modulesWetland <- list("waterlandClassification")
 
@@ -224,7 +222,7 @@ Then we need to set the parameters for the simulation call:
 ``` {r params}
 
 rasterToMatch <- cloudCache(prepInputs, url = "https://drive.google.com/open?id=1fo08FMACr_aTV03lteQ7KsaoN9xGx1Df", studyArea = studyArea,
-                            targetFile = "RTM.tif", destinationPath = paths$inputPath, 
+                            targetFile = "RTM.tif", destinationPath = paths$inputPath[[1]], 
                             useCloud = TRUE, 
                             cloudFolderID = cloudFolderID)
 sppEquivCol <- "NWT"
@@ -287,7 +285,7 @@ sppEquivalencies_CA[, NWT := c(Abie_Bal = "Abie_Bal",
 
 sppColors <- LandR::sppColors(sppEquiv = sppEquivalencies_CA, sppEquivCol = sppEquivCol,
                               palette = "Set3")
-mixed <- structure("D0FB84", names = "Mixed")
+mixed <- structure("#D0FB84", names = "Mixed")
 sppColors[length(sppColors)+1] <- mixed
 attributes(sppColors)$names[length(sppColors)] <- "Mixed"
 
@@ -328,11 +326,16 @@ outputsLandR <- data.frame(
            paste0("summaryBySpecies1_",toupper(format(Sys.time(), "%d%b%y"))),
            paste0("simulationOutput_",toupper(format(Sys.time(), "%d%b%y")))))
 
-simLandR <- simInit(times = times, params = parameters,
-                    modules = modulesLandR,
+simSCFM <- simInit(times = times, params = parameters,
+                    modules = modulesSCFM,
                     objects = .objects, paths = paths,
-                    loadOrder = unlist(modulesLandR),
+                    loadOrder = unlist(modulesSCFM),
                     outputs = outputsLandR)
+# simLandR <- simInit(times = times, params = parameters,
+#                     modules = modulesLandR,
+#                     objects = .objects, paths = paths,
+#                     loadOrder = unlist(modulesLandR),
+#                     outputs = outputsLandR)
 # simBirds <- simInit(times = times, params = parameters,
 #                     modules = modulesBirds,
 #                     objects = .objects, paths = paths,
@@ -348,7 +351,8 @@ And finally the simulation call (note that the argument `debug = TRUE` lists all
 
 ```{r call}
 
-LandR_Biomass <- spades(simLandR, debug = 2)
+SCFM <- spades(simSCFM, debug = 2)
+# LandR_Biomass <- spades(simLandR, debug = 2)
 # birds <- spades(simBirds, debug = 2)
 # wetlands <- spades(simWet, debug = 2)
 

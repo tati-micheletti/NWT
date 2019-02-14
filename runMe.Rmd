@@ -329,8 +329,7 @@ outputsLandR <- data.frame(
 simSCFM <- simInit(times = times, params = parameters,
                     modules = modulesSCFM,
                     objects = .objects, paths = paths,
-                    loadOrder = unlist(modulesSCFM),
-                    outputs = outputsLandR)
+                    loadOrder = unlist(modulesSCFM))
 # simLandR <- simInit(times = times, params = parameters,
 #                     modules = modulesLandR,
 #                     objects = .objects, paths = paths,

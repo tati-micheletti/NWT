@@ -16,3 +16,6 @@
 [submodule "modules/waterlandClassification"]
 	path = modules/waterlandClassification
 	url = git@github.com:tati-micheletti/waterlandClassification.git
+[submodule "modules/scfm"]
+	path = modules/scfm
+	url = git@github.com:eliotmcintire/scfm.git

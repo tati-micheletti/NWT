@@ -84,8 +84,8 @@ doEvent.birdsNWT = function(sim, eventTime, eventType) {
                                                                useParallel = P(sim)$useParallel,
                                                                nCores = P(sim)$nCores,
                                                                userTags = paste0("predictedBirds", time(sim)))
-      if (time(sim) < end(sim))
-        sim <- scheduleEvent(sim, end(sim), "birdsNWT", "predictBirds")
+
+        sim <- scheduleEvent(sim, time(sim) + 10, "birdsNWT", "predictBirds")
       
     },
     warning(paste("Undefined event type: '", current(sim)[1, "eventType", with = FALSE],

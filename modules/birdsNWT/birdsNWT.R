@@ -14,9 +14,11 @@ defineModule(sim, list(
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.txt", "birdsNWT.Rmd"),
-  reqdPkgs = list("googledrive", "data.table", "raster", "gbm"),
+  reqdPkgs = list("googledrive", "data.table", "raster", "gbm", "crayon"),
   parameters = rbind(
-    defineParameter(".useCache", "logical", FALSE, NA, NA, "Should this entire module be run with caching?")
+    defineParameter(".useCache", "logical", FALSE, NA, NA, "Should this entire module be run with caching?"),
+    defineParameter("useParallel", "logical", FALSE, NA, NA, "Should bird prediction be parallelized?"),
+    defineParameter("nCores", "character|numeric", "auto", NA, NA, "If parallelizing, how many cores to use? Use 'auto' (90% of available), or numeric")
   ),
   inputObjects = bind_rows(
     expectsInput(objectName = "birdsList", objectClass = "character", 
@@ -79,6 +81,8 @@ doEvent.birdsNWT = function(sim, eventTime, eventType) {
                                                                modelList = sim$birdModels,
                                                                pathData = dataPath(sim),
                                                                overwritePredictions = FALSE,
+                                                               useParallel = P(sim)$useParallel,
+                                                               nCores = P(sim)$nCores,
                                                                userTags = paste0("predictedBirds", time(sim)))
       if (time(sim) < end(sim))
         sim <- scheduleEvent(sim, end(sim), "birdsNWT", "predictBirds")

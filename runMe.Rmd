@@ -193,6 +193,7 @@ in a google drive's folder (`cloudFolderID`), which is sharable with all project
 
 ```{r studyArea}
 # options(httr_oob_default = TRUE) # Allows it to work on a Linux server
+if (quickPlot::isRstudioServer()) options(httr_oob_default = TRUE)
 studyArea <- cloudCache(prepInputs, 
                         url = "https://drive.google.com/open?id=1LUxoY2-pgkCmmNH5goagBp3IMpj6YrdU",
                         destinationPath = paths$inputPath[[1]], 

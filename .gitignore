@@ -44,3 +44,4 @@ tmp/
 *.grd
 *.gri
 *.tif
+inputs/*.*

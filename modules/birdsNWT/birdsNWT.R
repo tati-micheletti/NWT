@@ -18,6 +18,7 @@ defineModule(sim, list(
   parameters = rbind(
     defineParameter(".useCache", "logical", FALSE, NA, NA, "Should this entire module be run with caching?"),
     defineParameter("useParallel", "logical", FALSE, NA, NA, "Should bird prediction be parallelized?"),
+    defineParameter("useTestSpeciesLayers", "logical", TRUE, NA, NA, "Should bird prediction be parallelized?"),
     defineParameter("nCores", "character|numeric", "auto", NA, NA, "If parallelizing, how many cores to use? Use 'auto' (90% of available), or numeric")
   ),
   inputObjects = bind_rows(
@@ -30,7 +31,7 @@ defineModule(sim, list(
                  sourceURL = "BAM.SharedDrive/RshProjs/CC/CCImpacts/NWT-cc-fire/Models/BirdModelsv1/"),
     expectsInput(objectName = "urlStaticLayers", objectClass = "RasterLayer", 
                  desc = "Static Layers (WAT, URBAG, lLED25, DEV25 and landform) url", 
-                 sourceURL = "https://drive.google.com/open?id=1OzWUtBvVwBPfYiI_L_2S1kj8V6CzB92D")
+                 sourceURL = "https://drive.google.com/open?id=1P4grDYDffVyVXvMjM-RwzpuH1deZuvL3")
   ),
   outputObjects = bind_rows(
     createsOutput(objectName = "birdPrediction", objectClass = "list", 
@@ -39,7 +40,10 @@ defineModule(sim, list(
                   desc = "List of the bird models for prediction"),
     createsOutput(objectName = "staticLayers", objectClass = "RasterStack", 
                   desc = paste0("Raster stack of all static layers (WAT, URBAG,", 
-                                "lLED25, DEV25 and landform) for the bird models"))
+                                "lLED25, DEV25 and landform) for the bird models")),
+    createsOutput(objectName = "successionLayers", objectClass = "RasterStack", 
+                  desc = paste0("Raster stack of all succession layers (species)", 
+                                " and total biomass for the bird models"))
   )
 ))
 
@@ -66,13 +70,25 @@ doEvent.birdsNWT = function(sim, eventTime, eventType) {
                                 pathData = dataPath(sim), 
                                 cloudFolderID = sim$cloudFolderID,
                                 studyArea = sim$studyArea)
-      message("The following static layers have been loaded: \n", paste(names(sim$staticLayers), collapse = "\n"))
-      
+      message("The following static layers have been loaded: \n", 
+              paste(names(sim$staticLayers), collapse = "\n"))
     },
     predictBirds = {
-      sim$successionLayers <- Cache(convertSuccessionTableToLayers, successionTables = sim$successionTables,
-                                                             modelList = sim$birdModels,
-                                                             pathData = dataPath(sim))
+      if (P(sim)$useTestSpeciesLayers == TRUE){
+        sim$successionLayers <- Cache(loadTestSpeciesLayers, 
+                                      modelList = sim$birdModels,
+                                      pathData = dataPath(sim)) # Need to add Biomass and Structure Age to this layer!
+      } else {
+        browser() # Fix the next function!
+        if (!suppliedElsewhere("", sim)|!suppliedElsewhere("", sim))
+          stop("useTestSpeciesLayers is FALSE, but no vegetation simulation was run")
+        
+        sim$successionLayers <- Cache(createSpeciesStackLayer,
+                                      modelList = sim$birdModels,
+                                      biomassLayer = "",
+                                      treeSpeciesList = "",
+                                      pathData = dataPath(sim))
+      }
       
       sim$birdPrediction[[paste0("Year", time(sim))]] <- Cache(predictDensities, birdSpecies = sim$birdsList,
                                                                successionLayers = sim$successionLayers,
@@ -110,10 +126,6 @@ doEvent.birdsNWT = function(sim, eventTime, eventType) {
                        "YBFL", "CEDW", "SAVS", "BAWW", "LCSP", "WWCR", "CCSP", "RWBL", 
                        "BAOR", "HOWR", "WTSP", "CAWA", "RUBL", "AMRO", "HOLA", "AMRE", 
                        "AMGO", "AMCR", "ALFL")  
-  }
-  
-  if (!suppliedElsewhere(object = "successionTables", sim = sim)) {
-    sim$successionTables <- NA
   }
   
   return(invisible(sim))

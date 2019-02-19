@@ -12,7 +12,9 @@ loadStaticLayers <- function(fileURL = extractURL("urlStaticLayers"),
   }))
   stk <- postProcess(stk, studyArea = studyArea)
   names(stk) <- stkNames
-  fixedLayers <- stkNames[!grepl(pattern = "Species", x = stkNames)]
+  spLayers <- c("Species", "Structure")
+  fixedLayers <- stkNames[!grepl(pattern = paste(spLayers, collapse = "|"), 
+                                 x = stkNames)]
   staticLayers <- raster::subset(x = stk, subset = fixedLayers)
   return(staticLayers)
 }

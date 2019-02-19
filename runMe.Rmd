@@ -197,7 +197,8 @@ if (quickPlot::isRstudioServer()) options(httr_oob_default = TRUE)
 studyArea <- cloudCache(prepInputs, 
                         url = "https://drive.google.com/open?id=1LUxoY2-pgkCmmNH5goagBp3IMpj6YrdU",
                         destinationPath = paths$inputPath[[1]], 
-                        useCloud = TRUE, cloudFolderID = cloudFolderID)
+                        useCloud = TRUE, cloudFolderID = cloudFolderID,
+                        omitArgs = c("destinationPath", "cloudFolderID"))
 # %>%  rgeos::gUnaryUnion()
 
 ```
@@ -225,10 +226,10 @@ Then we need to set the parameters for the simulation call:
 ``` {r params}
 
 rasterToMatch <- cloudCache(prepInputs, url = "https://drive.google.com/open?id=1fo08FMACr_aTV03lteQ7KsaoN9xGx1Df", 
-                            studyArea = studyArea, 
-                            targetFile = "RTM.tif", destinationPath = paths$inputPath[[1]], 
-                            useCloud = TRUE, 
-                            cloudFolderID = cloudFolderID)
+                            studyArea = studyArea,
+                            targetFile = "RTM.tif", destinationPath = paths$inputPath, 
+                            useCloud = TRUE, cloudFolderID = cloudFolderID,
+                            omitArgs = c("destinationPath", "cloudFolderID", "useCloud"))
 sppEquivCol <- "NWT"
 
 #SCFM

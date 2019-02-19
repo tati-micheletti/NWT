@@ -19,3 +19,6 @@
 [submodule "modules/scfm"]
 	path = modules/scfm
 	url = git@github.com:eliotmcintire/scfm.git
+[submodule "NationalModel"]
+	path = NationalModel
+	url = git@github.com:dstralberg/NationalModel.git

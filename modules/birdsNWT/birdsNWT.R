@@ -14,9 +14,11 @@ defineModule(sim, list(
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.txt", "birdsNWT.Rmd"),
-  reqdPkgs = list("googledrive", "data.table", "raster"),
+  reqdPkgs = list("googledrive", "data.table", "raster", "gbm", "crayon"),
   parameters = rbind(
-    defineParameter(".useCache", "logical", FALSE, NA, NA, "Should this entire module be run with caching?")
+    defineParameter(".useCache", "logical", FALSE, NA, NA, "Should this entire module be run with caching?"),
+    defineParameter("useParallel", "logical", FALSE, NA, NA, "Should bird prediction be parallelized?"),
+    defineParameter("nCores", "character|numeric", "auto", NA, NA, "If parallelizing, how many cores to use? Use 'auto' (90% of available), or numeric")
   ),
   inputObjects = bind_rows(
     expectsInput(objectName = "birdsList", objectClass = "character", 
@@ -68,17 +70,22 @@ doEvent.birdsNWT = function(sim, eventTime, eventType) {
       
     },
     predictBirds = {
-      sim$successionLayers <- convertSuccessionTableToLayers(successionTables = sim$successionTables,
+      sim$successionLayers <- Cache(convertSuccessionTableToLayers, successionTables = sim$successionTables,
+                                                             modelList = sim$birdModels,
                                                              pathData = dataPath(sim))
       
       sim$birdPrediction[[paste0("Year", time(sim))]] <- Cache(predictDensities, birdSpecies = sim$birdsList,
-                                                               successionLayers = "TO CHECK FROM LandR",
+                                                               successionLayers = sim$successionLayers,
                                                                staticLayers = sim$staticLayers,
                                                                currentTime = time(sim),
                                                                modelList = sim$birdModels,
                                                                pathData = dataPath(sim),
-                                                               cacheId = paste0("predicted", time(sim)))
-      sim <- scheduleEvent(sim, end(sim), "birdsNWT", "predictBirds")
+                                                               overwritePredictions = FALSE,
+                                                               useParallel = P(sim)$useParallel,
+                                                               nCores = P(sim)$nCores,
+                                                               userTags = paste0("predictedBirds", time(sim)))
+
+        sim <- scheduleEvent(sim, time(sim) + 10, "birdsNWT", "predictBirds")
       
     },
     warning(paste("Undefined event type: '", current(sim)[1, "eventType", with = FALSE],

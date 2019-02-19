@@ -279,7 +279,8 @@ parameters <- list(
   Boreal_LBMRDataPrep = list(
     "sppEquivCol" = sppEquivCol,
     "successionTimestep" = 10,
-    "pixelGroupAgeClass" = 10
+    "pixelGroupAgeClass" = 10,
+    .useCache = ".inputObjects"
   )
 )
 

@@ -194,12 +194,14 @@ in a google drive's folder (`cloudFolderID`), which is sharable with all project
 ```{r studyArea}
 # options(httr_oob_default = TRUE) # Allows it to work on a Linux server
 if (quickPlot::isRstudioServer()) options(httr_oob_default = TRUE)
-studyArea <- cloudCache(prepInputs, 
-                        url = "https://drive.google.com/open?id=1LUxoY2-pgkCmmNH5goagBp3IMpj6YrdU",
-                        destinationPath = paths$inputPath[[1]], 
-                        useCloud = TRUE, cloudFolderID = cloudFolderID)
-# %>%  rgeos::gUnaryUnion()
 
+Edehzhie.url <- "https://drive.google.com/open?id=0B_2riEic8l1mcXJWblRoSllMNGM4N2ZWa0JadGNaWDlJR3RB"
+NWT.url <- "https://drive.google.com/open?id=1LUxoY2-pgkCmmNH5goagBp3IMpj6YrdU"
+
+studyArea <- cloudCache(prepInputs,
+                        url = NWT.url,
+                        destinationPath = paths$inputPath[[1]],
+                        useCloud = TRUE, cloudFolderID = cloudFolderID)
 ```
 
 ### Running `LandR_Biomass`
@@ -209,11 +211,12 @@ we explicitly specify the modules to be run, and the running time for the simula
 
 ```{r run_LandR}
 
-modulesLandR_SCFM <- list("scfmLandcoverInit", "scfmRegime", "scfmDriver", "scfmIgnition", "scfmEscape", "scfmSpread",
-                          "Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR")
+# modulesLandR_SCFM <- list("scfmLandcoverInit", "scfmRegime", "scfmDriver", "scfmIgnition", "scfmEscape", "scfmSpread",
+#                           "Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR")
 # modulesSCFM <- list("scfmLandcoverInit", "scfmRegime", "scfmDriver", "scfmIgnition", "scfmEscape", "scfmSpread")
 # modulesLandR <- list("Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR")
-# modulesBirds <- list("birdsNWT")
+modulesBirds <- list("birdsNWT")
+modulesBirds_Fire <- list("scfmLandcoverInit", "scfmRegime", "scfmDriver", "scfmIgnition", "scfmEscape", "scfmSpread", "Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR", "birdsNWT")
 # modulesWetland <- list("waterlandClassification")
 
 times <- list(start = 0, end = 100)
@@ -224,11 +227,12 @@ Then we need to set the parameters for the simulation call:
 
 ``` {r params}
 
-rasterToMatch <- cloudCache(prepInputs, url = "https://drive.google.com/open?id=1fo08FMACr_aTV03lteQ7KsaoN9xGx1Df", 
-                            studyArea = studyArea, 
-                            targetFile = "RTM.tif", destinationPath = paths$inputPath[[1]], 
-                            useCloud = TRUE, 
+rasterToMatch <- cloudCache(prepInputs, url = "https://drive.google.com/open?id=1fo08FMACr_aTV03lteQ7KsaoN9xGx1Df",
+                            studyArea = studyArea,
+                            targetFile = "RTM.tif", destinationPath = paths$inputPath[[1]],
+                            useCloud = TRUE,
                             cloudFolderID = cloudFolderID)
+
 sppEquivCol <- "NWT"
 
 #SCFM
@@ -237,6 +241,10 @@ defaultPlotInterval <- 1.0
 defaultInitialSaveTime <- NA #don't be saving nuffink
 
 parameters <- list(
+  # BirdsNWT
+  birdsNWT = list(
+    "useTestSpeciesLayers" = TRUE
+  ),
   #SCFM
     .progress = list(type = "text", interval = 1),
   scfmIgnition = list(
@@ -389,13 +397,20 @@ And finally the simulation call (note that the argument `debug = TRUE` lists all
 
 ```{r call}
 
-LandR_SCFM <- simInitAndSpades(times = times, params = parameters,
-                    modules = modulesLandR_SCFM,
-                    objects = .objects, paths = paths,
-                    loadOrder = unlist(modulesLandR_SCFM), debug = 2)
+# LandR_SCFM <- simInitAndSpades(times = times, params = parameters,
+#                     modules = modulesLandR_SCFM, outputs = outputsLandR,
+#                     objects = .objects, paths = paths,
+#                     loadOrder = unlist(modulesLandR_SCFM), debug = 2)
 # SCFM <- spades(simSCFM, debug = 2)
 # LandR_Biomass <- spades(simLandR, debug = 2)
-# birds <- spades(simBirds, debug = 2)
+# birds <- simInitAndSpades(times = times, params = parameters,
+#                     modules = modulesBirds,
+#                     objects = .objects, paths = paths,
+#                     loadOrder = unlist(modulesBirds), debug = 2)
+birdsAndFire <- simInitAndSpades(times = times, params = parameters,
+                    modules = modulesBirds_Fire,
+                    objects = .objects, paths = paths,
+                    loadOrder = unlist(modulesBirds_Fire), debug = 2)
 # wetlands <- spades(simWet, debug = 2)
 
 ```

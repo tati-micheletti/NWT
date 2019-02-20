@@ -55,7 +55,15 @@ The structure of each one of the modules is as follows:
                             and road density (that should be available from the Anthropogenic
                             module) will be added to the nect version of these models.
 
-\textcolor{blue}{caribou}: The `caribou` module is composed of two modules: `caribouRSF` and `caribouPopGrowth` (names to be fixed by FS) 
+\textcolor{blue}{caribou}: The `caribou` module is composed of two main modules: `caribouRSF` and `caribouPopGrowth`. 
+                           The `caribouPopGrowth` needs, however, a second module called `caribouRecDistRelationship`, 
+                           which creates the necessary model object based on the coefficients of Table 56 from ECCC 2012
+                           report. For the `caribouPopGrowth` uses a simple population growth module that is
+                           not density dependent, and is deterministic. Improvements will be implemented in time. 
+                           It is also important to highlight that the female survival is set at 0.85 due to
+                           lack of data for the specific location, and initial population size was set to `200`. 
+                           Another factor is that up to now, only model `M3` is being run, but there is a basic 
+                           support to implement the other models.
 
 \textcolor{blue}{FireSense}: To be completed by JM.
 
@@ -192,7 +200,6 @@ We have developed a specific function to select this area, which is cached both 
 in a google drive's folder (`cloudFolderID`), which is sharable with all project's team members.
 
 ```{r studyArea}
-# options(httr_oob_default = TRUE) # Allows it to work on a Linux server
 if (quickPlot::isRstudioServer()) options(httr_oob_default = TRUE)
 
 Edehzhie.url <- "https://drive.google.com/open?id=0B_2riEic8l1mcXJWblRoSllMNGM4N2ZWa0JadGNaWDlJR3RB"
@@ -216,8 +223,9 @@ we explicitly specify the modules to be run, and the running time for the simula
 #                           "Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR")
 # modulesSCFM <- list("scfmLandcoverInit", "scfmRegime", "scfmDriver", "scfmIgnition", "scfmEscape", "scfmSpread")
 # modulesLandR <- list("Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR")
-modulesBirds <- list("birdsNWT")
-modulesBirds_Fire <- list("scfmLandcoverInit", "scfmRegime", "scfmDriver", "scfmIgnition", "scfmEscape", "scfmSpread", "Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR", "birdsNWT")
+# modulesBirds <- list("birdsNWT")
+modulesBirds_Fire <- list("scfmLandcoverInit", "scfmRegime", "scfmDriver", "scfmIgnition", "scfmEscape", "scfmSpread", "Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR", "birdsNWT") # Still need to finish
+# modulesBirdsFireCaribou <- list("scfmLandcoverInit", "scfmRegime", "scfmDriver", "scfmIgnition", "scfmEscape", "scfmSpread", "Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR", "birdsNWT", "caribouRecDistRelationship", "caribouPopGrowthModel") # Still need to implement the disturbance
 # modulesWetland <- list("waterlandClassification")
 
 times <- list(start = 0, end = 100)
@@ -375,24 +383,6 @@ outputsLandR <- data.frame(
            paste0("summaryBySpecies1_",toupper(format(Sys.time(), "%d%b%y"))),
            paste0("simulationOutput_",toupper(format(Sys.time(), "%d%b%y")))))
 
-# simSCFM <- simInit(times = times, params = parameters,
-#                     modules = modulesSCFM,
-#                     objects = .objects, paths = paths,
-#                     loadOrder = unlist(modulesSCFM))
-# simLandR <- simInit(times = times, params = parameters,
-#                     modules = modulesLandR,
-#                     objects = .objects, paths = paths,
-#                     loadOrder = unlist(modulesLandR),
-#                     outputs = outputsLandR)
-# simBirds <- simInit(times = times, params = parameters,
-#                     modules = modulesBirds,
-#                     objects = .objects, paths = paths,
-#                     loadOrder = unlist(modulesBirds))
-# simWet <- simInit(times = times, params = parameters, 
-#                     modules = modulesWetland, 
-#                     objects = .objects, paths = paths, 
-#                     loadOrder = unlist(modulesWetland))
-
 ```
 
 And finally the simulation call (note that the argument `debug = TRUE` lists all processes that are happening):
@@ -403,16 +393,31 @@ And finally the simulation call (note that the argument `debug = TRUE` lists all
 #                     modules = modulesLandR_SCFM, outputs = outputsLandR,
 #                     objects = .objects, paths = paths,
 #                     loadOrder = unlist(modulesLandR_SCFM), debug = 2)
-# SCFM <- spades(simSCFM, debug = 2)
-# LandR_Biomass <- spades(simLandR, debug = 2)
+# SCFM <- simInitAndSpades(times = times, params = parameters,
+#                     modules = modulesSCFM,
+#                     objects = .objects, paths = paths,
+#                     loadOrder = unlist(modulesSCFM), debug = 2)
+# LandR_Biomass <- simInitAndSpades(times = times, params = parameters,
+#                     modules = modulesLandR,
+#                     objects = .objects, paths = paths,
+#                     loadOrder = unlist(modulesLandR),
+#                     outputs = outputsLandR, debug = 2)
 # birds <- simInitAndSpades(times = times, params = parameters,
 #                     modules = modulesBirds,
 #                     objects = .objects, paths = paths,
 #                     loadOrder = unlist(modulesBirds), debug = 2)
+# wetlands <- simInitAndSpades(times = times, params = parameters, 
+#                     modules = modulesWetland, 
+#                     objects = .objects, paths = paths, 
+#                     loadOrder = unlist(modulesWetland), debug = 2)
 birdsAndFire <- simInitAndSpades(times = times, params = parameters,
                     modules = modulesBirds_Fire,
                     objects = .objects, paths = paths,
                     loadOrder = unlist(modulesBirds_Fire), debug = 2)
-# wetlands <- spades(simWet, debug = 2)
+# birdsFireCaribou <- simInitAndSpades(times = times, params = parameters,
+#                     modules = modulesBirdsFireCaribou,
+#                     objects = .objects, paths = paths,
+#                     loadOrder = unlist(modulesBirdsFireCaribou), debug = 2)
+
 
 ```

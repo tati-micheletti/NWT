@@ -55,7 +55,7 @@ doEvent.birdsNWT = function(sim, eventTime, eventType) {
       # schedule future event(s)
       sim <- scheduleEvent(sim, start(sim), "birdsNWT", "loadModels")
       sim <- scheduleEvent(sim, start(sim), "birdsNWT", "loadFixedLayers")
-      sim <- scheduleEvent(sim, start(sim), "birdsNWT", "predictBirds")
+      sim <- scheduleEvent(sim, start(sim), "birdsNWT", "predictBirds", eventPriority = .last())
       
     },
     loadModels = {
@@ -75,19 +75,24 @@ doEvent.birdsNWT = function(sim, eventTime, eventType) {
     },
     predictBirds = {
       if (P(sim)$useTestSpeciesLayers == TRUE){
+        message("Using test layers for species. Predictions will be static and identical to original data.")
         sim$successionLayers <- Cache(loadTestSpeciesLayers, 
                                       modelList = sim$birdModels,
                                       pathData = dataPath(sim)) # Need to add Biomass and Structure Age to this layer!
       } else {
-        browser() # Fix the next function!
-        if (!suppliedElsewhere("", sim)|!suppliedElsewhere("", sim))
-          stop("useTestSpeciesLayers is FALSE, but no vegetation simulation was run")
+        if (any(!suppliedElsewhere("simulatedBiomassMap", sim), 
+                !suppliedElsewhere("cohortData", sim),
+                !suppliedElsewhere("pixelGroupMap", sim)))
+          stop("useTestSpeciesLayers is FALSE, but apparently no vegetation simulation was run")
         
         sim$successionLayers <- Cache(createSpeciesStackLayer,
                                       modelList = sim$birdModels,
-                                      biomassLayer = "",
-                                      treeSpeciesList = "",
-                                      pathData = dataPath(sim))
+                                      simulatedBiomassMap = sim$simulatedBiomassMap,
+                                      cohortData = sim$cohortData,
+                                      pixelGroupMap = sim$pixelGroupMap,
+                                      pathData = dataPath(sim), 
+                                      userTags = paste0("successionLayers", time(sim)),
+                                      omitArgs = "pathData")
       }
       
       sim$birdPrediction[[paste0("Year", time(sim))]] <- Cache(predictDensities, birdSpecies = sim$birdsList,

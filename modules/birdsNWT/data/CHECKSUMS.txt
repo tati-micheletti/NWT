@@ -2,6 +2,6 @@
 "bcr6_2011rasters250.grd" "37444acde1b827c9" "1069" "xxhash64"
 "bcr6_2011rasters250.gri" "0dba36fa261564cd" "4745545200" "xxhash64"
 "bcr6_2011rasters250.zip" "698b73fec7f08515" "353823776" "xxhash64"
+"StaticSpeciesLayers.grd" "1ce73c5103f4ac2c" "948" "xxhash64"
 "StaticSpeciesLayers.gri" "d6d072788f1542fe" "809959696" "xxhash64"
 "StaticSpeciesLayers.zip" "de28175470be3e8c" "72225862" "xxhash64"
-"StaticSpeciesLayers.grd" "1ce73c5103f4ac2c" "948" "xxhash64"

@@ -136,10 +136,10 @@ options used by SpaDES.
 ```{r setup}
 # Which computer is this being run on?
 # Options are: BorealCloud, LocalMachine, 388
-whichComputer <- "BorealCloud"
+whichComputer <- "388"
 
 paths <- pathsSetup(whichComputer = whichComputer) 
-if (length(paths$inputPath) == 1) paths$modulePath <- c(paths$modulePath, file.path(paths$modulePath, "scfm/modules"))
+if (length(paths$modulePath) == 1) paths$modulePath <- c(paths$modulePath, file.path(paths$modulePath, "scfm/modules"))
 
 if (pemisc::user() %in% c("Tati", "tmichele")) {
     setTempFolder(paths = paths, setTmpFolder = TRUE, usr = pemisc::user())
@@ -202,11 +202,17 @@ in a google drive's folder (`cloudFolderID`), which is sharable with all project
 ```{r studyArea}
 if (quickPlot::isRstudioServer()) options(httr_oob_default = TRUE)
 
-Edehzhie.url <- "https://drive.google.com/open?id=0B_2riEic8l1mcXJWblRoSllMNGM4N2ZWa0JadGNaWDlJR3RB"
+Edehzhie.url <- "https://drive.google.com/open?id=1klq0nhtFJZv47iZVG8_NwcVebbimP8yT"
 NWT.url <- "https://drive.google.com/open?id=1LUxoY2-pgkCmmNH5goagBp3IMpj6YrdU"
-
+        
+studyAreaEde <- cloudCache(prepInputs,
+                           url = Edehzhie.url,
+                           destinationPath = paths$inputPath[[1]],
+                           useCloud = FALSE, cloudFolderID = cloudFolderID,
+                           omitArgs = c("destinationPath", "cloudFolderID"))
+        
 studyArea <- cloudCache(prepInputs,
-                        url = NWT.url,
+                        url = NWT.url, studyArea = studyAreaEde,
                         destinationPath = paths$inputPath[[1]],
                         useCloud = TRUE, cloudFolderID = cloudFolderID,
                         omitArgs = c("destinationPath", "cloudFolderID"))
@@ -252,7 +258,7 @@ defaultInitialSaveTime <- NA #don't be saving nuffink
 parameters <- list(
   # BirdsNWT
   birdsNWT = list(
-    "useTestSpeciesLayers" = TRUE
+    "useTestSpeciesLayers" = FALSE
   ),
   #SCFM
     .progress = list(type = "text", interval = 1),

@@ -241,7 +241,7 @@ modulesBirdsFireCaribou <- list("scfmLandcoverInit", "scfmRegime", "scfmDriver",
                                 "caribouRecDistRelationship", "caribouPopGrowthModel") # Still need to implement the disturbance
 # modulesWetland <- list("waterlandClassification")
 
-times <- list(start = 0, end = 20)
+times <- list(start = 0, end = 100)
 
 ```
 
@@ -263,6 +263,10 @@ defaultPlotInterval <- 1.0
 defaultInitialSaveTime <- NA #don't be saving nuffink
 
 parameters <- list(
+  # Caribou
+  caribouPopGrowthModel = list(
+    ".plotInitialTime" = NULL
+  ),
   # BirdsNWT
   birdsNWT = list(
     "useTestSpeciesLayers" = FALSE,

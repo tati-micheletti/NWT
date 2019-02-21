@@ -1,20 +1,78 @@
 createSpeciesStackLayer <- function(modelList = sim$birdModels,
                                     simulatedBiomassMap = sim$simulatedBiomassMap,
                                     cohortData = sim$cohortData, # Should also have age
-                                    sppEquivCol = sim$sppEquivCol,
+                                    sppEquiv = sim$sppEquiv,
+                                    staticLayers = sim$staticLayers,
                                     pixelGroupMap = sim$pixelGroupMap,
                                     pathData = dataPath(sim)){
-  browser()
+reproducible::Require("data.table")
+reproducible::Require("plyr")
+reproducible::Require("raster")
+  
   message("Biomass data was simulated, using it for prediction")
+  
+  # Create layer names based on the model
   predictors <- modelList[[1]]$gbm.call$predictor.names
+  speciesNames <- unique(na.omit(sppEquiv[,NWT]))
+  speciesLayerNames <- rbindlist(lapply(X = speciesNames, FUN = function(sp){
+    speciesLayerNames <- data.table::data.table(modelLayer = predictors[grepl(sp, predictors)], 
+                                                speciesName = sp)
+  })
+  )
+  
+  # Iterate through species and for each species, plot the B in the `pixelGroupMap`
+  speciesRasters <- lapply(X = speciesNames, FUN = function(sp){
+    subsCohort <- cohortData[speciesCode == sp, ]
+    if (NROW(subsCohort) == 0){
+      zeroedMap <- pixelGroupMap
+      vals <- getValues(x = zeroedMap)
+      vals[!is.na(vals)] <- 0
+      zeroedMap <- setValues(x = zeroedMap, values = vals)
+      assign(x = sp, value = zeroedMap)
+      names(zeroedMap) <- speciesLayerNames[speciesName == sp, modelLayer]
+      return(zeroedMap)
+    } else {
+      valsCoho <- data.table(pixelGroup = getValues(x = pixelGroupMap))
+      newCohoVals <- plyr::join(x = valsCoho, subsCohort[,c("pixelGroup", "B")])
+      spMap <- setValues(x = pixelGroupMap, values = newCohoVals$B)
+      assign(x = sp, value = spMap)
+      names(spMap) <- speciesLayerNames[speciesName == sp, modelLayer]
+      return(spMap)
+    }
+  })
+  
+  # Rename biomass
   biomassLayerName <- predictors[grepl(x = predictors, pattern = "Biomass")]
-  speciesLayerNames <- predictors[pmatch(sim$sppEquivCol, predictors)]
-  biomassLayerName <- predictors[grep(x = predictors, pattern = "Biomass")]
-}
+  biomass <- simulatedBiomassMap
+  names(biomass) <- biomassLayerName
+  
+  # Creat age map
+  ageLayerName <- predictors[grepl(x = predictors, pattern = "Age")]
+  ageMap <- pixelGroupMap
+  valsAge <- data.table(pixelGroup = getValues(x = pixelGroupMap))
+  newAgeVals <- plyr::join(type = "left", x = valsAge, unique(cohortData[,c("pixelGroup", "age")]))
+  newAgeMap <- setValues(x = ageMap, values = newAgeVals$age)
+  assign(x = ageLayerName, value = newAgeMap)
+  names(newAgeMap) <- ageLayerName
+  
+  speciesStack <- raster::stack(speciesRasters) %>%
+    raster::stack(biomass) %>%
+    raster::stack(newAgeMap)
+  
+  # Make sure that species that were not modeled by LandR still have a raster
+  layersAvailable <- c(names(staticLayers), names(speciesStack))
+  missingLayersNames <- setdiff(predictors, layersAvailable)
+  missingLayers <- lapply(X = missingLayersNames, FUN = function(miss){
+    zeroedMap <- pixelGroupMap
+    vals <- getValues(x = zeroedMap)
+    vals[!is.na(vals)] <- 0
+    zeroedMap <- setValues(x = zeroedMap, values = vals)
+    names(zeroedMap) <- miss
+    return(zeroedMap)
+  })
+  
+  finalStk <- raster::stack(missingLayers) %>%
+    raster::stack(speciesStack)
 
-# Species layers have to be
-# Check that the units are the same. For the bird models: species biomass layers are in units of 100 t/ha. Total biomass is in t/ha.
-# In this function, if successionTables are NA (make sure of it in .inputObjects)
-# Then it returns the StaticSpeciesLayers "https://drive.google.com/open?id=1cuvLiHkZxZnf0sEOIigOWBFyraOflpvl" with message
-# otherwise, it needs to create the raster stack... I might need to steal some code from the predictDensities
-# to this specific function (i.e. naming of layers).
+  return(finalStk)
+}

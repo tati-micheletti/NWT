@@ -7,7 +7,7 @@ predictDensities <- function(birdSpecies = sim$birdsList,
                              pathData = dataPath(sim),
                              useParallel = FALSE,
                              nCores = 1) {
-  
+
   if (useParallel == FALSE){
     
     predictionPerSpecies <- lapply(X = birdSpecies, FUN = corePrediction, 

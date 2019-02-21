@@ -7,7 +7,7 @@ corePrediction <- function(x, successionLayers = successionLayers,
   
   reproducible::Require("magrittr")
   
-  message(crayon::yellow("Predicting for ", x , ". Prediction for time ", currentTime))
+  message(crayon::yellow(paste0("Predicting for ", x , ". Prediction for time ", currentTime)))
   suppressWarnings(dir.create(file.path(pathData, "predicted")))
   
   models <- modelList[[x]]

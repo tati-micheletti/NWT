@@ -14,7 +14,7 @@ defineModule(sim, list(
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.txt", "birdsNWT.Rmd"),
-  reqdPkgs = list("googledrive", "data.table", "raster", "gbm", "crayon"),
+  reqdPkgs = list("googledrive", "data.table", "raster", "gbm", "crayon", "plyr", "dplyr"),
   parameters = rbind(
     defineParameter(".useCache", "logical", FALSE, NA, NA, "Should this entire module be run with caching?"),
     defineParameter("useParallel", "logical", FALSE, NA, NA, "Should bird prediction be parallelized?"),
@@ -89,12 +89,14 @@ doEvent.birdsNWT = function(sim, eventTime, eventType) {
                                       modelList = sim$birdModels,
                                       simulatedBiomassMap = sim$simulatedBiomassMap,
                                       cohortData = sim$cohortData,
+                                      staticLayers = sim$staticLayers,
+                                      sppEquiv = sim$sppEquiv,
                                       pixelGroupMap = sim$pixelGroupMap,
                                       pathData = dataPath(sim), 
                                       userTags = paste0("successionLayers", time(sim)),
                                       omitArgs = "pathData")
       }
-      
+
       sim$birdPrediction[[paste0("Year", time(sim))]] <- Cache(predictDensities, birdSpecies = sim$birdsList,
                                                                successionLayers = sim$successionLayers,
                                                                staticLayers = sim$staticLayers,
@@ -104,6 +106,8 @@ doEvent.birdsNWT = function(sim, eventTime, eventType) {
                                                                overwritePredictions = FALSE,
                                                                useParallel = P(sim)$useParallel,
                                                                nCores = P(sim)$nCores,
+                                                               omitArgs = c("destinationPath", "nCores", 
+                                                                            "useParallel", "pathData"),
                                                                userTags = paste0("predictedBirds", time(sim)))
 
         sim <- scheduleEvent(sim, time(sim) + 10, "birdsNWT", "predictBirds")

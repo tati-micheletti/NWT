@@ -28,7 +28,7 @@ defineModule(sim, list(
                  desc = "Folder ID for cloud caching", sourceURL = NA),
     expectsInput(objectName = "urlModels", objectClass = "character", 
                  desc = "Url for the GDrive folder that has all model objects",
-                 sourceURL = "BAM.SharedDrive/RshProjs/CC/CCImpacts/NWT-cc-fire/Models/BirdModelsv1/"),
+                 sourceURL = "https://drive.google.com/open?id=1obSvU4ml8xa8WMQhQprd6heRrN47buvI"),
     expectsInput(objectName = "urlStaticLayers", objectClass = "RasterLayer", 
                  desc = "Static Layers (WAT, URBAG, lLED25, DEV25 and landform) url", 
                  sourceURL = "https://drive.google.com/open?id=1P4grDYDffVyVXvMjM-RwzpuH1deZuvL3")

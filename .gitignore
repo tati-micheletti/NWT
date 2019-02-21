@@ -45,3 +45,4 @@ tmp/
 *.gri
 *.tif
 inputs/*.*
+data/caribouCoefTable.csv

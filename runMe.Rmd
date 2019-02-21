@@ -61,7 +61,8 @@ The structure of each one of the modules is as follows:
                            report. For the `caribouPopGrowth` uses a simple population growth module that is
                            not density dependent, and is deterministic. Improvements will be implemented in time. 
                            It is also important to highlight that the female survival is set at 0.85 due to
-                           lack of data for the specific location, and initial population size was set to `200`. 
+                           lack of data for the specific location, and initial population size was set to `353` 
+                           (based on normal). 
                            Another factor is that up to now, only model `M3` is being run, but there is a basic 
                            support to implement the other models.
 
@@ -106,6 +107,7 @@ Second, load all needed dependencies.
 library("LandR")
 library("SpaDES")
 library("raster")
+library("plyr"); library("dplyr")
 library("magrittr") # for piping
 
 # Source all common functions
@@ -230,11 +232,16 @@ we explicitly specify the modules to be run, and the running time for the simula
 # modulesSCFM <- list("scfmLandcoverInit", "scfmRegime", "scfmDriver", "scfmIgnition", "scfmEscape", "scfmSpread")
 # modulesLandR <- list("Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR")
 # modulesBirds <- list("birdsNWT")
-modulesBirds_Fire <- list("scfmLandcoverInit", "scfmRegime", "scfmDriver", "scfmIgnition", "scfmEscape", "scfmSpread", "Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR", "birdsNWT") # Still need to finish
-# modulesBirdsFireCaribou <- list("scfmLandcoverInit", "scfmRegime", "scfmDriver", "scfmIgnition", "scfmEscape", "scfmSpread", "Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR", "birdsNWT", "caribouRecDistRelationship", "caribouPopGrowthModel") # Still need to implement the disturbance
+# modulesBirds_Fire <- list("scfmLandcoverInit", "scfmRegime", "scfmDriver", "scfmIgnition", "scfmEscape", "scfmSpread",
+#                           "Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR",
+#                           "birdsNWT")
+modulesBirdsFireCaribou <- list("scfmLandcoverInit", "scfmRegime", "scfmDriver", "scfmIgnition", "scfmEscape", "scfmSpread",
+                                "Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR",
+                                "birdsNWT",
+                                "caribouRecDistRelationship", "caribouPopGrowthModel") # Still need to implement the disturbance
 # modulesWetland <- list("waterlandClassification")
 
-times <- list(start = 0, end = 100)
+times <- list(start = 0, end = 20)
 
 ```
 
@@ -258,7 +265,8 @@ defaultInitialSaveTime <- NA #don't be saving nuffink
 parameters <- list(
   # BirdsNWT
   birdsNWT = list(
-    "useTestSpeciesLayers" = FALSE
+    "useTestSpeciesLayers" = FALSE,
+    "useParallel" = TRUE
   ),
   #SCFM
     .progress = list(type = "text", interval = 1),
@@ -291,7 +299,7 @@ parameters <- list(
   # LandR_Biomass
   LBMR = list(".plotInitialTime" = NA,
               "seedingAlgorithm" = "wardDispersal",
-              "useCache" = TRUE,
+              ".useCache" = FALSE,
               "successionTimestep" = 10,
               "initialBiomassSource" = "cohortData"),
   waterlandClassification = list("baseLayer" = c("LCC05", "LCC10"),
@@ -378,12 +386,14 @@ After supplying the objects, we run the simulation initialization function, pass
 ``` {r simInit}
 
 outputsLandR <- data.frame(
-  objectName = c("cohortData",
+  objectName = c("burnMap",
+                 "cohortData",
                  "simulationTreeOutput",
                  "summaryBySpecies",
                  "summaryBySpecies1",
                  "simulationOutput"),
-  file = c(paste0("cohortData_", toupper(format(Sys.time(), "%d%b%y"))),
+  file = c(paste0("rstCurrentBurn_", toupper(format(Sys.time(), "%d%b%y"))),
+           paste0("cohortData_", toupper(format(Sys.time(), "%d%b%y"))),
            paste0("simulationTreeOutput_", toupper(format(Sys.time(), "%d%b%y"))),
            paste0("summaryBySpecies_", toupper(format(Sys.time(), "%d%b%y"))),
            paste0("summaryBySpecies1_",toupper(format(Sys.time(), "%d%b%y"))),
@@ -416,14 +426,16 @@ And finally the simulation call (note that the argument `debug = TRUE` lists all
 #                     modules = modulesWetland, 
 #                     objects = .objects, paths = paths, 
 #                     loadOrder = unlist(modulesWetland), debug = 2)
-birdsAndFire <- simInitAndSpades(times = times, params = parameters,
-                    modules = modulesBirds_Fire,
-                    objects = .objects, paths = paths,
-                    loadOrder = unlist(modulesBirds_Fire), debug = 2)
-# birdsFireCaribou <- simInitAndSpades(times = times, params = parameters,
-#                     modules = modulesBirdsFireCaribou,
+# birdsAndFire <- simInitAndSpades(times = times, params = parameters,
+#                     modules = modulesBirds_Fire,
 #                     objects = .objects, paths = paths,
-#                     loadOrder = unlist(modulesBirdsFireCaribou), debug = 2)
+#                     loadOrder = unlist(modulesBirds_Fire),
+#                     outputs = outputsLandR, debug = 2)
+birdsFireCaribou <- simInitAndSpades(times = times, params = parameters,
+                    modules = modulesBirdsFireCaribou,
+                    objects = .objects, paths = paths,
+                    loadOrder = unlist(modulesBirdsFireCaribou),
+                    outputs = outputsLandR, debug = 2)
 
 
 ```

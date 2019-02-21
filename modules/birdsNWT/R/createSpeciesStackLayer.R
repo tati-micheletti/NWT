@@ -19,7 +19,6 @@ reproducible::Require("raster")
                                                 speciesName = sp)
   })
   )
-  
   # Iterate through species and for each species, plot the B in the `pixelGroupMap`
   speciesRasters <- lapply(X = speciesNames, FUN = function(sp){
     subsCohort <- cohortData[speciesCode == sp, ]
@@ -32,9 +31,11 @@ reproducible::Require("raster")
       names(zeroedMap) <- speciesLayerNames[speciesName == sp, modelLayer]
       return(zeroedMap)
     } else {
-      valsCoho <- data.table(pixelGroup = getValues(x = pixelGroupMap))
-      newCohoVals <- plyr::join(x = valsCoho, subsCohort[,c("pixelGroup", "B")])
-      spMap <- setValues(x = pixelGroupMap, values = newCohoVals$B)
+      valsCoho <- data.table(pixelID = 1:ncell(pixelGroupMap), 
+                             pixelGroup = getValues(x = pixelGroupMap))
+      setkey(valsCoho$pixelGroup)
+      newCohoVals <- plyr::join(x = valsCoho, subsCohort[, list(sumBiomass=sum(B)), by = c("species", "pixelGroup")])
+      spMap <- setValues(x = pixelGroupMap, values = newCohoVals$sumBiomass)
       assign(x = sp, value = spMap)
       names(spMap) <- speciesLayerNames[speciesName == sp, modelLayer]
       return(spMap)
@@ -49,8 +50,9 @@ reproducible::Require("raster")
   # Creat age map
   ageLayerName <- predictors[grepl(x = predictors, pattern = "Age")]
   ageMap <- pixelGroupMap
-  valsAge <- data.table(pixelGroup = getValues(x = pixelGroupMap))
-  newAgeVals <- plyr::join(type = "left", x = valsAge, unique(cohortData[,c("pixelGroup", "age")]))
+  valsAge <- data.table(pixelID = 1: ncell(ageMap), pixelGroup = getValues(x = pixelGroupMap))
+  newAgeVals <- plyr::join(x = valsAge, unique(cohortData[,c("pixelGroup", "age")]))
+  newAgeVals <- setDT(newAgeVals)[, .SD[1], by = .(pixelID)] # [ FIX ] Need to see which Age to use. Now I exclude the second on. 
   newAgeMap <- setValues(x = ageMap, values = newAgeVals$age)
   assign(x = ageLayerName, value = newAgeMap)
   names(newAgeMap) <- ageLayerName

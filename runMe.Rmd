@@ -229,7 +229,7 @@ we explicitly specify the modules to be run, and the running time for the simula
 
 # modulesLandR_SCFM <- list("scfmLandcoverInit", "scfmRegime", "scfmDriver", "scfmIgnition", "scfmEscape", "scfmSpread",
 #                           "Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR")
-# modulesSCFM <- list("scfmLandcoverInit", "scfmRegime", "scfmDriver", "scfmIgnition", "scfmEscape", "scfmSpread")
+modulesSCFM <- list("scfmLandcoverInit", "scfmRegime", "scfmDriver", "scfmIgnition", "scfmEscape", "scfmSpread")
 # modulesLandR <- list("Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR")
 # modulesBirds <- list("birdsNWT")
 # modulesBirds_Fire <- list("scfmLandcoverInit", "scfmRegime", "scfmDriver", "scfmIgnition", "scfmEscape", "scfmSpread",
@@ -378,13 +378,13 @@ And finally, we load the objects used by this group of modules:
 .objects <- list(
   "birdsList" = c("BBWA", "BOCH"), ### JUST TO TEST. REMOVE ONCE WORKING
   "rasterToMatch" = rasterToMatch,
-  "studyArea" = studyArea,
   "studyAreaLarge" = studyArea,
   "sppEquiv" = sppEquivalencies_CA,
   "sppEquivCol" = sppEquivCol,
   "sppColors" = sppColors,
   "omitNonVegPixels" = TRUE,
-  "cloudFolderID" = cloudFolderID
+  "cloudFolderID" = cloudFolderID,
+  "studyArea" = studyArea
   )
 
 ```
@@ -417,7 +417,7 @@ needs from the forest to support the population
 
 parametersSpinnup <- parameters
 parametersSpinnup$scfmSpread$spinnup <- TRUE
-SCFM <- cloudCache(simInitAndSpades, times = list(start = 0, end = parameters$caribouPopGrowthModel$recoveryTime),
+SCFM <- cloudCache(simInitAndSpades, times = list(start = 0, end = parameters$caribouPopGrowthModel$recoveryTime+1),
               params = parametersSpinnup,
               modules = modulesSCFM,
               objects = .objects, paths = paths,

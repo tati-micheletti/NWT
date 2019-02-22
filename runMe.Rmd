@@ -265,7 +265,8 @@ defaultInitialSaveTime <- NA #don't be saving nuffink
 parameters <- list(
   # Caribou
   caribouPopGrowthModel = list(
-    ".plotInitialTime" = NULL
+    ".plotInitialTime" = NULL,
+    "recoveryTime" = 40
   ),
   # BirdsNWT
   birdsNWT = list(
@@ -294,6 +295,7 @@ parameters <- list(
     .saveInitialTime = defaultInitialSaveTime,
     .saveInterval = defaultInterval),
   scfmSpread = list(
+    "spinnup" = FALSE,
     pSpread = 0.235,
     returnInterval = defaultInterval,
     startTime = times$start,
@@ -369,7 +371,6 @@ attributes(sppColors)$names[length(sppColors)] <- "Mixed"
 
 ```
 
-
 And finally, we load the objects used by this group of modules:
 
 ``` {r objects}
@@ -408,18 +409,39 @@ outputsLandR <- data.frame(
 
 ```
 
+In order to have a map of the first fires, we call SCFM lasting the recovery time Caribou
+needs from the forest to support the population
+
+```{r spinnup}
+# Spinnup the fire to generate the last 40 years of burns in the area (for the Caribou model)
+
+parametersSpinnup <- parameters
+parametersSpinnup$scfmSpread$spinnup <- TRUE
+SCFM <- cloudCache(simInitAndSpades, times = list(start = 0, end = parameters$caribouPopGrowthModel$recoveryTime),
+              params = parametersSpinnup,
+              modules = modulesSCFM,
+              objects = .objects, paths = paths,
+              loadOrder = unlist(modulesSCFM), debug = 2,
+              useCloud = TRUE, cloudFolderID = cloudFolderID,
+              omitArgs = c("destinationPath", "cloudFolderID", "useCloud", "debug"))
+
+.objects[["cumulBurn"]] <- SCFM$cumulBurn
+```
+
 And finally the simulation call (note that the argument `debug = TRUE` lists all processes that are happening):
 
 ```{r call}
 
+# Other combinations of module that can be used
+# SCFM <- simInitAndSpades(times = times,
+#                          params = parameters,
+#                          modules = modulesSCFM,
+#                          objects = .objects, paths = paths,
+#                          loadOrder = unlist(modulesSCFM), debug = 2)
 # LandR_SCFM <- simInitAndSpades(times = times, params = parameters,
 #                     modules = modulesLandR_SCFM, outputs = outputsLandR,
 #                     objects = .objects, paths = paths,
 #                     loadOrder = unlist(modulesLandR_SCFM), debug = 2)
-# SCFM <- simInitAndSpades(times = times, params = parameters,
-#                     modules = modulesSCFM,
-#                     objects = .objects, paths = paths,
-#                     loadOrder = unlist(modulesSCFM), debug = 2)
 # LandR_Biomass <- simInitAndSpades(times = times, params = parameters,
 #                     modules = modulesLandR,
 #                     objects = .objects, paths = paths,
@@ -438,6 +460,8 @@ And finally the simulation call (note that the argument `debug = TRUE` lists all
 #                     objects = .objects, paths = paths,
 #                     loadOrder = unlist(modulesBirds_Fire),
 #                     outputs = outputsLandR, debug = 2)
+
+# Most complete model to run
 birdsFireCaribou <- simInitAndSpades(times = times, params = parameters,
                     modules = modulesBirdsFireCaribou,
                     objects = .objects, paths = paths,

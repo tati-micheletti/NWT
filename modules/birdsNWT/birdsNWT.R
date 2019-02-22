@@ -114,7 +114,7 @@ doEvent.birdsNWT = function(sim, eventTime, eventType) {
                                                                nCores = P(sim)$nCores,
                                                                # cloudFolderID = sim$cloudFolderID,
                                                                omitArgs = c("destinationPath", "nCores", 
-                                                                            "useParallel", "pathData")#,
+                                                                            "useParallel", "pathData"),
                                                                             # "cloudFolderID", 
                                                                             # "useCloud"),
                                                                # useCloud = TRUE,

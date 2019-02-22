@@ -61,15 +61,19 @@ doEvent.birdsNWT = function(sim, eventTime, eventType) {
     loadModels = {
       sim$birdModels <- Cache(loadBirdModels, birdsList = sim$birdsList,
                               folderUrl = extractURL("urlModels"),
-                              cloudFolderID = sim$cloudFolderID,
-                              pathData = dataPath(sim))
+                              # cloudFolderID = sim$cloudFolderID,
+                              pathData = dataPath(sim),
+                              # useCloud = TRUE,
+                              omitArgs = c("pathData"))#, "cloudFolderID", "useCloud")) # NOT WORKING WITH CLOUDCACHE [ FIX ]
       message("Bird models loaded for: \n", paste(sim$birdsList, collapse = "\n"))
     },
     loadFixedLayers = {
       sim$staticLayers <- Cache(loadStaticLayers, fileURL = extractURL("urlStaticLayers"),
                                 pathData = dataPath(sim), 
-                                cloudFolderID = sim$cloudFolderID,
-                                studyArea = sim$studyArea)
+                                # cloudFolderID = sim$cloudFolderID,
+                                studyArea = sim$studyArea,
+                                # useCloud = TRUE,
+                                omitArgs = c("pathData"))#, "cloudFolderID", "useCloud")) # NOT WORKING WITH CLOUDCACHE [ FIX ]
       message("The following static layers have been loaded: \n", 
               paste(names(sim$staticLayers), collapse = "\n"))
     },
@@ -92,9 +96,11 @@ doEvent.birdsNWT = function(sim, eventTime, eventType) {
                                       staticLayers = sim$staticLayers,
                                       sppEquiv = sim$sppEquiv,
                                       pixelGroupMap = sim$pixelGroupMap,
-                                      pathData = dataPath(sim), 
+                                      pathData = dataPath(sim),
+                                      # cloudFolderID = sim$cloudFolderID,
                                       userTags = paste0("successionLayers", time(sim)),
-                                      omitArgs = "pathData")
+                                      # useCloud = TRUE,
+                                      omitArgs = c("pathData"))#, "cloudFolderID", "useCloud"))  # NOT WORKING WITH CLOUDCACHE [ FIX ]
       }
 
       sim$birdPrediction[[paste0("Year", time(sim))]] <- Cache(predictDensities, birdSpecies = sim$birdsList,
@@ -106,8 +112,12 @@ doEvent.birdsNWT = function(sim, eventTime, eventType) {
                                                                overwritePredictions = FALSE,
                                                                useParallel = P(sim)$useParallel,
                                                                nCores = P(sim)$nCores,
+                                                               # cloudFolderID = sim$cloudFolderID,
                                                                omitArgs = c("destinationPath", "nCores", 
-                                                                            "useParallel", "pathData"),
+                                                                            "useParallel", "pathData")#,
+                                                                            # "cloudFolderID", 
+                                                                            # "useCloud"),
+                                                               # useCloud = TRUE,
                                                                userTags = paste0("predictedBirds", time(sim)))
 
         sim <- scheduleEvent(sim, time(sim) + 10, "birdsNWT", "predictBirds")
@@ -120,7 +130,7 @@ doEvent.birdsNWT = function(sim, eventTime, eventType) {
 }
 
 .inputObjects <- function(sim) {
-  
+  c
   dPath <- asPath(getOption("reproducible.destinationPath", dataPath(sim)), 1)
   message(currentModule(sim), ": using dataPath '", dPath, "'.")
   if (!suppliedElsewhere(object = "birdsList", sim = sim)){

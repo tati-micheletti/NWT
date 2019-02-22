@@ -34,7 +34,7 @@ reproducible::Require("raster")
       valsCoho <- data.table(pixelID = 1:ncell(pixelGroupMap), 
                              pixelGroup = getValues(x = pixelGroupMap))
       setkey(valsCoho$pixelGroup)
-      newCohoVals <- plyr::join(x = valsCoho, subsCohort[, list(sumBiomass=sum(B)), by = c("species", "pixelGroup")])
+      newCohoVals <- plyr::join(x = valsCoho, subsCohort[, list(sumBiomass=sum(B)), by = c("speciesCode", "pixelGroup")])
       spMap <- setValues(x = pixelGroupMap, values = newCohoVals$sumBiomass)
       assign(x = sp, value = spMap)
       names(spMap) <- speciesLayerNames[speciesName == sp, modelLayer]

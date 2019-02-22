@@ -114,7 +114,7 @@ doEvent.birdsNWT = function(sim, eventTime, eventType) {
                                                                nCores = P(sim)$nCores,
                                                                # cloudFolderID = sim$cloudFolderID,
                                                                omitArgs = c("destinationPath", "nCores", 
-                                                                            "useParallel", "pathData")#,
+                                                                            "useParallel", "pathData"),
                                                                             # "cloudFolderID", 
                                                                             # "useCloud"),
                                                                # useCloud = TRUE,
@@ -130,7 +130,7 @@ doEvent.birdsNWT = function(sim, eventTime, eventType) {
 }
 
 .inputObjects <- function(sim) {
-  c
+  
   dPath <- asPath(getOption("reproducible.destinationPath", dataPath(sim)), 1)
   message(currentModule(sim), ": using dataPath '", dPath, "'.")
   if (!suppliedElsewhere(object = "birdsList", sim = sim)){
@@ -146,6 +146,5 @@ doEvent.birdsNWT = function(sim, eventTime, eventType) {
                        "BAOR", "HOWR", "WTSP", "CAWA", "RUBL", "AMRO", "HOLA", "AMRE", 
                        "AMGO", "AMCR", "ALFL")  
   }
-  
   return(invisible(sim))
 }

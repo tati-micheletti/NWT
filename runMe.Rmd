@@ -138,7 +138,7 @@ options used by SpaDES.
 ```{r setup}
 # Which computer is this being run on?
 # Options are: BorealCloud, LocalMachine, 388
-whichComputer <- "388"
+whichComputer <- if (pemisc::user("emcintir")) "LocalMachine" else "388"
 
 paths <- pathsSetup(whichComputer = whichComputer) 
 if (length(paths$modulePath) == 1) paths$modulePath <- c(paths$modulePath, file.path(paths$modulePath, "scfm/modules"))
@@ -425,7 +425,8 @@ SCFM <- cloudCache(simInitAndSpades, times = list(start = 0, end = parameters$ca
               modules = modulesSCFM,
               objects = .objects, paths = paths,
               loadOrder = unlist(modulesSCFM), debug = 2,
-              useCloud = TRUE, cloudFolderID = cloudFolderID,
+              #useCloud = TRUE, 
+              cloudFolderID = cloudFolderID,
               omitArgs = c("destinationPath", "cloudFolderID", "useCloud", "debug"))
 
 .objects[["cumulBurn"]] <- SCFM$cumulBurn

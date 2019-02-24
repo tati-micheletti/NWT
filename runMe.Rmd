@@ -185,6 +185,7 @@ opts <- options(
   "reproducible.useNewDigestAlgorithm" = TRUE,  # use the new less strict hashing algo
   "reproducible.useCache" = TRUE,
   "reproducible.cachePath" = paths$cachePath,
+  "reproducible.showSimilar" = TRUE,
   "reproducible.useCloud" = TRUE,
   "spades.moduleCodeChecks" = FALSE, # Turn off all module's code checking
   "spades.useRequire" = FALSE # assuming all pkgs installed correctly
@@ -256,7 +257,7 @@ rasterToMatch <- cloudCache(prepInputs, url = "https://drive.google.com/open?id=
                             targetFile = "RTM.tif", destinationPath = paths$inputPath, 
                             #useCloud = TRUE, 
                             cloudFolderID = cloudFolderID, overwrite = TRUE, filename2 = NULL,
-                            omitArgs = c("destinationPath", "cloudFolderID", "useCloud"))
+                            omitArgs = c("destinationPath", "cloudFolderID", "useCloud", "overwrite", "filename2"))
 
 sppEquivCol <- "NWT"
 
@@ -427,7 +428,7 @@ SCFM <- cloudCache(simInitAndSpades, times = list(start = 0, end = parameters$ca
               loadOrder = unlist(modulesSCFM), debug = 2,
               #useCloud = TRUE, 
               cloudFolderID = cloudFolderID,
-              omitArgs = c("destinationPath", "cloudFolderID", "useCloud", "debug"))
+              omitArgs = c("paths", "cloudFolderID", "useCloud", "debug"))
 
 .objects[["cumulBurn"]] <- SCFM$cumulBurn
 ```

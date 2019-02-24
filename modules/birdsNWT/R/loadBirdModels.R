@@ -15,9 +15,10 @@ loadBirdModels <- function(birdsList = sim$birdsList,
       # cloudCache(googledrive::drive_download, file = paste0(folderUrl, modelFile),
       #            path = file.path(modelsPath, modelFile), cloudFolderID = cloudFolderID,
       #            omitArgs = c("path", "cloudFolderID"))
-      Cache(googledrive::drive_download, file = paste0(folderUrl, modelFile),
-                 path = as_id(file.path(modelsPath, modelFile)),
-                 omitArgs = "path")
+      Cache(googledrive::drive_download, 
+            file = as_id(filesToDownload[filesToDownload$name %in% modelFile, ]$id), #modelFile,
+            path = file.path(modelsPath, modelFile), overwrite = TRUE,
+            omitArgs = "path")
     }
     return(get(load(file.path(modelsPath, modelFile))))
   })

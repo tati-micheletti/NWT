@@ -24,15 +24,22 @@ predictDensities <- function(birdSpecies = sim$birdsList,
     if (nCores == "auto") {
       nCores <- data.table::getDTthreads()*0.9
     }
-    cl <- parallel::makeForkCluster(nCores, outfile = file.path(pathData, "logParallelBirdPrediction"))
-    predictionPerSpecies <-  parallel::clusterApplyLB(cl = cl, x = birdSpecies, fun = corePrediction,
+    cl <- if (.Platform$OS.type != "windows") {
+      parallel::makeForkCluster(nCores, outfile = file.path(pathData, "logParallelBirdPrediction"))
+      on.exit(try(parallel::stopCluster(cl), silent = TRUE))
+    } else {
+      NULL
+    }
+    predictionPerSpecies <-  pemisc::Map2(cl = cl, #parallel::clusterApplyLB(cl = cl, x = birdSpecies, fun = corePrediction,
+                                          corePrediction, x = birdSpecies,
+                                          MoreArgs = list(
                                                       successionLayers = successionLayers,
                                                       staticLayers = staticLayers,
                                                       currentTime = currentTime,
                                                       modelList = modelList,
                                                       overwritePredictions = overwritePredictions,
-                                                      pathData = pathData)
-    parallel::stopCluster(cl)
+                                                      pathData = pathData))
+    
   }
 
   names(predictionPerSpecies) <- birdSpecies

@@ -186,7 +186,7 @@ opts <- options(
   "reproducible.useCache" = TRUE,
   "reproducible.cachePath" = paths$cachePath,
   "reproducible.showSimilar" = TRUE,
-  "reproducible.useCloud" = TRUE,
+  "reproducible.useCloud" = if (pemisc::user("emcintir")) FALSE else TRUE,
   "spades.moduleCodeChecks" = FALSE, # Turn off all module's code checking
   "spades.useRequire" = FALSE # assuming all pkgs installed correctly
 )
@@ -324,7 +324,7 @@ parameters <- list(
     "sppEquivCol" = sppEquivCol,
     "successionTimestep" = 10,
     "pixelGroupAgeClass" = 10,
-    .useCache = ".inputObjects"
+    .useCache = c(".inputObjects", "init")
   )
 )
 

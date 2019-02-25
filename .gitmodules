@@ -19,9 +19,3 @@
 [submodule "modules/scfm"]
 	path = modules/scfm
 	url = git@github.com:eliotmcintire/scfm.git
-[submodule "modules/caribouRecDistRelationship"]
-	path = modules/caribouRecDistRelationship
-	url = git@github.com:tati-micheletti/caribouRecDistRelationship.git
-[submodule "modules/caribouPopGrowthModel"]
-	path = modules/caribouPopGrowthModel
-	url = git@github.com:tati-micheletti/caribouPopGrowthModel.git

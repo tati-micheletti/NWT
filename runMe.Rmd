@@ -205,19 +205,18 @@ in a google drive's folder (`cloudFolderID`), which is sharable with all project
 if (quickPlot::isRstudioServer()) options(httr_oob_default = TRUE)
 
 Edehzhie.url <- "https://drive.google.com/open?id=1klq0nhtFJZv47iZVG8_NwcVebbimP8yT"
+EdehzhieOfficial.url <- "https://drive.google.com/open?id=1fYvNPwovjNtTABoGcegrvdFGkNfCUsxf"
 NWT.url <- "https://drive.google.com/open?id=1LUxoY2-pgkCmmNH5goagBp3IMpj6YrdU"
         
 studyAreaEde <- cloudCache(prepInputs,
-                           url = Edehzhie.url,
+                           url = EdehzhieOfficial.url,
                            destinationPath = paths$inputPath[[1]],
-                           #useCloud = FALSE, 
                            cloudFolderID = cloudFolderID,
                            omitArgs = c("destinationPath", "cloudFolderID"))
         
 studyArea <- cloudCache(prepInputs,
-                        url = NWT.url, studyArea = studyAreaEde,
+                        url = NWT.url, #studyArea = studyAreaEde,
                         destinationPath = paths$inputPath[[1]],
-                        #useCloud = TRUE,  # allow default
                         cloudFolderID = cloudFolderID,
                         omitArgs = c("destinationPath", "cloudFolderID"))
 ```
@@ -320,6 +319,7 @@ parameters <- list(
     "growthInitialTime" = 0,
     "successionTimestep" = 10),
   Boreal_LBMRDataPrep = list(
+    "useCloudCacheForStats" = if (pemisc::user("tmichele")) FALSE,
     "sppEquivCol" = sppEquivCol,
     "successionTimestep" = 10,
     "pixelGroupAgeClass" = 10,
@@ -420,13 +420,15 @@ needs from the forest to support the population
 
 parametersSpinnup <- parameters
 parametersSpinnup$scfmSpread$spinnup <- TRUE
-SCFM <- cloudCache(simInitAndSpades, times = list(start = 0, end = parameters$caribouPopGrowthModel$recoveryTime+1),
+# Not cloud cached because of backfile Rasters
+              # Changing these times may have umpredictable consequences for caribou population growth internally. 
+              # Use with caution! [ FIX ] Add this as stop in scfmSpread Init()
+SCFM <- Cache(simInitAndSpades, times = list(start = 0, end = parameters$caribouPopGrowthModel$recoveryTime+1), 
               params = parametersSpinnup,
               modules = modulesSCFM,
               objects = .objects, paths = paths,
               loadOrder = unlist(modulesSCFM), debug = 2,
-              useCloud = TRUE, cloudFolderID = cloudFolderID,
-              omitArgs = c("destinationPath", "cloudFolderID", "useCloud", "debug"))
+              omitArgs = c("destinationPath", "debug"))
 
 .objects[["cumulBurn"]] <- SCFM$cumulBurn
 ```

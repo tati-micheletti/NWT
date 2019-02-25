@@ -27,7 +27,7 @@ predictDensities <- function(birdSpecies = sim$birdsList,
     cl <- if (.Platform$OS.type != "windows") {
       parallel::makeForkCluster(nCores, outfile = file.path(pathData, "logParallelBirdPrediction"))
       on.exit(try(parallel::stopCluster(cl), silent = TRUE))
-    else {
+    } else {
       NULL
     }
     predictionPerSpecies <-  pemisc::Map2(cl = cl, #parallel::clusterApplyLB(cl = cl, x = birdSpecies, fun = corePrediction,

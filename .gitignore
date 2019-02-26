@@ -46,3 +46,4 @@ tmp/
 *.tif
 inputs/*.*
 data/caribouCoefTable.csv
+NationalModel

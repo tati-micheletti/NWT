@@ -16,11 +16,12 @@ caribouPopulation <- unlist(lapply(X = timeStr, FUN = function(year){
 })
 )
 Time <- 0:100
-png(file.path(getwd(), "outputs", "caribouPop.png"), width = 700, height = 480)
+png(file.path(getwd(), "outputs", paste0("caribouPop", toupper(format(Sys.time(), "%d%b%y")),".png")), 
+    width = 700, height = 480)
 quickPlot::Plot(x = Time, y = caribouPopulation, title = "Caribou population dynamics", new = TRUE)
 dev.off()
 reproducible::Require(googledrive)
-googledrive::drive_upload(file.path(getwd(), "outputs", "caribouPop.png"), 
+googledrive::drive_upload(file.path(getwd(), "outputs", paste0("caribouPop", toupper(format(Sys.time(), "%d%b%y")),".png")), 
                           path = as_id("1ZqPVs33HxnnmjLUW94i7AuwAS-nloPGH"))
 
 # Birds Gif
@@ -64,16 +65,15 @@ lapply(X = 1:length(birdsFireCaribou$birdSpecies), FUN = function(sp){ # NOT REA
 googledrive::drive_upload(file.path(getwd(), "outputs", "birdPreds/"), 
                           path = as_id("1ZqPVs33HxnnmjLUW94i7AuwAS-nloPGH"))
 
-# Fire burning
-out2 <- raster::stack(birdsFireCaribou$disturbanceMaps) # See about title and all
-gifName <- file.path(getwd(), paste0("outputs/fireSpread.gif"))
-animation::saveGIF(interval = 0.1, movie.name = gifName, expr = {
-  for (i in seq(quickPlot::numLayers(out2))) raster::plot(out2[[i]], xlab = names(out2[[i]]))
-})
-
-drive_upload(file.path(getwd(), "outputs",
-                       paste0("resultsNWTedehzhie_",
-                              toupper(format(Sys.time(), "%d%b%y")),
-                              ".rds"), path = as_id("1ZqPVs33HxnnmjLUW94i7AuwAS-nloPGH")))
+# # Fire burning
+# out2 <- raster::stack(birdsFireCaribou$disturbanceMaps) # See about title and all
+# gifName <- file.path(getwd(), paste0("outputs/fireSpread.gif"))
+# animation::saveGIF(interval = 0.1, movie.name = gifName, expr = {
+#   for (i in seq(quickPlot::numLayers(out2))) raster::plot(out2[[i]], xlab = names(out2[[i]]))
+# })
+# 
+# drive_upload(file.path(getwd(), "outputs",
+#                        paste0("resultsNWTedehzhie_",
+#                               toupper(format(Sys.time(), "%d%b%y")),
+#                               ".rds"), path = as_id("1ZqPVs33HxnnmjLUW94i7AuwAS-nloPGH")))
              
-# REPEAT ALL, BUT WITH FIRE WORKING/REGENERATION/OR WITHOUT FIRE...

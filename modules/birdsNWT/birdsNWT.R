@@ -19,7 +19,10 @@ defineModule(sim, list(
     defineParameter(".useCache", "logical", FALSE, NA, NA, "Should this entire module be run with caching?"),
     defineParameter("useParallel", "logical", FALSE, NA, NA, "Should bird prediction be parallelized?"),
     defineParameter("useTestSpeciesLayers", "logical", TRUE, NA, NA, "Should bird prediction be parallelized?"),
-    defineParameter("nCores", "character|numeric", "auto", NA, NA, "If parallelizing, how many cores to use? Use 'auto' (90% of available), or numeric")
+    defineParameter("nCores", "character|numeric", "auto", NA, NA, paste0("If parallelizing, how many cores to use?",
+                                                                          " Use 'auto' (90% of available), or numeric")),
+    defineParameter(name = "baseLayer", class = "character", default = 2005, min = NA, max = NA, 
+                    desc = "Which layer should be used? LCC05 or LCC10?")
   ),
   inputObjects = bind_rows(
     expectsInput(objectName = "birdsList", objectClass = "character", 
@@ -102,14 +105,29 @@ doEvent.birdsNWT = function(sim, eventTime, eventType) {
                                       # useCloud = TRUE,
                                       omitArgs = c("pathData"))#, "cloudFolderID", "useCloud"))  # NOT WORKING WITH CLOUDCACHE [ FIX ]
       }
-
+      
+      sim$wetlandRaster <- Cache(prepInputsLayers_DUCKS, destinationPath = dataPath(sim), 
+                                 studyArea = sim$studyArea, 
+                                 userTags = "objectName:wetlandRaster")
+      
+      sim$uplandsRaster <- Cache(classifyWetlands, LCC = P(sim)$baseLayer,
+                          wetLayerInput = sim$wetlandRaster,
+                          pathData = dataPath(sim),
+                          studyArea = sim$studyArea,
+                          userTags = c("objectName:wetLCC"))
+      uplandVals <- raster::getValues(sim$uplandsRaster) # Uplands = 3, so we should convert 1 an 2 to NA
+      uplandVals[uplandVals < 3] <- NA
+      uplandVals[uplandVals == 3] <- 1
+      sim$uplandsRaster <- raster::setValues(sim$uplandsRaster, uplandVals)
+      
       sim$birdPrediction[[paste0("Year", time(sim))]] <- Cache(predictDensities, birdSpecies = sim$birdsList,
+                                                               uplandsRaster = sim$uplandsRaster,
                                                                successionLayers = sim$successionLayers,
                                                                staticLayers = sim$staticLayers,
                                                                currentTime = time(sim),
                                                                modelList = sim$birdModels,
                                                                pathData = dataPath(sim),
-                                                               overwritePredictions = FALSE,
+                                                               overwritePredictions = P(sim)$overwritePredictions,
                                                                useParallel = P(sim)$useParallel,
                                                                nCores = P(sim)$nCores,
                                                                # cloudFolderID = sim$cloudFolderID,

@@ -1,16 +1,18 @@
 predictDensities <- function(birdSpecies = sim$birdsList,
+                             uplandsRaster = sim$uplandsRaster,
                              successionLayers = sim$successionLayers,
                              staticLayers = sim$staticLayers,
                              currentTime = time(sim),
                              modelList = sim$birdModels,
-                             overwritePredictions = FALSE,
+                             overwritePredictions = P(sim)$overwritePredictions,
                              pathData = dataPath(sim),
                              useParallel = FALSE,
                              nCores = 1) {
 
   if (useParallel == FALSE){
     
-    predictionPerSpecies <- lapply(X = birdSpecies, FUN = corePrediction, 
+    predictionPerSpecies <- lapply(X = birdSpecies, FUN = corePrediction,
+                                    uplandsRaster = uplandsRaster,
                                     successionLayers = successionLayers,
                                     staticLayers = staticLayers,
                                     currentTime = currentTime,
@@ -33,6 +35,7 @@ predictDensities <- function(birdSpecies = sim$birdsList,
     predictionPerSpecies <-  pemisc::Map2(cl = cl, #parallel::clusterApplyLB(cl = cl, x = birdSpecies, fun = corePrediction,
                                           corePrediction, x = birdSpecies,
                                           MoreArgs = list(
+                                                      uplandsRaster = uplandsRaster,
                                                       successionLayers = successionLayers,
                                                       staticLayers = staticLayers,
                                                       currentTime = currentTime,

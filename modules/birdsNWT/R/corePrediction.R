@@ -1,4 +1,5 @@
 corePrediction <- function(x, successionLayers = successionLayers,
+                           uplandsRaster = uplandsRaster,
                            staticLayers = staticLayers,
                            currentTime = currentTime,
                            modelList = modelList,
@@ -66,7 +67,9 @@ corePrediction <- function(x, successionLayers = successionLayers,
                                            inputModel = models, 
                                            x = x, 
                                            tileYear = currentTime))
-    raster::writeRaster(x = predicted, filename = predictedName, 
+    predictedMasked <- reproducible::postProcess(x = predicted, rasterToMatch = uplandsRaster, 
+                                                 maskWithRTM = TRUE)
+    raster::writeRaster(x = predictedMasked, filename = predictedName, 
                         format = "GTiff", overwrite = TRUE)
   }
   predicted <- raster(predictedName)

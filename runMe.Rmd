@@ -463,11 +463,11 @@ And finally the simulation call (note that the argument `debug = TRUE` lists all
 #                     outputs = outputsLandR, debug = 2)
 
 # Most complete model to run
-birdsFireCaribou <- simInitAndSpades(times = times, params = parameters,
-                    modules = modulesBirdsFireCaribou,
-                    objects = .objects, paths = paths,
-                    loadOrder = unlist(modulesBirdsFireCaribou),
-                    outputs = outputsLandR, debug = 2)
+# birdsFireCaribou <- simInitAndSpades(times = times, params = parameters,
+#                     modules = modulesBirdsFireCaribou,
+#                     objects = .objects, paths = paths,
+#                     loadOrder = unlist(modulesBirdsFireCaribou),
+#                     outputs = outputsLandR, debug = 2)
 
 birdsFireCaribouV1 <- simInitAndSpades(times = times, params = parameters,
                     modules = modulesBirdsFireCaribou,

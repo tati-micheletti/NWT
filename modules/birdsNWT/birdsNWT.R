@@ -18,7 +18,7 @@ defineModule(sim, list(
   parameters = rbind(
     defineParameter(".useCache", "logical", FALSE, NA, NA, "Should this entire module be run with caching?"),
     defineParameter("useParallel", "logical", FALSE, NA, NA, "Should bird prediction be parallelized?"),
-    defineParameter("useTestSpeciesLayers", "logical", TRUE, NA, NA, "Should bird prediction be parallelized?"),
+    defineParameter("useTestSpeciesLayers", "logical", TRUE, NA, NA, "Use testing layers if forest succesion is not available?"),
     defineParameter("nCores", "character|numeric", "auto", NA, NA, paste0("If parallelizing, how many cores to use?",
                                                                           " Use 'auto' (90% of available), or numeric")),
     defineParameter(name = "baseLayer", class = "character", default = 2005, min = NA, max = NA, 
@@ -34,6 +34,12 @@ defineModule(sim, list(
                  sourceURL = "https://drive.google.com/open?id=1obSvU4ml8xa8WMQhQprd6heRrN47buvI"),
     expectsInput(objectName = "urlStaticLayers", objectClass = "RasterLayer", 
                  desc = "Static Layers (WAT, URBAG, lLED25, DEV25 and landform) url", 
+                 sourceURL = "https://drive.google.com/open?id=1P4grDYDffVyVXvMjM-RwzpuH1deZuvL3"),
+    expectsInput(objectName = "studyArea", objectClass = "SpatialPolygonDataFrame", 
+                 desc = "Study area for the prediction. Currently only available for NWT", 
+                 sourceURL = "https://drive.google.com/open?id=1P4grDYDffVyVXvMjM-RwzpuH1deZuvL3"),
+    expectsInput(objectName = "rasterToMatch", objectClass = "RasterLayer",
+                 desc = "All spatial outputs will be reprojected and resampled to it", 
                  sourceURL = "https://drive.google.com/open?id=1P4grDYDffVyVXvMjM-RwzpuH1deZuvL3")
   ),
   outputObjects = bind_rows(
@@ -54,7 +60,7 @@ doEvent.birdsNWT = function(sim, eventTime, eventType) {
   switch(
     eventType,
     init = {
-      
+
       # schedule future event(s)
       sim <- scheduleEvent(sim, start(sim), "birdsNWT", "loadModels")
       sim <- scheduleEvent(sim, start(sim), "birdsNWT", "loadFixedLayers")
@@ -75,6 +81,7 @@ doEvent.birdsNWT = function(sim, eventTime, eventType) {
                                 pathData = dataPath(sim), 
                                 # cloudFolderID = sim$cloudFolderID,
                                 studyArea = sim$studyArea,
+                                rasterToMatch = sim$rasterToMatch,
                                 # useCloud = TRUE,
                                 omitArgs = c("pathData"))#, "cloudFolderID", "useCloud")) # NOT WORKING WITH CLOUDCACHE [ FIX ]
       message("The following static layers have been loaded: \n", 
@@ -85,7 +92,7 @@ doEvent.birdsNWT = function(sim, eventTime, eventType) {
         message("Using test layers for species. Predictions will be static and identical to original data.")
         sim$successionLayers <- Cache(loadTestSpeciesLayers, 
                                       modelList = sim$birdModels,
-                                      pathData = dataPath(sim)) # Need to add Biomass and Structure Age to this layer!
+                                      pathData = dataPath(sim))
       } else {
         if (any(!suppliedElsewhere("simulatedBiomassMap", sim), 
                 !suppliedElsewhere("cohortData", sim),
@@ -163,6 +170,24 @@ doEvent.birdsNWT = function(sim, eventTime, eventType) {
                        "YBFL", "CEDW", "SAVS", "BAWW", "LCSP", "WWCR", "CCSP", "RWBL", 
                        "BAOR", "HOWR", "WTSP", "CAWA", "RUBL", "AMRO", "HOLA", "AMRE", 
                        "AMGO", "AMCR", "ALFL")  
+  }
+  if (!suppliedElsewhere("studyArea", sim = sim, where = "sim")){
+    if (quickPlot::isRstudioServer()) options(httr_oob_default = TRUE)
+    
+    message("No specific study area was provided. Croping to the Edehzhie Indigenous Protected Area (Southern NWT)")
+    Edehzhie.url <- "https://drive.google.com/open?id=1klq0nhtFJZv47iZVG8_NwcVebbimP8yT"
+    sim$studyArea <- Cache(prepInputs,
+                               url = Edehzhie.url,
+                               destinationPath = inputPath(sim),
+                               omitArgs = c("destinationPath"))
+  }
+  
+  if (!suppliedElsewhere("rasterToMatch", sim = sim, where = "sim")){
+  sim$rasterToMatch <- Cache(prepInputs, url = "https://drive.google.com/open?id=1fo08FMACr_aTV03lteQ7KsaoN9xGx1Df", 
+                              studyArea = sim$studyArea,
+                              targetFile = "RTM.tif", destinationPath = inputPath(sim),
+                              filename2 = NULL,
+                              omitArgs = c("destinationPath", "filename2"))
   }
   return(invisible(sim))
 }

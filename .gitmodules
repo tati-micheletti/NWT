@@ -22,3 +22,6 @@
 [submodule "modules/caribouRecDistRelationship"]
 	path = modules/caribouRecDistRelationship
 	url = git@github.com:tati-micheletti/caribouRecDistRelationship.git
+[submodule "modules/birdsNWT"]
+	path = modules/birdsNWT
+	url = git@github.com:tati-micheletti/birdsNWT.git

@@ -320,7 +320,7 @@ parameters <- list(
     "growthInitialTime" = 0,
     "successionTimestep" = 10),
   Boreal_LBMRDataPrep = list(
-    "useCloudCacheForStats" = if (pemisc::user("tmichele")) FALSE,
+    "useCloudCacheForStats" = if (pemisc::user("tmichele")) FALSE else TRUE,
     "sppEquivCol" = sppEquivCol,
     "successionTimestep" = 10,
     "pixelGroupAgeClass" = 10,

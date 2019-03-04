@@ -1,24 +1,32 @@
 [submodule "modules/LandR_BiomassGMOrig"]
 	path = modules/LandR_BiomassGMOrig
 	url = git@github.com:eliotmcintire/LandR_BiomassGMOrig.git
+        branch = development
 [submodule "modules/Biomass_regeneration"]
 	path = modules/Biomass_regeneration
 	url = git@github.com:eliotmcintire/Biomass_regeneration.git
+        branch = development
 [submodule "modules/LBMR"]
 	path = modules/LBMR
 	url = git@github.com:eliotmcintire/LBMR.git
+        branch = development
 [submodule "modules/fireSense_NWT_DataPrep"]
 	path = modules/fireSense_NWT_DataPrep
 	url = git@github.com:ygc2l/fireSense_NWT_DataPrep.git
+        branch = master
 [submodule "modules/Boreal_LBMRDataPrep"]
 	path = modules/Boreal_LBMRDataPrep
 	url = git@github.com:eliotmcintire/Boreal_LBMRDataPrep.git
+        branch = development
 [submodule "modules/scfm"]
 	path = modules/scfm
 	url = git@github.com:eliotmcintire/scfm.git
+        branch = development
 [submodule "modules/caribouPopGrowthModel"]
 	path = modules/caribouPopGrowthModel
 	url = git@github.com:tati-micheletti/caribouPopGrowthModel.git
+        branch = development
 [submodule "modules/caribouRecDistRelationship"]
 	path = modules/caribouRecDistRelationship
 	url = git@github.com:tati-micheletti/caribouRecDistRelationship.git
+        branch = development

@@ -13,9 +13,6 @@
 [submodule "modules/Boreal_LBMRDataPrep"]
 	path = modules/Boreal_LBMRDataPrep
 	url = git@github.com:eliotmcintire/Boreal_LBMRDataPrep.git
-[submodule "modules/waterlandClassification"]
-	path = modules/waterlandClassification
-	url = git@github.com:tati-micheletti/waterlandClassification.git
 [submodule "modules/scfm"]
 	path = modules/scfm
 	url = git@github.com:eliotmcintire/scfm.git
@@ -25,3 +22,6 @@
 [submodule "modules/caribouRecDistRelationship"]
 	path = modules/caribouRecDistRelationship
 	url = git@github.com:tati-micheletti/caribouRecDistRelationship.git
+[submodule "modules/birdsNWT"]
+	path = modules/birdsNWT
+	url = git@github.com:tati-micheletti/birdsNWT.git

@@ -25,8 +25,8 @@
 [submodule "modules/caribouPopGrowthModel"]
 	path = modules/caribouPopGrowthModel
 	url = git@github.com:tati-micheletti/caribouPopGrowthModel.git
-        branch = development
+        branch = master
 [submodule "modules/caribouRecDistRelationship"]
 	path = modules/caribouRecDistRelationship
 	url = git@github.com:tati-micheletti/caribouRecDistRelationship.git
-        branch = development
+        branch = master

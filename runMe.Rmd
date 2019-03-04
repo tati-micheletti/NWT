@@ -340,12 +340,8 @@ parameters <- list(
     "growthInitialTime" = 0,
     "successionTimestep" = 10),
   Boreal_LBMRDataPrep = list(
-<<<<<<< HEAD
-    "useCloudCacheForStats" = if (pemisc::user("tmichele")) FALSE else TRUE,
-=======
     "cacheIDmodelBiomass" = "b2209ccb1cb19ee1",
-    "useCloudCacheForStats" = if (pemisc::user("tmichele")) FALSE,
->>>>>>> aed6cf14571a7ac6dcb2d2acefa227e74d1b84f1
+    "useCloudCacheForStats" = if (pemisc::user("tmichele")) FALSE else TRUE,
     "sppEquivCol" = sppEquivCol,
     "successionTimestep" = 10,
     "pixelGroupAgeClass" = 10,

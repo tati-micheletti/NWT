@@ -409,7 +409,8 @@ And finally, we load the objects used by this group of modules:
   "sppColors" = sppColors,
   "omitNonVegPixels" = TRUE,
   "cloudFolderID" = cloudFolderID,
-  "studyArea" = studyAreaNWT
+  "studyArea" = studyAreaNWT,
+  "currentPop" = 6500
   )
 
 ```

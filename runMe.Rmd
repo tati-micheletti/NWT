@@ -476,4 +476,7 @@ birdsFireCaribouV1 <- simInitAndSpades(times = times, params = parameters,
                     objects = .objects, paths = paths,
                     loadOrder = unlist(modulesBirdsFireCaribou),
                     outputs = outputsLandR, debug = 2)
+
+# To save a run
+# saveRDS(object = birdsFireCaribouV1, file = file.path(getwd(), paste0("outputs/birdsFireCaribouV1_", toupper(format(Sys.time(), "%d%b%y")))))
 ```

@@ -30,3 +30,6 @@
 	path = modules/caribouRecDistRelationship
 	url = git@github.com:tati-micheletti/caribouRecDistRelationship.git
         branch = master
+[submodule "modules/birdsNWT"]
+	path = modules/birdsNWT
+	url = git@github.com:tati-micheletti/birdsNWT.git

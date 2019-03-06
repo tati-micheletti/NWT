@@ -341,7 +341,7 @@ parameters <- list(
     "successionTimestep" = 10),
   Boreal_LBMRDataPrep = list(
     "cacheIDmodelBiomass" = "b2209ccb1cb19ee1",
-    "useCloudCacheForStats" = if (pemisc::user("tmichele")) FALSE,
+    "useCloudCacheForStats" = if (pemisc::user("tmichele")) FALSE else TRUE,
     "sppEquivCol" = sppEquivCol,
     "successionTimestep" = 10,
     "pixelGroupAgeClass" = 10,
@@ -409,7 +409,8 @@ And finally, we load the objects used by this group of modules:
   "sppColors" = sppColors,
   "omitNonVegPixels" = TRUE,
   "cloudFolderID" = cloudFolderID,
-  "studyArea" = studyAreaNWT
+  "studyArea" = studyAreaNWT,
+  "currentPop" = 6500
   )
 
 ```
@@ -475,4 +476,7 @@ birdsFireCaribouV1 <- simInitAndSpades(times = times, params = parameters,
                     objects = .objects, paths = paths,
                     loadOrder = unlist(modulesBirdsFireCaribou),
                     outputs = outputsLandR, debug = 2)
+
+# To save a run
+# saveRDS(object = birdsFireCaribouV1, file = file.path(getwd(), paste0("outputs/birdsFireCaribouV1_", toupper(format(Sys.time(), "%d%b%y")))))
 ```

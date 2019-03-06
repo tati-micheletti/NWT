@@ -33,3 +33,4 @@
 [submodule "modules/birdsNWT"]
 	path = modules/birdsNWT
 	url = git@github.com:tati-micheletti/birdsNWT.git
+	branch = master

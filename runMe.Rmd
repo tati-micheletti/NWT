@@ -200,7 +200,8 @@ opts <- options(
   "reproducible.showSimilar" = TRUE,
   "reproducible.useCloud" = if (pemisc::user("emcintir")|pemisc::user("tmichele")) FALSE else TRUE,
   "spades.moduleCodeChecks" = FALSE, # Turn off all module's code checking
-  "spades.useRequire" = FALSE # assuming all pkgs installed correctly
+  "spades.useRequire" = FALSE, # assuming all pkgs installed correctly
+  "pemisc.useParallel" = TRUE
 )
 
 SpaDES.core::setPaths(modulePath = paths$modulePath, inputPath = paths$inputPath, 
@@ -480,3 +481,17 @@ birdsFireCaribouV1 <- simInitAndSpades(times = times, params = parameters,
 # To save a run
 # saveRDS(object = birdsFireCaribouV1, file = file.path(getwd(), paste0("outputs/birdsFireCaribouV1_", toupper(format(Sys.time(), "%d%b%y")))))
 ```
+
+
+### Extracting some extra plots
+```{r extra_plots}
+
+df <- comparePredictions(polyList = names(birdsFireCaribouV1$scfmDriverPars), simList = birdsFireCaribouV1) %>%
+  data.table::rbindlist()
+
+firePlots <- firePosthocPlots(df = df)
+
+lapply(X = firePlots, FUN = print)
+
+```
+

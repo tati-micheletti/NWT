@@ -76,7 +76,8 @@ lapply(X = 1:length(predictedRas), FUN = function(sp){ # NOT REALLY WORKING FOR 
             axis.title = element_blank(),
             legend.title = element_blank(),
             plot.title = element_text(hjust = 0.5)) +
-      ggtitle(label = paste0("Predicted ", sp, " for year ", ras*10))
+      ggtitle(label = paste0("Predicted ", sp, " for year ", ras*10)) +
+      guides(fill = guide_legend(title.hjust = 0.5, reverse = TRUE))
     browser()
     return(spPlot)
   })
@@ -140,25 +141,35 @@ googledrive::drive_upload(file.path(getwd(), "outputs", "birdPreds/"),
 # ~~~~~~~~~~~~~~~~~ USE THIS ONE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`
 # When simList is fine: PLOTS FIXED FOR GROUPING VALUES
 # NOT REALLY WORKING FOR THE SECOND SPECIES.. DEBUG WHEN HAVE TIME [ FIX ]
+
+birdsFireCaribouV1 <- readRDS(file = file.path(getwd(), "outputs/birdsFireCaribouV1_05MAR19"))
+
 reproducible::Require("animation")
 reproducible::Require("raster")
 reproducible::Require("ggplot2")
 reproducible::Require("magrittr")
-lapply(X = 1:length(birdsFireCaribou$birdSpecies), FUN = function(sp){ 
-  browser()
-  tmpStack <- lapply(birdsFireCaribou$birdPrediction, `[[`, sp)
-  out2 <- raster::stack(tmpStack) # See about title and all
-  gifName <- file.path(getwd(), paste0("outputs/birdPreds/", sp, "predNWT.gif"))
+lapply(X = 1:length(birdsFireCaribouV1$birdsList), FUN = function(sp){
+  tmpStack <- lapply(birdsFireCaribouV1$birdPrediction, `[[`, sp)
+  out2 <- raster::stack(tmpStack)
+  
+  # FOR VERSION 1, WE NEED TO MASK THE WATER + WATERLAND BEFORE MAKING THE PLOT
+  out3 <- reproducible::postProcess(x = out2, rasterToMatch = birdsFireCaribouV1$uplandsRaster, 
+                                               maskWithRTM = TRUE, destinationPath = file.path(getwd(), "outputs"))
+  names(out3) <- names(out2)
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  gifName <- file.path(getwd(), paste0("outputs/birdPreds/", birdsFireCaribouV1$birdsList[sp], "predNWT_", toupper(format(Sys.time(), "%d%b%y")),".gif"))
   ceiling_dec <- function(x, level = 1) round(x + 5*10^(-level-1), level)
   mxVal <- ceiling_dec(max(raster::maxValue(out2)), level = 2)
   breaks <- quantile(x = out2, probs = seq(from = 0, to = 1, by = 0.1), na.rm = TRUE) %>%
     apply(MARGIN = 2, FUN = max)
   cols <- RColorBrewer::brewer.pal(n = length(breaks), name = "Spectral")
   
-  fixedStack <- lapply(X = 1:quickPlot::numLayers(predictedRas[[sp]]), FUN = function(ras){
-    dt <- raster::as.data.frame(predictedRas[[sp]][[ras]],
-                                xy = TRUE, na.rm = FALSE, 
-                                long = FALSE)
+  fixedStack <- lapply(X = 1:quickPlot::numLayers(out3), FUN = function(ras){
+    browser()
+    dt <- raster::as.data.frame(out3[[ras]],
+                                  xy = TRUE, na.rm = FALSE, 
+                                  long = FALSE)
     names(dt) <- c("x", "y", "value")
     dtable <- data.table::data.table(dt) 
     dtable[, group := cut(value, breaks)]
@@ -176,13 +187,15 @@ lapply(X = 1:length(birdsFireCaribou$birdSpecies), FUN = function(sp){
             axis.title = element_blank(),
             legend.title = element_blank(),
             plot.title = element_text(hjust = 0.5)) +
-      ggtitle(label = paste0("Predicted ", sp, " for year ", strsplit(x = names(tmpStack[[ras]]), 
+      guides(fill = guide_legend(title.hjust = 0.5, reverse = TRUE)) +
+      ggtitle(label = paste0("Predicted ", birdsFireCaribouV1$birdsList[sp], 
+                             " for year ", strsplit(x = names(out3[[ras]]), 
                                                                       split = "Year")[[1]][2]))
     return(spPlot)
   })
-  
+  browser()
   animation::saveGIF(interval = 0.1, movie.name = gifName, expr = {
-    for (i in seq(quickPlot::numLayers(out2))) print(fixedStack)
+    for (i in seq(quickPlot::numLayers(out3))) print(fixedStack)
   })
 })
 

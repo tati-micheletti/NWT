@@ -9,7 +9,7 @@ firePosthocPlots <- function(df = df){
     labs(y = "predicted size", x = "empirical size") +
     theme_minimal() + 
     geom_abline(slope = 1) +
-    geom_text(aes(label = PolyId), hjust = -0.8, vjust = 0)
+    geom_text(aes(label = PolyId), hjust = -0.4, vjust = 0)
   
   
   meanAnnualAreaBurned <- ggplot(df, aes(x = hist_MAAB, y = mod_MAAB, col = pSpread)) +
@@ -18,7 +18,7 @@ firePosthocPlots <- function(df = df){
     scale_color_gradient(low = "blue", high = "red")+
     theme_minimal() +
     geom_abline(slope = 1) +
-    geom_text(aes(label = PolyId), hjust = -0.8, vjust = 0)
+    geom_text(aes(label = PolyId), hjust = -0.4, vjust = 0)
   
   return(list(meanFireSize = meanFireSize, meanAnnualAreaBurned = meanAnnualAreaBurned))
 }

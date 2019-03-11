@@ -333,6 +333,7 @@ parameters <- list(
   LBMR = list(
     ".useParallel" = 3,
     ".plotInitialTime" = NA,
+    ".saveInitialTime" = 0,
     "seedingAlgorithm" = "wardDispersal",
     ".useCache" = FALSE,
     "successionTimestep" = 10,
@@ -416,7 +417,7 @@ And finally, we load the objects used by this group of modules:
 
 ```
 
-After supplying the objects, we run the simulation initialization function, passing all arguments of interest:
+After supplying the objects, we run the simulation initialization functionI'll install i, passing all arguments of interest:
 
 ``` {r simInit}
 
@@ -472,26 +473,43 @@ And finally the simulation call (note that the argument `debug = TRUE` lists all
 #                     loadOrder = unlist(modulesBirdsFireCaribou),
 #                     outputs = outputsLandR, debug = 2)
 
-birdsFireCaribouV1 <- simInitAndSpades(times = times, params = parameters,
+birdsFireCaribouV2 <- simInitAndSpades(times = times, params = parameters,
                     modules = modulesBirdsFireCaribou,
                     objects = .objects, paths = paths,
                     loadOrder = unlist(modulesBirdsFireCaribou),
                     outputs = outputsLandR, debug = 2)
 
 # To save a run
-# saveRDS(object = birdsFireCaribouV1, file = file.path(getwd(), paste0("outputs/birdsFireCaribouV1_", toupper(format(Sys.time(), "%d%b%y")))))
+saveRDS(object = birdsFireCaribouV2, file = file.path(getwd(), paste0("outputs/birdsFireCaribouV2_", toupper(format(Sys.time(), "%d%b%y")))))
 ```
 
 
 ### Extracting some extra plots
 ```{r extra_plots}
 
-df <- comparePredictions(polyList = names(birdsFireCaribouV1$scfmDriverPars), simList = birdsFireCaribouV1) %>%
+df <- comparePredictions(polyList = names(birdsFireCaribouV2$scfmDriverPars), simList = birdsFireCaribouV2) %>%
   data.table::rbindlist()
 
 firePlots <- firePosthocPlots(df = df)
 
 lapply(X = firePlots, FUN = print)
 
+# Creating birds images and gif
+createBirdsGIF(simList = birdsFireCaribouV2, version = "V2")
+
 ```
 
+### RESULTS V1
+It is important to note that the version 1 of the integrated model contains only the following modules:
+LandR_Biomass: forest succession
+scfm: simple fire model
+caribouPopGrowth: simple population growth model
+birdsNWT: birds model
+
+Disadvantages of this version:
+1. It completely lacks climate sensitivity (vegetation dynamics and in the fire model)
+2. scfm *might* be underestimating fires
+3. Caribou is showing population instead of lambda
+4. Caribou pop growth lacks K, environmental stochasticity, has only one model (M3)
+5. Reporting for Caribou population growth is for 
+6. No caribouRSF

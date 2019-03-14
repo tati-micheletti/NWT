@@ -232,3 +232,53 @@ dev.off()
 #                               toupper(format(Sys.time(), "%d%b%y")),
 #                               ".rds"), path = as_id("1ZqPVs33HxnnmjLUW94i7AuwAS-nloPGH")))
              
+# Caribou graph (last one)
+timeStr <- paste0("Year", 0:100)
+caribouPopulation <- unlist(lapply(X = timeStr, FUN = function(year){
+  birdsFireCaribou$predictedCaribou[[year]][["M3"]]$currentPopUpdated
+})
+)
+caribouPopulationRec <- unlist(lapply(X = timeStr, FUN = function(year){
+  birdsFireCaribou$predictedCaribou[[year]][["M3"]]$Rec
+})
+)
+
+caribouLambda <- numeric(length(caribouPopulation)-1)
+for (i in 1:(length(caribouPopulation)-1)){
+  caribouLambda[i] <- caribouPopulation[i + 1]/caribouPopulation[i]
+}
+
+# RECRUITMENT
+Time <- 0:100
+dt <- data.frame(Recruitment = caribouPopulationRec, Time = Time[2:101])
+library("ggplot2")
+plt <- ggplot2::ggplot(data = dt, aes(x = Time, y = Recruitment)) + geom_point()
+
+png(file.path(getwd(), "outputs", paste0("caribouLambdaNWT_", toupper(format(Sys.time(), "%d%b%y")),".png")), 
+    width = 700, height = 480)
+plot(x = Time, y = caribouLambda, title = "Caribou lambda for BCR6 within NWT", new = TRUE)
+dev.off()
+reproducible::Require(googledrive)
+googledrive::drive_upload(file.path(getwd(), "outputs", paste0("caribouPop", toupper(format(Sys.time(), "%d%b%y")),".png")), 
+                          path = as_id("1ZqPVs33HxnnmjLUW94i7AuwAS-nloPGH"))
+
+# LAMBDA
+Time <- 0:100
+dt <- data.frame(caribouLambda = caribouLambda, Time = Time[2:100])
+library("ggplot2")
+plt <- ggplot2::ggplot(data = dt, aes(x = Time, y = caribouLambda)) + geom_point()
+
+png(file.path(getwd(), "outputs", paste0("caribouLambdaNWT_", toupper(format(Sys.time(), "%d%b%y")),".png")), 
+    width = 700, height = 480)
+plot(x = Time, y = caribouLambda, title = "Caribou lambda for BCR6 within NWT", new = TRUE)
+dev.off()
+reproducible::Require(googledrive)
+googledrive::drive_upload(file.path(getwd(), "outputs", paste0("caribouPop", toupper(format(Sys.time(), "%d%b%y")),".png")), 
+                          path = as_id("1ZqPVs33HxnnmjLUW94i7AuwAS-nloPGH"))
+
+
+dt <- as.data.frame(birdsFireCaribou$summaryBySpecies)
+dt[dt$speciesCode == ""]
+library("ggplot2")
+plt <- ggplot(dt, aes(x = year, y = BiomassBySpecies, group = speciesCode)) + 
+  geom_line(size=1.2, aes(color = speciesCode))

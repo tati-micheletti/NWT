@@ -32,7 +32,7 @@ conditions
 The metamodule is composed of 8 parent modules (i.e. groups of modules), as follows:
 ![Module structure that composes the NWT project.](https://github.com/tati-micheletti/NWT/raw/master/inputs/ModelStructure_2.jpg)
 
-The structure of each one of the modules is as follows:
+The structure and methods used for each one of the modules is as follows:
 
 \textcolor{blue}{LandR}: This group of modules is composed of one module and one group of modules.
                          The first module, `Boreal_LBMRDataPrep` creates the specific parameters 
@@ -112,9 +112,6 @@ library("raster")
 library("plyr"); library("dplyr")
 library("magrittr") # for piping
 
-# Source all common functions
-invisible(sapply(X = list.files(file.path(getwd(), "functions"), full.names = TRUE), FUN = source))
-
 ```
 
 After having all installed correctly, we need to make sure all the submodules are sync to your machine:
@@ -139,12 +136,22 @@ options used by SpaDES.
 
 ```{r setup}
 
+runVersion <- "V3"
+isTest <- FALSE
+
 user <- pemisc::user()
 # Which computer is this being run on?
 # Options are: BorealCloud, LocalMachine, 388
 whichComputer <- if (user == "emcintir") "LocalMachine" else if (user == "tmichele") "BorealCloud" else "LocalMachine"
 
-paths <- pathsSetup(whichComputer = whichComputer) 
+if (whichComputer == "BorealCloud" & basename(getwd()) != "NWT"){
+  setwd(file.path(getwd(), "NWT"))
+}
+
+# Source all common functions
+invisible(sapply(X = list.files(file.path(getwd(), "functions"), full.names = TRUE), FUN = source))
+
+paths <- pathsSetup(whichComputer = whichComputer, isTest = isTest)
 if (length(paths$modulePath) == 1) paths$modulePath <- c(paths$modulePath, file.path(paths$modulePath, "scfm/modules"))
 
 if (pemisc::user() %in% c("Tati", "tmichele")) {
@@ -248,18 +255,18 @@ we explicitly specify the modules to be run, and the running time for the simula
 
 ```{r run_LandR}
 
-# modulesLandR_SCFM <- list("scfmLandcoverInit", "scfmRegime", "scfmDriver", "scfmIgnition", "scfmEscape", "scfmSpread",
-#                           "Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR")
+modulesLandR_SCFM <- list("scfmLandcoverInit", "scfmRegime", "scfmDriver", "scfmIgnition", "scfmEscape", "scfmSpread",
+                          "Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR")
 # modulesSCFM <- list("scfmLandcoverInit", "scfmRegime", "scfmDriver", "scfmIgnition", "scfmEscape", "scfmSpread")
 # modulesLandR <- list("Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR")
 # modulesBirds <- list("birdsNWT")
 # modulesBirds_Fire <- list("scfmLandcoverInit", "scfmRegime", "scfmDriver", "scfmIgnition", "scfmEscape", "scfmSpread",
 #                           "Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR",
 #                           "birdsNWT")
-modulesBirdsFireCaribou <- list("scfmLandcoverInit", "scfmRegime", "scfmDriver", "scfmIgnition", "scfmEscape", "scfmSpread",
-                                "Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR",
-                                "birdsNWT",
-                                "caribouRecDistRelationship", "caribouPopGrowthModel") # Still need to implement the disturbance
+# modulesBirdsFireCaribou <- list("scfmLandcoverInit", "scfmRegime", "scfmDriver", "scfmIgnition", "scfmEscape", "scfmSpread",
+#                                 "Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR",
+#                                 "birdsNWT",
+#                                 "caribouRecDistRelationship", "caribouPopGrowthModel") # Still need to implement the disturbance
 # modulesWetland <- list("waterlandClassification")
 
 times <- list(start = 0, end = 100)
@@ -296,7 +303,8 @@ parameters <- list(
     "baseLayer" = 2005,
     "overwritePredictions" = TRUE,
     "useTestSpeciesLayers" = FALSE,
-    "useParallel" = TRUE
+    "useParallel" = TRUE,
+    "predictionInterval" = 1
   ),
   #SCFM
     ".progress" = list(type = "text", interval = 1),
@@ -342,7 +350,7 @@ parameters <- list(
     "growthInitialTime" = 0,
     "successionTimestep" = 10),
   Boreal_LBMRDataPrep = list(
-    "cacheIDmodelBiomass" = "b2209ccb1cb19ee1",
+    "cacheIDmodelBiomass" = "b2209ccb1cb19ee1", #THIS CACHE WAS FROM V1. Not passable anymore as of 13/03 (reverted changes).
     "useCloudCacheForStats" = if (pemisc::user("tmichele")) FALSE else TRUE,
     "sppEquivCol" = sppEquivCol,
     "successionTimestep" = 10,
@@ -421,19 +429,19 @@ After supplying the objects, we run the simulation initialization functionI'll i
 
 ``` {r simInit}
 
+succTS <- seq(times$start, times$end, 
+                       by = parameters$LBMR$successionTimestep)
 outputsLandR <- data.frame(
-  objectName = c("burnMap",
+  objectName = rep(c("burnMap",
                  "cohortData",
                  "simulationTreeOutput",
                  "summaryBySpecies",
                  "summaryBySpecies1",
-                 "simulationOutput"),
-  file = c(paste0("rstCurrentBurn_", toupper(format(Sys.time(), "%d%b%y"))),
-           paste0("cohortData_", toupper(format(Sys.time(), "%d%b%y"))),
-           paste0("simulationTreeOutput_", toupper(format(Sys.time(), "%d%b%y"))),
-           paste0("summaryBySpecies_", toupper(format(Sys.time(), "%d%b%y"))),
-           paste0("summaryBySpecies1_",toupper(format(Sys.time(), "%d%b%y"))),
-           paste0("simulationOutput_",toupper(format(Sys.time(), "%d%b%y")))))
+                 "simulationOutput",
+                 "pixelGroupMap",
+                 "simulatedBiomassMap"), each = succTS),
+  saveTime = c(rep(succTS, times = 8))
+)
 
 ```
 
@@ -447,10 +455,11 @@ And finally the simulation call (note that the argument `debug = TRUE` lists all
 #                          modules = modulesSCFM,
 #                          objects = .objects, paths = paths,
 #                          loadOrder = unlist(modulesSCFM), debug = 2)
-# LandR_SCFM <- simInitAndSpades(times = times, params = parameters,
-#                     modules = modulesLandR_SCFM, outputs = outputsLandR,
-#                     objects = .objects, paths = paths,
-#                     loadOrder = unlist(modulesLandR_SCFM), debug = 2)
+assign(paste0("LandR_SCFM", runVersion), value = simInitAndSpades(times = times, params = parameters,
+                    modules = modulesLandR_SCFM,
+                    objects = .objects, paths = paths,
+                    loadOrder = unlist(modulesLandR_SCFM),
+                    outputs = outputsLandR, debug = 2))
 # LandR_Biomass <- simInitAndSpades(times = times, params = parameters,
 #                     modules = modulesLandR,
 #                     objects = .objects, paths = paths,
@@ -473,18 +482,22 @@ And finally the simulation call (note that the argument `debug = TRUE` lists all
 #                     loadOrder = unlist(modulesBirdsFireCaribou),
 #                     outputs = outputsLandR, debug = 2)
 
-birdsFireCaribouV2 <- simInitAndSpades(times = times, params = parameters,
-                    modules = modulesBirdsFireCaribou,
-                    objects = .objects, paths = paths,
-                    loadOrder = unlist(modulesBirdsFireCaribou),
-                    outputs = outputsLandR, debug = 2)
+# assign(paste0("birdsFireCaribou", runVersion), value = simInitAndSpades(times = times, params = parameters,
+#                     modules = modulesBirdsFireCaribou,
+#                     objects = .objects, paths = paths,
+#                     loadOrder = unlist(modulesBirdsFireCaribou),
+#                     outputs = outputsLandR, debug = 2))
 
 # To save a run
-saveRDS(object = birdsFireCaribouV2, file = file.path(getwd(), paste0("outputs/birdsFireCaribouV2_", toupper(format(Sys.time(), "%d%b%y")))))
+if (!isTest){
+saveRDS(object = get(paste0("LandR_SCFM", runVersion)), 
+        file = file.path(paths$outpu, paste0("birdsFireCaribou", runVersion,"_", toupper(format(Sys.time(), "%d%b%y")))))
+}
 ```
 
 
-### Extracting some extra plots
+### Extracting some posthoc plots
+
 ```{r extra_plots}
 
 df <- comparePredictions(polyList = names(birdsFireCaribouV2$scfmDriverPars), simList = birdsFireCaribouV2) %>%
@@ -497,6 +510,14 @@ lapply(X = firePlots, FUN = print)
 # Creating birds images and gif
 createBirdsGIF(simList = birdsFireCaribouV2, version = "V2")
 
+# For the cohortData biomass, need to use
+cohortData <- rbindlist(lapply(X = times$start:times$end, FUN = function(year){
+  cohort <- readRDS(file.path(getwd(), paste0("outputs/cohortData_Year", year, ".rds")))
+  return(cohort)
+}))
+
+cohortDataRed <- SpaDES.tools::rasterizeReduced(cohortData[, list(pixelGroup, sumB = sum(B)), by = "pixelGroup"], 
+                                                  pixelGroupMap, "sumB", "pixelGroup")
 ```
 
 ### RESULTS V1

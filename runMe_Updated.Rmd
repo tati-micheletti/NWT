@@ -413,7 +413,7 @@ outputsLandR <- data.frame(
                  "summaryBySpecies1",
                  "simulationOutput",
                  "pixelGroupMap",
-                 "simulatedBiomassMap"), each = succTS),
+                 "simulatedBiomassMap"), each = length(succTS)),
   saveTime = c(rep(succTS, times = 8))
 )
 
@@ -432,7 +432,7 @@ assign(paste0("LandR_SCFM_", runVersion), value = simInitAndSpades(times = times
 # To save a run
 if (!isTest){
 saveRDS(object = get(paste0("LandR_SCFM", runVersion)), 
-        file = file.path(paths$outpu, paste0("birdsFireCaribou", runVersion,"_", toupper(format(Sys.time(), "%d%b%y")))))
+        file = file.path(paths$outputPath, paste0("birdsFireCaribou", runVersion,"_", toupper(format(Sys.time(), "%d%b%y")))))
 }
 ```
 
@@ -480,7 +480,7 @@ parametersCaribou <- list(
   )
 )
 
-.objectsBirds <- list(
+.objectsCaribou <- list(
   "birdsList" = c("BBWA", "BOCH"), ### JUST TO TEST. REMOVE ONCE WORKING
   "rasterToMatch" = rasterToMatch,
   "cloudFolderID" = cloudFolderID,

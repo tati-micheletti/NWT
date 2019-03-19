@@ -34,7 +34,28 @@ The metamodule is composed of 8 parent modules (i.e. groups of modules), as foll
 
 The structure and methods used for each one of the modules is as follows:
 
-\textcolor{blue}{LandR}: This group of modules is composed of one module and one group of modules. The first module, `Boreal_LBMRDataPrep` calculates  site-specific parameters (ie BRC6 within NWT) needed by the biomass succession modules. Maximum biomass and NPP are calculated separately for each unique combination of tree species, stand age, ecodistrict, and land cover. The group of modules (`LandR_Biomass`) form the core of the original LANDIS-II Biomass Succession module. They consist of (1) `LandR_BiomassGMOrig`,  responsible for cohort growth and mortality, (2) `Biomass_regeneration`, which handles post-disturbance biomass regeneration, and (3) `LBMR`,  the LANDR module responsible for vegetation dispersal, as well as summary figures and tables. LandR needs at least these last three modules to work.
+\textcolor{blue}{LandR}: This group of modules is composed of one module and one group of modules. The first module,
+                         `Boreal_LBMRDataPrep` calculates  site-specific parameters (ie BRC6 within NWT) needed by the biomass 
+                         succession modules. Maximum biomass and NPP are calculated separately for each unique combination of tree
+                         species, stand age, ecodistrict, and land cover. The group of modules (`LandR_Biomass`) form the core of the
+                         original LANDIS-II Biomass Succession module. They consist of (1) `LandR_BiomassGMOrig`,  responsible for
+                         cohort growth and mortality, (2) `Biomass_regeneration`, which handles post-disturbance biomass regeneration,
+                         and (3) `LBMR`,  the LANDR module responsible for vegetation dispersal, as well as summary figures and tables.
+                         LandR needs at least these last three modules to work.
+
+
+\textcolor{blue}{FireSense}: This group of modules is here composed of four submodules. `fireSense_FrequencyFit` fits a statistical
+                              model used to parameterize the fire ignition component of `fireSense`. `fireSense_FrequencyPredict`
+                              predicts fire frequency or rates of fire counts using the model fitted with the `fireSense_FrequencyFit`
+                              module. Those are then used to feed the ignition component of `fireSense`. `fireSense_EscapeFit` fits a
+                              statistical model used to parameterize the fire escape component of `fireSense`. `fireSense_EscapePredict`
+                              predicts fire escape probabilities using the model fitted with the `fireSense_EscapeFit` module. Those are
+                              then used to feed the fire escape component of `fireSense`. `fireSense` determines where fires start and
+                              then passes the fire locations to `scfm` which will propagate the fires.
+
+
+## Mario still to finalize ##
+\textcolor{blue}{anthropogenic}: To be completed by MT.
 
 
 ## Diana still to finalize - Steve asks for more details on the ARUs, point counts, and MEE offsets ###
@@ -52,68 +73,92 @@ The structure and methods used for each one of the modules is as follows:
                             module) will be added to the nect version of these models. The birds' 
                             prediction is masked to uplands as we do not have data for lowlands. 
 
-## Frances still to finalize - to double check methods and assumptions after final modules are run ##
-\textcolor{blue}{caribou}: The `caribou` module is composed of two main modules: `caribouPopGrowthModel` and `caribouRSFModel` and `caribouPopGrowthModel`. Each module loads existing glm objects developped by Environment Canada 2011 to project caribou occurrence and demographics over 100 years as the anthropogenic (`anthropogenic` module), fire (`FireSense module), and natural features (‘LandR` module) of the Taiga plains changes. Combined, these modules incorporate existing statistical relationships, with simulated landscape predictions, to produce the probability of occurrence, and population growth rate, of Woodland caribou (boreal population) within the NWT. 
+## Frances still to finalize - double check methods and assumptions after final modules are run ##
+\textcolor{blue}{caribou}: The `caribou` module is composed of two main modules: `caribouPopGrowthModel` and `caribouRSFModel` and
+                           `caribouPopGrowthModel`. Each module loads existing glm objects developped by Environment Canada 2011 to
+                           project caribou occurrence and demographics over 100 years as the anthropogenic (`anthropogenic` module),
+                           fire (`FireSense module), and natural features (‘LandR` module) of the Taiga plains changes. Combined, these
+                           modules incorporate existing statistical relationships, with simulated landscape predictions, to produce the
+                           probability of occurrence, and population growth rate, of Woodland caribou (boreal population) within the
+                           NWT. 
 
 `caribouRSFModel`
 
 
 `caribouPopGrowthModel`
-The `caribouPopGrowthModel` module builds upon the statistical relationship underpinning today’s national boreal caribou recovery strategy (Environment Canada 2011; 2012). The module recalculates the response variable of this relationship (caribou recruitment) on  a yearly time interval, and uses these data to determine the population growth rate, lambda (λ). 
+The `caribouPopGrowthModel` module builds upon the statistical relationship underpinning today’s national boreal caribou recovery
+strategy (Environment Canada 2011; 2012). The module recalculates the response variable of this relationship (caribou recruitment) on  a
+yearly time interval, and uses these data to determine the population growth rate, lambda (λ). 
 
-Specifically, boreal caribou recruitment (Rec) - the proportion of caribou cows:calves at winter survey periods - is best predicted by the total disturbance within a caribou study area (Environment Canada 2011; Table 55, model M3): 
+Specifically, boreal caribou recruitment (Rec) - the proportion of caribou cows:calves at winter survey periods - is best predicted by
+the total disturbance within a caribou study area (Environment Canada 2011; Table 55, model M3): 
 
 Rec ~ total disturbance                                      Eq 2.
 
-The methods behind Eq 2. development can be read in Environment Canada 2011 (Appendix 7.6). The total disturbance within a study area is described as the “percent total non-overlapping fire and anthropogenic disturbance (500 m buffer on anthropogenic; reservoirs removed)” (Environment Canada 2011, Table 54). Fire is measured as “percent fire > 40 years old” within a caribou study area and anthropogenic is measured as “percent non-overlapping anthropogenic disturbance (500 m buffer)” within a caribou study area (Environment Canada 2011; Table 52). This module uses the rasterized output maps of both the ‘scfm’ (no climate sensitivity) or ‘FireSense’ (climate sensitive), and of `anthropogenic` module. These map the presence/absence of fire < 40 years old, or anthropogenic disturbances, at each 250 m x 250 m pixels. These rasterized maps were over-layed, were used to calculate the percent non-overlapping total disturbance within a caribou study area for each time step, and are used as inputs for this statistical relationship (Eq 2.).
+The methods behind Eq 2. development can be read in Environment Canada 2011 (Appendix 7.6). The total disturbance within a study area is
+described as the “percent total non-overlapping fire and anthropogenic disturbance (500 m buffer on anthropogenic; reservoirs removed)”
+(Environment Canada 2011, Table 54). Fire is measured as “percent fire > 40 years old” within a caribou study area and anthropogenic is
+measured as “percent non-overlapping anthropogenic disturbance (500 m buffer)” within a caribou study area (Environment Canada 2011;
+Table 52). This module uses the rasterized output maps of both the ‘scfm’ (no climate sensitivity) or ‘FireSense’ (climate sensitive),
+and of `anthropogenic` module. These map the presence/absence of fire < 40 years old, or anthropogenic disturbances, at each 250 m x 
+250m pixels. These rasterized maps were over-layed, were used to calculate the percent non-overlapping total disturbance within a
+caribou study area for each time step, and are used as inputs for this statistical relationship (Eq 2.).
 
 This module projects Eq 2 based off the the coefficients provided in (Environment Canada 2011; Table 56, model M3).
 
-This module uses annually calculated recruitment values to determine the caribou  population growth rate - the proportional change in population size (lambda; λ) - for each polygon in both the ‘Proposed caribou Range Planning Regions’ and requested ‘Units for ECCC modeling projects;
+This module uses annually calculated recruitment values to determine the caribou  population growth rate - the proportional change in
+population size (lambda; λ) - for each polygon in both the ‘Proposed caribou Range Planning Regions’ and requested ‘Units for ECCC
+modeling projects;
 
 Insert figures here:
 Boreal_caribou_NT1_range_planning_regions_2018.jpg
 Units_for_ECCC_modeling_project_2019.jpg
 
-The population model used to estimate lambda on a yearly time interval is well published for both caribou and other ungulates (Hatter and Bergerud 1991; McLoughlin et al. 2003; Sorensen et al. 2006; Hervieux et al. 2014):
+The population model used to estimate lambda on a yearly time interval is well published for both caribou and other ungulates (Hatter
+and Bergerud 1991; McLoughlin et al. 2003; Sorensen et al. 2006; Hervieux et al. 2014):
 
 λ = (1 - M)/(1 - Rec)                 Eq 3.
 
-Where recruitment (Rec) only involves juvenile female caribou (and assumes a 50:50 sex ratio), and adult female mortality (M) is calculated as 1 - SadF. At each yearly time step λ is saved. This module outputs a plot of lambda, for each requested region or caribou planning area, over the simulated time interval (100 years; 2010 through 2110). Please see the below assumptions for important information regarding these output plots.
+Where recruitment (Rec) only involves juvenile female caribou (and assumes a 50:50 sex ratio), and adult female mortality (M) is
+calculated as 1 - SadF. At each yearly time step λ is saved. This module outputs a plot of lambda, for each requested region or caribou
+planning area, over the simulated time interval (100 years; 2010 through 2110). Please see the below assumptions for important
+information regarding these output plots.
 
 *Important assumptions of the `caribouPopGrowthModel` module*
 
-1.The statistical relationship between recruitment and the landscape described by Environment Canada is the correct relationship for all  Northwest Territories boreal caribou local population units. (Model M3, EC 2011 Table 56). This relationship was determined from 24 boreal caribou study areas across Canada ( N = 24), and lacks information on study areas primarily driven by fire (EC 2011, Figure 67).
+1.The statistical relationship between recruitment and the landscape described by Environment Canada is the correct relationship for all 
+Northwest Territories boreal caribou local population units. (Model M3, EC 2011 Table 56). This relationship was determined from 24
+boreal caribou study areas across Canada ( N = 24), and lacks information on study areas primarily driven by fire (EC 2011, Figure 67).
 
-2.Adult female survival is constant. We used the Environment Canada 2011 recommended value of 0.85. We assume that this value applies to all populations of boreal woodland caribou in the Northwest Territories, and that it does not vary across the projected time of these modules.
+2.Adult female survival is constant. We used the Environment Canada 2011 recommended value of 0.85. We assume that this value applies to
+all populations of boreal woodland caribou in the Northwest Territories, and that it does not vary across the projected time of these
+modules.
 
-3.We assume that caribou are homogeneously distributed throughout the requested regions and caribou planning areas of the NWT (i.e. the ‘Proposed caribou Range Planning Regions’ and requested ‘Units for ECCC modeling projects’).
+3.We assume that caribou are homogeneously distributed throughout the requested regions and caribou planning areas of the NWT (i.e. the
+‘Proposed caribou Range Planning Regions’ and requested ‘Units for ECCC modeling projects’).
 
-4.We assume that caribou do not move between the requested regions and planning areas of the NWT (i.e. the ‘Proposed caribou Range Planning Regions’ and requested ‘Units for ECCC modeling projects’); we assume these areas are functionally isolated from one another.
+4.We assume that caribou do not move between the requested regions and planning areas of the NWT (i.e. the ‘Proposed caribou Range
+Planning Regions’ and requested ‘Units for ECCC modeling projects’); we assume these areas are functionally isolated from one another.
 
 
 Future versions of the `caribouPopGrowthModel` module could address many of the above assumptions. An updated module could incorporate;
-1.Revised caribou study areas (or local population units - the recommended scale of population management; Environment Canada 2012), demographic values, and/or statistical models to incorporate contemporary data under updated data sharing agreements;
+1.Revised caribou study areas (or local population units - the recommended scale of population management; Environment Canada 2012),
+demographic values, and/or statistical models to incorporate contemporary data under updated data sharing agreements;
 
 2.Flexibility to test multiple top statistical models presented in Environment Canada 2011 (Table 55, Table 56) or future reports;
 
-3.The output of the `caribouRSFModel` as a predictor in the `caribouPopGrowthModel` statistical model.This would explicitly link these two modules by using high quality habitat as a predictor of caribou recruitment  (sensu Environment Canada 2011, Table 55, model M12).
+3.The output of the `caribouRSFModel` as a predictor in the `caribouPopGrowthModel` statistical model.This would explicitly link these
+two modules by using high quality habitat as a predictor of caribou recruitment  (sensu Environment Canada 2011, Table 55, model M12).
 
-4.A statistical relationship between recruitment and landscape change that is specific to the NWT (addressing assumption # 1 and 4 of the module assumptions above);
+4.A statistical relationship between recruitment and landscape change that is specific to the NWT (addressing assumption # 1 and 4 of
+the module assumptions above);
 
-5.A statistical relationship between adult female survival and landscape change that is specific to the NWT (addressing assumption # 2 above);
+5.A statistical relationship between adult female survival and landscape change that is specific to the NWT (addressing assumption # 2
+above);
 
-6.Incorporation of a caribou population model that is both logistic (i.e. density dependent) and/ or stochastic to look at projected variations in population size. 
+6.Incorporation of a caribou population model that is both logistic (i.e. density dependent) and/ or stochastic to look at projected
+variations in population size. 
 
-
-
-
-
-\textcolor{blue}{FireSense}: This group of modules is here composed of four submodules. `fireSense_FrequencyFit` fits a statistical model used to parameterize the fire ignition component of `fireSense`. `fireSense_FrequencyPredict` predicts fire frequency or rates of fire counts using the model fitted with the `fireSense_FrequencyFit` module. Those are then used to feed the ignition component of `fireSense`. `fireSense_EscapeFit` fits a statistical model used to parameterize the fire escape component of `fireSense`. `fireSense_EscapePredict` predicts fire escape probabilities using the model fitted with the `fireSense_EscapeFit` module. Those are then used to feed the fire escape component of `fireSense`. `fireSense` determines where fires start and then passes the fire locations to `scfm` which will propagate the fires.
-
-
-## Mario still to finalize ##
-\textcolor{blue}{anthropogenic}: To be completed by MT.
 
 ### Update and/or install all needed packages
 

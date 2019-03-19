@@ -34,3 +34,9 @@
 	path = modules/birdsNWT
 	url = git@github.com:tati-micheletti/birdsNWT.git
 	branch = master
+[submodule "caribouRSF"]
+	path = caribouRSF
+	url = git@github.com:tati-micheletti/caribouRSF.git
+[submodule "modules/caribouRSF"]
+	path = modules/caribouRSF
+	url = git@github.com:tati-micheletti/caribouRSF.git

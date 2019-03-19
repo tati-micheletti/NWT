@@ -607,3 +607,42 @@ cohortDataRed <- SpaDES.tools::rasterizeReduced(cohortData[, list(pixelGroup, su
                                                   pixelGroupMap, "sumB", "pixelGroup")
 ```
 
+## Literature cited - still to check and add
+
+Bergeron, Y. Dominic, D., Girardin, M. P. and Carcaillet, C. (2010) Will climate change drive 21st century burn rates in Canadian boreal
+forest outside of its natural variability: collating global climate model experiments with sedimentary charcoal data. International
+Journal of Wildland Fire 19, 1127-1139. doi: 10.1071/WF09092
+
+Environment Canada. (2012). Recovery Strategy for the Woodland Caribou (Rangifer tarandus caribou), Boreal population, in Canada -2012.
+Species at Risk Act Recovery (138 pp.) Accessed online August 10, 2018 at
+http://publications.gc.ca/collections/collection_2012/ec/En34-140-2012-eng.pdf.
+
+Environment Canada. (2011). Scientific Assessment to Inform the Identification of Critical Habitat for Woodland Caribou (Rangifer
+tarandus caribou), Boreal Population, in Canada: 2011 Update. Ottawa, Ontario, Canada. 102 pp. plus appendices.
+
+Environment Canada. (2008). Scientific Review for the Identification of Critical Habitat for Woodland Caribou (Rangifer tarandus
+caribou), Boreal Population, in Canada. August 2008. Ottawa: Environment Canada. 72 pp. plus 180 pp Appendices.
+
+Fretwell, S. D., and J. H. J. Lucas. (1970). On territorial behavior and other factors influencing habitat distribution in birds. Acta
+Biotheoretica 19:16–36.
+
+Government of the Northwest Territories. (2019). A Framework for Boreal Caribou Range Planning: Revised Draft - Appendices. Environment
+and Natural Resources, Government of the Northwest Territories, Yellowknife, NT. 38 + ii pp.
+
+Hatter, I.W. and Bergerud, W.A., (1991). Moose recruitment, adult mortality and rate of change. Alces, 27, pp.65-73.
+
+Hervieux, D., Hebbelwhite, M., Stepinsky, D., Bacon, S., and Boutin, S. (2014). Managing wolves (Canis lupus) to recover threatened
+woodland caribou (Rangifer tarandus caribou) in Alberta. Can. J. Zool. 92(12), 1029-1037. doi: 10.1139/cjz-2014-0142
+
+Manly, B. F. J., L. L. McDonald, D. L. Thomas, T. L. McDonald, and W. P. Erickson, editors. (2002). Resource selection by animals:
+statistical analysis and design for field studies. Second Edition. Kluwer, Boston, USA.
+
+Mcloughlin, P.D., Dzus, E., Wynes, B.O.B. and Boutin, S. (2003). Declines in populations of woodland caribou. The Journal of Wildlife
+Management, pp.755-761.
+
+Sorensen, T., McLoughlin, P.D., Hervieux, D., Dzus, E., Nolan, J., Wynes, B. and Boutin, S. (2008). Determining Sustainable Levels of
+Cumulative Effects for Boreal Caribou. J. Wildlife Manag., 72, 900–905. doi: 10.2193/2007-079
+
+Sutherland, G.D., Schmiegelow, F.K.A., Johnson, C-A., McIntire, E.J., LeBlond, M., Jagodzinski, R. A simple empirically-linked
+demographic model to estimate likelihoods of recovering population of boreal caribou (Rangifer tarandus caribou). In preparation.
+

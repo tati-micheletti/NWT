@@ -1,7 +1,7 @@
 ---
-title: "runMe"
+title: "runMe_V2"
 author: "Tati Micheletti"
-date: "1/17/2019"
+date: "3/13/2019"
 output: html_document
 ---
 
@@ -257,19 +257,8 @@ we explicitly specify the modules to be run, and the running time for the simula
 
 modulesLandR_SCFM <- list("scfmLandcoverInit", "scfmRegime", "scfmDriver", "scfmIgnition", "scfmEscape", "scfmSpread",
                           "Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR")
-# modulesSCFM <- list("scfmLandcoverInit", "scfmRegime", "scfmDriver", "scfmIgnition", "scfmEscape", "scfmSpread")
-# modulesLandR <- list("Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR")
-# modulesBirds <- list("birdsNWT")
-# modulesBirds_Fire <- list("scfmLandcoverInit", "scfmRegime", "scfmDriver", "scfmIgnition", "scfmEscape", "scfmSpread",
-#                           "Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR",
-#                           "birdsNWT")
-# modulesBirdsFireCaribou <- list("scfmLandcoverInit", "scfmRegime", "scfmDriver", "scfmIgnition", "scfmEscape", "scfmSpread",
-#                                 "Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR",
-#                                 "birdsNWT",
-#                                 "caribouRecDistRelationship", "caribouPopGrowthModel") # Still need to implement the disturbance
-# modulesWetland <- list("waterlandClassification")
 
-times <- list(start = 0, end = 100)
+times <- list(start = 0, end = if (isTest) 3 else 100)
 
 ```
 
@@ -293,19 +282,6 @@ defaultPlotInterval <- 1.0
 defaultInitialSaveTime <- NA #don't be saving nuffink
 
 parameters <- list(
-  # Caribou
-  caribouPopGrowthModel = list(
-    ".plotInitialTime" = NULL,
-    "recoveryTime" = 40
-  ),
-  # BirdsNWT
-  birdsNWT = list(
-    "baseLayer" = 2005,
-    "overwritePredictions" = TRUE,
-    "useTestSpeciesLayers" = FALSE,
-    "useParallel" = TRUE,
-    "predictionInterval" = 1
-  ),
   #SCFM
     ".progress" = list(type = "text", interval = 1),
     scfmLandcoverInit = list(
@@ -391,9 +367,9 @@ sppEquivalencies_CA[, NWT := c(Abie_Bal = "Abie_Bal",
                                Pice_Mar = "Pice_Mar", 
                                Pinu_Ban = "Pinu_Ban", 
                                Pinu_Con = "Pinu_Con", 
-                               Popu_Bal = "Popu_Bal", 
+                               Popu_Bal = "Popu_Tre", 
                                Popu_Tre = "Popu_Tre",
-                               Popu_Tri = "Popu_Bal")[Boreal]]
+                               Popu_Tri = "Popu_Tre")[Boreal]]
 
 # knitr::kable(sppEquivalencies_CA[NWT %in% NWTsp])
 # create color palette for species used in model
@@ -411,7 +387,6 @@ And finally, we load the objects used by this group of modules:
 ``` {r objects}
 
 .objects <- list(
-  "birdsList" = c("BBWA", "BOCH"), ### JUST TO TEST. REMOVE ONCE WORKING
   "rasterToMatch" = rasterToMatch,
   "studyAreaLarge" = studyAreaNWT,
   "sppEquiv" = sppEquivalencies_CA,
@@ -419,8 +394,7 @@ And finally, we load the objects used by this group of modules:
   "sppColors" = sppColors,
   "omitNonVegPixels" = TRUE,
   "cloudFolderID" = cloudFolderID,
-  "studyArea" = studyAreaNWT,
-  "currentPop" = 6500
+  "studyArea" = studyAreaNWT
   )
 
 ```
@@ -439,68 +413,92 @@ outputsLandR <- data.frame(
                  "summaryBySpecies1",
                  "simulationOutput",
                  "pixelGroupMap",
-                 "simulatedBiomassMap"), each = succTS),
+                 "simulatedBiomassMap"), each = length(succTS)),
   saveTime = c(rep(succTS, times = 8))
 )
 
 ```
 
-And finally the simulation call (note that the argument `debug = TRUE` lists all processes that are happening):
+And finally the simulation call (note that the argument `debug = 2` lists all processes that are happening):
 
 ```{r call}
 
-# Other combinations of module that can be used
-# SCFM <- simInitAndSpades(times = times,
-#                          params = parameters,
-#                          modules = modulesSCFM,
-#                          objects = .objects, paths = paths,
-#                          loadOrder = unlist(modulesSCFM), debug = 2)
-assign(paste0("LandR_SCFM", runVersion), value = simInitAndSpades(times = times, params = parameters,
+assign(paste0("LandR_SCFM_", runVersion), value = simInitAndSpades(times = times, params = parameters,
                     modules = modulesLandR_SCFM,
                     objects = .objects, paths = paths,
                     loadOrder = unlist(modulesLandR_SCFM),
                     outputs = outputsLandR, debug = 2))
-# LandR_Biomass <- simInitAndSpades(times = times, params = parameters,
-#                     modules = modulesLandR,
-#                     objects = .objects, paths = paths,
-#                     loadOrder = unlist(modulesLandR),
-#                     outputs = outputsLandR, debug = 2)
-# birds <- simInitAndSpades(times = times, params = parameters,
-#                     modules = modulesBirds,
-#                     objects = .objects, paths = paths,
-#                     loadOrder = unlist(modulesBirds), debug = 2)
-# birdsAndFire <- simInitAndSpades(times = times, params = parameters,
-#                     modules = modulesBirds_Fire,
-#                     objects = .objects, paths = paths,
-#                     loadOrder = unlist(modulesBirds_Fire),
-#                     outputs = outputsLandR, debug = 2)
-
-# Most complete model to run
-# birdsFireCaribou <- simInitAndSpades(times = times, params = parameters,
-#                     modules = modulesBirdsFireCaribou,
-#                     objects = .objects, paths = paths,
-#                     loadOrder = unlist(modulesBirdsFireCaribou),
-#                     outputs = outputsLandR, debug = 2)
-
-# assign(paste0("birdsFireCaribou", runVersion), value = simInitAndSpades(times = times, params = parameters,
-#                     modules = modulesBirdsFireCaribou,
-#                     objects = .objects, paths = paths,
-#                     loadOrder = unlist(modulesBirdsFireCaribou),
-#                     outputs = outputsLandR, debug = 2))
 
 # To save a run
 if (!isTest){
 saveRDS(object = get(paste0("LandR_SCFM", runVersion)), 
-        file = file.path(paths$outpu, paste0("birdsFireCaribou", runVersion,"_", toupper(format(Sys.time(), "%d%b%y")))))
+        file = file.path(paths$outputPath, paste0("birdsFireCaribou", runVersion,"_", toupper(format(Sys.time(), "%d%b%y")))))
 }
 ```
 
+### Then we can run birds using the succession model
+```{r birds}
+
+modulesBirds <- list("birdsNWT")
+
+parametersBirds <- list(
+  # BirdsNWT
+  birdsNWT = list(
+    "baseLayer" = 2005,
+    "overwritePredictions" = TRUE,
+    "useTestSpeciesLayers" = FALSE,
+    "useParallel" = TRUE,
+    "predictionInterval" = 1
+  )
+)
+
+.objectsBirds <- list(
+  "rasterToMatch" = rasterToMatch,
+  "cloudFolderID" = cloudFolderID,
+  "studyArea" = studyAreaNWT,
+  "currentPop" = 6500
+  )
+
+# assign(paste0("birds", runVersion), value = simInitAndSpades(times = times, params = parametersBirds,
+#                     modules = modulesBirds,
+#                     objects = .objectsBirds, paths = paths,
+#                     loadOrder = unlist(modulesBirds),
+#                     outputs = outputsLandR, debug = 2))
+```
+
+
+### Now Caribous
+```{r caribou}
+
+modulesCaribou <- list("caribouRecDistRelationship", "caribouPopGrowthModel")
+
+parametersCaribou <- list(
+  # Caribou
+  caribouPopGrowthModel = list(
+    ".plotInitialTime" = NULL,
+    "recoveryTime" = 40
+  )
+)
+
+.objectsCaribou <- list(
+  "birdsList" = c("BBWA", "BOCH"), ### JUST TO TEST. REMOVE ONCE WORKING
+  "rasterToMatch" = rasterToMatch,
+  "cloudFolderID" = cloudFolderID,
+  "studyArea" = studyAreaNWT
+  )
+
+# assign(paste0("caribous", runVersion), value = simInitAndSpades(times = times, params = parametersCaribou,
+#                     modules = modulesCaribou,
+#                     objects = .objectsBirds, paths = paths,
+#                     loadOrder = unlist(modulesCaribou),
+#                     outputs = outputsLandR, debug = 2))
+```
 
 ### Extracting some posthoc plots
 
 ```{r extra_plots}
 
-df <- comparePredictions(polyList = names(birdsFireCaribouV2$scfmDriverPars), simList = birdsFireCaribouV2) %>%
+df <- comparePredictions(polyList = names(LandR_SCFMV3$scfmDriverPars), simList = LandR_SCFMV3) %>%
   data.table::rbindlist()
 
 firePlots <- firePosthocPlots(df = df)
@@ -520,17 +518,3 @@ cohortDataRed <- SpaDES.tools::rasterizeReduced(cohortData[, list(pixelGroup, su
                                                   pixelGroupMap, "sumB", "pixelGroup")
 ```
 
-### RESULTS V1
-It is important to note that the version 1 of the integrated model contains only the following modules:
-LandR_Biomass: forest succession
-scfm: simple fire model
-caribouPopGrowth: simple population growth model
-birdsNWT: birds model
-
-Disadvantages of this version:
-1. It completely lacks climate sensitivity (vegetation dynamics and in the fire model)
-2. scfm *might* be underestimating fires
-3. Caribou is showing population instead of lambda
-4. Caribou pop growth lacks K, environmental stochasticity, has only one model (M3)
-5. Reporting for Caribou population growth is for 
-6. No caribouRSF

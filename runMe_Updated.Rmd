@@ -113,6 +113,8 @@ modeling projects;
 Insert figures here:
 Boreal_caribou_NT1_range_planning_regions_2018.jpg
 Units_for_ECCC_modeling_project_2019.jpg
+![Boreal caribou NT1 range planning regions (2018).](PATH TO FILE)
+![Units for ECCC modeling project 2019.] (PATH TO FILE)
 
 The population model used to estimate lambda on a yearly time interval is well published for both caribou and other ungulates (Hatter
 and Bergerud 1991; McLoughlin et al. 2003; Sorensen et al. 2006; Hervieux et al. 2014):
@@ -125,7 +127,6 @@ planning area, over the simulated time interval (100 years; 2010 through 2110). 
 information regarding these output plots.
 
 *Important assumptions of the `caribouPopGrowthModel` module*
-
 1.The statistical relationship between recruitment and the landscape described by Environment Canada is the correct relationship for all 
 Northwest Territories boreal caribou local population units. (Model M3, EC 2011 Table 56). This relationship was determined from 24
 boreal caribou study areas across Canada ( N = 24), and lacks information on study areas primarily driven by fire (EC 2011, Figure 67).
@@ -140,7 +141,7 @@ modules.
 4.We assume that caribou do not move between the requested regions and planning areas of the NWT (i.e. the ‘Proposed caribou Range
 Planning Regions’ and requested ‘Units for ECCC modeling projects’); we assume these areas are functionally isolated from one another.
 
-
+*Next steps of the `caribouPopulationGrowthModel` module*
 Future versions of the `caribouPopGrowthModel` module could address many of the above assumptions. An updated module could incorporate;
 1.Revised caribou study areas (or local population units - the recommended scale of population management; Environment Canada 2012),
 demographic values, and/or statistical models to incorporate contemporary data under updated data sharing agreements;

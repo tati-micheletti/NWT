@@ -128,6 +128,17 @@ system(paste0("cd ", getwd(),
               " && git pull"), wait = TRUE)
 message("These are the specific commits and branches of each submodule:")
 system("git submodule", wait = TRUE) # checks if the branches and commits you are using are the correct ones
+
+# Submodules and commits used in V3
+# ee593bdc17cd434c7d29588eed10bdfef8f2c6d6 modules/Biomass_regeneration (heads/development)
+# ff8672f5ebd39c422097949f849d8d08a73628d5 modules/Boreal_LBMRDataPrep (heads/development)
+# 71fdbd42257b5102134098e3be0e29d5c6a57182 modules/LBMR (heads/development)
+# 2aca6167850583693251b0847859a5ab6527d2c4 modules/LandR_BiomassGMOrig (heads/development)
+# 1cb234f64493c19590b0ea24c6221d491bf06699 modules/birdsNWT (heads/master)
+# e8fcf9c29cae36a510eabbcc8773b81f89dc5eae modules/caribouPopGrowthModel (heads/master)
+# 48d28c298621bbcc9dab559e0e5a65205c6f232f modules/caribouRecDistRelationship (heads/master)
+# 3e1fb3ba63ac29b8386bebbff5ce833ee2c77d7a modules/fireSense_NWT_DataPrep (heads/master)
+# e07c663a5c8e88bc9a89d7b499a8c32f79e02a88 modules/scfm (heads/development)
 ```
 
 Now we can start setting up the simulations.
@@ -281,6 +292,9 @@ defaultInterval <- 1.0
 defaultPlotInterval <- 1.0
 defaultInitialSaveTime <- NA #don't be saving nuffink
 
+# cacheId of the BorealDataPrep with the correct uniqueEcoregionGroups = "b2209ccb1cb19ee1"
+# Use it explicitly if cache doesn't work for some reason
+
 parameters <- list(
   #SCFM
     ".progress" = list(type = "text", interval = 1),
@@ -317,7 +331,7 @@ parameters <- list(
   LBMR = list(
     ".useParallel" = 3,
     ".plotInitialTime" = NA,
-    ".saveInitialTime" = 0,
+    ".saveInitialTime" = NA,
     "seedingAlgorithm" = "wardDispersal",
     ".useCache" = FALSE,
     "successionTimestep" = 10,
@@ -367,9 +381,12 @@ sppEquivalencies_CA[, NWT := c(Abie_Bal = "Abie_Bal",
                                Pice_Mar = "Pice_Mar", 
                                Pinu_Ban = "Pinu_Ban", 
                                Pinu_Con = "Pinu_Con", 
-                               Popu_Bal = "Popu_Tre", 
-                               Popu_Tre = "Popu_Tre",
-                               Popu_Tri = "Popu_Tre")[Boreal]]
+                               Popu_Bal = "Popu_Bal", 
+                               Popu_Tre = "Popu_Tre")[Boreal]]
+
+sppEquivalencies_CA <- sppEquivalencies_CA[!is.na(NWT)]
+sppEquivalencies_CA$EN_generic_short <- sppEquivalencies_CA$NWT
+# Fix EN_generic_short for plotting. Needs to hall all names. Don't have time now.
 
 # knitr::kable(sppEquivalencies_CA[NWT %in% NWTsp])
 # create color palette for species used in model
@@ -413,8 +430,10 @@ outputsLandR <- data.frame(
                  "summaryBySpecies1",
                  "simulationOutput",
                  "pixelGroupMap",
-                 "simulatedBiomassMap"), each = length(succTS)),
-  saveTime = c(rep(succTS, times = 8))
+                 "simulatedBiomassMap",
+                 "ANPPMap",
+                 "mortalityMap"), each = length(succTS)),
+  saveTime = c(rep(succTS, times = 10))
 )
 
 ```
@@ -431,14 +450,14 @@ assign(paste0("LandR_SCFM_", runVersion), value = simInitAndSpades(times = times
 
 # To save a run
 if (!isTest){
-saveRDS(object = get(paste0("LandR_SCFM", runVersion)), 
+saveRDS(object = get(paste0("LandR_SCFM_", runVersion)), 
         file = file.path(paths$outputPath, paste0("birdsFireCaribou", runVersion,"_", toupper(format(Sys.time(), "%d%b%y")))))
 }
 ```
 
 ### Then we can run birds using the succession model
 ```{r birds}
-
+# FOR THIS I NEED TO SET ALL THE NEW PATHS (INPUT PATH NEEDS TO BE THE CURRENT OUTPUT PATH...)
 modulesBirds <- list("birdsNWT")
 
 parametersBirds <- list(
@@ -498,7 +517,7 @@ parametersCaribou <- list(
 
 ```{r extra_plots}
 
-df <- comparePredictions(polyList = names(LandR_SCFMV3$scfmDriverPars), simList = LandR_SCFMV3) %>%
+df <- comparePredictions(polyList = names(LandR_SCFM_V3$scfmDriverPars), simList = LandR_SCFM_V3) %>%
   data.table::rbindlist()
 
 firePlots <- firePosthocPlots(df = df)
@@ -509,12 +528,37 @@ lapply(X = firePlots, FUN = print)
 createBirdsGIF(simList = birdsFireCaribouV2, version = "V2")
 
 # For the cohortData biomass, need to use
-cohortData <- rbindlist(lapply(X = times$start:times$end, FUN = function(year){
-  cohort <- readRDS(file.path(getwd(), paste0("outputs/cohortData_Year", year, ".rds")))
+cohortData <- rbindlist(lapply(X = seq(times$start, times$end, by = 10), FUN = function(year){
+  if (year != 100 & year != 0)
+    cohort <- readRDS(file.path(getwd(), paste0("outputs/14MAR19/cohortData_year0", year, ".rds")))
+  if  (year == 100)
+    cohort <- readRDS(file.path(getwd(), paste0("outputs/14MAR19/cohortData_year", year, ".rds")))
+  if (year == 0)
+    cohort <- readRDS(file.path(getwd(), paste0("outputs/14MAR19/cohortData_year00", year, ".rds"))) 
+  cohort$year <- year
   return(cohort)
 }))
 
-cohortDataRed <- SpaDES.tools::rasterizeReduced(cohortData[, list(pixelGroup, sumB = sum(B)), by = "pixelGroup"], 
-                                                  pixelGroupMap, "sumB", "pixelGroup")
+pixelGroupMapList <- lapply(X = seq(times$start, times$end, by = 10), FUN = function(year){
+  if (year != 100 & year != 0)
+    pxl <- readRDS(file.path(getwd(), paste0("outputs/14MAR19/pixelGroupMap_year0", year, ".rds")))
+  if  (year == 100)
+    pxl <- readRDS(file.path(getwd(), paste0("outputs/14MAR19/pixelGroupMap_year", year, ".rds")))
+  if (year == 0)
+    pxl <- readRDS(file.path(getwd(), paste0("outputs/14MAR19/pixelGroupMap_year00", year, ".rds"))) 
+  return(pxl)
+})
+names(pixelGroupMapList) <- paste0("Year", seq(times$start, times$end, by = 10))
+
+biomassMapAll <- lapply(X = seq(times$start, times$end, by = 10), function(year){
+  cohortMap <- SpaDES.tools::rasterizeReduced(cohortData[year == year, list(pixelGroup, sumB = sum(B)), by = "pixelGroup"], 
+                                                  pixelGroupMapList[[paste0("Year", year)]], "sumB", "pixelGroup")
+  names(cohortMap) <- paste0("biomassYear", year)
+  return(cohortMap)
+})
+names(biomassMapAll) <- paste0("biomassYear", seq(times$start, times$end, by = 10))
+biomassMapAll <- stack(biomassMapAll)
+writeRaster(x = biomassMapAll, filename = file.path(paths$outputPath, "biomassMapStack"))
+
 ```
 

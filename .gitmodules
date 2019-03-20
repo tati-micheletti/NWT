@@ -26,11 +26,10 @@
 	path = modules/caribouPopGrowthModel
 	url = git@github.com:tati-micheletti/caribouPopGrowthModel.git
         branch = master
-[submodule "modules/caribouRecDistRelationship"]
-	path = modules/caribouRecDistRelationship
-	url = git@github.com:tati-micheletti/caribouRecDistRelationship.git
-        branch = master
 [submodule "modules/birdsNWT"]
 	path = modules/birdsNWT
 	url = git@github.com:tati-micheletti/birdsNWT.git
 	branch = master
+[submodule "modules/caribouRSF"]
+	path = modules/caribouRSF
+	url = git@github.com:tati-micheletti/caribouRSF.git

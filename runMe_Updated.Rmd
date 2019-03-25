@@ -8,31 +8,34 @@ output: html_document
 ## Simulation of effects of climate change on fire regime: implications for Boreal Caribou and
 landbird communities in the Northwest Territories
 
-The proposed work integrates simulation models of vegetation dynamics and wildfire with 
+The proposed work integrates simulation models of vegetation dynamics, wildfire, and anthropogenic change with 
 statistical models of songbird abundances and woodland caribou demographic parameters. The
 integrated model is used to forecast the spatial distribution of selected songbird species and
-the regional potential to sustain viable populations of woodland caribou, under climate change
-over the 21 st century. Other applications are quantifying the overlap
+the regional potential to sustain viable populations of woodland caribou, ##under climate change##
+over the 21st century. Other applications include quantifying the overlap
 between areas of high conservation value for birds and for caribou, and evaluating the
 conservation potential in these respects of specific candidate protected areas. The integrated
-model is implemented as a suite of modules in SpaDES, a new R-based environment for
+model is implemented as a suite of eight modules in SpaDES (Chubaty and McIntire 2017), a new R-based environment for
 developing and running spatial simulations over large spatial extents. The spatial extent of this
-work is BCR 6 as contained within the Northwest Territories of Canada. The spatial resolution of 
-the vegetation dynamics and avian habitat forecasts is 250m.
+work is BCR 6 as contained within the Northwest Territories of Canada. ##The spatial resolution of 
+the vegetation dynamics and avian habitat forecasts is 250m.##
 
-### General objectives
+
+### General project components
 
 Item #1: Species Abundance Models (SAMs) for landbirds under current conditions.
-Item #2: Land change simulation (2000-2100)
-Item #3 Demographic models for caribou, SAMs for landbirds, co-occurrence under future
-conditions
+Item #2: Land change simulation (2000-2100) ## and climate change?
+Item #3 Demographic models for caribou and SAMs for landbirds under future conditions ## co-occurrence?
+
 
 ### Integrated modules overview
 
 The metamodule is composed of 8 parent modules (i.e. groups of modules), as follows:
-![Module structure that composes the NWT project.](https://github.com/tati-micheletti/NWT/raw/master/inputs/ModelStructure_2.jpg)
+![ Figure 1. Module structure that composes the NWT project]
+(https://github.com/tatimicheletti/NWT/raw/master/inputs/ModelStructure_2.jpg)
 
 The structure and methods used for each one of the modules is as follows:
+
 
 \textcolor{blue}{LandR}: This group of modules is composed of one module and one group of modules. The first module,
                          `Boreal_LBMRDataPrep` calculates  site-specific parameters (ie BRC6 within NWT) needed by the biomass 
@@ -44,14 +47,15 @@ The structure and methods used for each one of the modules is as follows:
                          LandR needs at least these last three modules to work.
 
 
-\textcolor{blue}{FireSense}: This group of modules is here composed of four submodules. `fireSense_FrequencyFit` fits a statistical
+\textcolor{blue}{FireSense}: This group of modules is composed of four submodules. `fireSense_FrequencyFit` fits a statistical
                               model used to parameterize the fire ignition component of `fireSense`. `fireSense_FrequencyPredict`
                               predicts fire frequency or rates of fire counts using the model fitted with the `fireSense_FrequencyFit`
-                              module. Those are then used to feed the ignition component of `fireSense`. `fireSense_EscapeFit` fits a
-                              statistical model used to parameterize the fire escape component of `fireSense`. `fireSense_EscapePredict`
-                              predicts fire escape probabilities using the model fitted with the `fireSense_EscapeFit` module. Those are
-                              then used to feed the fire escape component of `fireSense`. `fireSense` determines where fires start and
-                              then passes the fire locations to `scfm` which will propagate the fires.
+                              module. These two modules are then used to feed the ignition component of `fireSense`;
+                              `fireSense_EscapeFit` fits a statistical model used to parameterize the fire escape component of
+                              `fireSense`, and `fireSense_EscapePredict` predicts fire escape probabilities using the model fitted with
+                              the `fireSense_EscapeFit` module. These two ignition modules are then used to feed the fire escape
+                              component of `fireSense`; `fireSense` determines where fires start and then passes the fire locations to
+                              `scfm` which will propagate the fires.
 
 
 ## Mario still to finalize ##
@@ -59,20 +63,51 @@ The structure and methods used for each one of the modules is as follows:
 IMPORTANT ASSUMPTION TO ADD: This module does not model seismic lines - see caveate for `caribouPopGrowthModel`
 
 
-## Diana still to finalize - Steve asks for more details on the ARUs, point counts, and MEE offsets ###
 \textcolor{blue}{birdsNWT}: The birds module loads an existing glm object for each sp located in  
                             https://drive.google.com/open?id=1obSvU4ml8xa8WMQhQprd6heRrN47buvI. 
-                            The model uses dynamic (vegetation: biomass of tree species) and static
-                            layers (Non-veg: WAT = water (1/0), URBAG = urban/agriculture (1/0),
-                            lLED25 = lake edge density with 5x5 moving window (continuous), 
-                            DEV25 = development proportion within 5x5 moving window (continuous),
-                            and landform (categorical). North American landcover 2005 (MODIS) is
-                            source for all but landform (from AdaptWest land facet datset). 
-                            Vector ruggedness (already available - 
-                            https://drive.google.com/open?id=1dgIw70mDpDYrBExA52SkPoS1TFaZdLE9) 
-                            and road density (that should be available from the Anthropogenic
-                            module) will be added to the nect version of these models. The birds' 
-                            prediction is masked to uplands as we do not have data for lowlands. 
+
+The bird module develops boosted regression tree (BRT) models from avian point-count data and associated covariates using the gbm.step
+function in the ‘dismo’ package (Hijmans et al. 2011) with a Poisson distribution and 10-fold cross-validation. BRT settings are as
+recommended by Elith et al. (2008) and are consistent with Stralberg et al. (2015). The module includes a ‘brtplot’ function that, for a
+given BRT model object, summarizes cross-validation statistics and variable importance (csv output), generates partial dependence plots
+(pdf output), generates spatial predictions from input data layers (geotiff format), and generates maps of spatial predictions
+(png format). The ‘cvsum’ function summarizes cross-validation statistics across species.
+
+Avian data for BCR 6 were extracted from the Boreal Avian Modelling project avian dataset (Cumming et al. 2010, Barker et al. 2015) and
+supplemented with data from automated recording units (ARU) collected by ECCC (Haché et al. unpublished data) and the University of
+Alberta Bioacoustic Unit (Bayne et al. unpublished data). Density offsets were calculated according to methods described in Sólymos et
+al. (2013), and were based on the assumption that ARU data detectability is similar to detectability by human observers (Yip et al.
+2017).
+
+Bird models were based on a restricted set of covariates that were either (a) assumed static over time or (b) direct outputs of the
+`LandR` biomass module. We intentionally excluded climate covariates that also drive changes in vegetation and fire, given the assumed
+lag in vegetation response to climate, and associated statistical decoupling of these covariates over time (Figure 1).
+
+Model covariates assumed static through simulation periods included the following landcover covariates derived from  the Comission for
+Environmental Cooperation (CEC) North American Landcover 2005:
+
+WAT = water (1/0) 
+URBAG = urban/agriculture (1/0)
+LED25 = water proportion within 5x5 moving window (continuous) 
+DEV25 = development proportion within 5x5 moving window (continuous)
+
+We also included a categorical landform covariate derived from AdaptWest’s land facet layer (Michalak et al. 2015), with the following
+class definitions:
+
+1    Valley
+2    Hilltop in Valley
+3    Headwaters
+4    Ridges and Peaks
+5    Plains
+6    Local Ridge in Plain
+7    Local Valley in Plain
+8    Gentle Slopes
+9    Steep Slopes
+
+Model covariates allowed to vary according to simulation outputs were tree species biomass estimates (g/m2) derived from Beaudoin et
+al.’s (2017) predicted biomass layers for 2001 or 2011, depending on the date of survey (pre-2006 was associated with 2001 vegetation;
+2006 and later was associated with 2011 vegetation).
+ 
 
 ## Frances still to finalize - double check methods and assumptions after final modules are run ##
 \textcolor{blue}{caribou}: The `caribou` module is composed of two main modules: `caribouPopGrowthModel` and
@@ -669,6 +704,9 @@ writeRaster(x = biomassMapAll, filename = file.path(paths$outputPath, "biomassMa
 Bergeron, Y. Dominic, D., Girardin, M. P. and Carcaillet, C. (2010) Will climate change drive 21st century burn rates in Canadian boreal
 forest outside of its natural variability: collating global climate model experiments with sedimentary charcoal data. International
 Journal of Wildland Fire 19, 1127-1139. doi: 10.1071/WF09092
+
+Chubaty, A.M. and McIntire, E.J.B., 2017. SpaDES: Develop and Run Spatially Explicit Discrete Event Simulation Models. R package
+version, 2(0).
 
 Environment Canada. (2012). Recovery Strategy for the Woodland Caribou (Rangifer tarandus caribou), Boreal population, in Canada -2012.
 Species at Risk Act Recovery (138 pp.) Accessed online August 10, 2018 at

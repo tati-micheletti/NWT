@@ -857,7 +857,7 @@ Stralberg, D., S. M. Matsuoka, A. Hamann, E. M. Bayne, P. Sólymos, F. K. A. Sch
 Projecting boreal bird responses to climate change: the signal exceeds the noise. Ecological Applications 25:52–69.
 http://dx.doi.org/10.1890/13-2289.1
 
-Sutherland, G.D., Schmiegelow, F.K.A., Johnson, C-A., McIntire, E.J., LeBlond, M., Jagodzinski, R. A simple empirically-linked
+Sutherland, G. D., F. K. A. Schmiegelow, C-A. Johnson, E. J. B. McIntire, M. LeBlond and R. Jagodzinski. A simple empirically-linked
 demographic model to estimate likelihoods of recovering population of boreal caribou (*Rangifer tarandus caribou*). In preparation.
 
 Yip, D. A., L. Leston, E. M. Bayne, P. Sólymos, and A. Grover. 2017. Experimentally derived detection distances from audio recordings

@@ -1,6 +1,6 @@
 ---
 title: "runMe_V2"
-author: "Tati Micheletti", "Frances Stewart"
+author: "Tati Micheletti", "Frances Stewart", "Diana Stralberg", "Jean Marchal", "Ian Eddy", "Mario van Telgen", "Ceres Barros"
 date: "3/13/2019"
 output: html_document
 ---
@@ -106,9 +106,34 @@ class definitions:
 
 Model covariates allowed to vary according to simulation outputs were tree species biomass estimates (g/m2) derived from Beaudoin et
 al.’s (2017) predicted biomass layers for 2001 or 2011, depending on the date of survey (pre-2006 was associated with 2001 vegetation;
-2006 and later was associated with 2011 vegetation).
- 
+2006 and later was associated with 2011 vegetation). Biomass covariates for the following speices were included:
 
+*Abies balsamea, Betula papyrifera, Larix laricina, Picea glauca, Picea mariana, Pinus banksiana, Pinus contorta, Populus balsamifera,
+Populus tremuloides*
+
+Models were developed for 71 passerine and near-passerine species that a) currently breed either in the Northwest Territories or Alberta
+portions of BCR 6, b) for which density offsets were available, and c) for which data were sufficient to fit cross-validated BRTs (see
+list below, in taxonomic order). For this project simulations were generated for 10 species, including:
+
+SWTH    Swainson's Thrush (*Catharus ustulatus*) 
+OVEN    Ovenbird (*Seiurus aurocapilla*)
+AMRE    American Redstart (*Setophaga ruticilla*)
+BLPW    Blackpoll Warbler (*Setophaga striata*) 
+PAWA    Palm Warbler (*Setophaga palmarum*)
+CAWA    Canada Warbler (*Cardellina canadensis*)
+FOSP    Fox Sparrow (*Passerella iliaca*) 
+WCSP    White-crowned Sparrow (*Zonotrichia leucophrys*)
+RUBL    Rusty Blackbird (*Euphagus carolinus*)
+
+*Important assumptions of the `birdsNWT` module*
+
+## COME BACK TO THIS##
+Future versions of the `birdsNWT` module could include:
+1. Simulation for the remaining ## species of passerine and near-passerine birds that breed either in the NWT or Alberta portions of
+BCR6. Species include:
+TABLE HERE.
+
+ 
 \textcolor{blue}{caribou}: The `caribou` module is composed of two main modules:  `caribouRSFModel` and `caribouPopGrowthModel`. Each
                            module loads existing glms developped by Environment Canada 2011 to project caribou occurrence and
                            demographics over 100 years as the anthropogenic (`anthropogenic` module), fire (`FireSense` module), and

@@ -5,26 +5,26 @@ date: "3/13/2019"
 output: html_document
 ---
 
-## Simulating climate change on fire regime: implications for boreal caribou and landbird communities in the Northwest Territories
+## Simulating climate change and fire regime: implications for boreal caribou and landbird communities in the Northwest Territories
 
 The proposed work integrates simulation models of vegetation dynamics, wildfire, and anthropogenic change with 
-statistical models of songbird abundances and woodland caribou demographic parameters. The
+statistical models of songbird abundances and woodland boreal caribou (*Rangifer tarandus caribou*) demographic parameters. The
 integrated model is used to forecast the spatial distribution of selected songbird species and
-the regional potential to sustain viable populations of woodland caribou, under climate change
-over the 21st century. Other applications include quantifying the overlap
+the regional potential to sustain viable populations of woodland boreal caribou, under climate change
+over the 21st century. Other potential applications include quantifying the overlap
 between areas of high conservation value for birds and for caribou, and evaluating the
 conservation potential in these respects of specific candidate protected areas. The integrated
-model is implemented as a suite of eight modules in SpaDES (Chubaty and McIntire 2017), a new R-based environment for
+model is implemented as a suite of eight modules in SpaDES (Chubaty and McIntire 2017), a cutting-edge R-based environment for
 developing and running spatial simulations over large spatial extents. The spatial extent of this
-work is BCR 6 as contained within the Northwest Territories of Canada. ##The spatial resolution of 
+work is Bird Conservation Region (BCR) 6 as contained within the Northwest Territories of Canada. ##The spatial resolution of 
 the vegetation dynamics and avian habitat forecasts is 250m.##
 
 
 ### General project components
 
 Item #1: Species Abundance Models (SAMs) for landbirds under current conditions.
-Item #2: Land change simulation (2000-2100) ## and climate change?
-Item #3: Demographic models for caribou and SAMs for landbirds under future conditions ## co-occurrence?
+Item #2: Land change simulation (2000-2100).
+Item #3: Demographic models for caribou, SAMs for landbirds, co-occurrence under future conditions. 
 
 
 ### Integrated modules overview
@@ -66,12 +66,12 @@ IMPORTANT ASSUMPTION TO ADD: This module does not model seismic lines - see cave
                             https://drive.google.com/open?id=1obSvU4ml8xa8WMQhQprd6heRrN47buvI. ## This module projects the species
                             abundance of each bird species under forecasted landscape and climate conditions ##
 
-The bird module develops boosted regression tree (BRT) models from avian point-count data and associated covariates using the gbm.step
-function in the ‘dismo’ package (Hijmans et al. 2011) with a Poisson distribution and 10-fold cross-validation. BRT settings are as
-recommended by Elith et al. (2008) and are consistent with Stralberg et al. (2015). The module includes a ‘brtplot’ function that, for a
-given BRT model object, summarizes cross-validation statistics and variable importance (csv output), generates partial dependence plots
-(pdf output), generates spatial predictions from input data layers (geotiff format), and generates maps of spatial predictions
-(png format). The ‘cvsum’ function summarizes cross-validation statistics across species.
+The `birdsNWT` module develops boosted regression tree (BRT) models from avian point-count data and associated covariates using the
+gbm.step function in the ‘dismo’ package (Hijmans et al. 2011) with a Poisson distribution and 10-fold cross-validation. BRT settings
+are as recommended by Elith et al. (2008) and are consistent with Stralberg et al. (2015). The module includes a ‘brtplot’ function
+that, for a given BRT model object, summarizes cross-validation statistics and variable importance (csv output), generates partial
+dependence plots (pdf output), generates spatial predictions from input data layers (geotiff format), and generates maps of spatial
+predictions (png format). The ‘cvsum’ function summarizes cross-validation statistics across species.
 
 Avian data for Bird Conseravation Region (BCR) 6 were extracted from the Boreal Avian Modelling project avian dataset (Cumming et al.
 2010, Barker et al. 2015) and supplemented with data from automated recording units (ARU) collected by Environment and Climate Change
@@ -110,16 +110,82 @@ al.’s (2017) predicted biomass layers for 2001 or 2011, depending on the date 
  
 
 ## Frances still to finalize - double check methods and assumptions after final modules are run ##
-\textcolor{blue}{caribou}: The `caribou` module is composed of two main modules: `caribouPopGrowthModel` and
-                           `caribouRSFModel` and
-                           `caribouPopGrowthModel`. Each module loads existing glm objects developped by Environment Canada 2011 to
-                           project caribou occurrence and demographics over 100 years as the anthropogenic (`anthropogenic` module),
-                           fire (`FireSense module), and natural features (‘LandR` module) of the Taiga plains changes. Combined, these
-                           modules incorporate existing statistical relationships, with simulated landscape predictions, to produce the
-                           probability of occurrence, and population growth rate, of Woodland caribou (boreal population) within the
-                           NWT. 
+\textcolor{blue}{caribou}: The `caribou` module is composed of two main modules:  `caribouRSFModel` and `caribouPopGrowthModel`.
+
+Each module loads existing glms developped by Environment Canada 2011 to project caribou occurrence and demographics over 100 years as
+the anthropogenic (`anthropogenic` module), fire (`FireSense` module), and natural features (`LandR` module) of the NWT BCR6 region
+(i.e. Taiga plains) changes. Combined, these modules incorporate existing statistical relationships, with simulated landscape
+predictions, to produce the probability of occurrence, and population growth rate, of Woodland caribou (boreal population) within the
+NWT. 
 
 `caribouRSFModel`
+The statistical relationship between caribou telemetry collars and the landscape has been summarized within the Environment Canada 2011
+Scientific Report as a resource selection function (sensu Manly et al. 2002). This module is based off of the top Taiga Plains ecozone
+resource selection function (Environment Canada 2011; Table 46), generated from data collected from collared adult females from 24
+Alberta, 50 British Columbia, and 169 NWT caribou between 2000 and 2010 (Environment Canada 2011; Table 39).
+
+In the Taiga Plains ecozone, the relative probability of adult female boreal caribou resource selection (0 to 1) is best described by
+(Environment Canada 2011; Table 46):
+
+Relative Selection probability  ~ Elevation + Elevation^2 + Vrug + Vrug^2 + RoadDensity + Deciduous + Shrub                 Eq 1.
+                                                   + Herb + Water + RecentBurn + OldBurn
+
+The definition, and units of measurement, for each of the predictor variables in this relationship can be found in Environment Canada
+2011 Table 40. The methods behind model development can be found throughout Environment Canada 2011 Appendix 7.3. 
+
+Model covariates were assumed to either be static, or were obtained from other modules within this project:
+1  Elevation (static; DEM)
+2  Vrug (static; DEM)
+3  RoadDensity (dynamic; `anthropogenic`)
+4  Deciduous (dynamic; `LandR`)
+5  Shrub (static; LCC05)
+6  Herb (static; LCC05)
+7  Water (static; LCC05)
+8  RecentBurn (dynamic;  `FireSense`)
+9  OldBurn (dynamic; `FireSense`)
+
+This module determines the relative probability of use (0-1) of caribou based on each of the above habitats on a yearly time step. This
+module produces a rasterized map of these occurrences across the NT1 Boreal Caribou Range (i.e. BCR6 within the NWT).
+
+
+Insert Figure here:
+
+Boreal_caribou_NT1_range_planning_regions_2018.jpg
+
+
+*Important assumptions of the `caribouRSFModel` module*
+1.Caribou are distributed in an ideal free distribution across the Taiga plains (Fretwell and Lucas 1970).
+
+
+2.Resource selection leads to increased population fitness and population density (Manly et al. 2002). The resource selection documented here is a relative probability, rather than true probability, as we used a use-available design (Manly et al. 2002).
+
+
+3.The Taiga ecozone RSF model developed by Environment Canada 2011 reliably predicts the relative probability of occurrence for woodland boreal caribou (see section 6.2.4 Environment Canada 2011) for reasons this assumption may be violated.
+
+
+4.Shrub and Herbacious landcover remains constant across the simulation period (2010 to 2110).
+
+
+5.There was no bias in the selection of caribou collared for VHF data - these caribou were not collared solely for monitoring of the impacts of natural resource development projects, or other motives.
+
+
+6.There is no seasonal habitat selection; the RSF model used here incorporates is based off of annual caribou occurrences, and does not account for seasonal variations.
+
+
+7.OldBurns are considered to be anything older than 40 years. We assume that OldBurns are between 41 and 93 years old, as this would have been the maximum time since fire that was quantifiable in Environment Canada 2011 (Appendix 7.3, section 5.3 - 1917 to 2010). 
+
+
+
+
+Future versions of the `caribouPopGrowtModel` module could incorporate;
+1.Incorporation of the national realized caribou RSF model (Environment Canada 2011; Table 43) which has higher predictive capacity than the Taiga Plains RSF modeled here. 
+
+
+2.Uncertainty maps could be provided for each STUDY REGION.
+
+
+
+
 
 
 `caribouPopGrowthModel`

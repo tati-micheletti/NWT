@@ -124,14 +124,24 @@ CAWA    Canada Warbler (*Cardellina canadensis*)
 FOSP    Fox Sparrow (*Passerella iliaca*) 
 WCSP    White-crowned Sparrow (*Zonotrichia leucophrys*)
 RUBL    Rusty Blackbird (*Euphagus carolinus*)
+RCKI    Ruby-crowned Kinglet (*Regulus calendula*) 
+
 
 *Important assumptions of the `birdsNWT` module*
+1. Density offsets assume that ARU data detectability is similar to detectability by human observers (sensu Yip et al. 2017).
 
-## COME BACK TO THIS##
+2. We assume a lag in vegetation response to climate and therefore do not include climate covariates within this module that drive
+changes in vegetation and fire.
+
+3. The relative abundance of bird species is based on variabtion in occurence, rather than  variations in movement (Stewart et al. 2018;
+Neilson et al. 2018; Hofmester et al. 2019).
+
 Future versions of the `birdsNWT` module could include:
-1. Simulation for the remaining ## species of passerine and near-passerine birds that breed either in the NWT or Alberta portions of
-BCR6. Species include:
-TABLE HERE.
+1. Simulation for the remaining 61 species of passerine and near-passerine birds that breed either in the NWT or Alberta portions of
+BCR6. A full list of 71 possible species include:
+
+Alder Flycatcher (Empidonax alnorum), American Crow (Corvus brachyrhynchos), American Goldfinch (Spinus tristis), American Pipit
+(Anthus rubescens), American Redstart (Setophaga ruticilla), American Robin (Turdus migratorius), American Tree Sparrow (Spizella arborea), Black-and-white Warbler (Mniotilta varia), Bay-breasted Warbler (Setophaga castanea), Black-backed Woodpecker (Picoides arcticus), Black-capped Chickadee (Poecile atricapillus), Brown-headed Cowbird (Molothrus ater), Blue-headed Vireo (Vireo solitarius), Blackburnian Warbler (Setophaga fusca), Blue Jay (Cyanocitta cristata), Blackpoll Warbler (Setophaga striata), Boreal Chickadee (Poecile hudsonicus), Brewer’s Blackbird (Euphagus cyanocephalus), Brown Creeper (Certhia americana), Brown Thrasher (toxostoma rufum), Black-throated Green Warbler (Setophaga virens), Canada Warbler (Cardellina canadensis), Clay-colored Sparrow (Spizella pallida), Cedar Waxwing (Bombycilla cedrorum), Chipping Sparrow (Spizella passerina), Cape May Warbler (Setophaga tigrina), Common Grackle (Quiscalus quiscula), Connecticut Warbler (Oporornis agilis), Common Raven (Corvus corax), Common Redpoll (Acanthis flammea), Common Yellowthroat (Geothlypis trichas), Chestnut-sided Warbler (Setophaga pensylvanica), Dark-eyed Junco (Junco hyemalis), Eastern Kingbird (Tyrannus tyrannus), Eastern Phoebe (Sayornis phoebe), Evening Grosbeak (Coccothraustes vespertinus), Fox Sparrow (Passerella iliaca), Golden-crowned Kinglet (Regulus satrapa), Gray-cheeked Thrush (Catharus minimus), Gray Jay (Perisoreus canadensis), Gray Catbird (Dumetella carolinensis), Hammond's Flycatcher (Empidonax hammondii), Hermit Thrush (Catharus guttatus), Horned Lark (Eremophila alpestris) , House Wren (Troglodytes aedon), Le Conte's Sparrow (Ammodramus leconteii), Least Flycatcher (Empidonax minimus), Lincoln's Sparrow (Melospiza lincolnii), Magnolia Warbler (Setophaga magnolia), Mourning Warbler (Geothlypis philadelphia), Nashville Warbler (Oreothlypis ruficapilla), Northern Waterthrush (Parkesia noveboracensis), Orange-crowned Warbler (Oreothlypis celata), Olive-sided Flycatcher (Contopus cooperi), Ovenbird (Seiurus aurocapilla), Palm Warbler (Setophaga palmarum), Philadelphia Vireo (Vireo philadelphicus), Pine Grosbeak (Pinicola enucleator), Pine Siskin (Spinus pinus), Pileated Woodpecker (Dryocopus pileatus), Purple Finch (Haemorhous purpureus), Rose-breasted Grosbeak (Pheucticus ludovicianus), Red-breasted Nuthatch (Sitta canadensis), Ruby-crowned Kinglet (Regulus calendula), Red-eyed Vireo (Vireo olivaceus), Ruffed Grouse (Bonasa umbellus), Rusty Blackbird (Euphagus carolinus), Red-winged Blackbird (Agelaius phoeniceus), Savannah Sparrow (Passerculus sandwichensis), Sedge Wren (Cisthothorus platensis), Song Sparrow (Melospiza melodia), Swamp Sparrow (Melospiza georgiana), Swainson's Thrush (Catharus ustulatus), Tennessee Warbler (Oreothlypis peregrina), Townsend's Warbler (Setophaga townsendi), Tree Swallow (Tachycineta bicolor), Varied Thrush (Ixoreus naevius), Veery (Catharus fuscescens), Vesper Sparrow (Pooecetes gramineus), Warbling Vireo (Vireo gilvus), White-breasted Nuthatch (Sitta carolinensis), White-crowned Sparrow (Zonotrichia leucophrys), Western Tanager (Piranga ludoviciana), Western Wood-Pewee (Contopus sordidulus), Wilson's Warbler (Cardellina pusilla), Winter Wren (Troglodytes hiemalis), White-throated Sparrow (Zonotrichia albicollis), White-winged Crossbill (Loxia leucoptera), Yellow-bellied Sapsucker (Sphyrapicus varius), Yellow-bellied Flycatcher (Empidonax flaviventris), Yellow-rumped Warbler (Setophaga coronata), Yellow Warbler (Setophaga petechia) 
 
  
 \textcolor{blue}{caribou}: The `caribou` module is composed of two main modules:  `caribouRSFModel` and `caribouPopGrowthModel`. Each
@@ -193,16 +203,16 @@ or other landscape change processes.
 5. Caribou VHF collar data is not biased - caribou were randomly, and opportunistically, collared. Caribou were not collared for
 monitoring impacts of natural resource development projects, or other motives.
 
-6.Caribou do not display season-specific habitat selection; the RSF model used here is based off of annual caribou ccurrences. It does
+6. Caribou do not display season-specific habitat selection; the RSF model used here is based off of annual caribou ccurrences. It does
 not account for seasonal variations.
 
-7.OldBurns are considered to be anything older than 40 years. We assume that OldBurns are between 41 and 93 years old, as this would
+7. OldBurns are considered to be anything older than 40 years. We assume that OldBurns are between 41 and 93 years old, as this would
 have been the maximum time since fire that was quantifiable in Environment Canada 2011 (Appendix 7.3, section 5.3;1917 to 2010). 
 
 
 Future versions of the `caribouPopGrowtModel` module could incorporate;
-1.Incorporation of the national realized caribou RSF model (Environment Canada 2011; Table 43) which has higher predictive capacity than
-the Taiga Plains RSF modeled here. 
+1. Incorporation of the national realized caribou RSF model (Environment Canada 2011; Table 43) which has higher predictive capacity
+than the Taiga Plains RSF modeled here. 
 
 2. Uncertainty maps could be provided for each study region ![Figure 2] and/or ![Figure 3].
 
@@ -825,11 +835,20 @@ woodland caribou (*Rangifer tarandus caribou*) in Alberta. Can. J. Zool. 92(12),
 Hijmans, R. J., S. Phillips, J. Leathwick, and J. Elith. 2011. Package ‘dismo’. Available online at http://cran.r
 project.org/web/packages/dismo/index.html.
 
+Hofmeester, T.R., Cromsigt, J.P., Odden, J., Andrén, H., Kindberg, J. and Linnell, J.D., 2019. Framing pictures: A conceptual framework
+to identify and correct for biases in detection probability of camera traps enabling multi‐species comparison. Ecology and Evolution.
+
 Manly, B. F. J., L. L. McDonald, D. L. Thomas, T. L. McDonald, and W. P. Erickson, editors. 2002. Resource selection by animals:
 statistical analysis and design for field studies. Second Edition. Kluwer, Boston, USA.
 
 Mcloughlin, P.D., Dzus, E., Wynes, B.O.B. and Boutin, S. (2003). Declines in populations of woodland caribou. The Journal of Wildlife
 Management, pp.755-761.
+
+Neilson, E.W., Avgar, T., Burton, A.C., Broadley, K. and Boutin, S., 2018. Animal movement affects interpretation of occupancy models
+from camera‐trap surveys of unmarked animals. Ecosphere, 9(1).
+
+Stewart, F.E., Fisher, J.T., Burton, A.C. and Volpe, J.P., 2018. Species occurrence data reflect the magnitude of animal movements
+better than the proximity of animal space use. Ecosphere, 9(2).
 
 Sólymos, P., S. M. Matsuoka, E. M. Bayne, S. R. Lele, P. Fontaine, S. G. Cumming, D. Stralberg, F. K. A. Schmiegelow, and S. J. Song.
 2013. Calibrating indices of avian density from non-standardized survey data: making the most of a messy situation. Methods in Ecology

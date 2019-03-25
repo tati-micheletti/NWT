@@ -109,7 +109,6 @@ al.’s (2017) predicted biomass layers for 2001 or 2011, depending on the date 
 2006 and later was associated with 2011 vegetation).
  
 
-## Frances still to finalize - double check methods and assumptions after final modules are run ##
 \textcolor{blue}{caribou}: The `caribou` module is composed of two main modules:  `caribouRSFModel` and `caribouPopGrowthModel`.
 
 Each module loads existing glms developped by Environment Canada 2011 to project caribou occurrence and demographics over 100 years as
@@ -117,6 +116,12 @@ the anthropogenic (`anthropogenic` module), fire (`FireSense` module), and natur
 (i.e. Taiga plains) changes. Combined, these modules incorporate existing statistical relationships, with simulated landscape
 predictions, to produce the probability of occurrence, and population growth rate, of Woodland caribou (boreal population) within the
 NWT. 
+
+Model outputs are based off of the two shp files requested:
+![Boreal caribou NT1 range planning regions 2018]
+(https://github.com/tatimicheletti/NWT/blob/master/Boreal_caribou_NT1_range_planning_regions_2018.jpg)
+![Units for ECCC modeling project 2019]
+(https://github.com/tati-micheletti/NWT/blob/master/Units_for_ECCC_modeling_project_2019.jpg)
 
 `caribouRSFModel`
 The statistical relationship between caribou telemetry collars and the landscape has been summarized within the Environment Canada 2011
@@ -127,8 +132,8 @@ Alberta, 50 British Columbia, and 169 NWT caribou between 2000 and 2010 (Environ
 In the Taiga Plains ecozone, the relative probability of adult female boreal caribou resource selection (0 to 1) is best described by
 (Environment Canada 2011; Table 46):
 
-Relative Selection probability  ~ Elevation + Elevation^2 + Vrug + Vrug^2 + RoadDensity + Deciduous + Shrub                 Eq 1.
-                                                   + Herb + Water + RecentBurn + OldBurn
+Relative Selection probability  ~ Elevation + Elevation^2 + Vrug + Vrug^2 + RoadDensity + Deciduous + Shrub +                 Eq 1.
+                                                   Herb + Water + RecentBurn + OldBurn
 
 The definition, and units of measurement, for each of the predictor variables in this relationship can be found in Environment Canada
 2011 Table 40. The methods behind model development can be found throughout Environment Canada 2011 Appendix 7.3. 

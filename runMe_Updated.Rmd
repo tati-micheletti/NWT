@@ -5,13 +5,12 @@ date: "3/13/2019"
 output: html_document
 ---
 
-## Simulation of effects of climate change on fire regime: implications for Boreal Caribou and
-landbird communities in the Northwest Territories
+## Simulating climate change on fire regime: implications for boreal caribou and landbird communities in the Northwest Territories
 
 The proposed work integrates simulation models of vegetation dynamics, wildfire, and anthropogenic change with 
 statistical models of songbird abundances and woodland caribou demographic parameters. The
 integrated model is used to forecast the spatial distribution of selected songbird species and
-the regional potential to sustain viable populations of woodland caribou, ##under climate change##
+the regional potential to sustain viable populations of woodland caribou, under climate change
 over the 21st century. Other applications include quantifying the overlap
 between areas of high conservation value for birds and for caribou, and evaluating the
 conservation potential in these respects of specific candidate protected areas. The integrated
@@ -25,7 +24,7 @@ the vegetation dynamics and avian habitat forecasts is 250m.##
 
 Item #1: Species Abundance Models (SAMs) for landbirds under current conditions.
 Item #2: Land change simulation (2000-2100) ## and climate change?
-Item #3 Demographic models for caribou and SAMs for landbirds under future conditions ## co-occurrence?
+Item #3: Demographic models for caribou and SAMs for landbirds under future conditions ## co-occurrence?
 
 
 ### Integrated modules overview
@@ -63,8 +62,9 @@ The structure and methods used for each one of the modules is as follows:
 IMPORTANT ASSUMPTION TO ADD: This module does not model seismic lines - see caveate for `caribouPopGrowthModel`
 
 
-\textcolor{blue}{birdsNWT}: The birds module loads an existing glm object for each sp located in  
-                            https://drive.google.com/open?id=1obSvU4ml8xa8WMQhQprd6heRrN47buvI. 
+\textcolor{blue}{birdsNWT}: The birds module loads an existing glm object for each species located in  
+                            https://drive.google.com/open?id=1obSvU4ml8xa8WMQhQprd6heRrN47buvI. ## This module projects the species
+                            abundance of each bird species under forecasted landscape and climate conditions ##
 
 The bird module develops boosted regression tree (BRT) models from avian point-count data and associated covariates using the gbm.step
 function in the ‘dismo’ package (Hijmans et al. 2011) with a Poisson distribution and 10-fold cross-validation. BRT settings are as
@@ -73,11 +73,11 @@ given BRT model object, summarizes cross-validation statistics and variable impo
 (pdf output), generates spatial predictions from input data layers (geotiff format), and generates maps of spatial predictions
 (png format). The ‘cvsum’ function summarizes cross-validation statistics across species.
 
-Avian data for BCR 6 were extracted from the Boreal Avian Modelling project avian dataset (Cumming et al. 2010, Barker et al. 2015) and
-supplemented with data from automated recording units (ARU) collected by ECCC (Haché et al. unpublished data) and the University of
-Alberta Bioacoustic Unit (Bayne et al. unpublished data). Density offsets were calculated according to methods described in Sólymos et
-al. (2013), and were based on the assumption that ARU data detectability is similar to detectability by human observers (Yip et al.
-2017).
+Avian data for Bird Conseravation Region (BCR) 6 were extracted from the Boreal Avian Modelling project avian dataset (Cumming et al.
+2010, Barker et al. 2015) and supplemented with data from automated recording units (ARU) collected by Environment and Climate Change
+Canada (Haché et al. unpublished data) and the University of Alberta Bioacoustic Unit (Bayne et al. unpublished data). Density offsets
+were calculated according to methods described in Sólymos et al. (2013), and were based on the assumption that ARU data detectability is
+similar to detectability by human observers (Yip et al. 2017).
 
 Bird models were based on a restricted set of covariates that were either (a) assumed static over time or (b) direct outputs of the
 `LandR` biomass module. We intentionally excluded climate covariates that also drive changes in vegetation and fire, given the assumed

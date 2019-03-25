@@ -1,6 +1,6 @@
 ---
 title: "runMe_V2"
-author: "Tati Micheletti"
+author: "Tati Micheletti", "Frances Stewart"
 date: "3/13/2019"
 output: html_document
 ---

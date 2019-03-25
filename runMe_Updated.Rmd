@@ -109,18 +109,18 @@ al.’s (2017) predicted biomass layers for 2001 or 2011, depending on the date 
 2006 and later was associated with 2011 vegetation).
  
 
-\textcolor{blue}{caribou}: The `caribou` module is composed of two main modules:  `caribouRSFModel` and `caribouPopGrowthModel`.
-
-Each module loads existing glms developped by Environment Canada 2011 to project caribou occurrence and demographics over 100 years as
-the anthropogenic (`anthropogenic` module), fire (`FireSense` module), and natural features (`LandR` module) of the NWT BCR6 region
-(i.e. Taiga plains) changes. Combined, these modules incorporate existing statistical relationships, with simulated landscape
-predictions, to produce the probability of occurrence, and population growth rate, of Woodland caribou (boreal population) within the
-NWT. 
+\textcolor{blue}{caribou}: The `caribou` module is composed of two main modules:  `caribouRSFModel` and `caribouPopGrowthModel`. Each
+                           module loads existing glms developped by Environment Canada 2011 to project caribou occurrence and
+                           demographics over 100 years as the anthropogenic (`anthropogenic` module), fire (`FireSense` module), and
+                           natural features (`LandR` module) of the NWT BCR6 region (i.e. Taiga plains) changes. Combined, these modules
+                           incorporate existing statistical relationships, with simulated landscape predictions, to produce the
+                           probability of occurrence, and population growth rate, of Woodland caribou (boreal population) within the
+                           NWT. 
 
 Model outputs are based off of the two shp files requested:
-![Boreal caribou NT1 range planning regions 2018]
+![Figure 2. Boreal caribou NT1 range planning regions 2018]
 (https://github.com/tatimicheletti/NWT/blob/master/Boreal_caribou_NT1_range_planning_regions_2018.jpg)
-![Units for ECCC modeling project 2019]
+![Figure 3. Units for ECCC modeling project 2019]
 (https://github.com/tati-micheletti/NWT/blob/master/Units_for_ECCC_modeling_project_2019.jpg)
 
 `caribouRSFModel`
@@ -150,47 +150,36 @@ Model covariates were assumed to either be static, or were obtained from other m
 9  OldBurn (dynamic; `FireSense`)
 
 This module determines the relative probability of use (0-1) of caribou based on each of the above habitats on a yearly time step. This
-module produces a rasterized map of these occurrences across the NT1 Boreal Caribou Range (i.e. BCR6 within the NWT).
-
-
-Insert Figure here:
-
-Boreal_caribou_NT1_range_planning_regions_2018.jpg
-
+module produces a rasterized map of these occurrences across the NT1 Boreal Caribou Range (i.e. BCR6 within the NWT) for 1 in every 10
+years. Options include outputting maps for range planning regions outlined in either Figure 2 and/or Figure 3.
 
 *Important assumptions of the `caribouRSFModel` module*
 1.Caribou are distributed in an ideal free distribution across the Taiga plains (Fretwell and Lucas 1970).
 
+2.Resource selection leads to increased population fitness and population density (Manly et al. 2002). The resource selection documented
+here is a relative probability, rather than true probability, as we used a use-available design (Manly et al. 2002).
 
-2.Resource selection leads to increased population fitness and population density (Manly et al. 2002). The resource selection documented here is a relative probability, rather than true probability, as we used a use-available design (Manly et al. 2002).
+3.The Taiga ecozone RSF model developed by Environment Canada 2011 reliably predicts the relative probability of occurrence for woodland
+boreal caribou. See section 6.2.4 of Environment Canada 2011 for reasons this assumption may be violated.
 
+4.Shrub and Herbacious landcover remains constant across the simulation period (2010 to 2110) despite the impacts of fire, succession,
+or other landscape change processes.
 
-3.The Taiga ecozone RSF model developed by Environment Canada 2011 reliably predicts the relative probability of occurrence for woodland boreal caribou (see section 6.2.4 Environment Canada 2011) for reasons this assumption may be violated.
+5. Caribou VHF collar data is not biased - caribou were randomly, and opportunistically, collared. Caribou were not collared for
+monitoring impacts of natural resource development projects, or other motives.
 
+6.Caribou do not display season-specific habitat selection; the RSF model used here is based off of annual caribou ccurrences. It does
+not account for seasonal variations.
 
-4.Shrub and Herbacious landcover remains constant across the simulation period (2010 to 2110).
-
-
-5.There was no bias in the selection of caribou collared for VHF data - these caribou were not collared solely for monitoring of the impacts of natural resource development projects, or other motives.
-
-
-6.There is no seasonal habitat selection; the RSF model used here incorporates is based off of annual caribou occurrences, and does not account for seasonal variations.
-
-
-7.OldBurns are considered to be anything older than 40 years. We assume that OldBurns are between 41 and 93 years old, as this would have been the maximum time since fire that was quantifiable in Environment Canada 2011 (Appendix 7.3, section 5.3 - 1917 to 2010). 
-
-
+7.OldBurns are considered to be anything older than 40 years. We assume that OldBurns are between 41 and 93 years old, as this would
+have been the maximum time since fire that was quantifiable in Environment Canada 2011 (Appendix 7.3, section 5.3;1917 to 2010). 
 
 
 Future versions of the `caribouPopGrowtModel` module could incorporate;
-1.Incorporation of the national realized caribou RSF model (Environment Canada 2011; Table 43) which has higher predictive capacity than the Taiga Plains RSF modeled here. 
+1.Incorporation of the national realized caribou RSF model (Environment Canada 2011; Table 43) which has higher predictive capacity than
+the Taiga Plains RSF modeled here. 
 
-
-2.Uncertainty maps could be provided for each STUDY REGION.
-
-
-
-
+2. Uncertainty maps could be provided for each study region (Figure 2 and/or Figure 3).
 
 
 `caribouPopGrowthModel`

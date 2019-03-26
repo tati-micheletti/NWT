@@ -31,14 +31,15 @@ this project use a 250m resolution.
 
 This project represents the cummulation of a novel integration method for discrete event simulations. To our knowledge it is the largest 
 and most comprehensive integration of landscape and climate change effects on Species At Risk todate. It represents a novel and
-important contribution to ecological forecasting, and contins the ability to uniquely address both national (i.e. *Species At Risk Act*)
-and international (i.e. *Convention on Biological Diversity Aichi Target 11*) policy mandates for biodiversity conservation both today,
+important contribution to ecological forecasting, and contains the ability to uniquely address both national (i.e. *Species At Risk
+Act*) and international (i.e. *Convention on Biological Diversity Aichi Target 11*) policy mandates for biodiversity conservation today,
 and under anticipated future conditions.
 
 The models contained within this project represent regional processes and do not reflect projected landscape specific results. The
 results from this project are to be used for regional planning initiatives and are built off of known ecological processes and
 statistical relationships documented at regional and national scales. These processes may not acurately predict localized processes -
-this discrepency between scales is well documented in ecology (REFS). Future iterations of this project may be able to address these
+this discrepency between scales is well documented in ecology (Wiens 1989; Holling 1992; Levin 1992) with direct ramifications on
+downscaling models (e.g. Riiters 2005; Araujo et al. 2005). Future iterations of this project may be able to address these
 scale-specific processes, but the models provided here will best provide results for planning at large spatial extents (by region
 or ecozone, not landscape). 
 
@@ -902,6 +903,9 @@ writeRaster(x = biomassMapAll, filename = file.path(paths$outputPath, "biomassMa
 ```
 
 # Literature cited 
+Araújo, M. B., W. Thuiller, P. H. Williams and I. Reginster. 2005. Downscaling European species atlas distributions to a finer
+resolution: implications for conservation planning. Global Ecology and Biogeography, 14(1):17-30.
+
 Barker, N. K. S., P. C. Fontaine, S. G. Cumming, D. Stralberg, A. Westwood, E. M. Bayne, P. Sólymos, F. K. A. Schmiegelow, S. J. Song,
 and D. J. Rugg. 2015. Ecological monitoring through harmonizing existing data: Lessons from the boreal avian modelling project. Wildlife
 Society Bulletin 39:480-487. http://dx.doi.org/10.1002/wsb.567
@@ -925,7 +929,8 @@ forest avifauna: design and application of ecological models at continental exte
 
 Elith, J., J. R. Leathwick, and T. Hastie. 2008. A working guide to boosted regression trees. Journal of Animal Ecology 77:802-813. 
 
-Environment Canada. 2012. Recovery Strategy for the Woodland Caribou (*Rangifer tarandus caribou*), Boreal population, in Canada. Species at Risk Act Recovery (138 pp.) Accessed online August 10, 2018 at
+Environment Canada. 2012. Recovery Strategy for the Woodland Caribou (*Rangifer tarandus caribou*), Boreal population, in Canada.
+Species at Risk Act Recovery (138 pp.) Accessed online August 10, 2018 at
 http://publications.gc.ca/collections/collection_2012/ec/En34-140-2012-eng.pdf.
 
 Environment Canada. 2011. Scientific Assessment to Inform the Identification of Critical Habitat for Woodland Caribou (*Rangifer
@@ -951,6 +956,10 @@ project.org/web/packages/dismo/index.html.
 Hofmeester, T. R., J. P. Cromsigt, J. Odden, H. Andrén, J. Kindberg, J. D. Linnell. 2019. Framing pictures: A conceptual framework
 to identify and correct for biases in detection probability of camera traps enabling multi‐species comparison. Ecology and Evolution.
 
+Holling, C. S. 1992. Cross‐scale morphology, geometry, and dynamics of ecosystems. Ecological monographs 62(4): 447-502.
+
+Levin, S. A. 1992. The problem of pattern and scale in ecology: the Robert H. MacArthur award lecture. Ecology 73(6):pp.1943-1967.
+
 Manly, B. F. J., L. L. McDonald, D. L. Thomas, T. L. McDonald, and W. P. Erickson, editors. 2002. Resource selection by animals:
 statistical analysis and design for field studies. Second Edition. Kluwer, Boston, USA.
 
@@ -959,6 +968,8 @@ Management 67(4):755-761.
 
 Neilson, E. W.,  T. Avgar, A. C. Burton, K. Broadley and S. Boutin. 2018. Animal movement affects interpretation of occupancy models
 from camera‐trap surveys of unmarked animals. Ecosphere, 9(1).
+
+Riitters, K. H. 2005. Downscaling indicators of forest habitat structure from national assessments. Ecological indicators 5(4):273-279.
 
 Stewart, F. E. C., J. T. Fisher, A. C. Burton and J. P. Volpe. 2018. Species occurrence data reflect the magnitude of animal movements
 better than the proximity of animal space use. Ecosphere, 9(2).
@@ -976,6 +987,8 @@ http://dx.doi.org/10.1890/13-2289.1
 
 Sutherland, G. D., F. K. A. Schmiegelow, C-A. Johnson, E. J. B. McIntire, M. LeBlond and R. Jagodzinski. A simple empirically-linked
 demographic model to estimate likelihoods of recovering population of boreal caribou (*Rangifer tarandus caribou*). In preparation.
+
+Wiens, J. A. 1989. Scale in ecology. Functional Ecology 3:385-397.
 
 Yip, D. A., L. Leston, E. M. Bayne, P. Sólymos, and A. Grover. 2017. Experimentally derived detection distances from audio recordings
 and human observers enable integrated analysis of point count data. Avian Conservation and Ecology 12.

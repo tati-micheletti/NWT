@@ -41,6 +41,20 @@ The metamodule is composed of 8 parent modules (i.e. groups of modules), as foll
 ![Figure 1. Module structure that composes the NWT project]
 (https://github.com/tatimicheletti/NWT/raw/master/inputs/ModelStructure_2.jpg)
 
+## TATI TO DOUBLE CHECK ##
+Running the entire project for a 100 year simulation can take several days on a 1 TB, 50 core RAM machine
+
+module                | approximate duration |
+:--------------------:|:--------------------:|
+LandR                 |  3.05 days
+FireSense             |   
+FEENIX                |  
+anthropogenic         |
+BirdsNWT              |  0.13 days
+caribouRSFModel       |  1.40 days
+caribouPopGrowthModel |  0.04 days
+TOTAL                 |  5.70 days
+
 The structure and methods used for each one of the modules is as follows:
 
 ## CERES IS ADDING INFORMATION TO THIS ##

@@ -3,7 +3,8 @@ title: "Simulting climate change and fire regime: implications for boreal caribo
 subtitle: "From data to decisions in SpaDES: an integrated projection project for the Northwest Territories"
 authors: "Tati Micheletti^1^", "Steve Cumming^2^", "Frances Stewart^3^", "Diana Stralberg^4^", "Eliot McIntire^3,1^" "Jean Marchal^4^",
 "Ian Eddy^3^", "Mario van Telgen^2^", "Ceres Barros^1^", "Ana Raymundo^2^"
-affiliations: "^1^ University of British Columbia", "^2^ University of Laval", "^3^ Natural Resources Canada, Canadian Forest Service", "^4^ University of Alberta", "^4^Solutions WavX"
+affiliations: "^1^ University of British Columbia", "^2^ University of Laval", "^3^ Natural Resources Canada, Canadian Forest Service",
+"^4^ University of Alberta", "^4^Solutions WavX"
 date: "Draft last revised 3/31/2019"
 output: html_document:
     toc: true

@@ -1,11 +1,16 @@
 ---
-title: "runMe_V2"
-author: "Tati Micheletti", "Frances Stewart", "Diana Stralberg", "Jean Marchal", "Ian Eddy", "Mario van Telgen", "Ceres Barros"
-date: "3/13/2019"
-output: html_document
+title: "Simulting climate change and fire regime: implications for boreal caribou and landbird communities in the Northwest Territories"
+author: "Tati Micheletti", "Steve Cumming", "Frances Stewart", "Diana Stralberg", "Eliot McIntire" "Jean Marchal", "Ian Eddy", "Mario
+van Telgen", "Ceres Barros"
+date: "Draft last revised 3/31/2019"
+output: html_document:
+    toc: true
+    theme: united
 ---
 
-## Simulating climate change and fire regime: implications for boreal caribou and landbird communities in the Northwest Territories
+# Table of Contents
+
+# Executive Summary
 
 The proposed work integrates simulation models of vegetation dynamics, wildfire, and anthropogenic change with 
 statistical models of songbird abundances and woodland boreal caribou (*Rangifer tarandus caribou*) demographic parameters. The
@@ -20,14 +25,14 @@ work is Bird Conservation Region (BCR) 6 as contained within the Northwest Terri
 All modules in this project use a 250m resolution.
 
 
-### General project components
+## General project components
 
 Item #1: Species Abundance Models (SAMs) for landbirds under current conditions.
 Item #2: Land change simulation (2000-2100).
 Item #3: Demographic models for caribou, SAMs for landbirds, co-occurrence under future conditions. 
 
 
-### Integrated modules overview
+# Integrated modules overview
 
 The metamodule is composed of 8 parent modules (i.e. groups of modules), as follows:
 ![ Figure 1. Module structure that composes the NWT project]
@@ -178,12 +183,6 @@ flaviventris), Yellow-rumped Warbler (Setophaga coronata), Yellow Warbler (Setop
                            probability of occurrence, and population growth rate, of Woodland caribou (boreal population) within the
                            NWT. 
 
-Model outputs are based off of the two shp files requested:
-![Figure 2. Boreal caribou NT1 range planning regions 2018]
-(https://github.com/tatimicheletti/NWT/blob/master/Boreal_caribou_NT1_range_planning_regions_2018.jpg)
-![Figure 3. Units for ECCC modeling project 2019]
-(https://github.com/tati-micheletti/NWT/blob/master/Units_for_ECCC_modeling_project_2019.jpg)
-
 `caribouRSFModel`
 The statistical relationship between caribou telemetry collars and the landscape has been summarized within the Environment Canada 2011
 Scientific Report as a resource selection function (sensu Manly et al. 2002). This module is based off of the top Taiga Plains ecozone
@@ -240,7 +239,13 @@ Future versions of the `caribouPopGrowthModel` module could incorporate;
 1. Incorporation of the national realized caribou RSF model (Environment Canada 2011; Table 43) which has higher predictive capacity
 than the Taiga Plains RSF modeled here. 
 
-2. Uncertainty maps could be provided for each study region ![Figure 2] and/or ![Figure 3].
+2. Future model outputs could be based off of the regional planning units specified in:
+![Figure 2. Boreal caribou NT1 range planning regions 2018]
+(https://github.com/tatimicheletti/NWT/blob/master/Boreal_caribou_NT1_range_planning_regions_2018.jpg)
+![Figure 3. Units for ECCC modeling project 2019]
+(https://github.com/tati-micheletti/NWT/blob/master/Units_for_ECCC_modeling_project_2019.jpg)
+The outputs could involve both relative selection, and uncertainty of the relative selection (i.e. standard deviation of the mean
+relative selection at each pixel) maps.
 
 
 `caribouPopGrowthModel`
@@ -319,8 +324,8 @@ assumption # 2 above).
 7. Incorporation of a caribou population model that is both logistic (i.e. density dependent) and/ or stochastic to look at
 projected variations in population size. 
 
-
-### Update and/or install all needed packages
+# SpaDES R code for module integration
+## Update and/or install all needed packages
 
 If you don't have all packages installed yet, please 
 first update all your packages and then install SpaDES. 
@@ -338,7 +343,7 @@ devtools::install_github("PredictiveEcology/LandR@development") # Updates SpaDES
 
 ```
 
-### Setting up directories and paths for the simulation
+## Setting up directories and paths for the simulation
 
 First, make sure you have the correct R version. These models were created using 
 the following R version and might not workcorrectly in other versions:
@@ -475,7 +480,7 @@ SpaDES.core::setPaths(modulePath = paths$modulePath, inputPath = paths$inputPath
 
 ```
 
-### Creating study area
+## Creating study areas
 
 The study area is comprised of the *BCR6* (Bird Conservation Regions no. 6) within the *Northwest Territories*.  
 We have developed a specific function to select this area, which is cached both locally and remotely 
@@ -702,8 +707,18 @@ saveRDS(object = get(paste0("LandR_SCFM_", runVersion)),
         file = file.path(paths$outputPath, paste0("birdsFireCaribou", runVersion,"_", toupper(format(Sys.time(), "%d%b%y")))))
 }
 ```
+#### Outputs from LandR, FireSense, and FEENIX - STILL TO ADD
 
-### Then we can run birds using the succession model
+##### Figure: Graph of total biomass per tree species per year. These data serve as an input to the `BirdsNWT` module
+
+##### Figure: GIF map of deciduous/non-deciduous trees proejcted at every 10 years. These data serve as an input for the `caribouRSFModel` module
+
+##### Figure: GIF maps of recent and old fires projected at every 10 years. These data serve as an input for both `caribouRSFModel` and `caribouPopGrowth` modules.
+```
+
+```
+
+### Running birds using the succession model
 ```{r birds}
 # FOR THIS I NEED TO SET ALL THE NEW PATHS (INPUT PATH NEEDS TO BE THE CURRENT OUTPUT PATH...)
 modulesBirds <- list("birdsNWT")
@@ -732,9 +747,14 @@ parametersBirds <- list(
 #                     loadOrder = unlist(modulesBirds),
 #                     outputs = outputsLandR, debug = 2))
 ```
+### Running the anthropogenic module - TATI TO ADD
 
+#### Outputs from the anthropogenic module - STILL TO ADD
 
-### Now caribou population growth
+##### Figure: Static map of 2010 RoadDenisty (presence/absence). These data serve as an input for the `caribouRSFModel`
+##### Figure: Static map of 2010 RoadDensity (presence/absence) buffered by 500m. These data serve as an imput for the `caribouPopGrowth` module
+
+### Running caribou population growth
 ```{r caribou}
 
 modulesCaribou <- list("caribouRecDistRelationship", "caribouPopGrowthModel")
@@ -761,7 +781,7 @@ parametersCaribou <- list(
 #                     outputs = outputsLandR, debug = 2))
 ```
 
-### Extracting some posthoc plots
+#### Extracting some posthoc plots
 
 ```{r extra_plots}
 
@@ -810,7 +830,13 @@ writeRaster(x = biomassMapAll, filename = file.path(paths$outputPath, "biomassMa
 
 ```
 
-## Literature cited - still to check and add
+
+
+
+
+
+
+# Literature cited 
 Barker, N. K. S., P. C. Fontaine, S. G. Cumming, D. Stralberg, A. Westwood, E. M. Bayne, P. Sólymos, F. K. A. Schmiegelow, S. J. Song,
 and D. J. Rugg. 2015. Ecological monitoring through harmonizing existing data: Lessons from the boreal avian modelling project. Wildlife
 Society Bulletin 39:480-487. http://dx.doi.org/10.1002/wsb.567

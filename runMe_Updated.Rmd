@@ -235,7 +235,7 @@ not account for seasonal variations.
 have been the maximum time since fire that was quantifiable in Environment Canada 2011 (Appendix 7.3, section 5.3;1917 to 2010). 
 
 
-Future versions of the `caribouPopGrowthModel` module could incorporate;
+Future versions of the `caribouRSFModel` module could incorporate;
 1. Incorporation of the national realized caribou RSF model (Environment Canada 2011; Table 43) which has higher predictive capacity
 than the Taiga Plains RSF modeled here. 
 
@@ -512,7 +512,7 @@ studyAreaNWT <- cloudCache(prepInputs,
                         omitArgs = c("destinationPath", "cloudFolderID"))
 ```
 
-### Running `LandR_Biomass`
+### Running `LandR`
 
 To run the first set of modules, both the parametrization model (`Boreal_LBMRDataPrep`) and the forest succession group of modules
 (`LandR_Biomass`), we explicitly specify the modules to be run, and the running time for the simulations:
@@ -707,7 +707,7 @@ saveRDS(object = get(paste0("LandR_SCFM_", runVersion)),
         file = file.path(paths$outputPath, paste0("birdsFireCaribou", runVersion,"_", toupper(format(Sys.time(), "%d%b%y")))))
 }
 ```
-#### Outputs from LandR, FireSense, and FEENIX - STILL TO ADD
+#### Outputs from `LandR`, `FireSense`, and `FEENIX` - STILL TO ADD
 
 ##### Figure: Graph of total biomass per tree species per year. These data serve as an input to the `BirdsNWT` module
 
@@ -718,7 +718,7 @@ saveRDS(object = get(paste0("LandR_SCFM_", runVersion)),
 
 ```
 
-### Running birds using the succession model
+### Running `BirdsNWT` using the succession model
 ```{r birds}
 # FOR THIS I NEED TO SET ALL THE NEW PATHS (INPUT PATH NEEDS TO BE THE CURRENT OUTPUT PATH...)
 modulesBirds <- list("birdsNWT")
@@ -747,24 +747,24 @@ parametersBirds <- list(
 #                     loadOrder = unlist(modulesBirds),
 #                     outputs = outputsLandR, debug = 2))
 ```
-#### Outputs from the birds module - STILL TO ADD
-##### Figure: bird species abundance maps (one for each species), predicted at every 10 years.
+#### Outputs from the `BirdsNWT` module - STILL TO ADD
+##### Figure: Bird species abundance maps (one for each species), predicted at every 10 years.
 
-##### Figure: bird species abundance uncertainty maps (for each species), predicted at every 10 years. Uncertainty is measured for each pixel as the standard deviation of the projected mean abundance value.
+##### Figure: Bird species abundance uncertainty maps (for each species), predicted at every 10 years. Uncertainty is measured for each pixel as the standard deviation of the projected mean abundance value.
 
 ```
 ```
-### Running the anthropogenic module - TATI TO ADD
+### Running the `anthropogenic` module - TATI TO ADD
 
-#### Outputs from the anthropogenic module - STILL TO ADD
+#### Outputs from the `anthropogeni`c module - STILL TO ADD
 
 ##### Figure: Static map of 2010 RoadDenisty (presence/absence). These data serve as an input for the `caribouRSFModel`
 ##### Figure: Static map of 2010 RoadDensity (presence/absence) buffered by 500m. These data serve as an imput for the `caribouPopGrowth` module
 ```
 ```
-### Running the caribou RSF model
+### Running `caribouRSFModel` - TATI TO ADD
 
-#### Outputs from the caribou RSF model
+#### Outputs from `caribouRSFModel` - STILL TO ADD
 
 #### Figure: GIF map of caribou relative selection across the NWT Taiga plains every 10 years.
 
@@ -772,7 +772,7 @@ parametersBirds <- list(
 ```
 
 ```
-### Running the caribou population growth model
+### Running `caribouPopGrowthModel`
 ```{r caribou}
 
 modulesCaribou <- list("caribouRecDistRelationship", "caribouPopGrowthModel")
@@ -847,11 +847,11 @@ biomassMapAll <- stack(biomassMapAll)
 writeRaster(x = biomassMapAll, filename = file.path(paths$outputPath, "biomassMapStack"))
 
 ```
-#### Outputs from the caribou population growth model - STILL TO ADD
+#### Outputs from `caribouPopGrowthModel` - STILL TO ADD
 
 #### Figure: Annual plot of projected lambda across each requested study region of the NWT. 
 
-#### Figure: Annual plot of projected lambda uncertainty across each requested study region of the NWT. uncertainty is measured for each study region as the standard deviation of the projected lambda values.
+#### Figure: Annual plot of projected lambda uncertainty across each requested study region of the NWT. Uncertainty is measured for each study region as the standard deviation of the projected lambda values.
 ```
 ```
 

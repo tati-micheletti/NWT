@@ -215,8 +215,8 @@ resource selection function (Environment Canada 2011; Table 46), generated from 
 In the Taiga Plains ecozone, the relative probability of adult female boreal caribou resource selection (0 to 1) is best described by
 (Environment Canada 2011; Table 46):
 
-$$Relative habitat selection  ~ Elevation + Elevation^2 + Vrug + Vrug^2 + RoadDensity + Deciduous + Shrub +                 Eq 1.
-                                                   Herb + Water + RecentBurn + OldBurn$$
+$Relative habitat selection  ~ Elevation + Elevation^2 + Vrug + Vrug^2 + RoadDensity + Deciduous + Shrub +                 Eq 1.
+                                                   Herb + Water + RecentBurn + OldBurn$
 
 The definition, and units of measurement, for each of the predictor variables in this relationship can be found in Environment Canada
 2011 Table 40. The methods behind model development can be found throughout Environment Canada 2011 Appendix 7.3. 
@@ -279,7 +279,7 @@ on  a yearly time interval, and uses these data to determine the population grow
 Specifically, boreal caribou recruitment (Rec) - the proportion of caribou cows:calves at winter survey periods - is best predicted by
 the total disturbance within a caribou study area (Environment Canada 2011; Table 55, model M3): 
 
-                                          $$Rec ~ total disturbance$$                                     Eq 2.
+                                          $Rec ~ total disturbance$                                     Eq 2.
 
 The methods behind Eq 2. development can be read in Environment Canada 2011 (Appendix 7.6). The total disturbance within a study area is
 described as the “percent total non-overlapping fire and anthropogenic disturbance (500 m buffer on anthropogenic; reservoirs removed)”
@@ -297,7 +297,7 @@ population size (lambda; λ) - for each polygon in [Figure 2] and [Figure 3]. Th
 time interval is well published for both caribou and other ungulates (Hatter and Bergerud 1991; McLoughlin et al. 2003; Sorensen et al.
 2006; Hervieux et al. 2014):
 
-                                            $$λ = (1 - M)/(1 - Rec)$$                 Eq 3.
+                                            $λ = (1 - M)/(1 - Rec)$                 Eq 3.
 
 Where recruitment (Rec) only involves juvenile female caribou (and assumes a 50:50 sex ratio), and adult female mortality
 (M) is calculated as 1 - adult female survival (SadF). At each yearly time step λ is saved. This module outputs a plot of lambda, for

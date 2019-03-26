@@ -47,7 +47,7 @@ Running the entire project for a 100 year simulation can take several days on a 
 module                | approximate duration |
 :--------------------:|:--------------------:|
 LandR                 |  3.05 days
-FireSense             |   
+fireSense             |   
 FEENIX                |  
 anthropogenic         |
 BirdsNWT              |  0.13 days
@@ -352,7 +352,7 @@ first update all your packages and then install SpaDES.
 Make sure you restart your session after installing all packages.
 
 ```{r github, include=FALSE, eval = FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 
 update.packages(checkBuilt = TRUE)
 devtools::install_github("PredictiveEcology/reproducible@development")
@@ -867,7 +867,7 @@ biomassMapAll <- stack(biomassMapAll)
 writeRaster(x = biomassMapAll, filename = file.path(paths$outputPath, "biomassMapStack"))
 
 ```
-#### Outputs from `caribouPopGrowthModel` - STILL TO ADD
+#### Outputs from `caribouPopGrowthModel` - TATI STILL TO ADD
 
 #### Figure: Annual plot of projected lambda across each requested study region of the NWT. 
 

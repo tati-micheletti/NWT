@@ -11,6 +11,7 @@ date: "Draft last revised 3/31/2019"
     toc: yes
     toc_depth: 5
  pdf_document:
+    keep_md: yes
     toc: yes
     toc_depth: 5
 ---

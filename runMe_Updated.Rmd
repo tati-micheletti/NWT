@@ -6,9 +6,10 @@ authors: "Tati Micheletti^1^", "Steve Cumming^2^", "Frances Stewart^3^", "Diana 
 affiliations: "^1^ University of British Columbia", "^2^ University of Laval", "^3^ Natural Resources Canada, Canadian Forest Service",
 "^4^ University of Alberta", "^4^Solutions WavX"
 date: "Draft last revised 3/31/2019"
-output: html_document:
-    toc: true
-    theme: united
+ html_document:
+    keep_md: yes
+    toc: yes
+    toc_depth: 5
 ---
 
 

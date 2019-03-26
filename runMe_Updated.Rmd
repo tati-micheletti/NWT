@@ -176,6 +176,7 @@ devtools::install_github("achubaty/amc@development")
 devtools::install_github("PredictiveEcology/pemisc@development")
 devtools::install_github("PredictiveEcology/map@development")
 devtools::install_github("PredictiveEcology/LandR@development") # Updates SpaDES.tools and SpaDES.core quickPlot
+devtools::install_github("ianmseddy/LandR.CS@master") # Climate sensitivity in LandR
 
 ```
 
@@ -304,7 +305,7 @@ opts <- options(
   "reproducible.useNewDigestAlgorithm" = TRUE,  # use the new less strict hashing algo
   "reproducible.useCache" = TRUE,
   "reproducible.cachePath" = paths$cachePath,
-  "reproducible.showSimilar" = TRUE,
+  "reproducible.showSimilar" = FALSE,
   "reproducible.useCloud" = if (pemisc::user("emcintir")|pemisc::user("tmichele")) FALSE else TRUE,
   "spades.moduleCodeChecks" = FALSE, # Turn off all module's code checking
   "spades.useRequire" = FALSE, # assuming all pkgs installed correctly
@@ -427,7 +428,8 @@ parameters <- list(
     "initialBiomassSource" = "cohortData"),
   LandR_BiomassGMOrig = list( # dev branch
     "growthInitialTime" = 0,
-    "successionTimestep" = 10),
+    "successionTimestep" = 10,
+    "growthAndMortalityDrivers" = "LandR"),
   Boreal_LBMRDataPrep = list(
     # "cacheIDmodelBiomass" = "b2209ccb1cb19ee1", #THIS CACHE WAS FROM V1. Not passable anymore as of 13/03 (reverted changes). Cache for V3 = "cf805cd9582a9797"
     "useCloudCacheForStats" = if (pemisc::user("tmichele")) FALSE else TRUE,
@@ -531,54 +533,173 @@ And finally the simulation call (note that the argument `debug = 2` lists all pr
 
 ```{r call}
 
-assign(paste0("LandR_SCFM_", runVersion), value = simInitAndSpades(times = times, params = parameters,
-                    modules = modulesLandR_SCFM,
-                    objects = .objects, paths = paths,
-                    loadOrder = unlist(modulesLandR_SCFM),
-                    outputs = outputsLandR, debug = 2))
+# assign(paste0("LandR_SCFM_", runVersion), value = simInitAndSpades(times = times, params = parameters,
+#                     modules = modulesLandR_SCFM,
+#                     objects = .objects, paths = paths,
+#                     loadOrder = unlist(modulesLandR_SCFM),
+#                     outputs = outputsLandR, debug = 2))
 
 # To save a run
-if (!isTest){
-saveRDS(object = get(paste0("LandR_SCFM_", runVersion)), 
-        file = file.path(paths$outputPath, paste0("birdsFireCaribou", runVersion,"_", toupper(format(Sys.time(), "%d%b%y")))))
-}
+# if (!isTest){
+# saveRDS(object = get(paste0("LandR_SCFM_", runVersion)), 
+#         file = file.path(paths$outputPath, paste0("birdsFireCaribou", runVersion,"_", toupper(format(Sys.time(), "%d%b%y")))))
+# }
 ```
 
-### Then we can run birds using the succession model
-```{r birds}
-# FOR THIS I NEED TO SET ALL THE NEW PATHS (INPUT PATH NEEDS TO BE THE CURRENT OUTPUT PATH...)
-modulesBirds <- list("birdsNWT")
+### Climate sensitive forest succession
 
-parametersBirds <- list(
-  # BirdsNWT
-  birdsNWT = list(
-    "baseLayer" = 2005,
-    "overwritePredictions" = TRUE,
-    "useTestSpeciesLayers" = FALSE,
-    "useParallel" = TRUE,
-    "predictionInterval" = 1
+Now we try running LandR with climate sensitivity and fireSense
+```{r LandR_CS}
+
+start_year <- 2010
+end_year <- 2015
+times <- list(start = start_year, end = end_year)
+
+library("googledrive")
+
+tryCatch(googledrive::drive_download(file = googledrive::as_id("1EetOiGxAq-QTZCVU9Q6Y3I26tqjZm3Oi"), 
+                            path = file.path(getPaths()$inputPath, "fireSense_FrequencyFitted.rds")), 
+         error = function(e){message("Files are already present and won't be overwritten")})
+tryCatch(googledrive::drive_download(file = googledrive::as_id("11CrK9PfNJzkU5cZg9-JYYzyr-VP23W0x"), 
+                            path = file.path(getPaths()$inputPath, "fireSense_EscapeFitted.rds")), 
+         error = function(e){message("Files are already present and won't be overwritten")})
+
+inputs <- data.frame(
+   files = c(file.path(getPaths()$inputPath, "fireSense_FrequencyFitted.rds"), 
+             file.path(getPaths()$inputPath, "fireSense_EscapeFitted.rds")),
+   functions = c("base::readRDS", "base::readRDS"),
+   stringsAsFactors = FALSE
+)
+
+modulesLandR_fS_FEENIX <- c("climate_NWT_DataPrep", 
+                            "MDC_NWT_DataPrep", 
+                            "fireSense_NWT_DataPrep", 
+                            "fireSense_FrequencyPredict", 
+                            "fireSense_EscapePredict", 
+                            "LBMR2LCC_DataPrep", 
+                            "fireSense_NWT", 
+                            "PSP_Clean",
+                            "gmcsDataPrep",
+                            "Boreal_LBMRDataPrep", 
+                            "LandR_BiomassGMOrig",
+                            "Biomass_regeneration", 
+                            "LBMR")
+
+parametersFireSense <- list(
+  climate_NWT_DataPrep = list(
+    rcp = 45, # 45 or 85
+    gcm = "CanESM2" # One of CanESM2, GFDL-CM3, HadGEM2-ES, MPI-ESM-LR 
+  ),
+  fireSense_FrequencyPredict = list(
+    f = 250 / 10000, # fireSense_FrequencyFit was fitted using the 10km resolution, predictions are made at the 250m resolution?
+    data = c("MDC06", "LCC")
+  ),
+  fireSense_NWT_DataPrep = list(
+    train = FALSE
+  ),
+  fireSense_EscapePredict = list(
+    data = c("MDC06", "LCC")
+  ),
+  LBMR2LCC_DataPrep = list(
+    .runInitialTime = 2016
+  ),
+  fireSense_NWT = list(
+    .runInitialTime = 2016    
   )
 )
 
+parameters$LandR_BiomassGMOrig$growthAndMortalityDrivers <- "LandR.CS"
+parameters <- c(parameters, parametersFireSense)
+
+runVersion <- "V1"
+assign(paste0("LandR_FireSense_", runVersion), 
+       value = simInitAndSpades(inputs = inputs, times = times, 
+                                params = parameters,
+                                modules = modulesLandR_fS_FEENIX,
+                                objects = .objects, paths = paths,
+                                loadOrder = unlist(modulesLandR_fS_FEENIX),
+                                outputs = outputsLandR, debug = 2))
+```
+
+
+### Then we can run birds using the succession model
+```{r birds}
+
+dayOfRecording <- today <- toupper(format(Sys.time(), "%d%b%y"))
+dayOfRecording <- "19MAR19"
+
+isTEST <- FALSE
+
+if (isTEST){
+    dayOfRecording <- "19MAR19"
+}
+
+# Source functions in R folder
+invisible(sapply(X = list.files(file.path(getwd(), "R"), full.names = TRUE), FUN = source))
+
+# Set a storage project folder
+workDirectory <- getwd()
+message("Your current temporary directory is ", tempdir())
+
+create <- if (isTEST) NULL else TRUE 
+checkInputPath <- tryCatch(checkPath(file.path(getwd(), "outputs", dayOfRecording)), error = function(e) NULL)
+if (is.null(checkInputPath)){
+  inpPath <- tempdir()
+} else {
+  inpPath <- checkInputPath
+}
+
+checkOutputPath <- tryCatch(checkPath(file.path(getwd(), "outputs", today), create = create), error = function(e) NULL)
+if (is.null(checkOutputPath)){
+  outPath <- tempdir()
+} else {
+  outPath <- checkOutputPath
+}
+
+setPaths(modulePath = file.path(getwd(), "modules"), 
+         inputPath = inpPath, outputPath = outPath)
+getPaths() # shows where the 4 relevant paths are
+
+times <- list(start = 0, end = 100)
+
+modulesBirds <- list("birdsNWT")
+
+parametersBirds <- list(
+  .progress = list(type = "text", interval = 1), # for a progress bar
+birdsNWT = list(
+    "baseLayer" = 2005,
+    "overwritePredictions" = TRUE,
+    "useTestSpeciesLayers" = FALSE, # Set it to false when you actually have results from LandR_Biomass simulations to run it with
+    "useParallel" = TRUE, # Using parallel in windows is currently not working.
+    "predictionInterval" = 10
+  )
+)
+cloudFolderID <- "https://drive.google.com/open?id=1PoEkOkg_ixnAdDqqTQcun77nUvkEHDc0"
+# Passing the uplandsRaster here makes sure that all computers can use it as the operations take up a lot of memory
+uplandsRaster <- prepInputs(targetFile = "uplandsNWT250m.tif", 
+                            url = "https://drive.google.com/open?id=1EF67NCH7HqN6QZ0KGlpntB_Zcquu6NJe", 
+                            destinationPath = getPaths()$inputPath, filename2 = NULL)
+
 .objectsBirds <- list(
+  "birdsList" = c("BBWA", "BOCH", "RBNU"),
+  "sppEquiv" = sppEquivalencies_CA,
+  "sppEquivCol" = sppEquivCol,
+  "uplandsRaster" = uplandsRaster,
   "rasterToMatch" = rasterToMatch,
   "cloudFolderID" = cloudFolderID,
-  "studyArea" = studyAreaNWT,
-  "currentPop" = 6500
-  )
+  "studyArea" = studyAreaNWT)
 
-# assign(paste0("birds", runVersion), value = simInitAndSpades(times = times, params = parametersBirds,
-#                     modules = modulesBirds,
-#                     objects = .objectsBirds, paths = paths,
-#                     loadOrder = unlist(modulesBirds),
-#                     outputs = outputsLandR, debug = 2))
+assign(paste0("birds", runVersion), value = simInitAndSpades(times = times, params = parametersBirds,
+                    modules = modulesBirds,
+                    objects = .objectsBirds,
+                    loadOrder = unlist(modulesBirds), debug = 2))
 ```
 
 
 ### Now Caribous
 ```{r caribou}
 
-modulesCaribou <- list("caribouRecDistRelationship", "caribouPopGrowthModel")
+modulesCaribou <- list("caribouPopGrowthModel", "caribouRSF")
 
 parametersCaribou <- list(
   # Caribou
@@ -589,7 +710,6 @@ parametersCaribou <- list(
 )
 
 .objectsCaribou <- list(
-  "birdsList" = c("BBWA", "BOCH"), ### JUST TO TEST. REMOVE ONCE WORKING
   "rasterToMatch" = rasterToMatch,
   "cloudFolderID" = cloudFolderID,
   "studyArea" = studyAreaNWT
@@ -616,7 +736,7 @@ lapply(X = firePlots, FUN = print)
 # Creating birds images and gif
 createBirdsGIF(simList = birdsFireCaribouV2, version = "V2")
 
-# For the cohortData biomass, need to use
+# For the cohortData biomass, need to use $ [ FIX ] using the padded function 
 cohortData <- rbindlist(lapply(X = seq(times$start, times$end, by = 10), FUN = function(year){
   if (year != 100 & year != 0)
     cohort <- readRDS(file.path(getwd(), paste0("outputs/14MAR19/cohortData_year0", year, ".rds")))

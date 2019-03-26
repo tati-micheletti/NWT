@@ -33,3 +33,27 @@
 [submodule "modules/caribouRSF"]
 	path = modules/caribouRSF
 	url = git@github.com:tati-micheletti/caribouRSF.git
+[submodule "modules/gmcsDataPrep"]
+	path = modules/gmcsDataPrep
+	url = git@github.com:ianmseddy/gmcsDataPrep.git
+[submodule "modules/PSP_Clean"]
+	path = modules/PSP_Clean
+	url = git@github.com:ianmseddy/PSP_Clean.git
+[submodule "modules/climate_NWT_DataPrep"]
+	path = modules/climate_NWT_DataPrep
+	url = git@github.com:ygc2l/climate_NWT_DataPrep.git
+[submodule "modules/MDC_NWT_DataPrep"]
+	path = modules/MDC_NWT_DataPrep
+	url = git@github.com:ygc2l/MDC_NWT_DataPrep.git
+[submodule "modules/fireSense_FrequencyPredict"]
+	path = modules/fireSense_FrequencyPredict
+	url = git@github.com:ygc2l/fireSense_FrequencyPredict.git
+[submodule "modules/fireSense_EscapePredict"]
+	path = modules/fireSense_EscapePredict
+	url = git@github.com:ygc2l/fireSense_EscapePredict.git
+[submodule "modules/LBMR2LCC_DataPrep"]
+	path = modules/LBMR2LCC_DataPrep
+	url = git@github.com:ygc2l/LBMR2LCC_DataPrep.git
+[submodule "modules/fireSense_NWT"]
+	path = modules/fireSense_NWT
+	url = git@github.com:ygc2l/fireSense_NWT.git

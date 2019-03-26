@@ -39,7 +39,7 @@ The metamodule is composed of 8 parent modules (i.e. groups of modules), as foll
 
 The structure and methods used for each one of the modules is as follows:
 
-
+## CERES IS ADDING INFORMATION TO THIS ##
 \textcolor{blue}{LandR}: This group of modules is composed of one module and one group of modules. The first module,
                          `Boreal_LBMRDataPrep` calculates  site-specific parameters (ie BRC6 within NWT) needed by the biomass 
                          succession modules. Maximum biomass and NPP are calculated separately for each unique combination of tree
@@ -49,9 +49,10 @@ The structure and methods used for each one of the modules is as follows:
                          and (3) `LBMR`,  the LANDR module responsible for vegetation dispersal, as well as summary figures and tables.
                          LandR needs at least these last three modules to work.
 
-
-\textcolor{blue}{FireSense}: This group of modules is composed of four submodules. `fireSense_FrequencyFit` fits a statistical
-                              model used to parameterize the fire ignition component of `fireSense`. `fireSense_FrequencyPredict`
+## JEAN TO ADD INFORMATION TO THIS ##
+\textcolor{blue}{FireSense and FEENIX}: This group of modules is composed of four submodules. `fireSense_FrequencyFit` fits a
+                                        statistical model used to parameterize the fire ignition component of `fireSense`.
+                                        `fireSense_FrequencyPredict`
                               predicts fire frequency or rates of fire counts using the model fitted with the `fireSense_FrequencyFit`
                               module. These two modules are then used to feed the ignition component of `fireSense`;
                               `fireSense_EscapeFit` fits a statistical model used to parameterize the fire escape component of
@@ -61,9 +62,11 @@ The structure and methods used for each one of the modules is as follows:
                               `scfm` which will propagate the fires.
 
 
-## Mario still to finalize ##
+## MARIO TO ADD INFORMATION TO THIS ##
 \textcolor{blue}{anthropogenic}: To be completed by MT.
 IMPORTANT ASSUMPTION TO ADD: This module does not model seismic lines - see caveate for `caribouPopGrowthModel`
+ASSUMPTION: no success with anthropogenic disturbance
+Explains both road density layer and buffered 500m layer.
 
 
 \textcolor{blue}{birdsNWT}: The birds module loads an existing glm object for each species located in  
@@ -511,7 +514,7 @@ studyAreaNWT <- cloudCache(prepInputs,
                         omitArgs = c("destinationPath", "cloudFolderID"))
 ```
 
-### Running `LandR`
+### Running `LandR`, `fireSense`, and `FEENIX` - TATI STILL TO ADD FIRESENSE AND FEENIX
 
 To run the first set of modules, both the parametrization model (`Boreal_LBMRDataPrep`) and the forest succession group of modules
 (`LandR_Biomass`), we explicitly specify the modules to be run, and the running time for the simulations:

@@ -8,7 +8,6 @@ output: html_document:
     theme: united
 ---
 
-# Table of Contents
 
 # Executive Summary
 
@@ -25,14 +24,14 @@ work is Bird Conservation Region (BCR) 6 as contained within the Northwest Terri
 All modules in this project use a 250m resolution.
 
 
-## General project components
+## General project components as stated in the RFP
 
 Item #1: Species Abundance Models (SAMs) for landbirds under current conditions.
 Item #2: Land change simulation (2000-2100).
 Item #3: Demographic models for caribou, SAMs for landbirds, co-occurrence under future conditions. 
 
 
-# Integrated modules overview
+# Integrated modules overview: Items 1, 2, and components of item 3
 
 The metamodule is composed of 8 parent modules (i.e. groups of modules), as follows:
 ![Figure 1. Module structure that composes the NWT project]
@@ -852,6 +851,17 @@ writeRaster(x = biomassMapAll, filename = file.path(paths$outputPath, "biomassMa
 #### Figure: Annual plot of projected lambda across each requested study region of the NWT. 
 
 #### Figure: Annual plot of projected lambda uncertainty across each requested study region of the NWT. Uncertainty is measured for each study region as the standard deviation of the projected lambda values.
+```
+```
+# Intgrated modules final components of Item 3: Species co-occurence through community metrics, and an analysis of the Edehzhie
+
+## ANA STILL TO ADD
+\textcolor{blue}{CommunityMetrics}: 
+
+## TATI STILL TO ADD
+\textcolor{blue}{Edehzhie}:
+
+
 ```
 ```
 

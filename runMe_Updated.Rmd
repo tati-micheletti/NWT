@@ -161,17 +161,17 @@ RCKI    Ruby-crowned Kinglet (*Regulus calendula*)
 2. We assume a lag in vegetation response to climate and therefore do not include climate covariates within this module that drive
 changes in vegetation and fire.
 
-3. The relative abundance of bird species is based on variabtion in occurence, rather than  variations in movement (Stewart et al. 2018;
+3. The relative abundance of bird species is based on variation in occurence, rather than variations in movement (Stewart et al. 2018;
 Neilson et al. 2018; Hofmester et al. 2019).
 
 Future versions of the `birdsNWT` module could include:
 1. Simulation for the remaining 61 species of passerine and near-passerine birds that breed either in the NWT or Alberta portions of
 BCR6. A full list of 71 possible species include:
 
-Alder Flycatcher (Empidonax alnorum), American Crow (Corvus brachyrhynchos), American Goldfinch (Spinus tristis), American Pipit
-(Anthus rubescens), American Redstart (Setophaga ruticilla), American Robin (Turdus migratorius), American Tree Sparrow (Spizella
-arborea), Black-and-white Warbler (Mniotilta varia), Bay-breasted Warbler (Setophaga castanea), Black-backed Woodpecker (Picoides
-arcticus), Black-capped Chickadee (Poecile atricapillus), Brown-headed Cowbird (Molothrus ater), Blue-headed Vireo (Vireo solitarius),
+Alder Flycatcher (*Empidonax alnorum*), American Crow (*Corvus brachyrhynchos*), American Goldfinch (*Spinus tristis*), American Pipit
+(*Anthus rubescens8), American Redstart (*Setophaga ruticilla*), American Robin (*Turdus migratorius*), American Tree Sparrow (*Spizella
+arborea*), Black-and-white Warbler (*Mniotilta varia*), Bay-breasted Warbler (*Setophaga castanea*), Black-backed Woodpecker (*Picoides
+arcticus*), Black-capped Chickadee (Poecile atricapillus), Brown-headed Cowbird (Molothrus ater), Blue-headed Vireo (Vireo solitarius),
 Blackburnian Warbler (Setophaga fusca), Blue Jay (Cyanocitta cristata), Blackpoll Warbler (Setophaga striata), Boreal Chickadee (Poecile
 hudsonicus), Brewer’s Blackbird (Euphagus cyanocephalus), Brown Creeper (Certhia americana), Brown Thrasher (toxostoma rufum), Black
 throated Green Warbler (Setophaga virens), Canada Warbler (Cardellina canadensis), Clay-colored Sparrow (Spizella pallida), Cedar
@@ -195,7 +195,7 @@ peregrina), Townsend's Warbler (Setophaga townsendi), Tree Swallow (Tachycineta 
 carolinensis), White-crowned Sparrow (Zonotrichia leucophrys), Western Tanager (Piranga ludoviciana), Western Wood-Pewee (Contopus
 sordidulus), Wilson's Warbler (Cardellina pusilla), Winter Wren (Troglodytes hiemalis), White-throated Sparrow (Zonotrichia albicollis),
 White-winged Crossbill (Loxia leucoptera), Yellow-bellied Sapsucker (Sphyrapicus varius), Yellow-bellied Flycatcher (Empidonax
-flaviventris), Yellow-rumped Warbler (Setophaga coronata), Yellow Warbler (Setophaga petechia) 
+flaviventris), Yellow-rumped Warbler (Setophaga coronata), Yellow Warbler (*Setophaga petechia*) 
 
  
 \textcolor{blue}{caribou}: The `caribou` module is composed of two main modules:  `caribouRSFModel` and `caribouPopGrowthModel`. Each

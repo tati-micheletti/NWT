@@ -35,7 +35,7 @@ Item #3: Demographic models for caribou, SAMs for landbirds, co-occurrence under
 # Integrated modules overview
 
 The metamodule is composed of 8 parent modules (i.e. groups of modules), as follows:
-![ Figure 1. Module structure that composes the NWT project]
+![Figure 1. Module structure that composes the NWT project]
 (https://github.com/tatimicheletti/NWT/raw/master/inputs/ModelStructure_2.jpg)
 
 The structure and methods used for each one of the modules is as follows:
@@ -201,7 +201,7 @@ The definition, and units of measurement, for each of the predictor variables in
 Model covariates were assumed to either be static, or were obtained from other modules within this project:
 1  Elevation (static; DEM)
 2  Vrug (static; DEM)
-3  RoadDensity (dynamic; `anthropogenic`)
+3  RoadDensity (static; `anthropogenic`)
 4  Deciduous (dynamic; `LandR`)
 5  Shrub (static; LCC05)
 6  Herb (static; LCC05)
@@ -747,14 +747,32 @@ parametersBirds <- list(
 #                     loadOrder = unlist(modulesBirds),
 #                     outputs = outputsLandR, debug = 2))
 ```
+#### Outputs from the birds module - STILL TO ADD
+##### Figure: bird species abundance maps (one for each species), predicted at every 10 years.
+
+##### Figure: bird species abundance uncertainty maps (for each species), predicted at every 10 years. Uncertainty is measured for each pixel as the standard deviation of the projected mean abundance value.
+
+```
+```
 ### Running the anthropogenic module - TATI TO ADD
 
 #### Outputs from the anthropogenic module - STILL TO ADD
 
 ##### Figure: Static map of 2010 RoadDenisty (presence/absence). These data serve as an input for the `caribouRSFModel`
 ##### Figure: Static map of 2010 RoadDensity (presence/absence) buffered by 500m. These data serve as an imput for the `caribouPopGrowth` module
+```
+```
+### Running the caribou RSF model
 
-### Running caribou population growth
+#### Outputs from the caribou RSF model
+
+#### Figure: GIF map of caribou relative selection across the NWT Taiga plains every 10 years.
+
+#### Figure: GIF map of caribou relative selection uncertaintly across the NWT Taiga plains every 10 years. Uncertainty is measured for each pixel as the standard deviation of the projected mean relative selection value. 
+```
+
+```
+### Running the caribou population growth model
 ```{r caribou}
 
 modulesCaribou <- list("caribouRecDistRelationship", "caribouPopGrowthModel")
@@ -829,12 +847,13 @@ biomassMapAll <- stack(biomassMapAll)
 writeRaster(x = biomassMapAll, filename = file.path(paths$outputPath, "biomassMapStack"))
 
 ```
+#### Outputs from the caribou population growth model - STILL TO ADD
 
+#### Figure: Annual plot of projected lambda across each requested study region of the NWT. 
 
-
-
-
-
+#### Figure: Annual plot of projected lambda uncertainty across each requested study region of the NWT. uncertainty is measured for each study region as the standard deviation of the projected lambda values.
+```
+```
 
 # Literature cited 
 Barker, N. K. S., P. C. Fontaine, S. G. Cumming, D. Stralberg, A. Westwood, E. M. Bayne, P. Sólymos, F. K. A. Schmiegelow, S. J. Song,

@@ -133,7 +133,13 @@ do not coresspond to purely forested areas. This change would address current `L
 
 
 ## JEAN TO ADD INFORMATION TO FIRE SENSE, ALEX TO ADD INFORMATION TO FEENIX (SCFM)##
-\textcolor{blue}{FireSense and FEENIX}: This group of modules is composed of four submodules. `fireSense_FrequencyFit` fits a
+\textcolor{blue}{fireSense}: `fireSense` is a wildfire simulation module that is seneitive to both climate and vegetation change; it reproduces the spatial and temporal variation of both the number of fires, and fire escape probability. `fireSense` is composed of two groups of modules; a group that prepares and formats the data (`climate_NWT_DataPrep`, `fireSense_NWT_DataPrep`, `LBMR2LCC_DataPrep`, and `MDC_NWT_DataPrep`), and a group that impliments the algorithms needed to simulate fire (`fireSense_FrequencyFit`, `fireSense_FrequencyPredict`, `fireSense_EscapeFit`, and `fireSense_EscapePredict`).
+
+
+
+
+
+This group of modules is composed of four submodules. `fireSense_FrequencyFit` fits a
                                         statistical model used to parameterize the fire ignition component of `fireSense`.
                                         `fireSense_FrequencyPredict`
                               predicts fire frequency or rates of fire counts using the model fitted with the `fireSense_FrequencyFit`

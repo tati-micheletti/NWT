@@ -136,11 +136,11 @@ forested areas. This change would address current `LandR` limitation #2.
 
 
 <!-- JEAN TO Check INFORMATION on FIRE SENSE-->
-\textcolor{blue}{fireSense}: `fireSense` is a wildfire simulation module that is seneitive to both climate and vegetation change; it
+\textcolor{blue}{fireSense}: `fireSense` is a landscape fire simulation module that is sensitive to both climate and vegetation change; it
                               reproduces the spatial and temporal variation of both the number of fires, and fire escape probability.
                               `fireSense` is composed of two groups of modules; a group that prepares and formats the data
                               (`climate_NWT_DataPrep`, `fireSense_NWT_DataPrep`, `LBMR2LCC_DataPrep`, and `MDC_NWT_DataPrep`), and a
-                              group that impliments the algorithms needed to simulate fire (`fireSense_FrequencyFit`,
+                              group that implements the algorithms needed to simulate fire (`fireSense_FrequencyFit`,
                               `fireSense_FrequencyPredict`, `fireSense_EscapeFit`, and `fireSense_EscapePredict`).
 
 Briefly, the `fireSense` data preparation modules consist of:
@@ -155,8 +155,8 @@ analysis/prediction and makes the resulting datasets available to other modules.
 
 `LBMR2LCC_DataPrep` translates `LandR_Biomass` outputs into seven of the nine land cover classes as needed by `fireSense` (Table 1);
 the other two classes are the "non-fuel" class, which is ssumed to be static in time and the "recently disturbed" class which is not
-based on biomass but on age. Pixels are considered disturbed if the time since last fisturbance is less than 16 years. This module
-relies on a classifier build within the XGBoost library (Chen and Guestrin 2016) this this translation. Table 2 summarises the accuracy
+based on biomass but on age. Pixels are considered disturbed if the time since last disturbance is less than 16 years. This module
+relies on a classifier built within the XGBoost library (Chen and Guestrin 2016) for the translation. Table 2 summarises the accuracy
 per land cover class for the validation dataset.
 
 ![Table 1. Correspondence between the land cover classes used by `fireSense` and code from the Land Cover Map of Canada 2005]
@@ -172,7 +172,7 @@ per land cover class for the validation dataset.
 |Recently disturbed         | 34, 35                                                     |
 |Wetlands                   | 19                                                         |
 
-![Table 2. Classifer accuracy per landcover class on the validation dataset]
+![Table 2. Classifier accuracy per landcover class on the validation dataset]
 |Land cover class           | Accuracy|
 |:-------------------------:|:--------|
 |Conifer medium-density     | 0.68    |
@@ -185,11 +185,11 @@ per land cover class for the validation dataset.
 
 
 Briefly, the `fireSense` simulation modules consist of:
-`fireSense_FrequencyFit` is an implimentation of the method described in Marchal et al. (2017); it fits a statistical model used to
+`fireSense_FrequencyFit` is an implementation of the method described in Marchal et al. (2017); it fits a statistical model used to
 parameterize the fire ignition component of `fireSense`. Marchal et al. (2017) introduced climate sensitivity using the Monthly Drought
-Code (MDC) of July and introducted vegetation sensitivity using five vegetation classes. In this project, we use the MDC of June along
+Code (MDC) of July and introduced vegetation sensitivity using five vegetation classes. In this project, we use the MDC of June along
 with nine vegetation classes, all of which are derived from the 39 classes of LCC2005 (Table 1). We did not estimate the fire frequency
-for the non "non-fuel" class as it will not burn - it therefore remains as 0. This module outputs a fitted model object of class
+for the "non-fuel" class as it will not burn - it therefore remains as 0. This module outputs a fitted model object of class
 `fireSense_FrequencyFit`.
 
 `fireSense_FrequencyPredict` uses the model object provided by `fireSense_FrequencyFit` to predict fire frequency, or rates of fire
@@ -203,12 +203,12 @@ classes of land cover (Table 1). This module outputs a fitted glm model object.
 
 `fireSense_EscapePredict` predicts fire frequency, or rates of fire counts, using the model object provided by `fireSense_EscapeFit`.
 The output of this module is a probability surface describing the expected probability of fire escape at a 250 m resolution. This
-probability surface is updated annually, used to feed the escape component of `fireSense`.
+probability surface is updated annually and used to feed the escape component of `fireSense`.
 
 `fireSense` uses the probability surface predicted by `fireSense_FrequencyPredict` to determine where to start fires. At the spatial
 and temporal scale used in this study, the probability of two or more fires per year is negligible, thus one may use the Bernoulli
 approximation, as in Armstrong and Cumming (2003). From those fires that started, `fireSense` determines which fires escape.
-`fireSense` then passes the information on the pixels that are burning to `scfmSpread`, which spreads the fires.
+`fireSense` then passes the information on pixels that are burning to `scfmSpread`, which spreads the fires.
 
 *Assumptions of the `fireSense` module*
 1. The number of fires per 6.25ha of each land class is has a negative binomial distribution. We also assume that the fire intensity

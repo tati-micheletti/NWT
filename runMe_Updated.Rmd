@@ -21,19 +21,19 @@ date: "Draft last revised 3/31/2019"
 
 The proposed work integrates simulation models of vegetation dynamics, wildfire, and anthropogenic change with 
 statistical models of songbird abundances and woodland boreal caribou (*Rangifer tarandus caribou*) resouorce selection and demographic
-parameters. The integrated model is used to forecast the spatial distribution of selected songbird species and the regional potential to
-sustain viable populations of woodland boreal caribou, under climate change over the 21st century. Other potential applications include
-quantifying the overlap between areas of high conservation value for birds and for caribou, and evaluating the conservation potential in
-these respects of specific candidate protected areas. The integrated model is implemented as a suite of eight modules in SpaDES (Chubaty
-and McIntire 2017), a cutting-edge R-based environment for developing and running spatial simulations over large spatial extents. The
-spatial extent of this work is Bird Conservation Region (BCR) 6 as contained within the Northwest Territories of Canada. All modules in
-this project use a 250m resolution.
+parameters. The integrated model is used to forecast the spatial distribution of selected songbird species and the regional potential
+to sustain viable populations of woodland boreal caribou, under climate change over the 21st century. Other potential applications
+include quantifying the overlap between areas of high conservation value for birds and for caribou, and evaluating the conservation
+potential inthese respects of specific candidate protected areas. The integrated model is implemented as a suite of eight modules in
+SpaDES (Chubaty and McIntire 2017), a cutting-edge R-based environment for developing and running spatial simulations over large
+spatial extents. The spatial extent of this work is Bird Conservation Region (BCR) 6 as contained within the Northwest Territories of
+Canada. All modules in this project use a 250m resolution.
 
-This project represents the cummulation of a novel integration method for discrete event simulations. To our knowledge it is the largest 
-and most comprehensive integration of landscape and climate change effects on Species At Risk todate. It represents a novel and
+This project represents the cummulation of a novel integration method for discrete event simulations. To our knowledge it is the
+largest and most comprehensive integration of landscape and climate change effects on Species At Risk todate. It represents a novel and
 important contribution to ecological forecasting, and contains the ability to uniquely address both national (i.e. *Species At Risk
-Act*) and international (i.e. *Convention on Biological Diversity Aichi Target 11*) policy mandates for biodiversity conservation today,
-and under anticipated future conditions.
+Act*) and international (i.e. *Convention on Biological Diversity Aichi Target 11*) policy mandates for biodiversity conservation
+today, and under anticipated future conditions.
 
 The models contained within this project represent regional processes and do not reflect projected landscape specific results. The
 results from this project are to be used for regional planning initiatives and are built off of known ecological processes and
@@ -102,7 +102,7 @@ IMPORTANT ASSUMPTION TO ADD: This module does not model seismic lines - see cave
 ASSUMPTION: no success with anthropogenic disturbance
 Explains both road density layer and buffered 500m layer.
 
-
+## DIANA GETTING BACK TO ME ON REPORT CITATION FOR THIS MODULE##
 \textcolor{blue}{birdsNWT}: The birds module loads an existing glm object for each species located in  
                             https://drive.google.com/open?id=1obSvU4ml8xa8WMQhQprd6heRrN47buvI. ## This module projects the species
                             abundance of each bird species under forecasted landscape and climate conditions ##
@@ -117,8 +117,8 @@ predictions (png format). The ‘cvsum’ function summarizes cross-validation s
 Avian data for Bird Conseravation Region (BCR) 6 were extracted from the Boreal Avian Modelling project avian dataset (Cumming et al.
 2010, Barker et al. 2015) and supplemented with data from automated recording units (ARU) collected by Environment and Climate Change
 Canada (Haché et al. unpublished data) and the University of Alberta Bioacoustic Unit (Bayne et al. unpublished data). Density offsets
-were calculated according to methods described in Sólymos et al. (2013), and were based on the assumption that ARU data detectability is
-similar to detectability by human observers (Yip et al. 2017).
+were calculated according to methods described in Sólymos et al. (2013), and were based on the assumption that ARU data detectability
+is similar to detectability by human observers (Yip et al. 2017).
 
 Bird models were based on a restricted set of covariates that were either (a) assumed static over time or (b) direct outputs of the
 `LandR` biomass module. We intentionally excluded climate covariates that also drive changes in vegetation and fire, given the assumed
@@ -152,9 +152,9 @@ al.’s (2017) predicted biomass layers for 2001 or 2011, depending on the date 
 *Abies balsamea, Betula papyrifera, Larix laricina, Picea glauca, Picea mariana, Pinus banksiana, Pinus contorta, Populus balsamifera,
 Populus tremuloides*
 
-Models were developed for 71 passerine and near-passerine species that a) currently breed either in the Northwest Territories or Alberta
-portions of BCR 6, b) for which density offsets were available, and c) for which data were sufficient to fit cross-validated BRTs (see
-list below, in taxonomic order). For this project simulations were generated for 10 species, including:
+Models were developed for 71 passerine and near-passerine species that a) currently breed either in the Northwest Territories or
+Alberta portions of BCR 6, b) for which density offsets were available, and c) for which data were sufficient to fit cross-validated
+BRTs (see list below, in taxonomic order). For this project simulations were generated for 10 species, including:
 
 SWTH    Swainson's Thrush (*Catharus ustulatus*) 
 OVEN    Ovenbird (*Seiurus aurocapilla*)
@@ -182,33 +182,35 @@ Future versions of the `birdsNWT` module could include:
 BCR6. A full list of 71 possible species include:
 
 Alder Flycatcher (*Empidonax alnorum*), American Crow (*Corvus brachyrhynchos*), American Goldfinch (*Spinus tristis*), American Pipit
-(*Anthus rubescens8), American Redstart (*Setophaga ruticilla*), American Robin (*Turdus migratorius*), American Tree Sparrow (*Spizella
-arborea*), Black-and-white Warbler (*Mniotilta varia*), Bay-breasted Warbler (*Setophaga castanea*), Black-backed Woodpecker (*Picoides
-arcticus*), Black-capped Chickadee (Poecile atricapillus), Brown-headed Cowbird (Molothrus ater), Blue-headed Vireo (Vireo solitarius),
-Blackburnian Warbler (Setophaga fusca), Blue Jay (Cyanocitta cristata), Blackpoll Warbler (Setophaga striata), Boreal Chickadee (Poecile
-hudsonicus), Brewer’s Blackbird (Euphagus cyanocephalus), Brown Creeper (Certhia americana), Brown Thrasher (toxostoma rufum), Black
-throated Green Warbler (Setophaga virens), Canada Warbler (Cardellina canadensis), Clay-colored Sparrow (Spizella pallida), Cedar
-Waxwing (Bombycilla cedrorum), Chipping Sparrow (Spizella passerina), Cape May Warbler (Setophaga tigrina), Common Grackle (Quiscalus
-quiscula), Connecticut Warbler (Oporornis agilis), Common Raven (Corvus corax), Common Redpoll (Acanthis flammea), Common Yellowthroat
-(Geothlypis trichas), Chestnut-sided Warbler (Setophaga pensylvanica), Dark-eyed Junco (Junco hyemalis), Eastern Kingbird (Tyrannus
-tyrannus), Eastern Phoebe (Sayornis phoebe), Evening Grosbeak (Coccothraustes vespertinus), Fox Sparrow (Passerella iliaca), Golden
-crowned Kinglet (Regulus satrapa), Gray-cheeked Thrush (Catharus minimus), Gray Jay (Perisoreus canadensis), Gray Catbird (Dumetella
-carolinensis), Hammond's Flycatcher (Empidonax hammondii), Hermit Thrush (Catharus guttatus), Horned Lark (Eremophila alpestris) , House
-Wren (Troglodytes aedon), Le Conte's Sparrow (Ammodramus leconteii), Least Flycatcher (Empidonax minimus), Lincoln's Sparrow (Melospiza
-lincolnii), Magnolia Warbler (Setophaga magnolia), Mourning Warbler (Geothlypis philadelphia), Nashville Warbler (Oreothlypis
-ruficapilla), Northern Waterthrush (Parkesia noveboracensis), Orange-crowned Warbler (Oreothlypis celata), Olive-sided Flycatcher
-(Contopus cooperi), Ovenbird (Seiurus aurocapilla), Palm Warbler (Setophaga palmarum), Philadelphia Vireo (Vireo philadelphicus), Pine
-Grosbeak (Pinicola enucleator), Pine Siskin (Spinus pinus), Pileated Woodpecker (Dryocopus pileatus), Purple Finch (Haemorhous
-purpureus), Rose-breasted Grosbeak (Pheucticus ludovicianus), Red-breasted Nuthatch (Sitta canadensis), Ruby-crowned Kinglet (Regulus
-calendula), Red-eyed Vireo (Vireo olivaceus), Ruffed Grouse (Bonasa umbellus), Rusty Blackbird (Euphagus carolinus), Red-winged
-Blackbird (Agelaius phoeniceus), Savannah Sparrow (Passerculus sandwichensis), Sedge Wren (Cisthothorus platensis), Song Sparrow
-(Melospiza melodia), Swamp Sparrow (Melospiza georgiana), Swainson's Thrush (Catharus ustulatus), Tennessee Warbler (Oreothlypis
-peregrina), Townsend's Warbler (Setophaga townsendi), Tree Swallow (Tachycineta bicolor), Varied Thrush (Ixoreus naevius), Veery
-(Catharus fuscescens), Vesper Sparrow (Pooecetes gramineus), Warbling Vireo (Vireo gilvus), White-breasted Nuthatch (Sitta
-carolinensis), White-crowned Sparrow (Zonotrichia leucophrys), Western Tanager (Piranga ludoviciana), Western Wood-Pewee (Contopus
-sordidulus), Wilson's Warbler (Cardellina pusilla), Winter Wren (Troglodytes hiemalis), White-throated Sparrow (Zonotrichia albicollis),
-White-winged Crossbill (Loxia leucoptera), Yellow-bellied Sapsucker (Sphyrapicus varius), Yellow-bellied Flycatcher (Empidonax
-flaviventris), Yellow-rumped Warbler (Setophaga coronata), Yellow Warbler (*Setophaga petechia*) 
+(*Anthus rubescens8), American Redstart (*Setophaga ruticilla*), American Robin (*Turdus migratorius*), American Tree Sparrow
+(*Spizella arborea*), Black-and-white Warbler (*Mniotilta varia*), Bay-breasted Warbler (*Setophaga castanea*), Black-backed Woodpecker
+(*Picoides arcticus*), Black-capped Chickadee (*Poecile atricapillus*), Brown-headed Cowbird (*Molothrus ater*), Blue-headed Vireo
+(*Vireo solitarius*), Blackburnian Warbler (*Setophaga fusca*), Blue Jay (*Cyanocitta cristata*), Blackpoll Warbler (*Setophaga
+striata*), Boreal Chickadee (*Poecile hudsonicus*), Brewer’s Blackbird (*Euphagus cyanocephalus*), Brown Creeper (*Certhia americana*),
+Brown Thrasher (*Toxostoma rufum*), Black throated Green Warbler (*Setophaga virens*), Canada Warbler (*Cardellina canadensis*), Clay
+colored Sparrow (*Spizella pallida*), Cedar Waxwing (*Bombycilla cedrorum*), Chipping Sparrow (*Spizella passerina*), Cape May Warbler
+(*Setophaga tigrina*), Common Grackle (*Quiscalus quiscula*), Connecticut Warbler (*Oporornis agilis*), Common Raven (*Corvus corax*),
+Common Redpoll (*Acanthis flammea*), Common Yellowthroat (*Geothlypis trichas*), Chestnut-sided Warbler (*Setophaga pensylvanica*),
+Dark-eyed Junco (*Junco hyemalis*), Eastern Kingbird (*Tyrannus tyrannus*), Eastern Phoebe (*Sayornis phoebe*), Evening Grosbeak
+(*Coccothraustes vespertinus*), Fox Sparrow (*Passerella iliaca*), Golden crowned Kinglet (*Regulus satrapa*), Gray-cheeked Thrush
+(*Catharus minimus*), Gray Jay (*Perisoreus canadensis*), Gray Catbird (*Dumetella carolinensis*), Hammond's Flycatcher (*Empidonax
+hammondii*), Hermit Thrush (*Catharus guttatus*), Horned Lark (*Eremophila alpestris*) , House Wren (*Troglodytes aedon*), Le Conte's
+Sparrow (*Ammodramus leconteii*), Least Flycatcher (*Empidonax minimus*), Lincoln's Sparrow (*Melospiza lincolnii*), Magnolia Warbler
+(*Setophaga magnolia*), Mourning Warbler (*Geothlypis philadelphia*), Nashville Warbler (*Oreothlypis ruficapilla*), Northern
+Waterthrush (*Parkesia noveboracensis*), Orange-crowned Warbler (*Oreothlypis celata*), Olive-sided Flycatcher (*Contopus cooperi*),
+Ovenbird (*Seiurus aurocapilla*), Palm Warbler (*Setophaga palmarum*), Philadelphia Vireo (*Vireo philadelphicus*), Pine Grosbeak
+(*Pinicola enucleator*), Pine Siskin (*Spinus pinus*), Pileated Woodpecker (*Dryocopus pileatus*), Purple Finch (*Haemorhous
+purpureus*), Rose-breasted Grosbeak (*Pheucticus ludovicianus*), Red-breasted Nuthatch (*Sitta canadensis*), Ruby-crowned Kinglet
+(*Regulus calendula*), Red-eyed Vireo (*Vireo olivaceus*), Ruffed Grouse (*Bonasa umbellus*), Rusty Blackbird (*Euphagus carolinus*),
+Red-winged Blackbird (*Agelaius phoeniceus*), Savannah Sparrow (*Passerculus sandwichensis*), Sedge Wren (*Cisthothorus platensis*),
+Song Sparrow (*Melospiza melodia*), Swamp Sparrow (*Melospiza georgiana*), Swainson's Thrush (*Catharus ustulatus*), Tennessee Warbler
+(*Oreothlypis peregrina*), Townsend's Warbler (*Setophaga townsendi*), Tree Swallow (*Tachycineta bicolor*), Varied Thrush (*Ixoreus
+naevius*), Veery (*Catharus fuscescens*), Vesper Sparrow (*Pooecetes gramineus*), Warbling Vireo (*Vireo gilvus*), White-breasted
+Nuthatch (*Sitta carolinensis*), White-crowned Sparrow (*Zonotrichia leucophrys*), Western Tanager (*Piranga ludoviciana*), Western
+Wood-Pewee (*Contopus sordidulus*), Wilson's Warbler (*Cardellina pusilla*), Winter Wren (*Troglodytes hiemalis*), White-throated
+Sparrow (*Zonotrichia albicollis*), White-winged Crossbill (*Loxia leucoptera*), Yellow-bellied Sapsucker (*Sphyrapicus varius*),
+Yellow-bellied Flycatcher (*Empidonax flaviventris*), Yellow-rumped Warbler (*Setophaga coronata*), Yellow Warbler (*Setophaga
+petechia*) 
 
  
 \textcolor{blue}{caribou}: The `caribou` module is composed of two main modules:  `caribouRSFModel` and `caribouPopGrowthModel`. Each
@@ -222,8 +224,8 @@ flaviventris), Yellow-rumped Warbler (Setophaga coronata), Yellow Warbler (*Seto
 `caribouRSFModel`
 The statistical relationship between caribou telemetry collars and the landscape has been summarized within the Environment Canada 2011
 Scientific Report as a resource selection function (sensu Manly et al. 2002). This module is based off of the top Taiga Plains ecozone
-resource selection function (Environment Canada 2011; Table 46), generated from data collected from 24 Alberta, 50 British Columbia, and
-169 NWT collared adult female caribou between 2000 and 2010 (Environment Canada 2011; Table 39).
+resource selection function (Environment Canada 2011; Table 46), generated from data collected from 24 Alberta, 50 British Columbia,
+and 169 NWT collared adult female caribou between 2000 and 2010 (Environment Canada 2011; Table 39).
 
 In the Taiga Plains ecozone, the relative probability of adult female boreal caribou resource selection (0 to 1) is best described by
 (Environment Canada 2011; Table 46):
@@ -235,8 +237,8 @@ The definition, and units of measurement, for each of the predictor variables in
 2011 Table 40. The methods behind model development can be found throughout Environment Canada 2011 Appendix 7.3. 
 
 Model covariates were assumed to either be static, or were obtained from other modules within this project:
-1  Elevation (static; DEM)
-2  Vrug (static; DEM)
+1  Elevation (static; AdaptWest)
+2  Vrug (static; adapted from AdaptWest sensu Sappington et al. 2007)
 3  RoadDensity (static; `anthropogenic`)
 4  Deciduous (dynamic; `LandR`)
 5  Shrub (static; LCC05)
@@ -294,14 +296,14 @@ the total disturbance within a caribou study area (Environment Canada 2011; Tabl
 
                                           $Rec ~ total disturbance$                                     Eq 2.
 
-The methods behind Eq 2. development can be read in Environment Canada 2011 (Appendix 7.6). The total disturbance within a study area is
-described as the “percent total non-overlapping fire and anthropogenic disturbance (500 m buffer on anthropogenic; reservoirs removed)”
-(Environment Canada 2011, Table 54). Fire is measured as “percent fire > 40 years old” within a caribou study area and anthropogenic is
-measured as “percent non-overlapping anthropogenic disturbance (500 m buffer)” within a caribou study area (Environment Canada 2011;
-Table 52). This module uses the rasterized output maps of both the `FireSense` (climate sensitive), and `anthropogenic` module. These
-map the presence/absence of fire < 40 years old, or anthropogenic disturbances, at each 250 m x 250m pixels. These rasterized maps were
-over-layed, were used to calculate the percent non-overlapping total disturbance within a caribou study area for each time step, and are
-used as inputs for this statistical relationship (Eq 2.).
+The methods behind Eq 2. development can be read in Environment Canada 2011 (Appendix 7.6). The total disturbance within a study area
+is described as the “percent total non-overlapping fire and anthropogenic disturbance (500 m buffer on anthropogenic; reservoirs
+removed)" (Environment Canada 2011, Table 54). Fire is measured as “percent fire > 40 years old” within a caribou study area and
+anthropogenic is measured as “percent non-overlapping anthropogenic disturbance (500 m buffer)” within a caribou study area
+(Environment Canada 2011; Table 52). This module uses the rasterized output maps of both the `FireSense` (climate sensitive), and
+`anthropogenic` module. These map the presence/absence of fire < 40 years old, or anthropogenic disturbances, at each 250 m x 250m
+pixels. These rasterized maps were over-layed, were used to calculate the percent non-overlapping total disturbance within a caribou
+study area for each time step, and are used as inputs for this statistical relationship (Eq 2.).
 
 This module projects Eq 2 based off the the coefficients provided in (Environment Canada 2011; Table 56, model M3).
 
@@ -1103,6 +1105,9 @@ Riitters, K. H. 2005. Downscaling indicators of forest habitat structure from na
 
 Stewart, F. E. C., J. T. Fisher, A. C. Burton and J. P. Volpe. 2018. Species occurrence data reflect the magnitude of animal movements
 better than the proximity of animal space use. Ecosphere, 9(2).
+
+Sappington, J. M., K. M. Longshore and D. B. Thomson. 2007. Quantifiying Landscape Ruggedness for Animal Habitat Anaysis: A case Study
+Using Bighorn Sheep in the Mojave Desert. Journal of Wildlife Management. 71(5):1419 -1426. 
 
 Sólymos, P., S. M. Matsuoka, E. M. Bayne, S. R. Lele, P. Fontaine, S. G. Cumming, D. Stralberg, F. K. A. Schmiegelow, and S. J. Song.
 2013. Calibrating indices of avian density from non-standardized survey data: making the most of a messy situation. Methods in Ecology

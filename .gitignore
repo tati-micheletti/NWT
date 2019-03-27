@@ -1,3 +1,4 @@
+.httr-oauth
 .Rhistory
 .Rapp.history
 .RData
@@ -47,3 +48,9 @@ tmp/
 inputs/*.*
 data/caribouCoefTable.csv
 NationalModel
+outputs/*.*
+outputs/
+inputs/
+./outputs
+./inputs
+

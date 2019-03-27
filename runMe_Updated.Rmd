@@ -6,14 +6,14 @@ authors: "Tati Micheletti^1^", "Steve Cumming^2^", "Frances Stewart^3^", "Diana 
 affiliations: "^1^ University of British Columbia", "^2^ University of Laval", "^3^ Natural Resources Canada, Canadian Forest Service",
 "^4^ University of Alberta", "^4^WavX Inc."
 date: "Draft last revised 3/31/2019"
- html_document:
-    keep_md: yes
-    toc: yes
-    toc_depth: 5
- pdf_document:
-    keep_md: yes
-    toc: yes
-    toc_depth: 5
+ # html_document:
+ #    keep_md: yes
+ #    toc: yes
+ #    toc_depth: 5
+ # pdf_document:
+ #    keep_md: yes
+ #    toc: yes
+ #    toc_depth: 5
 ---
 
 
@@ -368,7 +368,7 @@ first update all your packages and then install SpaDES.
 Make sure you restart your session after installing all packages.
 
 ```{r github, include=FALSE, eval = FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = FALSE, eval = FALSE)
 
 update.packages(checkBuilt = TRUE)
 devtools::install_github("PredictiveEcology/reproducible@development")
@@ -751,8 +751,8 @@ And finally the simulation call (note that the argument `debug = 2` lists all pr
 Now we try running LandR with climate sensitivity and fireSense
 ```{r LandR_CS}
 
-start_year <- 2010
-end_year <- 2015
+start_year <- 0
+end_year <- 2
 times <- list(start = start_year, end = end_year)
 
 library("googledrive")
@@ -785,6 +785,13 @@ modulesLandR_fS_FEENIX <- c("climate_NWT_DataPrep",
                             "Biomass_regeneration", 
                             "LBMR")
 
+objectSynonyms <- list(c("biomassMap", "kNN_Biomass"), 
+                       c("standAgeMap", "kNN_AgeMap"),
+                       c("vegMap", "LCC2005"),
+                       c("VRUG", "Vrug"))
+
+.objects <- c(.objects, list(objectSynonyms = objectSynonyms))
+
 parametersFireSense <- list(
   climate_NWT_DataPrep = list(
     rcp = 45, # 45 or 85
@@ -801,10 +808,10 @@ parametersFireSense <- list(
     data = c("MDC06", "LCC")
   ),
   LBMR2LCC_DataPrep = list(
-    .runInitialTime = 2016
+    .runInitialTime = 0
   ),
   fireSense_NWT = list(
-    .runInitialTime = 2016    
+    .runInitialTime = 0    
   )
 )
 
@@ -819,6 +826,16 @@ assign(paste0("LandR_FireSense_", runVersion),
                                 objects = .objects, paths = paths,
                                 loadOrder = unlist(modulesLandR_fS_FEENIX),
                                 outputs = outputsLandR, debug = 2))
+
+
+# AFTER RUNNING, NEED TO MASK OUT THE NON FORESTED PIXELS!
+# LCC05 -> So we can exclude the non-forest/non-burned classes
+# LCC05 <- LandR::prepInputsLCC(destinationPath = tempdir(),
+#                                       studyArea = studyAreaNWT,
+#                                       rasterToMatch = rasterToMatch)
+# forestClasses <- c(1:15, 34:35)
+# rasterToMatch[!LCC05 %in% forestClasses] <- NA
+
 ```
 
 #### Outputs from `LandR`, `FireSense`, and `FEENIX` - STILL TO ADD

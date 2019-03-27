@@ -75,35 +75,60 @@ TOTAL                 |  5.70 days
 The structure and methods used for each one of the modules is as follows:
 
 
-## CERES IS ADDING INFORMATION TO THIS ##
-\textcolor{blue}{LandR}: `LandR` is a landscape dynamic vegetation model; it simulates landcape-scale forest dynamics in a spatio-termporal explicit manner. The `LandR` group of modules is composed of one data treatment and parameterisation module, and one group of modules that simulate biomass usccession dynamics. The first module, `Boreal_LBMRDataPrep` calculates site-specific parameters needed by the biomass succession modules - for this project these site specific parameters are Bird Conservation Region (BCR) 6 within the Northwest Territories. For instance, maximum biomass, above-ground net primary productiviey (aNPP), and establishment probabilities from seed germination are calculated separately depending on tree species, ecodistrict, land cover, stand age, and species cover. This module also provides other parameters, such as species tolerances to shade, and plant traits (e.g. longevity, ability to resprout, etc.). These traits were obtained from trait tables used in LANDIS-II, available from Dominic Cyr's GitHub page (https://raw.githubusercontent.com/dcyr/LANDIS-II_IA_generalUseFiles/master/speciesTraits.csv)
+## CERES TO DOUBLE CHECK - ONGOING ## 
+\textcolor{blue}{LandR}: `LandR` is a landscape dynamic vegetation model; it simulates landcape-scale forest dynamics in a spatio
+                          termporally explicit manner. The `LandR` group of modules is composed of one data treatment and
+                          parameterisation module, and one group of modules that simulate biomass usccession dynamics. 
 
-The group of modules, named `LandR_Biomass` form the core of the vegetation success model. These modules were inspired by the LANDIS-II Biomass Success module (v6.2), but have since been changed (i.e. spin-up was removed; Barros et al. in prep). They consist of (1) `LBMR`, the `LandR` module responsible for vegetation aging, dispersal, updating biomass folowing other modules' events, and producing summary figures and tables; (2) `LandR_BiomassGMOrig`, the `LandR` module responsible for cohoer growth and mortality; and (3) `Biomass_regeneration`, the `LandR` module which handles post-disturbance (i.e. fire) biomass regneration. `LandR` needs at least the first two modules (`LBMR` and `LandR_BiomassGMOrig`) to produce sensible vegetation dynamics.
+The first module, `Boreal_LBMRDataPrep` calculates site-specific parameters needed by the biomass succession modules - for this project
+these site specific parameters are Bird Conservation Region (BCR) 6 within the Northwest Territories. For instance, maximum biomass,
+above-ground net primary productiviey (aNPP), and establishment probabilities from seed germination are calculated separately depending
+on tree species, ecodistrict, land cover, stand age, and species cover. This module also provides other parameters, such as species
+tolerances to shade, and plant traits (e.g. longevity, ability to resprout, etc.). These traits were obtained from trait tables used in
+LANDIS-II, a popular forest-landscape simulation model, and are available from Dominic Cyr's GitHub page: 
+(https://raw.githubusercontent.com/dcyr/LANDIS-II_IA_generalUseFiles/master/speciesTraits.csv)
 
-In brief, the `LandR` modules reproduce forest biomass dynamics in a spatially explicit manner at the landscape scale. They simulate biomass changes by cohort (species-age combinations) as a function of age, between-cohort competition for light resources, seed dispersal and germination, regeneration following a disturbance, and background or fire-related mortality.
+The group of modules, named `LandR_Biomass` form the core of the vegetation succession model. These modules were inspired by the
+LANDIS-II Biomass Success module (v6.2), but have since been changed (i.e. spin-up was removed; Barros et al. in prep). They consist of
+(1) `LBMR`, the `LandR` module responsible for vegetation aging, dispersal, updating biomass folowing other modules' events, and
+producing summary figures and tables; (2) `LandR_BiomassGMOrig`, the `LandR` module responsible for cohort growth and mortality; and
+(3) `Biomass_regeneration`, the `LandR` module which handles post-disturbance biomass regneration (e.g. fire). `LandR` needs at least
+the first two modules (`LBMR` and `LandR_BiomassGMOrig`) to produce sensible vegetation dynamics.
 
-Because the `LandR` model is suited for forest dynamics, pixes that correspond to non-forested LCC05 classes were not used to report results presented here, although they were allowed to be in the simulation for fire spread.
+In brief, the `LandR` modules reproduce forest biomass dynamics in a spatially explicit manner at the landscape scale. They simulate
+biomass changes by cohort (species-age combinations) as a function of age, between-cohort competition for light resources, seed
+dispersal and germination, regeneration following a disturbance, and background or fire-related mortality.
 
 *Current limitations of the `LandR` module*
-One of the greatest advantages of using `Boreal_LBMRDataPrep` is that parameters used for the vegetation succession modules can be directly estimated from data. This is done “automatically” should the data or study area change. As with any model, this means that model predictions need to be calibrated every time the study area changes. At the moment, none of the modules within the `LandR` group automatically calibrate themselves. We have identified some limitations arising from this:
+One of the greatest advantages of using `Boreal_LBMRDataPrep` is that parameters used for the vegetation succession modules can be
+directly estimated from data. This is done “automatically” should the data or study area change. As with any model, this means that
+model predictions need to be calibrated every time the study area changes. At the moment, none of the modules within the `LandR` group
+automatically calibrate themselves. We have identified some limitations arising from this caveate:
+
+1. *Initial decrease in biomass in forested pixels*. Initial decreases in biomass during the first decades of the simulation are most
+likely due to starting ages (![Canada national stand age map](http://tree.pfc.forestry.ca/kNN-StructureStandVolume.tar)) being too
+close to species’ longevity parameters (from LANDIS-II Biomass Succession v6.2 traits table). This results in many cohorts either dying
+immediately, or almost immediately, at the beginning of the simulation leading to a decrease in total biomass. Stand age maps and tree
+longevity are known to be flawed. On the one the one hand, estimating stand age can be tricky and often relies on allometry
+relationships which can vary immensely across environmental gradients. On the other hand, tree longevity is frequently estimated from
+the average maximum “observed” ages (i.e. realized age) for a given species; observed age is greatly dependent on the environment and
+disturbance conditions to which populations are exposed, rather than the potential maximum age of a tree under favourable conditions.
+
+2. Because the `LandR` model is suited for forest dynamics, pixeLs that correspond to non-forested LCC05 classes were not used to
+report results presented here, although they were allowed to be in the simulation for fire spread.
 
 
+Future versions of the `LandR` module group could include:
+1. A spin-up similar to LANDIS-II (simulating cohort growth from time 0, minus stand age) to address the potential maximum tree age and
+biomass conditions. However, Biomasses will still need to be adjusted to match the observed current biomass, and this requires starting
+with even-aged stands in places where forest may have a complex age structure and mixed species composition. An alternate solution may
+be to let the model run for a few hundred timesteps (*i.e.* a stabilization phase) until vegetation dynamics reach quasi-equilibrium,
+before introducing the subsequent modules within this project that rely on results from `LandR` (*i.e.* `birdsNWT`, `caribouRSFModel`, and `caribouPopGrowthModel`). This change would address current `LandR` limitation #1.
 
-
-
-
-
-
-
-This group of modules is composed of one module and one group of modules. The first module,
-                         `Boreal_LBMRDataPrep` calculates  site-specific parameters (ie BRC6 within NWT) needed by the biomass 
-                         succession modules. Maximum biomass and NPP are calculated separately for each unique combination of tree
-                         species, stand age, ecodistrict, and land cover. The group of modules (`LandR_Biomass`) form the core of the
-                         original LANDIS-II Biomass Succession module. They consist of (1) `LandR_BiomassGMOrig`,  responsible for
-                         cohort growth and mortality, (2) `Biomass_regeneration`, which handles post-disturbance biomass regeneration,
-                         and (3) `LBMR`,  the LANDR module responsible for vegetation dispersal, as well as summary figures and tables.
-                         LandR needs at least these last three modules to work.
-
+2. Models such as `LandR` will often overestimate tree cover and biomass because they lack quantified ecological mechanisms that limit
+tree growth (*i.e.* differences in growing season length, soil nutrient availability, or water availability). Future versions on the
+`LandR` modules could ignore this limitation, or incorporate estimates for these mechanisms, allowing  `LandR` to predict for ares that
+do not coresspond to purely forested areas. This change would address current `LandR` limitation #2.
 
 
 ## JEAN TO ADD INFORMATION TO FIRE SENSE, ALEX TO ADD INFORMATION TO FEENIX (SCFM)##
@@ -1087,8 +1112,11 @@ Araújo, M. B., W. Thuiller, P. H. Williams and I. Reginster. 2005. Downscaling 
 resolution: implications for conservation planning. Global Ecology and Biogeography, 14(1):17-30.
 
 Barker, N. K. S., P. C. Fontaine, S. G. Cumming, D. Stralberg, A. Westwood, E. M. Bayne, P. Sólymos, F. K. A. Schmiegelow, S. J. Song,
-and D. J. Rugg. 2015. Ecological monitoring through harmonizing existing data: Lessons from the boreal avian modelling project. Wildlife
-Society Bulletin 39:480-487. http://dx.doi.org/10.1002/wsb.567
+and D. J. Rugg. 2015. Ecological monitoring through harmonizing existing data: Lessons from the boreal avian modelling project.
+Wildlife ociety Bulletin 39:480-487. http://dx.doi.org/10.1002/wsb.567
+
+Barros, C., Y. Lou, E. J. B. McIntire, A. M. Chubaty, I. Eddy, D. Andison and S. Cumming. Empowering ecologists in a simulation
+context: using R data for complex landscape modelling, the LandR study case. In preparation. 
 
 Beaudoin, A., P. Y. Bernier, P. Villemaire, L. Guindon, and X. J. Guo. 2017. Tracking forest attributes across Canada between 2001 and
 2011 using a k nearest neighbors mapping approach applied to MODIS imagery. Canadian Journal of Forest Research 48:85-93.

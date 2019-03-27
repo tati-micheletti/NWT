@@ -135,12 +135,14 @@ forested pixels, or incorporate estimates for these mechanisms allowing  `LandR`
 forested areas. This change would address current `LandR` limitation #2.
 
 
-## JEAN TO ADD INFORMATION TO FIRE SENSE, ALEX TO ADD INFORMATION TO FEENIX (SCFM)##
+## JEAN TO ADD INFORMATION TO FIRE SENSE ##
+## ALEX AND IAN TO ADD INFORMATION TO FEENIX (SCFM) ##
 \textcolor{blue}{fireSense}: `fireSense` is a wildfire simulation module that is seneitive to both climate and vegetation change; it
-reproduces the spatial and temporal variation of both the number of fires, and fire escape probability. `fireSense` is composed of two
-groups of modules; a group that prepares and formats the data (`climate_NWT_DataPrep`, `fireSense_NWT_DataPrep`, `LBMR2LCC_DataPrep`,
-and `MDC_NWT_DataPrep`), and a group that impliments the algorithms needed to simulate fire (`fireSense_FrequencyFit`,
-`fireSense_FrequencyPredict`, `fireSense_EscapeFit`, and `fireSense_EscapePredict`).
+                              reproduces the spatial and temporal variation of both the number of fires, and fire escape probability.
+                              `fireSense` is composed of two groups of modules; a group that prepares and formats the data
+                              (`climate_NWT_DataPrep`, `fireSense_NWT_DataPrep`, `LBMR2LCC_DataPrep`, and `MDC_NWT_DataPrep`), and a
+                              group that impliments the algorithms needed to simulate fire (`fireSense_FrequencyFit`,
+                              `fireSense_FrequencyPredict`, `fireSense_EscapeFit`, and `fireSense_EscapePredict`).
 
 Briefly, the `fireSense` data preparation modules consist of:
 `climate_NWT_DataPrep` downloads climate data from the AdaptWest project, performs GIS operations on climate layers and makes them
@@ -152,12 +154,23 @@ resulting layer available to other modules.
 `fireSense_NWT_DataPrep` performs GIS operations on fire and vegetation data, as well as a number of operations to prepare the data for
 analysis/prediction and makes the resulting datasets available to other modules.
 
-`LBMR2LCC_DataPrep` translates `LandR_Biomass` outputs into landcover classes as needed by `fireSense` modules. It relies on a
-classifier built with the XGBoost library (Chen and Guestrin 2016) for the translation. The following table summarises the classifier
-accuracy per landcover class on the validation dataset.
+`LBMR2LCC_DataPrep` translates `LandR_Biomass` outputs into seven of the nine land cover classes as needed by `fireSense` (Table 1); the other two classes are the "non-fuel" class, which is ssumed to be static in time and the "recently disturbed" class which is not based on biomass but on age. Pixels are considered disturbed if the time since last fisturbance is less than 16 years. This module relies on a classifier build within the XGBoost library (Chen and Guestrin 2016) this this translation. Table 2 summarises the accuracy per land cover class for the validation dataset.
 
-![Table 1. Classifer accuracy per landcover class on the validation dataset]
-|Landcover class            | Accuracy|
+![Table 1. Correspondence between the land cover classes used by `fireSense` and code from the Land Cover Map of Canada 2005]
+|Land cover class           | Land cover map of Canada 2005 original code(s)             |
+|:-------------------------:|:-----------------------------------------------------------|
+|Conifer medium-density     | 7                                                          |
+|Herbs and shrubs           | 16, 17, 18, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 |
+|Mixedwood conifer-dominated| 13                                                         |
+|Non-fuel                   | 33, 36, 37, 38, 39                                         |
+|Open conifer               | 20                                                         |
+|Other conifer              | 1, 6, 8, 9, 10                                             |
+|Other treed                | 2, 3, 4, 5, 11, 12, 14, 15                                 |
+|Recently disturbed         | 34, 35                                                     |
+|Wetlands                   | 19                                                         |
+
+![Table 2. Classifer accuracy per landcover class on the validation dataset]
+|Land cover class           | Accuracy|
 |:-------------------------:|:--------|
 |Conifer medium-density     | 0.68    |
 |Herbs and shrubs           | 0.79    |

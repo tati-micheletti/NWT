@@ -135,10 +135,9 @@ forested pixels, or incorporate estimates for these mechanisms allowing  `LandR`
 forested areas. This change would address current `LandR` limitation #2.
 
 
-<!-- JEAN TO Check INFORMATION on FIRE SENSE-->
-\textcolor{blue}{fireSense}: `fireSense` is a landscape fire simulation module that is sensitive to both climate and vegetation change; it
-                              reproduces the spatial and temporal variation of both the number of fires, and fire escape probability.
-                              `fireSense` is composed of two groups of modules; a group that prepares and formats the data
+\textcolor{blue}{fireSense}: `fireSense` is a landscape fire simulation module that is sensitive to both climate and vegetation change;
+                              it reproduces the spatial and temporal variation of both the number of fires, and fire escape
+                              probability. `fireSense` is composed of two groups of modules; a group that prepares and formats the data
                               (`climate_NWT_DataPrep`, `fireSense_NWT_DataPrep`, `LBMR2LCC_DataPrep`, and `MDC_NWT_DataPrep`), and a
                               group that implements the algorithms needed to simulate fire (`fireSense_FrequencyFit`,
                               `fireSense_FrequencyPredict`, `fireSense_EscapeFit`, and `fireSense_EscapePredict`).

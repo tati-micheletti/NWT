@@ -232,10 +232,9 @@ ASSUMPTION: no success with anthropogenic disturbance
 Explains both road density layer and buffered 500m layer.
 
 
-<!--DIANA GETTING BACK TO ME ON REPORT CITATION FOR THIS MODULE-->
-\textcolor{blue}{birdsNWT}: The birds module loads an existing glm object for each species located in  
-                            https://drive.google.com/open?id=1obSvU4ml8xa8WMQhQprd6heRrN47buvI. ## This module projects the species
-                            abundance of each bird species under forecasted landscape and climate conditions ##
+\textcolor{blue}{birdsNWT}: The birds module projects species abundance of bird species under forecasted landscape and climate
+                            conditions. This module loads an existing glm model object for each species, located in  
+                            (https://drive.google.com/open?id=1obSvU4ml8xa8WMQhQprd6heRrN47buvI).
 
 The `birdsNWT` module develops boosted regression tree (BRT) models from avian point-count data and associated covariates using the
 gbm.step function in the ‘dismo’ package (Hijmans et al. 2011) with a Poisson distribution and 10-fold cross-validation. BRT settings
@@ -304,8 +303,8 @@ RCKI    Ruby-crowned Kinglet (*Regulus calendula*)
 2. We assume a lag in vegetation response to climate and therefore do not include climate covariates within this module that drive
 changes in vegetation and fire.
 
-3. The relative abundance of bird species is based on variation in occurence, rather than variations in movement (Stewart et al. 2018;
-Neilson et al. 2018; Hofmester et al. 2019).
+3. The relative abundance of bird species is based an environmental niche modeling approach with associated assumptions (Wiens et al.
+2009)
 
 Future versions of the `birdsNWT` module could include:
 1. Simulation for the remaining 61 species of passerine and near-passerine birds that breed either in the NWT or Alberta portions of
@@ -1248,9 +1247,6 @@ woodland caribou (*Rangifer tarandus caribou*) in Alberta. Cananadian Journal of
 Hijmans, R. J., S. Phillips, J. Leathwick, and J. Elith. 2011. Package ‘dismo’. Available online at http://cran.r
 project.org/web/packages/dismo/index.html.
 
-Hofmeester, T. R., J. P. Cromsigt, J. Odden, H. Andrén, J. Kindberg, J. D. Linnell. 2019. Framing pictures: A conceptual framework
-to identify and correct for biases in detection probability of camera traps enabling multi‐species comparison. Ecology and Evolution.
-
 Holling, C. S. 1992. Cross‐scale morphology, geometry, and dynamics of ecosystems. Ecological monographs 62(4): 447-502.
 
 Levin, S. A. 1992. The problem of pattern and scale in ecology: the Robert H. MacArthur award lecture. Ecology 73(6):pp.1943-1967.
@@ -1261,13 +1257,7 @@ statistical analysis and design for field studies. Second Edition. Kluwer, Bosto
 Mcloughlin, P. D., E. Dzus, B. O. B. Wynes, and S. Boutin. 2003. Declines in populations of woodland caribou. The Journal of Wildlife
 Management 67(4):755-761.
 
-Neilson, E. W.,  T. Avgar, A. C. Burton, K. Broadley and S. Boutin. 2018. Animal movement affects interpretation of occupancy models
-from camera‐trap surveys of unmarked animals. Ecosphere, 9(1).
-
 Riitters, K. H. 2005. Downscaling indicators of forest habitat structure from national assessments. Ecological indicators 5(4):273-279.
-
-Stewart, F. E. C., J. T. Fisher, A. C. Burton and J. P. Volpe. 2018. Species occurrence data reflect the magnitude of animal movements
-better than the proximity of animal space use. Ecosphere, 9(2).
 
 Sappington, J. M., K. M. Longshore and D. B. Thomson. 2007. Quantifiying Landscape Ruggedness for Animal Habitat Anaysis: A case Study
 Using Bighorn Sheep in the Mojave Desert. Journal of Wildlife Management. 71(5):1419 -1426. 
@@ -1287,6 +1277,9 @@ Sutherland, G. D., F. K. A. Schmiegelow, C-A. Johnson, E. J. B. McIntire, M. LeB
 demographic model to estimate likelihoods of recovering population of boreal caribou (*Rangifer tarandus caribou*). In preparation.
 
 Wiens, J. A. 1989. Scale in ecology. Functional Ecology 3:385-397.
+
+Wiens J. A., D. Stralberg, D. Jongsomjit, C. A. Howell and M. A. Snyder. 2009. Niches, models, and climate change: assessing the
+assumptions and uncertainties. Proceedings of the National Academy of Sciences 106(2):19729-36.
 
 Yip, D. A., L. Leston, E. M. Bayne, P. Sólymos, and A. Grover. 2017. Experimentally derived detection distances from audio recordings
 and human observers enable integrated analysis of point count data. Avian Conservation and Ecology 12.

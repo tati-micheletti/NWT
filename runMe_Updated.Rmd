@@ -75,7 +75,7 @@ TOTAL                 |  5.70 days
 The structure and methods used for each one of the modules is as follows:
 
 
-<!--CERES TO DOUBLE CHECK - ONGOING -->
+<!--FRANCES TO UPDATE WITH CERES FINAL COMMENTS - ONGOING -->
 \textcolor{blue}{LandR}: `LandR` is a landscape dynamic vegetation model; it simulates landcape-scale forest dynamics in a spatio
                           termporally explicit manner. The `LandR` group of modules is composed of one data treatment and
                           parameterisation module, and one group of modules that simulate biomass usccession dynamics. 
@@ -133,22 +133,44 @@ do not coresspond to purely forested areas. This change would address current `L
 
 
 ## JEAN TO ADD INFORMATION TO FIRE SENSE, ALEX TO ADD INFORMATION TO FEENIX (SCFM)##
-\textcolor{blue}{fireSense}: `fireSense` is a wildfire simulation module that is seneitive to both climate and vegetation change; it reproduces the spatial and temporal variation of both the number of fires, and fire escape probability. `fireSense` is composed of two groups of modules; a group that prepares and formats the data (`climate_NWT_DataPrep`, `fireSense_NWT_DataPrep`, `LBMR2LCC_DataPrep`, and `MDC_NWT_DataPrep`), and a group that impliments the algorithms needed to simulate fire (`fireSense_FrequencyFit`, `fireSense_FrequencyPredict`, `fireSense_EscapeFit`, and `fireSense_EscapePredict`).
+\textcolor{blue}{fireSense}: `fireSense` is a wildfire simulation module that is seneitive to both climate and vegetation change; it
+reproduces the spatial and temporal variation of both the number of fires, and fire escape probability. `fireSense` is composed of two
+groups of modules; a group that prepares and formats the data (`climate_NWT_DataPrep`, `fireSense_NWT_DataPrep`, `LBMR2LCC_DataPrep`,
+and `MDC_NWT_DataPrep`), and a group that impliments the algorithms needed to simulate fire (`fireSense_FrequencyFit`,
+`fireSense_FrequencyPredict`, `fireSense_EscapeFit`, and `fireSense_EscapePredict`).
+
+Briefly, the `fireSense` data preparation modules consist of:
+`climate_NWT_DataPrep` downloads climate data from the AdaptWest project, performs GIS operations on climate layers and makes them
+available to other modules.
+
+`MDC_NWT_DataPrep` computes the Monthly Drought Code from climate data following equations in Bergeron et al. (2010) and makes the
+resulting layer available to other modules.
+
+`fireSense_NWT_DataPrep` performs GIS operations on fire and vegetation data, as well as a number of operations to prepare the data for
+analysis/prediction and makes the resulting datasets available to other modules.
+
+`LBMR2LCC_DataPrep` translates `LandR_Biomass` outputs into landcover classes as needed by `fireSense` modules. It relies on a
+classifier built with the XGBoost library (Chen and Guestrin 2016) for the translation. The following table summarises the classifier
+accuracy per landcover class on the validation dataset.
+
+![Table 1. Classifer accuracy per landcover class on the validation dataset]
+|Landcover class            | Accuracy|
+|:-------------------------:|:--------|
+|Conifer medium-density     | 0.68    |
+|Herbs and shrubs           | 0.79    |
+|Mixedwood conifer-dominated| 0.72    |
+|Open conifer               | 0.70    |
+|Other conifer              | 0.57    |
+|Other treed                | 0.79    |
+|Wetlands                   | 0.82    |
+
+Briefly, the `fireSense` simulation modules consist of:
+`fireSense_FrequencyFit` is an implimentation of the method described in Marchal et al. (2017); it fits a statistical model used to parameterize the fire ignition component of `fireSense`. Marchal et al. (2017) introduced climate sensitivity using the Monthly Drought Code (MDC) of July and introducted vegetation sensitivity using five vegetation classes. This this project, we use the MDC of June along with nine vegetation classes, all of which are derived from the 39 classes of the Land Cover Map of Canada 2005 (LCC05) (Table 2). We did not estimate the fire frequency for the non
+
+`MDC_Nwt_Data
 
 
 
-
-
-This group of modules is composed of four submodules. `fireSense_FrequencyFit` fits a
-                                        statistical model used to parameterize the fire ignition component of `fireSense`.
-                                        `fireSense_FrequencyPredict`
-                              predicts fire frequency or rates of fire counts using the model fitted with the `fireSense_FrequencyFit`
-                              module. These two modules are then used to feed the ignition component of `fireSense`;
-                              `fireSense_EscapeFit` fits a statistical model used to parameterize the fire escape component of
-                              `fireSense`, and `fireSense_EscapePredict` predicts fire escape probabilities using the model fitted with
-                              the `fireSense_EscapeFit` module. These two ignition modules are then used to feed the fire escape
-                              component of `fireSense`; `fireSense` determines where fires start and then passes the fire locations to
-                              `scfm` which will propagate the fires.
 
 
 ## MARIO TO ADD INFORMATION TO THIS ##
@@ -1135,6 +1157,9 @@ Journal of Wildland Fire 19:1127-1139. doi: 10.1071/WF09092
 
 Burton, A. C., F. E. C. Stewart, and J. T. Fisher. Scaling-down species distribution models: can large-scale models predict smaller
 scale wildlife distribution? In review.
+
+Chen, T. and C. Guestrin. 2016. XGBoost: A Scalable Tree Boosting System. In 22nd SIGKDD Conference on Knowledge Discovery and Data
+Mining, 2016. http://arxiv.org/abs/1603.02754
 
 Chen, H. Y. H., Y. Luo, P. B. Reich, E. B. Searle, and S. R. Biswas. 2016. Climate change-associated trends in net biomass change are
 age dependent in western boreal forests of Canada. Ecology Letters, 19(9):1150–1158. https://doi.org/10.1111/ele.12653

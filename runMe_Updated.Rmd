@@ -2,9 +2,9 @@
 title: "Simulting climate change and fire regime: implications for boreal caribou and landbird communities in the Northwest Territories"
 subtitle: "From data to decisions in SpaDES: an integrated projection project for the Northwest Territories"
 authors: "Tati Micheletti^1^", "Steve Cumming^2^", "Frances Stewart^3^", "Diana Stralberg^4^", "Eliot McIntire^3,1^" "Jean Marchal^4^",
-"Ian Eddy^3^", "Mario van Telgen^2^", "Ceres Barros^1^", "Ana Raymundo^2^"
+"Ian Eddy^3^", "Mario van Telgen^2^", "Ceres Barros^1^", "Ana Raymundo^2^", "Alex Chubaty^5^"
 affiliations: "^1^ University of British Columbia", "^2^ University of Laval", "^3^ Natural Resources Canada, Canadian Forest Service",
-"^4^ University of Alberta", "^4^WavX Inc."
+"^4^ University of Alberta", "^4^WavX Inc.", "^5^ fRI"
 date: "Draft last revised 3/31/2019"
  # html_document:
  #    keep_md: yes
@@ -27,8 +27,8 @@ include quantifying the overlap between areas of high conservation value for bir
 potential inthese respects of specific candidate protected areas. The integrated model is implemented as a suite of eight modules in
 SpaDES (Chubaty and McIntire 2017), a cutting-edge R-based environment for developing and running spatial simulations over large
 spatial extents. The spatial extent of this work is Bird Conservation Region (BCR) 6 as contained within the Northwest Territories of
-Canada. All modules in this project use a 250m resolution, and all LandR, bird, and caribou modules mask all landscape features that
-are not forested from their analyses; their outputs are based on forested landclasses.
+Canada. All modules in this project output 250m resolution layers, and all LandR, bird, and caribou modules mask all landscape features
+that are not forested from their analyses; their outputs are based on forested landclasses.
 
 This project represents the cummulation of a novel integration method for discrete event simulations. To our knowledge it is the
 largest and most comprehensive integration of landscape and climate change effects on Species At Risk todate. It represents a novel and
@@ -929,11 +929,10 @@ assign(paste0("birds", runVersion), value = simInitAndSpades(times = times, para
 #### Outputs from the `BirdsNWT` module - STILL TO ADD
 ##### Figure: Bird species abundance maps (one for each species), predicted at every 10 years.
 
-##### Figure: Bird species abundance uncertainty maps (for each species), predicted at every 10 years. Uncertainty is measured for each pixel as the standard deviation of the projected mean abundance value.
 
 ### Running the `anthropogenic` module - TATI TO ADD
 
-#### Outputs from the `anthropogeni`c module - STILL TO ADD
+#### Outputs from the `anthropogenic` module - STILL TO ADD
 
 ##### Figure: Static map of 2010 RoadDenisty (presence/absence). These data serve as an input for the `caribouRSFModel`
 
@@ -1027,10 +1026,14 @@ writeRaster(x = biomassMapAll, filename = file.path(paths$outputPath, "biomassMa
 
 #### Figure: Annual plot of projected lambda uncertainty across each requested study region of the NWT. Uncertainty is measured for each study region as the standard deviation of the projected lambda values.
 
+
+
 # Intgrated modules final components of Item 3: Species co-occurence through community metrics, and an analysis of the Edehzhie
+
 
 ## ANA STILL TO ADD
 \textcolor{blue}{CommunityMetrics}: 
+
 
 ## TATI STILL TO ADD
 \textcolor{blue}{Edehzhie}:

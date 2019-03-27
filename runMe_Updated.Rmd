@@ -1,8 +1,8 @@
 ---
 title: "Simulting climate change and fire regime: implications for boreal caribou and landbird communities in the Northwest Territories"
 subtitle: "From data to decisions in SpaDES: an integrated projection project for the Northwest Territories"
-authors: "Tati Micheletti^1^", "Steve Cumming^2^", "Frances Stewart^3^", "Diana Stralberg^4^", "Eliot McIntire^3,1^" "Jean Marchal^4^",
-"Ian Eddy^3^", "Mario van Telgen^2^", "Ceres Barros^1^", "Ana Raymundo^2^", "Alex Chubaty^5^"
+authors: "Tati Micheletti^1^", "Frances Stewart^3^", "Diana Stralberg^4^", "Eliot McIntire^3,1^" "Jean Marchal^4^",
+"Ian Eddy^3^", "Mario van Telgen^2^", "Ceres Barros^1^", "Ana Raymundo^2^", "Alex Chubaty^5^", "Steve Cumming^2^",
 affiliations: "^1^ University of British Columbia", "^2^ University of Laval", "^3^ Natural Resources Canada, Canadian Forest Service",
 "^4^ University of Alberta", "^4^WavX Inc.", "^5^ fRI"
 date: "Draft last revised 3/31/2019"
@@ -28,7 +28,7 @@ potential inthese respects of specific candidate protected areas. The integrated
 SpaDES (Chubaty and McIntire 2017), a cutting-edge R-based environment for developing and running spatial simulations over large
 spatial extents. The spatial extent of this work is Bird Conservation Region (BCR) 6 as contained within the Northwest Territories of
 Canada. All modules in this project output 250m resolution layers, and all LandR, bird, and caribou modules mask all landscape features
-that are not forested from their analyses; their outputs are based on forested landclasses.
+that are not forested from their analyses; their outputs are based on forested landclasses (see the `LandR` module description below).
 
 This project represents the cummulation of a novel integration method for discrete event simulations. To our knowledge it is the
 largest and most comprehensive integration of landscape and climate change effects on Species At Risk todate. It represents a novel and
@@ -39,10 +39,10 @@ today, and under anticipated future conditions.
 The models contained within this project represent regional processes and do not reflect projected landscape specific results. The
 results from this project are to be used for regional planning initiatives and are built off of known ecological processes and
 statistical relationships documented at regional and national scales. These processes may not acurately predict localized processes -
-this discrepency between scales is well documented in ecology (Wiens 1989; Holling 1992; Levin 1992) with direct ramifications on
-downscaling models (e.g. Riiters 2005; Araujo et al. 2005). Future iterations of this project may be able to address these
-scale-specific processes, but the models provided here will best provide results for planning at large spatial extents (by region
-or ecozone, not landscape). 
+this discrepency between scales is well documented in ecology (Wiens 1989; Holling 1992; Levin 1992; Burton et al. in review) with
+direct ramifications on downscaling models (e.g. Riiters 2005; Araujo et al. 2005). Future iterations of this project may be able to
+address these scale-specific processes, but the models provided here will best provide results for planning at large spatial extents
+(by region or ecozone, not landscape). 
 
 
 ## General project components as stated in the RFP
@@ -58,8 +58,8 @@ The metamodule is composed of 8 parent modules (i.e. groups of modules), as foll
 ![Figure 1. Module structure that composes the NWT project]
 (https://github.com/tatimicheletti/NWT/raw/master/inputs/ModelStructure_2.jpg)
 
-## TATI TO DOUBLE CHECK ##
-Running the entire project for a 100 year simulation can take several days on a 1 TB, 50 core RAM machine
+<!-- TATI TO DOUBLE CHECK AND FINALIZE -->
+Running the entire project for a 100 year simulation can take several days on a 1 TB, 50 core RAM Linux computer.
 
 module                | approximate duration |
 :--------------------:|:--------------------:|
@@ -76,7 +76,26 @@ The structure and methods used for each one of the modules is as follows:
 
 
 ## CERES IS ADDING INFORMATION TO THIS ##
-\textcolor{blue}{LandR}: This group of modules is composed of one module and one group of modules. The first module,
+\textcolor{blue}{LandR}: `LandR` is a landscape dynamic vegetation model; it simulates landcape-scale forest dynamics in a spatio-termporal explicit manner. The `LandR` group of modules is composed of one data treatment and parameterisation module, and one group of modules that simulate biomass usccession dynamics. The first module, `Boreal_LBMRDataPrep` calculates site-specific parameters needed by the biomass succession modules - for this project these site specific parameters are Bird Conservation Region (BCR) 6 within the Northwest Territories. For instance, maximum biomass, above-ground net primary productiviey (aNPP), and establishment probabilities from seed germination are calculated separately depending on tree species, ecodistrict, land cover, stand age, and species cover. This module also provides other parameters, such as species tolerances to shade, and plant traits (e.g. longevity, ability to resprout, etc.). These traits were obtained from trait tables used in LANDIS-II, available from Dominic Cyr's GitHub page (https://raw.githubusercontent.com/dcyr/LANDIS-II_IA_generalUseFiles/master/speciesTraits.csv)
+
+The group of modules, named `LandR_Biomass` form the core of the vegetation success model. These modules were inspired by the LANDIS-II Biomass Success module (v6.2), but have since been changed (i.e. spin-up was removed; Barros et al. in prep). They consist of (1) `LBMR`, the `LandR` module responsible for vegetation aging, dispersal, updating biomass folowing other modules' events, and producing summary figures and tables; (2) `LandR_BiomassGMOrig`, the `LandR` module responsible for cohoer growth and mortality; and (3) `Biomass_regeneration`, the `LandR` module which handles post-disturbance (i.e. fire) biomass regneration. `LandR` needs at least the first two modules (`LBMR` and `LandR_BiomassGMOrig`) to produce sensible vegetation dynamics.
+
+In brief, the `LandR` modules reproduce forest biomass dynamics in a spatially explicit manner at the landscape scale. They simulate biomass changes by cohort (species-age combinations) as a function of age, between-cohort competition for light resources, seed dispersal and germination, regeneration following a disturbance, and background or fire-related mortality.
+
+Because the `LandR` model is suited for forest dynamics, pixes that correspond to non-forested LCC05 classes were not used to report results presented here, although they were allowed to be in the simulation for fire spread.
+
+*Current limitations of the `LandR` module*
+One of the greatest advantages of using `Boreal_LBMRDataPrep` is that parameters used for the vegetation succession modules can be directly estimated from data. This is done “automatically” should the data or study area change. As with any model, this means that model predictions need to be calibrated every time the study area changes. At the moment, none of the modules within the `LandR` group automatically calibrate themselves. We have identified some limitations arising from this:
+
+
+
+
+
+
+
+
+
+This group of modules is composed of one module and one group of modules. The first module,
                          `Boreal_LBMRDataPrep` calculates  site-specific parameters (ie BRC6 within NWT) needed by the biomass 
                          succession modules. Maximum biomass and NPP are calculated separately for each unique combination of tree
                          species, stand age, ecodistrict, and land cover. The group of modules (`LandR_Biomass`) form the core of the
@@ -84,6 +103,7 @@ The structure and methods used for each one of the modules is as follows:
                          cohort growth and mortality, (2) `Biomass_regeneration`, which handles post-disturbance biomass regeneration,
                          and (3) `LBMR`,  the LANDR module responsible for vegetation dispersal, as well as summary figures and tables.
                          LandR needs at least these last three modules to work.
+
 
 
 ## JEAN TO ADD INFORMATION TO FIRE SENSE, ALEX TO ADD INFORMATION TO FEENIX (SCFM)##
@@ -1077,6 +1097,9 @@ http://dx.doi.org/10.1139/cjfr-2017-0184
 Bergeron, Y., D. Dominic, M. P. Girardin, and C. Carcaillet. 2010. Will climate change drive 21st century burn rates in Canadian boreal
 forest outside of its natural variability: collating global climate model experiments with sedimentary charcoal data. International
 Journal of Wildland Fire 19:1127-1139. doi: 10.1071/WF09092
+
+Burton, A. C., F. E. C. Stewart, and J. T. Fisher. Scaling-down species distribution models: can large-scale models predict smaller
+scale wildlife distribution? In review.
 
 Chen, H. Y. H., Y. Luo, P. B. Reich, E. B. Searle, and S. R. Biswas. 2016. Climate change-associated trends in net biomass change are
 age dependent in western boreal forests of Canada. Ecology Letters, 19(9):1150–1158. https://doi.org/10.1111/ele.12653

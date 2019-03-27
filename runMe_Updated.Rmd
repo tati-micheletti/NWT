@@ -134,7 +134,8 @@ herbivory). Future versions of the `LandR` modules could either ignore this limi
 forested pixels, or incorporate estimates for these mechanisms allowing  `LandR` to predict for areas that do not correspond to purely
 forested areas. This change would address current `LandR` limitation #2.
 
-
+## STEVE TO PROVIDE FINAL COMMENTS ON HOW FEENIX-FIRESENSE INCORPORATES BOTH FIRESENSE AND SCFM TOGETHER ##
+## THE BELOW IS JEAN'S FIRE SENSE TEXT. IAN AND ALEX HAVE PROVIDED TEXT ON SCFM IN ANOTHER DOCUMENT ##
 \textcolor{blue}{fireSense}: `fireSense` is a landscape fire simulation module that is sensitive to both climate and vegetation change;
                               it reproduces the spatial and temporal variation of both the number of fires, and fire escape
                               probability. `fireSense` is composed of two groups of modules; a group that prepares and formats the data
@@ -153,7 +154,7 @@ resulting layer available to other modules.
 analysis/prediction and makes the resulting datasets available to other modules.
 
 `LBMR2LCC_DataPrep` translates `LandR_Biomass` outputs into seven of the nine land cover classes as needed by `fireSense` (Table 1);
-the other two classes are the "non-fuel" class, which is ssumed to be static in time and the "recently disturbed" class which is not
+the other two classes are the "non-fuel" class, which is ssumed to be static in time, and the "recently disturbed" class which is not
 based on biomass but on age. Pixels are considered disturbed if the time since last disturbance is less than 16 years. This module
 relies on a classifier built within the XGBoost library (Chen and Guestrin 2016) for the translation. Table 2 summarises the accuracy
 per land cover class for the validation dataset.
@@ -207,7 +208,7 @@ probability surface is updated annually and used to feed the escape component of
 `fireSense` uses the probability surface predicted by `fireSense_FrequencyPredict` to determine where to start fires. At the spatial
 and temporal scale used in this study, the probability of two or more fires per year is negligible, thus one may use the Bernoulli
 approximation, as in Armstrong and Cumming (2003). From those fires that started, `fireSense` determines which fires escape.
-`fireSense` then passes the information on pixels that are burning to `scfmSpread`, which spreads the fires.
+`fireSense` then passes the information on pixels that are burning to `scfmSpread` (see below), which spreads the fires.
 
 *Assumptions of the `fireSense` module*
 1. The number of fires per 6.25ha of each land class is has a negative binomial distribution. We also assume that the fire intensity
@@ -219,10 +220,6 @@ may vary among land class types
 
 4. The land cover class “non-fuels” is static throughout the simulation period. It corresponds to rock outcrops, urban areas, water
 bodies and lands permanently covered with ice/snow
-
-
-## ALEX AND IAN TO ADD INFORMATION TO FEENIX (SCFM) ##
-
 
 
 ## MARIO TO ADD INFORMATION TO THIS ##
@@ -1165,7 +1162,15 @@ writeRaster(x = biomassMapAll, filename = file.path(paths$outputPath, "biomassMa
 
 
 <!-- ANA STILL TO ADD -->
-\textcolor{blue}{CommunityMetrics}: 
+\textcolor{blue}{comm_metricsNWT}: This module computes a series of avian community metrics based on the suite of species-level
+                                   predicted abundance maps provided from the 'birdsNWT' module. 
+                                   
+The community metrics computed as part of the `comm_metricsNWT` include:
+
+Expected Species Richness:
+
+Shannon Diversity Index:
+
 
 
 <!-- TATI STILL TO ADD FIGURES AND TABLES -->

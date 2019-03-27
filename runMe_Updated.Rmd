@@ -1,10 +1,10 @@
 ---
 title: "Simulting climate change and fire regime: implications for boreal caribou and landbird communities in the Northwest Territories"
 subtitle: "From data to decisions in SpaDES: an integrated projection project for the Northwest Territories"
-authors: "Tati Micheletti^1^", "Frances Stewart^3^", "Diana Stralberg^4^", "Eliot McIntire^3,1^" "Jean Marchal^4^",
-"Ian Eddy^3^", "Mario van Telgen^2^", "Ceres Barros^1^", "Ana Raymundo^2^", "Alex Chubaty^5^", "Steve Cumming^2^",
-affiliations: "^1^ University of British Columbia", "^2^ University of Laval", "^3^ Natural Resources Canada, Canadian Forest Service",
-"^4^ University of Alberta", "^4^WavX Inc.", "^5^ fRI"
+authors: "Tati Micheletti^1^, Frances Stewart^2^, Eliot McIntire^1,2^, Ian Eddy^2^,  Ceres Barros^1^, Jean Marchal^3^, 
+Diana Stralberg^4^, Mario van Telgen^5^, Ana Raymundo^5^, Alex Chubaty^6^, Steve Cumming^5^"
+affiliations: "^1^ University of British Columbia, ^2^ Natural Resources Canada, Canadian Forest Service, ^3^WavX Inc ,
+^4^ University of Alberta, ^5^Universite Laval, ^6^ fRI"
 date: "Draft last revised 3/31/2019"
  # html_document:
  #    keep_md: yes

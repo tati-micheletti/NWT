@@ -75,7 +75,7 @@ TOTAL                 |  5.70 days
 The structure and methods used for each one of the modules is as follows:
 
 
-## CERES TO DOUBLE CHECK - ONGOING ## 
+<!--CERES TO DOUBLE CHECK - ONGOING -->
 \textcolor{blue}{LandR}: `LandR` is a landscape dynamic vegetation model; it simulates landcape-scale forest dynamics in a spatio
                           termporally explicit manner. The `LandR` group of modules is composed of one data treatment and
                           parameterisation module, and one group of modules that simulate biomass usccession dynamics. 
@@ -123,7 +123,8 @@ Future versions of the `LandR` module group could include:
 biomass conditions. However, Biomasses will still need to be adjusted to match the observed current biomass, and this requires starting
 with even-aged stands in places where forest may have a complex age structure and mixed species composition. An alternate solution may
 be to let the model run for a few hundred timesteps (*i.e.* a stabilization phase) until vegetation dynamics reach quasi-equilibrium,
-before introducing the subsequent modules within this project that rely on results from `LandR` (*i.e.* `birdsNWT`, `caribouRSFModel`, and `caribouPopGrowthModel`). This change would address current `LandR` limitation #1.
+before introducing the subsequent modules within this project that rely on results from `LandR` (*i.e.* `birdsNWT`, `caribouRSFModel`,
+and `caribouPopGrowthModel`). This change would address current `LandR` limitation #1.
 
 2. Models such as `LandR` will often overestimate tree cover and biomass because they lack quantified ecological mechanisms that limit
 tree growth (*i.e.* differences in growing season length, soil nutrient availability, or water availability). Future versions on the
@@ -231,7 +232,7 @@ Future versions of the `birdsNWT` module could include:
 BCR6. A full list of 71 possible species include:
 
 Alder Flycatcher (*Empidonax alnorum*), American Crow (*Corvus brachyrhynchos*), American Goldfinch (*Spinus tristis*), American Pipit
-(*Anthus rubescens8), American Redstart (*Setophaga ruticilla*), American Robin (*Turdus migratorius*), American Tree Sparrow
+(*Anthus rubescens), American Redstart (*Setophaga ruticilla*), American Robin (*Turdus migratorius*), American Tree Sparrow
 (*Spizella arborea*), Black-and-white Warbler (*Mniotilta varia*), Bay-breasted Warbler (*Setophaga castanea*), Black-backed Woodpecker
 (*Picoides arcticus*), Black-capped Chickadee (*Poecile atricapillus*), Brown-headed Cowbird (*Molothrus ater*), Blue-headed Vireo
 (*Vireo solitarius*), Blackburnian Warbler (*Setophaga fusca*), Blue Jay (*Cyanocitta cristata*), Blackpoll Warbler (*Setophaga

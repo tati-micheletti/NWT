@@ -1217,9 +1217,6 @@ scale wildlife distribution? In review.
 Chen, T. and C. Guestrin. 2016. XGBoost: A Scalable Tree Boosting System. In 22nd SIGKDD Conference on Knowledge Discovery and Data
 Mining, 2016. http://arxiv.org/abs/1603.02754
 
-Chen, H. Y. H., Y. Luo, P. B. Reich, E. B. Searle, and S. R. Biswas. 2016. Climate change-associated trends in net biomass change are
-age dependent in western boreal forests of Canada. Ecology Letters, 19(9):1150–1158. https://doi.org/10.1111/ele.12653
-
 Chubaty, A. M. and E. J. B.  McIntire. 2017. SpaDES: Develop and Run Spatially Explicit Discrete Event Simulation Models. R package
 version, 2(0).
 

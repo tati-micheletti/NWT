@@ -27,7 +27,8 @@ include quantifying the overlap between areas of high conservation value for bir
 potential inthese respects of specific candidate protected areas. The integrated model is implemented as a suite of eight modules in
 SpaDES (Chubaty and McIntire 2017), a cutting-edge R-based environment for developing and running spatial simulations over large
 spatial extents. The spatial extent of this work is Bird Conservation Region (BCR) 6 as contained within the Northwest Territories of
-Canada. All modules in this project use a 250m resolution.
+Canada. All modules in this project use a 250m resolution, and all LandR, bird, and caribou modules mask all landscape features that
+are not forested from their analyses; their outputs are based on forested landclasses.
 
 This project represents the cummulation of a novel integration method for discrete event simulations. To our knowledge it is the
 largest and most comprehensive integration of landscape and climate change effects on Species At Risk todate. It represents a novel and

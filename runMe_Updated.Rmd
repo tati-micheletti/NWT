@@ -63,14 +63,14 @@ Running the entire project for a 100 year simulation can take several days on a 
 
 module                | approximate duration |
 :--------------------:|:--------------------:|
-LandR                 |  3.05 days
-fireSense             |   
-FEENIX                |  
-anthropogenic         |
-BirdsNWT              |  0.13 days
-caribouRSFModel       |  1.40 days
-caribouPopGrowthModel |  0.04 days
-TOTAL                 |  5.70 days
+LandR                 |  3.05 days           |
+fireSense             |                      | 
+FEENIX                |                      |
+anthropogenic         |                      |
+BirdsNWT              |  0.13 days           |
+caribouRSFModel       |  1.40 days           |
+caribouPopGrowthModel |  0.04 days           |
+TOTAL                 |  5.70 days           |
 
 The structure and methods used for each one of the modules is as follows:
 
@@ -135,8 +135,7 @@ forested pixels, or incorporate estimates for these mechanisms allowing  `LandR`
 forested areas. This change would address current `LandR` limitation #2.
 
 
-## JEAN TO ADD INFORMATION TO FIRE SENSE ##
-## ALEX AND IAN TO ADD INFORMATION TO FEENIX (SCFM) ##
+<!-- JEAN TO Check INFORMATION on FIRE SENSE-->
 \textcolor{blue}{fireSense}: `fireSense` is a wildfire simulation module that is seneitive to both climate and vegetation change; it
                               reproduces the spatial and temporal variation of both the number of fires, and fire escape probability.
                               `fireSense` is composed of two groups of modules; a group that prepares and formats the data
@@ -154,7 +153,11 @@ resulting layer available to other modules.
 `fireSense_NWT_DataPrep` performs GIS operations on fire and vegetation data, as well as a number of operations to prepare the data for
 analysis/prediction and makes the resulting datasets available to other modules.
 
-`LBMR2LCC_DataPrep` translates `LandR_Biomass` outputs into seven of the nine land cover classes as needed by `fireSense` (Table 1); the other two classes are the "non-fuel" class, which is ssumed to be static in time and the "recently disturbed" class which is not based on biomass but on age. Pixels are considered disturbed if the time since last fisturbance is less than 16 years. This module relies on a classifier build within the XGBoost library (Chen and Guestrin 2016) this this translation. Table 2 summarises the accuracy per land cover class for the validation dataset.
+`LBMR2LCC_DataPrep` translates `LandR_Biomass` outputs into seven of the nine land cover classes as needed by `fireSense` (Table 1);
+the other two classes are the "non-fuel" class, which is ssumed to be static in time and the "recently disturbed" class which is not
+based on biomass but on age. Pixels are considered disturbed if the time since last fisturbance is less than 16 years. This module
+relies on a classifier build within the XGBoost library (Chen and Guestrin 2016) this this translation. Table 2 summarises the accuracy
+per land cover class for the validation dataset.
 
 ![Table 1. Correspondence between the land cover classes used by `fireSense` and code from the Land Cover Map of Canada 2005]
 |Land cover class           | Land cover map of Canada 2005 original code(s)             |
@@ -180,12 +183,46 @@ analysis/prediction and makes the resulting datasets available to other modules.
 |Other treed                | 0.79    |
 |Wetlands                   | 0.82    |
 
+
 Briefly, the `fireSense` simulation modules consist of:
-`fireSense_FrequencyFit` is an implimentation of the method described in Marchal et al. (2017); it fits a statistical model used to parameterize the fire ignition component of `fireSense`. Marchal et al. (2017) introduced climate sensitivity using the Monthly Drought Code (MDC) of July and introducted vegetation sensitivity using five vegetation classes. This this project, we use the MDC of June along with nine vegetation classes, all of which are derived from the 39 classes of the Land Cover Map of Canada 2005 (LCC05) (Table 2). We did not estimate the fire frequency for the non
+`fireSense_FrequencyFit` is an implimentation of the method described in Marchal et al. (2017); it fits a statistical model used to
+parameterize the fire ignition component of `fireSense`. Marchal et al. (2017) introduced climate sensitivity using the Monthly Drought
+Code (MDC) of July and introducted vegetation sensitivity using five vegetation classes. In this project, we use the MDC of June along
+with nine vegetation classes, all of which are derived from the 39 classes of LCC2005 (Table 1). We did not estimate the fire frequency
+for the non "non-fuel" class as it will not burn - it therefore remains as 0. This module outputs a fitted model object of class
+`fireSense_FrequencyFit`.
 
-`MDC_Nwt_Data
+`fireSense_FrequencyPredict` uses the model object provided by `fireSense_FrequencyFit` to predict fire frequency, or rates of fire
+counts. The output of this module is a probability surface describing the expected fire frequency at a 250 m resolution. This
+probability surface is updated annually, and used to feed the ignition component of `fireSense`.
+
+`fireSense_EscapeFit` fits a statistical model used to parameterize the fire escape component of `fireSense`; a fire escapes when it
+propagates outside the pixel in which it started. We used logistic regression to introduce climate and vegetation sensitivity to the
+fire escape component. We expressed the probability that a fire escapes as a function of the Monthly Drought Code of June, and the nine
+classes of land cover (Table 1). This module outputs a fitted glm model object.
+
+`fireSense_EscapePredict` predicts fire frequency, or rates of fire counts, using the model object provided by `fireSense_EscapeFit`.
+The output of this module is a probability surface describing the expected probability of fire escape at a 250 m resolution. This
+probability surface is updated annually, used to feed the escape component of `fireSense`.
+
+`fireSense` uses the probability surface predicted by `fireSense_FrequencyPredict` to determine where to start fires. At the spatial
+and temporal scale used in this study, the probability of two or more fires per year is negligible, thus one may use the Bernoulli
+approximation, as in Armstrong and Cumming (2003). From those fires that started, `fireSense` determines which fires escape.
+`fireSense` then passes the information on the pixels that are burning to `scfmSpread`, which spreads the fires.
+
+*Assumptions of the `fireSense` module*
+1. The number of fires per 6.25ha of each land class is has a negative binomial distribution. We also assume that the fire intensity
+may vary among land class types
+
+2. The rate of fire detection is constant.
+
+3. The statistical relationship between fire, weather, vegetation, and fire activity will remain constant through time.
+
+4. The land cover class “non-fuels” is static throughout the simulation period. It corresponds to rock outcrops, urban areas, water
+bodies and lands permanently covered with ice/snow
 
 
+## ALEX AND IAN TO ADD INFORMATION TO FEENIX (SCFM) ##
 
 
 
@@ -1155,6 +1192,9 @@ writeRaster(x = biomassMapAll, filename = file.path(paths$outputPath, "biomassMa
 # Literature cited 
 Araújo, M. B., W. Thuiller, P. H. Williams and I. Reginster. 2005. Downscaling European species atlas distributions to a finer
 resolution: implications for conservation planning. Global Ecology and Biogeography, 14(1):17-30.
+
+Armstrong, G. and S. Cumming. 2003. Estimating the cost of land base changes due to wildfire using shadow prices. Forest Science 49(5):
+719–730.
 
 Barker, N. K. S., P. C. Fontaine, S. G. Cumming, D. Stralberg, A. Westwood, E. M. Bayne, P. Sólymos, F. K. A. Schmiegelow, S. J. Song,
 and D. J. Rugg. 2015. Ecological monitoring through harmonizing existing data: Lessons from the boreal avian modelling project.

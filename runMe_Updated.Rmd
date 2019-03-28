@@ -1210,6 +1210,16 @@ occurence of birds and caribou to be measured, and over what spatial units?
 # Concluding remarks
 ## From data to decisions in SpaDES: an integrated projection project for the Northwest Territories
 
+This project represents a first in data integration and decision making of natural resources; it combines state of the art models from
+multiple ecological fields over an extensive spatial area to forecast vertebrate ecology. As such, the project represents a powerful
+tool for natural resource decition making, but also demonstrates the intensive collaborative ability of ecologists to work
+simultaneously on a national project. Finally, the project is open source and repeatable - the basic requirements to hold science
+accountable and a must for the, sometimes controversial, natural resource desitions required both today and in future.
+
+Caribou and birds. Eddhehzie as an IPCA. CBD 2020 targets.
+
+Ecology and adaptive management. Hypothesis testing. The next steps in ecological science, collaboration, and decision making.
+
 
 
 # Literature cited 

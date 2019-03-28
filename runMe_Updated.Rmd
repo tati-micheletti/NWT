@@ -68,8 +68,7 @@ Running the entire project for a 100 year simulation can take several days on a 
 module                | approximate duration |
 :--------------------:|:--------------------:|
 LandR                 |  3.05 days           |
-fireSense             |                      | 
-FEENIX                |                      |
+scfm-fireSense        |                      | 
 anthropogenic         |                      |
 BirdsNWT              |  0.13 days           |
 caribouRSFModel       |  1.40 days           |

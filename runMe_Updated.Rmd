@@ -77,17 +77,19 @@ TOTAL                 |  5.70 days           |
 
 The structure and methods used for each one of the modules is as follows:
 
-
+<!--TATI TO REVIEW APPENDIX 1 AND ADD PARAMETERS-->
 \textcolor{blue}{LandR}: `LandR` is a landscape dynamic vegetation model; it simulates landscape-scale forest dynamics in a spatio
                           temporally explicit manner. The `LandR` group of modules is composed of one data treatment and
-                          parameterisation module, and a group of modules that simulate biomass succession dynamics. 
+                          parameterisation module, and a group of modules that simulate biomass succession dynamics. These modules
+                          estimate parameters for the study area specified. The methods and results of these estimations can be found
+                          in Appendix 1.
 
-The first module, `Boreal_LBMRDataPrep` calculates site-specific parameters needed by the biomass succession modules - for this project
-these site specific parameters are estimated for Bird Conservation Region (BCR) 6 within the Northwest Territories. For instance,
-maximum biomass, above-ground net primary productiviey (aNPP), and establishment probabilities from seed germination are calculated
-separately depending on tree species cover and biomass, ecodistrict, land cover class (from the Land Cover Map of Canada 2005;
-LCC2005), and stand age. This module also provides other parameters, such as species tolerances to shade, and other plant traits (e.g.
-longevity, ability to resprout, etc.). These traits were obtained from trait tables used in LANDIS-II, a popular forest-landscape
+The first `LandR` module, `Boreal_LBMRDataPrep` calculates site-specific parameters needed by the biomass succession modules - for this
+project these site specific parameters are estimated for Bird Conservation Region (BCR) 6 within the Northwest Territories. For
+instance, maximum biomass, above-ground net primary productiviey (aNPP), and establishment probabilities from seed germination are
+calculated separately depending on tree species cover and biomass, ecodistrict, land cover class (from the Land Cover Map of Canada
+2005; LCC2005), and stand age. This module also provides other parameters, such as species tolerances to shade, and other plant traits
+(e.g. longevity, ability to resprout, etc.). These traits were obtained from trait tables used in LANDIS-II, a popular forest-landscape
 simulation model, and are available from Dominic Cyr's GitHub page: 
 (https://raw.githubusercontent.com/dcyr/LANDIS-II_IA_generalUseFiles/master/speciesTraits.csv)
 
@@ -98,9 +100,9 @@ folowing other modules' events, and producing summary figures and tables; (2) `L
 cohort growth and mortality; and (3) `Biomass_regeneration`, the `LandR` module which handles post-disturbance biomass regeneration
 (e.g. fire). `LandR` needs at least the first two modules (`LBMR` and `LandR_BiomassGMOrig`) to produce sensible vegetation dynamics.
 
-In brief, the `LandR` modules simulate
-biomass changes by cohort (species-age combinations) as a function of age, between-cohort competition for light resources, seed
-dispersal and germination, regeneration following a disturbance, and background or fire-related mortality.
+In brief, the `LandR` modules simulate biomass changes by cohort (species-age combinations) as a function of age, between-cohort
+competition for light resources, seed dispersal and germination, regeneration following a disturbance, and background or fire-related
+mortality.
 
 *Current limitations of the `LandR` module*
 One of the greatest advantages of using `Boreal_LBMRDataPrep` is that parameters used for the vegetation succession modules can be
@@ -1399,3 +1401,38 @@ assumptions and uncertainties. Proceedings of the National Academy of Sciences 1
 Yip, D. A., L. Leston, E. M. Bayne, P. Sólymos, and A. Grover. 2017. Experimentally derived detection distances from audio recordings
 and human observers enable integrated analysis of point count data. Avian Conservation and Ecology 12.
 http://dx.doi.org/10.5751/ACE00997-120111
+
+
+<!--TATI TO REVIEW AND ADD OTHER PARAMETERS--> 
+# Appendix 1
+## `LandR` vegetation parameter estimates for Bird Conservation Region (BCR) 6
+
+maxB, aNPP and SEP per species and ecodistrict-land cover combination
+
+Boreal_LBMRDataPrep uses available data on species percent cover (% cover), stand age, total biomass, ecodistricts and land cover class (LCC) (see above for product links) to estimate species-specific parameters of maximum biomass (maxB), seed establishment probability (SEP) and aboveground net primary productivity (aNPP), and to build initial unique communities to populate the landscape and start simulating vegetation dynamics. The selection of tree species entering the simulation was based on species cover for the study area from the  kNN Species Map Layers available from the Canadian Forest Service (http://tree.pfc.forestry.ca/). Species A B C… where selected after removing species that occupied < 5 pixels in the study area. Prior to parameter estimation, incongruencies between stand age, % cover and total biomass datasets were addressed and species-specific biomasses were estimated. For instance, we detected pixels with 0 % cover across all species layers, but where stand age and biomass had > 0 values. Given that biomass and stand age are generally more problematic in terms of estimation than % cover, we decided to trust % cover estimates and thus assigned 0 total biomass and 0 stand age to any pixel where no cover was detected. In pixels where the sum of % cover across species was >100%, species %  covers were adjusted so that they totalled to 100%. Biomass per species was then calculated per pixel as a fraction of total biomass according to the species % cover in that pixel. Finally, stand age also had to be corrected with respect to species longevity parameters (obtained from LANDIS-II species traits tables). This was achieved by fitting a statistical model relating “correct” age observations (those already corrected for 0 cover and that were not > longevity) against the interaction of observed biomass (totalB) and species identity (speciesCode) and % cover, accounting for the random effect of combination of ecodistrict and LCC (ecoregionCode):
+
+$$age ~ totalB * speciesCode + % cover + (1 | ecoregionCode)$$  [Eq. 1]
+
+This model was then used to predict missing age values, bounded to 0 on the lower limit. 
+
+Parameters maxB and aNPP were then estimated from a linear mixed effects model reflecting the response of species-specific biomass (B) to the interaction between age (on the log scale, logAge) and species and % cover and species, accounting for the random effect of ecoregionGroup on the calculated slopes (per species) and intercepts:
+
+$$B ~ logAge * speciesCode + cover * speciesCode + (speciesCode | ecoregionGroup)$$ [Eq. 2]
+
+Estimates of SEP based on a generalized mixed effects model relating % cover and species, accounting for the random effect of ecoregionGroup on the intercepts. In this case, species % cover was treated as the number of times a species was observed (no. of pixels with cover > 0) per ecoregionGroup, thus following a binomial distribution that was account for in the model with a logit link function:
+
+$$logit(pi) ~ speciesCode + (1 | ecoregionGroup)$$ [Eq. 3]
+
+where pi is the probability of finding a species (cover > 0) in an ecoregionGroup, in other words the proportion of pixels that it occupies.
+
+For both models, coefficients were estimated by maximum likelihood and model fit was calculated as the proportion of explained variance explained by fixed effects only (marginal r^2) and by the entire model (conditional r^2). For the biomass model, marginal and conditional r^2 were  0.70 and  0.77, respectively, and for the % cover model (Eq. 3) they were 0.18 and 0.26.
+
+To estimate maxB we predicted biomass for unique combinations of species and ecoregion code assuming maximum age (i.e. longevity). aNPP was then calculated per species and ecoregionGroup as maxB/30 (following LANDIS-II). Before estimating SEP, the predicted values of % cover per ecoregionGroup per species (obtained from Eq. 3) where temporally integrated to reflect the simulation timescale (10 years) as 1 - (1 - predictedCover)^10. These estimates were then multiplied by 1 - resprouting probability of each species, so that SEP reflects only the probability of seed germination (note that resprouting probabilities were taken from the LANDIS-II species trait tables).
+
+<!--TATI TO ADD OTHER PARAMETERS AND A TABLE HERE-->
+Other parameters
+
+
+Remaining parameters, i.e. species traits, were obtained from LANDIS-II trait data (see above for reference) and can be consulted in Table A1
+
+

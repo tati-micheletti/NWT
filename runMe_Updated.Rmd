@@ -1,6 +1,5 @@
 ---
 title: "Simulting climate change and fire regime: implications for boreal caribou and landbird communities in the Northwest Territories"
-subtitle: "From data to decisions in SpaDES: an integrated projection project for the Northwest Territories"
 authors: "Tati Micheletti^1^, Frances Stewart^2^, Eliot McIntire^1,2^, Ian Eddy^2^,  Ceres Barros^1^, Jean Marchal^3^, 
 Diana Stralberg^4^, Mario van Telgen^5^, Ana Raymundo^5^, Alex Chubaty^6^, Steve Cumming^5^"
 affiliations: "^1^ University of British Columbia, ^2^ Natural Resources Canada, Canadian Forest Service, ^3^WavX Inc ,
@@ -1151,7 +1150,7 @@ biomassMapAll <- stack(biomassMapAll)
 writeRaster(x = biomassMapAll, filename = file.path(paths$outputPath, "biomassMapStack"))
 
 ```
-<!-- TATI STILL TO ADD-- >
+<!-- TATI STILL TO ADD-->
 #### Outputs from `caribouPopGrowthModel` 
 
 #### Figure: Annual plot of projected lambda across each requested study region of the NWT. 
@@ -1162,7 +1161,6 @@ writeRaster(x = biomassMapAll, filename = file.path(paths$outputPath, "biomassMa
 
 # Intgrated modules final components of Item 3: Species co-occurence through community metrics, and an analysis of the Edehzhie
 
-
 <!-- ANA STILL TO ADD -->
 \textcolor{blue}{comm_metricsNWT}: This module computes a series of avian community metrics based on the suite of species-level
                                    predicted abundance maps provided from the 'birdsNWT' module. 
@@ -1172,7 +1170,6 @@ The community metrics computed as part of the `comm_metricsNWT` include:
 Expected Species Richness:
 
 Shannon Diversity Index:
-
 
 
 <!-- TATI STILL TO ADD FIGURES AND TABLES -->
@@ -1191,6 +1188,8 @@ Shannon Diversity Index:
 #### Table: Summarized RSF mean values
 
 
+# Discussion
+## From data to decisions in SpaDES: an integrated projection project for the Northwest Territories
 
 
 

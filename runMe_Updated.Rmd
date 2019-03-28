@@ -1165,15 +1165,62 @@ writeRaster(x = biomassMapAll, filename = file.path(paths$outputPath, "biomassMa
 
 # Intgrated modules components of Item 3: Community metrics, and an analysis of the Edehzhie
 
-<!-- ANA STILL TO ADD -->
+<!-- ANA STILL TO REVIEW -->
 \textcolor{blue}{comm_metricsNWT}: This module computes a series of avian community metrics based on the suite of species-level
-                                   predicted abundance maps provided from the 'birdsNWT' module. 
+                                   predicted abundance maps provided from the `birdsNWT` module. These community metrics were
+                                   calculated on a 10 year interval. This module outputs a raster for each diversity metric of the
+                                   current simulation year, along with a table of mean value for the Shannon diversity index, Simpson
+                                   diversity index, and Roa's quadratic entropy metrics.
                                    
-The community metrics computed as part of the `comm_metricsNWT` include:
+There are four community metrics computed as part of the `comm_metricsNWT` module:
 
-Expected Species Richness:
+1. Expected Species Richness:
+Expected Species Richness was estimated as the probability of occupancy based on the poisson distribution:
 
-Shannon Diversity Index:
+ $$ S: 1 - \exp^{\lambda}$$  
+where:  $$ exp^{-\lambda} = \frac{exp^{-\lambda}\lambda^k{}{k!} $$
+
+2. Shannon diversity index:
+This index assumes that individuals are randomly sample from an infinitely large community, and that all species are represented in the
+sample  (Magurran 2004). 
+
+ $$ H^' = - \sum_{i=1}^{S} p_ilnp_i $$
+where: $$p_i$$ is the proportion of individuals found in  the _ith species.
+
+3. Simpson diversity index:
+This index estimates the probability of any two individuals drawn at randoms from an infinitely large community belonging to the same
+species (Magurran 2004). 
+
+ $$ 1-D = \sum p_i^2 $$
+ where:$$p_i$$ is the proportion of individuals found in  the _ith species.
+
+Simpson’s diversity has more ecological significance than Shannon index, because it represents the probability that two individuals of
+the same species meet. 
+
+4. Rao's Quadratic Entropy: 
+
+$$ \sum_{i=1}^{S-1} \sum_{j=i+1}^{S} d_ij* p_i* p_i$$
+
+Where: $$d_{ij}$$ is the difference between the _ith_ and _jth_ species. This difference is is estimated using functional
+attributes\for each species. In addition, Raos Quadratic Entropy incorporates two elements:
+1. relative abundances of species, and 
+2. a measure of pairwise functional differences between species (Botta-Dukat 2005). For this second element, we used Life history
+traits as considered in Knaggs (2018). 
+
+*Current limitations of the `comm_metricsNWT` module*
+1. Species richness and diversity indices summarize information about the relative abundance of species within a community but ignore
+the degree of difference between species. This limitation has been criticized  because this measures does not take into account the
+uniqueness or ecological importance of individual species. 
+
+2. Raos Entropy depends on delineating functional groups within an significant ecological sense. Functional traits must be selected
+carefully. 
+
+
+Future versions of the `comm_metricsNWT` module could include:
+1. Additional species richness  parametric estimates (e.g. Cowel, Clench , or Chao 1)
+
+2. Graphical outputs of species richness.
+
 
 
 <!-- TATI STILL TO ADD FIGURES AND TABLES -->

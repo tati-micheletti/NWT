@@ -31,7 +31,8 @@ potential inthese respects of specific candidate protected areas. The integrated
 SpaDES (Chubaty and McIntire 2017), a cutting-edge R-based environment for developing and running spatial simulations over large
 spatial extents. The spatial extent of this work is Bird Conservation Region (BCR) 6 as contained within the Northwest Territories of
 Canada. All modules in this project output 250m resolution layers, and all LandR, bird, and caribou modules mask all landscape features
-that are not forested from their analyses; their outputs are based on forested landclasses (see the `LandR` module description below).
+that are not forested from their analyses; their outputs are based on forested landclasses (see the `LandR` module description, and
+future directions, below).
 
 This project represents the cummulation of a novel integration method for discrete event simulations. To our knowledge it is the
 largest and most comprehensive integration of landscape and climate change effects on Species At Risk todate. It represents a novel and
@@ -133,9 +134,9 @@ reach quasi-equilibrium, before introducing the subsequent modules within this p
 
 2. Models such as `LandR` will often overestimate tree cover and biomass in open habitats because they lack quantified ecological
 mechanisms that limit tree growth in these areas (*i.e.* differences in growing season length, soil nutrient and water availability, or
-herbivory). Future versions of the `LandR` modules could either ignore this limitation and restrict simulation dynamics to currently
-forested pixels, or incorporate estimates for these mechanisms allowing  `LandR` to predict for areas that do not correspond to purely
-forested areas. This change would address current `LandR` limitation #2.
+herbivory). Future versions of the `LandR` modules could (1) ignore this limitation and restrict simulation dynamics to currently
+forested pixels; (2) incorporate estimates for these mechanisms allowing `LandR` to predict for areas that do not correspond to purely
+forested areas; or (3) set a maximum biomass limit for `LandR` projections. These changes would address current `LandR` limitation #2.
 
 ## STEVE TO PROVIDE FINAL COMMENTS ON HOW FEENIX-FIRESENSE INCORPORATES BOTH FIRESENSE AND SCFM TOGETHER ##
 ## THE BELOW IS JEAN'S FIRE SENSE TEXT. IAN AND ALEX HAVE PROVIDED TEXT ON SCFM IN ANOTHER DOCUMENT ##

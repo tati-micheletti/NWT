@@ -387,7 +387,7 @@ module produces a rasterized map of this relative selection across the NT1 Borea
 years of the simulation. Options include outputting maps for range planning regions outlined in either Figure 2 and/or Figure 3.
 
 *Important assumptions of the `caribouRSFModel` module*
-1 .Caribou are distributed in an ideal free distribution across the Taiga plains (Fretwell and Lucas 1970).
+1. Caribou are distributed in an ideal free distribution across the Taiga plains (Fretwell and Lucas 1970).
 
 2. Resource selection leads to increased population fitness and population density (Manly et al. 2002). The resource selection
 documented here is a relative probability, rather than true probability, as we used a use-available design (Manly et al. 2002).

@@ -229,18 +229,18 @@ ASSUMPTION: no success with anthropogenic disturbance
 Explains both road density layer and buffered 500m layer.
 
 
-\textcolor{blue}{birdsNWT}: The birds module projects species abundance of bird species under forecasted landscape and climate
-                            conditions. This module loads an existing glm model object for each species, located in  
-                            (https://drive.google.com/open?id=1obSvU4ml8xa8WMQhQprd6heRrN47buvI).
+\textcolor{blue}{birdsNWT}: This module projects species abundance of bird species under forecasted landscape and climate
+                            conditions. The module develops boosted regression tree (BRT) models from avian point-count data and
+                            associated covariates using the gbm.step function in the ‘dismo’ package (Hijmans et al. 2011) with a
+                            Poisson distribution and 10-fold cross-validation. BRT settings are as recommended by Elith et al. (2008)
+                            and are consistent with Stralberg et al. (2015). The module includes a ‘brtplot’ function
+                            that, for a given BRT model object, summarizes cross-validation statistics and variable importance (csv
+                            output), generates partial dependence plots (pdf output), generates spatial predictions from input data
+                            layers (geotiff format), and generates maps of spatial predictions (png format). The ‘cvsum’ function
+                            summarizes cross-validation statistics across species. Individual species results are posted here:
+                            (https://drive.google.com/drive/folders/1cpt-AKDbnlUEi6r70Oow2lEPrbzQfVpt?usp=sharing)
 
-The `birdsNWT` module develops boosted regression tree (BRT) models from avian point-count data and associated covariates using the
-gbm.step function in the ‘dismo’ package (Hijmans et al. 2011) with a Poisson distribution and 10-fold cross-validation. BRT settings
-are as recommended by Elith et al. (2008) and are consistent with Stralberg et al. (2015). The module includes a ‘brtplot’ function
-that, for a given BRT model object, summarizes cross-validation statistics and variable importance (csv output), generates partial
-dependence plots (pdf output), generates spatial predictions from input data layers (geotiff format), and generates maps of spatial
-predictions (png format). The ‘cvsum’ function summarizes cross-validation statistics across species.
-
-Avian data for Bird Conseravation Region (BCR) 6 were extracted from the Boreal Avian Modelling project avian dataset (Cumming et al.
+Avian data for Bird Conservation Region (BCR) 6 were extracted from the Boreal Avian Modelling project avian dataset (Cumming et al.
 2010, Barker et al. 2015) and supplemented with data from automated recording units (ARU) collected by Environment and Climate Change
 Canada (Haché et al. unpublished data) and the University of Alberta Bioacoustic Unit (Bayne et al. unpublished data). Density offsets
 were calculated according to methods described in Sólymos et al. (2013), and were based on the assumption that ARU data detectability
@@ -280,7 +280,7 @@ Populus tremuloides*
 
 Models were developed for 71 passerine and near-passerine species that a) currently breed either in the Northwest Territories or
 Alberta portions of BCR 6, b) for which density offsets were available, and c) for which data were sufficient to fit cross-validated
-BRTs (see list below, in taxonomic order). For this project simulations were generated for 10 species, including:
+BRTs (see list below). For this project simulations were generated for 10 species, including:
 
 SWTH    Swainson's Thrush (*Catharus ustulatus*) 
 OVEN    Ovenbird (*Seiurus aurocapilla*)
@@ -295,16 +295,18 @@ RCKI    Ruby-crowned Kinglet (*Regulus calendula*)
 
 
 *Important assumptions of the `birdsNWT` module*
-1. Density offsets assume that ARU data detectability is similar to detectability by human observers (sensu Yip et al. 2017).
+1. The relative abundance of bird species is based on an environmental niche modeling approach with associated assumptions (Wiens et
+al. 2009).variation in occurrence, rather than variations in movement (Stewart et al. 2018; Neilson et al. 2018).
 
-2. We assume a lag in vegetation response to climate and therefore do not include climate covariates within this module that drive
-changes in vegetation and fire.
+2. Density offsets assume that ARU data detectability is similar to detectability by human observers (sensu Yip et al. 2017).
 
-3. The relative abundance of bird species is based an environmental niche modeling approach with associated assumptions (Wiens et al.
-2009)
+3. We assume a lag in vegetation response to climate and therefore do not include climate covariates within this module.
+
 
 Future versions of the `birdsNWT` module could include:
-1. Simulation for the remaining 61 species of passerine and near-passerine birds that breed either in the NWT or Alberta portions of
+1. Incorporation of additional covariates, such as linear feature density.
+
+2. Simulation for the remaining 61 species of passerine and near-passerine birds that breed either in the NWT or Alberta portions of
 BCR6. A full list of 71 possible species include:
 
 Alder Flycatcher (*Empidonax alnorum*), American Crow (*Corvus brachyrhynchos*), American Goldfinch (*Spinus tristis*), American Pipit
@@ -1262,6 +1264,8 @@ statistical analysis and design for field studies. Second Edition. Kluwer, Bosto
 Mcloughlin, P. D., E. Dzus, B. O. B. Wynes, and S. Boutin. 2003. Declines in populations of woodland caribou. The Journal of Wildlife
 Management 67(4):755-761.
 
+Neilson, E. W., T. Avgar, A. C. Burton, K. Broadley, and S. Boutin. 2018. Animal movement affects interpretation of occupancy models from camera-trap survey of unmarked animals. Ecosphere 9(1) doi:10.1002/ecs2.2090
+
 Riitters, K. H. 2005. Downscaling indicators of forest habitat structure from national assessments. Ecological indicators 5(4):273-279.
 
 Sappington, J. M., K. M. Longshore and D. B. Thomson. 2007. Quantifiying Landscape Ruggedness for Animal Habitat Anaysis: A case Study
@@ -1273,6 +1277,9 @@ and Evolution 4:1047-1058. http://dx.doi.org/10.1111/2041-210x.12106
 
 Sorensen, T., P. D. McLoughlin, D. Hervieux, E. Dzus, J. Nolan, B. Wynes and S. Boutin. 2008. Determining Sustainable Levels of
 Cumulative Effects for Boreal Caribou. J. Wildlife Manag., 72, 900–905. doi: 10.2193/2007-079
+
+Stewart, F. E. C., J. T. Fisher, A. C. Burton, and J. P. Volpe. 2018. Species occurrence data reflect the magnitude of animal movements
+better than the proximity of animal space use. Ecosphere 9(2) doi:10.1002/ecs2.2112.
 
 Stralberg, D., S. M. Matsuoka, A. Hamann, E. M. Bayne, P. Sólymos, F. K. A. Schmiegelow, X. Wang, S. G. Cumming, and S. J. Song. 2015.
 Projecting boreal bird responses to climate change: the signal exceeds the noise. Ecological Applications 25:52–69.

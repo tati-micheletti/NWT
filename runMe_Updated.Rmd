@@ -1225,9 +1225,13 @@ relecavant results for boreal bird, and woodland boreal caribiou, species - list
 integrative project could be repeated for other Species at Risk, and represents an important step towards species conservation
 considering future, rather than current or past, landscape considerations.
 
-Caribou and birds. Eddhehzie as an IPCA. CBD 2020 targets.
-
-Ecology and adaptive management. Hypothesis testing. The next steps in ecological science, collaboration, and decision making.
+Ensuring science is repeatable, adaptable, and open allows applied disciplines to ensure they progress under an adaptive management
+framework. Discrete event simulation modeling that is scheduled, through platforms such as SpaDES, ensure that assumptions can be built
+upon in an open and repeatable way that enhances projections through time. Within this project we have provided the required bird
+species abundance models, caribou occurence, and caribou population growth rates using SpaDES to ensure that the project can
+continually improve, the projections can be refined, and natural resouce decisions can be adapted to anticipate policy, economic,
+ecological, or climate driven changes that are bound to crop up over time. The reported project represents the cutting edge in
+integrated decision making, with ramification for Canada's national and international policy commitments to our natural resources.
 
 
 

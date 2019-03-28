@@ -1163,7 +1163,7 @@ writeRaster(x = biomassMapAll, filename = file.path(paths$outputPath, "biomassMa
 
 
 
-# Intgrated modules final components of Item 3: Species co-occurence through community metrics, and an analysis of the Edehzhie
+# Intgrated modules components of Item 3: Community metrics, and an analysis of the Edehzhie
 
 <!-- ANA STILL TO ADD -->
 \textcolor{blue}{comm_metricsNWT}: This module computes a series of avian community metrics based on the suite of species-level
@@ -1192,7 +1192,21 @@ Shannon Diversity Index:
 #### Table: Summarized RSF mean values
 
 
-# Discussion
+# Intgrated modules final component of Item 3: Species co-occurrence
+As requested deliverable of this project was to conduct species co-occurrence analyses for bird Species At Risk to evaluate potential
+conservation claues of multi-species conservation planning throughout the simulation period. Results from this type of anlysis could
+help inform land use planning and conservation efforts in the study area.
+
+Future versions of this project could incorporate this species co-occurrence deliverable one the other module components are fully
+tested. This will be completed for a manuscript, and is subject to (1) greater precision of the above mentioned modules, and the
+finalized set of bird Species At Risk for which models can be fit (see `birdsNWT`).
+
+To best perform this analysis we require more information on the objective of the analysis. For example, how is multi-species co
+occurence of birds and caribou to be measured, and over what spatial units?
+
+
+
+# Concluding remarks
 ## From data to decisions in SpaDES: an integrated projection project for the Northwest Territories
 
 

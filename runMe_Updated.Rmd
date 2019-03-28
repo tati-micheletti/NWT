@@ -73,7 +73,7 @@ anthropogenic         |                      |
 BirdsNWT              |  0.13 days           |
 caribouRSFModel       |  1.40 days           |
 caribouPopGrowthModel |  0.04 days           |
-TOTAL                 |  5.70 days           |
+TOTAL                 |                      |
 
 The structure and methods used for each one of the modules is as follows:
 
@@ -98,7 +98,8 @@ LANDIS-II Biomass Success module (v6.2), but have since been changed (*i.e.* spi
 Barros et al. in prep). They consist of (1) `LBMR`, the `LandR` module responsible for vegetation aging, dispersal, updating biomass
 folowing other modules' events, and producing summary figures and tables; (2) `LandR_BiomassGMOrig`, the `LandR` module responsible for
 cohort growth and mortality; and (3) `Biomass_regeneration`, the `LandR` module which handles post-disturbance biomass regeneration
-(e.g. fire). `LandR` needs at least the first two modules (`LBMR` and `LandR_BiomassGMOrig`) to produce sensible vegetation dynamics.
+(e.g. fire;  Appendix 1). `LandR` needs at least the first two modules (`LBMR` and `LandR_BiomassGMOrig`) to produce sensible
+vegetation dynamics.
 
 In brief, the `LandR` modules simulate biomass changes by cohort (species-age combinations) as a function of age, between-cohort
 competition for light resources, seed dispersal and germination, regeneration following a disturbance, and background or fire-related
@@ -1409,30 +1410,68 @@ http://dx.doi.org/10.5751/ACE00997-120111
 
 maxB, aNPP and SEP per species and ecodistrict-land cover combination
 
-Boreal_LBMRDataPrep uses available data on species percent cover (% cover), stand age, total biomass, ecodistricts and land cover class (LCC) (see above for product links) to estimate species-specific parameters of maximum biomass (maxB), seed establishment probability (SEP) and aboveground net primary productivity (aNPP), and to build initial unique communities to populate the landscape and start simulating vegetation dynamics. The selection of tree species entering the simulation was based on species cover for the study area from the  kNN Species Map Layers available from the Canadian Forest Service (http://tree.pfc.forestry.ca/). Species A B C… where selected after removing species that occupied < 5 pixels in the study area. Prior to parameter estimation, incongruencies between stand age, % cover and total biomass datasets were addressed and species-specific biomasses were estimated. For instance, we detected pixels with 0 % cover across all species layers, but where stand age and biomass had > 0 values. Given that biomass and stand age are generally more problematic in terms of estimation than % cover, we decided to trust % cover estimates and thus assigned 0 total biomass and 0 stand age to any pixel where no cover was detected. In pixels where the sum of % cover across species was >100%, species %  covers were adjusted so that they totalled to 100%. Biomass per species was then calculated per pixel as a fraction of total biomass according to the species % cover in that pixel. Finally, stand age also had to be corrected with respect to species longevity parameters (obtained from LANDIS-II species traits tables). This was achieved by fitting a statistical model relating “correct” age observations (those already corrected for 0 cover and that were not > longevity) against the interaction of observed biomass (totalB) and species identity (speciesCode) and % cover, accounting for the random effect of combination of ecodistrict and LCC (ecoregionCode):
+`Boreal_LBMRDataPrep` uses available data on species percent cover (% cover), stand age, total biomass, ecodistricts and land cover
+class (LCC) (see `LandR` documentation for product links) to estimate species-specific parameters of maximum biomass (maxB), seed
+establishment probability (SEP) and aboveground net primary productivity (aNPP), and to build initial unique communities to populate
+the landscape and start simulating vegetation dynamics. The selection of tree species entering the simulation was based on species
+cover for the study area from the  kNN Species Map Layers available from the Canadian Forest Service (http://tree.pfc.forestry.ca/).
+Species A B C… where selected after removing species that occupied < 5 pixels in the study area. Prior to parameter estimation,
+incongruencies between stand age, % cover and total biomass datasets were addressed and species-specific biomasses were estimated. For
+instance, we detected pixels with 0 % cover across all species layers, but where stand age and biomass had > 0 values. Given that
+biomass and stand age are generally more problematic in terms of estimation than % cover, we decided to trust % cover estimates and
+thus assigned 0 total biomass and 0 stand age to any pixel where no cover was detected. In pixels where the sum of % cover across
+species was >100%, species %  covers were adjusted so that they totalled to 100%. Biomass per species was then calculated per pixel as
+a fraction of total biomass according to the species % cover in that pixel. Finally, stand age also had to be corrected with respect to
+species longevity parameters (obtained from LANDIS-II species traits tables). This was achieved by fitting a statistical model relating
+“correct” age observations (those already corrected for 0 cover and that were not > longevity) against the interaction of observed
+biomass (totalB) and species identity (speciesCode) and % cover, accounting for the random effect of combination of ecodistrict and LCC
+(ecoregionCode):
 
 $$age ~ totalB * speciesCode + % cover + (1 | ecoregionCode)$$  [Eq. 1]
 
 This model was then used to predict missing age values, bounded to 0 on the lower limit. 
 
-Parameters maxB and aNPP were then estimated from a linear mixed effects model reflecting the response of species-specific biomass (B) to the interaction between age (on the log scale, logAge) and species and % cover and species, accounting for the random effect of ecoregionGroup on the calculated slopes (per species) and intercepts:
+Parameters maxB and aNPP were then estimated from a linear mixed effects model reflecting the response of species-specific biomass (B)
+to the interaction between age (on the log scale, logAge) and species and % cover and species, accounting for the random effect of
+ecoregionGroup on the calculated slopes (per species) and intercepts:
 
 $$B ~ logAge * speciesCode + cover * speciesCode + (speciesCode | ecoregionGroup)$$ [Eq. 2]
 
-Estimates of SEP based on a generalized mixed effects model relating % cover and species, accounting for the random effect of ecoregionGroup on the intercepts. In this case, species % cover was treated as the number of times a species was observed (no. of pixels with cover > 0) per ecoregionGroup, thus following a binomial distribution that was account for in the model with a logit link function:
+Estimates of SEP based on a generalized mixed effects model relating % cover and species, accounting for the random effect of
+ecoregionGroup on the intercepts. In this case, species % cover was treated as the number of times a species was observed (no. of
+pixels with cover > 0) per ecoregionGroup, thus following a binomial distribution that was account for in the model with a logit link
+function:
 
 $$logit(pi) ~ speciesCode + (1 | ecoregionGroup)$$ [Eq. 3]
 
-where pi is the probability of finding a species (cover > 0) in an ecoregionGroup, in other words the proportion of pixels that it occupies.
+where *pi* is the probability of finding a species (cover > 0) in an ecoregionGroup, in other words the proportion of pixels that it
+occupies.
 
-For both models, coefficients were estimated by maximum likelihood and model fit was calculated as the proportion of explained variance explained by fixed effects only (marginal r^2) and by the entire model (conditional r^2). For the biomass model, marginal and conditional r^2 were  0.70 and  0.77, respectively, and for the % cover model (Eq. 3) they were 0.18 and 0.26.
+For both models, coefficients were estimated by maximum likelihood and model fit was calculated as the proportion of explained variance
+explained by fixed effects only (marginal r^2^) and by the entire model (conditional r^2^). For the biomass model, marginal and
+conditional r^2^ were  0.70 and  0.77, respectively, and for the % cover model (Eq. 3) they were 0.18 and 0.26.
 
-To estimate maxB we predicted biomass for unique combinations of species and ecoregion code assuming maximum age (i.e. longevity). aNPP was then calculated per species and ecoregionGroup as maxB/30 (following LANDIS-II). Before estimating SEP, the predicted values of % cover per ecoregionGroup per species (obtained from Eq. 3) where temporally integrated to reflect the simulation timescale (10 years) as 1 - (1 - predictedCover)^10. These estimates were then multiplied by 1 - resprouting probability of each species, so that SEP reflects only the probability of seed germination (note that resprouting probabilities were taken from the LANDIS-II species trait tables).
+To estimate maxB we predicted biomass for unique combinations of species and ecoregion code assuming maximum age (i.e. longevity). aNPP
+was then calculated per species and ecoregionGroup as maxB/30 (following LANDIS-II). Before estimating SEP, the predicted values of %
+cover per ecoregionGroup per species (obtained from Eq. 3) where temporally integrated to reflect the simulation timescale (10 years)
+as 1 - (1 - predictedCover)^10. These estimates were then multiplied by 1 - resprouting probability of each species, so that SEP
+reflects only the probability of seed germination (note that resprouting probabilities were taken from the LANDIS-II species trait
+tables). Remaining parameters, i.e. species traits, were obtained from LANDIS-II trait data (see above for reference) and can be
+consulted in Table A1
 
 <!--TATI TO ADD OTHER PARAMETERS AND A TABLE HERE-->
 Other parameters
 
+#### Table A1: Remaining parameters and their correlation values
 
-Remaining parameters, i.e. species traits, were obtained from LANDIS-II trait data (see above for reference) and can be consulted in Table A1
 
-
+The `Biomass_regeneration` module simulates post-disturbance regeneration, in this case after fire events, assuming stand-replacing
+fires. In each burnt pixel, the module resets pixel biomass to 0 and activates post-fire resprouting and, or, serotiny depending on
+species’ abilities to resprout, their seed establishment probabilities (SEP) in that pixel (i.e. the pixel’s ecodistrict and land-cover
+classes), and their tolerance to shading conditions (which, in this case, is no shade given that biomass is totally removed after fire)
+(see Table A1 for trait values)). The module algorithm first assesses for which species serotiny will be activated according to shading
+and SEP (light-loving species and higher SEP will increase the probability of serotiny being activated). It then assesses for which
+resprouter species resprouting will be activated, depending on whether they are are within resprouting age limits, shading and
+resprouting probability (again, light-loving species and higher resprouting probability will increase the probability of resprouting
+being activated). For any given pixel, resprouting is limited to resprouter species for whom serotiny was not activated. This provides
+some advantage to serotinous species which would otherwise be quickly shaded and out-competed by resprouters.

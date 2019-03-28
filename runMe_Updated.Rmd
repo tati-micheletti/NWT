@@ -1168,12 +1168,13 @@ writeRaster(x = biomassMapAll, filename = file.path(paths$outputPath, "biomassMa
 
 # Intgrated modules components of Item 3: Community metrics, and an analysis of the Edehzhie
 
-<!-- ANA STILL TO REVIEW -->
+
 \textcolor{blue}{comm_metricsNWT}: This module computes a series of avian community metrics based on the suite of species-level
                                    predicted abundance maps provided from the `birdsNWT` module. These community metrics were
                                    calculated on a 10 year interval. This module outputs a raster for each diversity metric of the
                                    current simulation year, along with a table of mean value for the Shannon diversity index, Simpson
-                                   diversity index, and Roa's quadratic entropy metrics.
+                                   diversity index, and Rao's quadratic entropy metrics.
+
                                    
 There are four community metrics computed as part of the `comm_metricsNWT` module:
 
@@ -1195,7 +1196,7 @@ This index estimates the probability of any two individuals drawn at randoms fro
 species (Magurran 2004). 
 
  $$ 1-D = \sum p_i^2 $$
- where:$$p_i$$ is the proportion of individuals found in  the _ith species.
+ where:$$p_i$$ is the proportion of individuals found in  the _ith_ species.
 
 Simpson’s diversity has more ecological significance than Shannon index, because it represents the probability that two individuals of
 the same species meet. 
@@ -1215,14 +1216,16 @@ traits as considered in Knaggs (2018).
 the degree of difference between species. This limitation has been criticized  because this measures does not take into account the
 uniqueness or ecological importance of individual species. 
 
-2. Raos Entropy depends on delineating functional groups within an significant ecological sense. Functional traits must be selected
+2. Rao's Entropy depends on delineating functional groups within an significant ecological sense. Functional traits must be selected
 carefully. 
 
 
 Future versions of the `comm_metricsNWT` module could include:
-1. Additional species richness  parametric estimates (e.g. Cowel, Clench , or Chao 1)
+1. Additional species richness estimates (e.g. Cowel, Clench , or Chao 1; Gotelli and Colwell 2011)
 
-2. Graphical outputs of species richness.
+2. Outputs for each community metric that are specific to different study areas (e.g. specific to different caribou study areas).
+
+3. Species turnover based on community dissimilatiry that considers different climate change scenarios (sensu Stralberg et al. 2009)
 
 
 
@@ -1340,6 +1343,9 @@ caribou*), Boreal Population, in Canada. August 2008. Ottawa: Environment Canada
 Fretwell, S. D., and J. H. J. Lucas. 1970. On territorial behavior and other factors influencing habitat distribution in birds. Acta
 Biotheoretica 19:16–36.
 
+Gotelli, N. and R. Colwell. 2011. Estimating species richness. *In*: Magurran, A. and B. McGill.2011. Biological diversity: frontiers
+in measurement and assessment. Oxford University Press. Pp: 39- 54.
+
 Government of the Northwest Territories. 2019. A Framework for Boreal Caribou Range Planning: Revised Draft - Appendices. Environment
 and Natural Resources, Government of the Northwest Territories, Yellowknife, NT. 38 + ii pp.
 
@@ -1386,6 +1392,9 @@ Species At Risk Act. 2002. An Act respecting the protection of wildlife species 
 
 Stewart, F. E. C., J. T. Fisher, A. C. Burton, and J. P. Volpe. 2018. Species occurrence data reflect the magnitude of animal movements
 better than the proximity of animal space use. Ecosphere 9(2) doi:10.1002/ecs2.2112.
+
+Stralberg D., D. Jongsomjit,  C. A. Howell, M. A. Snyder , J. D. Alexander, et al. 2009. Re-Shuffling of Species with Climate
+Disruption: A No-Analog Future for California Birds?. PLOS ONE 4(9): e6825. https://doi.org/10.1371/journal.pone.0006825
 
 Stralberg, D., S. M. Matsuoka, A. Hamann, E. M. Bayne, P. Sólymos, F. K. A. Schmiegelow, X. Wang, S. G. Cumming, and S. J. Song. 2015.
 Projecting boreal bird responses to climate change: the signal exceeds the noise. Ecological Applications 25:52–69.

@@ -1182,10 +1182,10 @@ where:  $$ exp^{-\lambda} = \frac{exp^{-\lambda}\lambda^k{}{k!} $$
 
 2. Shannon diversity index:
 This index assumes that individuals are randomly sample from an infinitely large community, and that all species are represented in the
-sample  (Magurran 2004). 
+sample (Magurran 2004). 
 
  $$ H^' = - \sum_{i=1}^{S} p_ilnp_i $$
-where: $$p_i$$ is the proportion of individuals found in  the _ith species.
+where: $$p_i$$ is the proportion of individuals found in  the _ith_ species.
 
 3. Simpson diversity index:
 This index estimates the probability of any two individuals drawn at randoms from an infinitely large community belonging to the same
@@ -1304,6 +1304,9 @@ Bergeron, Y., D. Dominic, M. P. Girardin, and C. Carcaillet. 2010. Will climate 
 forest outside of its natural variability: collating global climate model experiments with sedimentary charcoal data. International
 Journal of Wildland Fire 19:1127-1139. doi: 10.1071/WF09092
 
+Botta-Dukát, Z. 2005. Rao's quadratic entropy as a measure of functional diversity based on multiple traits. Journal of Vegetation
+Science 16:533-540. 
+
 Burton, A. C., F. E. C. Stewart, and J. T. Fisher. Scaling-down species distribution models: can large-scale models predict smaller
 scale wildlife distribution? In Review.
 
@@ -1347,7 +1350,12 @@ project.org/web/packages/dismo/index.html.
 
 Holling, C. S. 1992. Cross‐scale morphology, geometry, and dynamics of ecosystems. Ecological monographs 62(4): 447-502.
 
+Knagss, M. 2018. Effects of burn severity and time since fire on songbird communities in the northern boreal forest. Department of
+Renewable Resources. University of Alberta. Master's Thesis. 
+
 Levin, S. A. 1992. The problem of pattern and scale in ecology: the Robert H. MacArthur award lecture. Ecology 73(6):pp.1943-1967.
+
+Magurran, A. 2004. Measuring Biological Diversity. Wiley. 256 pp. ISBN 0632056339
 
 Manly, B. F. J., L. L. McDonald, D. L. Thomas, T. L. McDonald, and W. P. Erickson, editors. 2002. Resource selection by animals:
 statistical analysis and design for field studies. Second Edition. Kluwer, Boston, USA.

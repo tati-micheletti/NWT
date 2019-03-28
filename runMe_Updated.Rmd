@@ -1205,7 +1205,7 @@ To best perform this analysis we require more information on the objective of th
 occurence of birds and caribou to be measured, and over what spatial units?
 
 
-
+<!--First draft, I'd appreciate comments from others on this-->
 # Concluding remarks
 ## From data to decisions in SpaDES: an integrated projection project for the Northwest Territories
 
@@ -1214,6 +1214,16 @@ multiple ecological fields over an extensive spatial area to forecast vertebrate
 tool for natural resource decition making, but also demonstrates the intensive collaborative ability of ecologists to work
 simultaneously on a national project. Finally, the project is open source and repeatable - the basic requirements to hold science
 accountable and a must for the, sometimes controversial, natural resource desitions required both today and in future.
+
+Recovering Species at Risk is mandated nationally under the federal Species at Risk Act, and internationally under the United Nationas
+Convention on Biological Diversity Aichi Target 1. However, the ideal location and strategies required to recover species may vary with
+spatial and temporal landscape change. These strategies may also require tradeoffs in natural resource development such as altered
+anthropogenic landuses (mining, oil and gas, forestry) with conservation strategies (such as protected areas). The ideal location and
+configuration of such spatial tradeoffs are best evaluated if we can anticipate landscape change, and the effect of this change on
+species abundance and demography, in the future. Here, we take a first step to integrating all of this information,and provide
+relecavant results for boreal bird, and woodland boreal caribiou, species - listed under the Species at Risk Act. The structure of this
+integrative project could be repeated for other Species at Risk, and represents an important step towards species conservation
+considering future, rather than current or past, landscape considerations.
 
 Caribou and birds. Eddhehzie as an IPCA. CBD 2020 targets.
 
@@ -1244,7 +1254,10 @@ forest outside of its natural variability: collating global climate model experi
 Journal of Wildland Fire 19:1127-1139. doi: 10.1071/WF09092
 
 Burton, A. C., F. E. C. Stewart, and J. T. Fisher. Scaling-down species distribution models: can large-scale models predict smaller
-scale wildlife distribution? In review.
+scale wildlife distribution? In Review.
+
+Convention on Biological Diversity 2020. 2020 Biodiversity Goals and Targets for Canada. Accessed March 28, 2019.
+(https://www.canada.ca/en/parks-canada/news/2016/12/2020-biodiversity-goals-targets-canada.html)
 
 Chen, T. and C. Guestrin. 2016. XGBoost: A Scalable Tree Boosting System. In 22nd SIGKDD Conference on Knowledge Discovery and Data
 Mining, 2016. http://arxiv.org/abs/1603.02754
@@ -1291,7 +1304,8 @@ statistical analysis and design for field studies. Second Edition. Kluwer, Bosto
 Mcloughlin, P. D., E. Dzus, B. O. B. Wynes, and S. Boutin. 2003. Declines in populations of woodland caribou. The Journal of Wildlife
 Management 67(4):755-761.
 
-Neilson, E. W., T. Avgar, A. C. Burton, K. Broadley, and S. Boutin. 2018. Animal movement affects interpretation of occupancy models from camera-trap survey of unmarked animals. Ecosphere 9(1) doi:10.1002/ecs2.2090
+Neilson, E. W., T. Avgar, A. C. Burton, K. Broadley, and S. Boutin. 2018. Animal movement affects interpretation of occupancy models
+from camera-trap survey of unmarked animals. Ecosphere 9(1) doi:10.1002/ecs2.2090
 
 Riitters, K. H. 2005. Downscaling indicators of forest habitat structure from national assessments. Ecological indicators 5(4):273-279.
 
@@ -1304,6 +1318,9 @@ and Evolution 4:1047-1058. http://dx.doi.org/10.1111/2041-210x.12106
 
 Sorensen, T., P. D. McLoughlin, D. Hervieux, E. Dzus, J. Nolan, B. Wynes and S. Boutin. 2008. Determining Sustainable Levels of
 Cumulative Effects for Boreal Caribou. J. Wildlife Manag., 72, 900–905. doi: 10.2193/2007-079
+
+Species At Risk Act. 2002. An Act respecting the protection of wildlife species at risk in Canada. Accessed March 28, 2019
+(https://web.archive.org/web/20040604021711/http://laws.justice.gc.ca/en/S-15.3/text.html) 
 
 Stewart, F. E. C., J. T. Fisher, A. C. Burton, and J. P. Volpe. 2018. Species occurrence data reflect the magnitude of animal movements
 better than the proximity of animal space use. Ecosphere 9(2) doi:10.1002/ecs2.2112.

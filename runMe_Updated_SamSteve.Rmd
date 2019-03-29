@@ -128,7 +128,7 @@ forested areas; or (3) set a maximum biomass limit for `LandR` projections. Thes
                                   model, wildfire is simulated as a process of fire ignition (or "arrival", the occurrence of a detected,
                                   recorded fire) and fire spread on a raster grid, in this case the 250m resolution extent determined
                                   by the model template `rasterToMatch`. The overall approach is a variant of the class of landscape fire
-                                  models based on simulated percolation (Hargrove et al. 2000). In percolation models, fires
+                                  models based on a simulated percolation process (Hargrove et al. 2000). In percolation models, fires
                                   spread iteratively from burning cells to unburned neighbours with some probability, in the simplest
                                   case this probability is constant in time and space. Fires are extinguished when no further spreading
                                   occurs. The arrival (or ignition) process is modelled by stating fires within cells according to some
@@ -276,37 +276,39 @@ weather. It was not possible to test the software needed to estimate these param
 
 
  <!--HERE DOWN STILL REQUIRED REVIEW BY STEVE-->
-\textcolor{blue}{anthropogenic}: The `anthropogenic` module aims to project future anthropogenic disturbances, calculate road density
-                                 as km/km2 within a 10km radius, and compute a 500 meter buffer around all anthropogenic disturbances.
-                                 It is composed of three submodules: `anthrDisturbanceNWT`, `lineDensity`, and `Buffer`. It provides
+\textcolor{blue}{anthropogenic}: The `anthropogenic` parent module aims to represent current and project future anthropogenic disturbances, and to produce metrics of anthropegenic disturbance as required by other modiles. These metrics include:
+
+1. road density in km/km2 per pixel caclulated over a radius of 10km
+2. maintain a disturbance layer defined by the union of 500m buffers around all anthropogenic disturbances
+ <!--Why are the next two lines grey when this comment is removed?-->
+                                 There are three submodules: `anthrDisturbanceNWT`, `lineDensity`, and `Buffer`. It provides
                                  information to the `birdsNWT`, `caribouPopGrowth`, and `caribouRSFModel` modules.
 
 The `anthrDisturbanceNWT` module loads, prepares, and merges all anthropogenic disturbance vector data layers into a layer called
-anthrDisturb. This layer is updated by adding disturbance features as indicated in a feature update schedule file
-anthrDisturbSchedule.txt. The file provides a planning schedule and contains columns with information on planned timing, feature
-selection, source url and other feature descriptives (i.e. planTime, Class, name, shortName, IDcol, featureID, targetFile and url) of
-planned disturbances. Currently, only the proposed extention of the McKenzie highway is included in the schedule. Other disturbances
-can easily be added to the simulation by including them to anthrDisturbSchedule.txt, which is available in the module’s data directory.
+anthrDisturb. This layer is updated by adding predefined disturbance features as indicated in a feature update schedule file
+anthrDisturbSchedule.txt, found in the module's data directory. The file specifiies a planning schedule or scenario for the addition of new featiures. It contains columns with information on planned timing, feature selection, source url and other feature descriptives (i.e. planTime, Class, name, shortName, IDcol, featureID, targetFile and url) of the future disturbances. Currently, only the proposed extention of the McKenzie highway is included.  
 
-The `anthrDisturbanceNWT` module uses the Boreal ecosystem anthropogenic disturbance (BEADS) vector data from two sources for seven
-anthropogenic features. BEADS data for Canada (2008 to 2010) is available from
-(https://open.canada.ca/data/en/dataset/afd0ce47-17c3-445c-b823-2f86409da2e0). The 2010 road network file for the NWT is available from
+The `anthrDisturbanceNWT` module initializes `antheDisturb` from two data sources:
+
+1. the "Boreal ecosystem anthropogenic disturbance" (BEADS) vector data for 
+anthropogenic features. BEADS is current to 2008-2010. It is is available from
+(https://open.canada.ca/data/en/dataset/afd0ce47-17c3-445c-b823-2f86409da2e0);
+2. The 2010 road network file for the NWT (NWT ROADS) is available from
 (https://open.canada.ca/data/en/dataset/ab807d3f-9112-4d67-b17b-12bf83ff81e2).
+
+There are seven feature classes:
 
 1  airstrips (BEADS)
 2  pipelines (BEADS)
 3  powerlines (BEADS)
 4  railways (BEADS)
-5  roads (NWT road network file)
+5  roads (NWT ROADS)
 6  seismic lines (BEADS)
 7  unknown (BEADS)
 
-The `lineDensity` module computes densities of linear feature within a specific radius around each raster cell, expressed as magnitude
-per-unit area (km/km2). The default input object is anthrDisturb, from which features can be selected. In this model only the roads
-layer of anthrDistur is used to calculate road density within a 10 km radius around each raster cell. The road density output
-LFDensityMap is masked to waterRaster, removing road density values in cells that represent water.
+The `lineDensity` module computes the total density all specified linear feature classes within a specified radius around each raster cell, expressed as magnitude per-unit area (km/km2). The default input object is anthrDisturb, from which features can be selected. In this model only the roads layer of anthrDistur is used. The default radius is 10 km, as per the requirements of the caribou RSF model. . The road density output LFDensityMap is masked to waterRaster, such that water cells have no road density. 
 
-`lineDensity` currently uses an approach that approximates line densities. First, lengths of linear features within each raster cell
+The direct method of calculating `lineDensity` would be extrenely compute-intensive, requiring to define a circular buffer of 40 pixel raidius around each pixel. We use an approximation. First, lengths of linear features within each raster cell
 are calculated. The values for line length within each raster cell are then spread out over all neighbouring cells within a 10km radius
 and summed where they overlap using fast fourier transforms (fft). This is equivalent to summing total line length within a 10 km
 circle around each cell divided by circle area. These calculations can be done on smaller ‘tiles’ of the study area to reduce
@@ -314,22 +316,20 @@ computational requirements and computation time (but has not been parallelized y
 by dividing these summed values by pixel area (which makes m/m2) and multiplied by a factor 1000 to convert them to km/km2. These road
 density estimates are used in the `caribouRSFModel` module.
 
-The `Buffer` module computes a buffer layer (bufferMap) of buffers with a specific radius around features that are being selected from
-the anthrDisturb object. The buffer radius can be varied, and the buffer layer can be converted to a raster object if desired. The
-default raster identifies all cells that are covered by the buffer layer, and assignings them a value 1; cells that are not covered by
-the buffer layer are assigned a value of 0 to creat a binomial rater layer. These raster computations can be done for all features
-together or by feature Class. This output, BufferMap, is masked to waterRaster, removing road density values in cell that represent
-water. This raster is used in the `caribouPopGrowth` module.
+The `Buffer` module computes a buffer layer (bufferMap) of buffers with a specific radius around a set of features from
+the anthrDisturb object. The buffer radius can be varied but is 250m here. 
+#Too technical
+#The  the buffer layer can be converted to a raster object if desired.
+The default raster identifies all cells that are covered by the buffer layer. Buffered cells have a value of 1, other cells have a value of 0. These raster computations can be done for by feature class, defining a raster brick of up to seven layers, or aggregated into a cummulative dustrubance later, as here. The resultant object, bufferMap, is masked to waterRaster, removing road density values in cell that represent water. bufferMap is used in the `caribouPopGrowth` module.
 
-*Important assumptions of the `anthropogenic` module*
-1. All linear features are created within one time step, regardless of feature length.
+*Important limitations of the `anthropogenic` module*
+1. All linear features are created at initialisation, regardless of feature length.
 
-2. Anthropogenic features do no deteriorate, recover, or become restored throughout the simulated period.
+2. Anthropogenic features are fixed. They do not deteriorate, recover or become otherwise restored over time. This is problematic for seismic lines, especially.
 
-3. Fft is an appropriate method for the calculated of feature densities (specific to the `lineDensity` module).
+3. The adeqaucy of the Fast Fourier Trasnform approximation used in module `lineDensity` has not been verifed.
 
-4. Only spatial line objects are present on the landscape (specific to the `Buffer` module)
-
+4. Only spatial line objects are considered in defining bufferMap. Point and polygon objects are neglecetd. 
 
 Future versions on the `anthropogenic` module could include:
 1. Specific phases of linear feature development that are scheduled within the simulation (to address assumption #1).
@@ -342,22 +342,21 @@ harvesting modules written by Cumming for use in SpaDES teaching found that they
 multiple yield curves; also the cut-block layout and sequencing algorithms are too slow to run over entre FMAs. Some development work
 is required, which is planned for the summer. 
 
-4. Interaction between `LandR` and this `anthropogenic` module sot hat pixels that intersect with disturbance features can be
-classified as disturbed in vegetation succession models.
+4. Interaction between `LandR` and this `anthropogenic` module so that pixels that intersect with disturbance features can be
+classified as disturbed in vegetation succession models, or so that the proportional area of a pixel that is disturbed can be accounted for in biomass calculations.
 
-5. Enable road replacement where new roads are ‘constructed’. E.g. (parts of) new roads may 'replace' already existing roads. 
+5. Enable road replacement where new roads are ‘constructed’, e.g. (parts of) new roads may 'replace' already existing roads. 
 Adding these features, without replacing old features where they overlap results in an overestimation of road densities.
 
-6. Call python code to emulate ArcMap's lineDensity function (sensu Environment Canada 2011, Appendix 7.3).
+6. replace the FFT approximation with external python code to emulate ArcMap's lineDensity function (sensu Environment Canada 2011, Appendix 7.3).
 
 7. Incorporation of spatial objects other than spatial lines (to address assumption #4).
 
 8. An output could be provided to calculate the percentage of a cell within the BufferMap that that is covered by the buffer layer of
 each feature class.
 
-9. The ability to vary the buffer sizes by feature class, which would allow testing of the effect of buffer sizes on caribou
+9. The ability to vary the buffer widths by feature class, which would allow testing of the effect of buffer sizes on caribou
 recruitment and population growth rate.
-
 
 
 \textcolor{blue}{birdsNWT}: This module projects species abundance of bird species under forecasted landscape and climate

@@ -78,7 +78,7 @@ module                | approximate duration |
 LandR                 |  3.05 days           |
 scfm-fireSense        |                      | 
 anthropogenic         |                      |
-BirdsNWT              |  0.13 days           |
+BirdsNWT              |  6.25 days           |
 caribouRSFModel       |  1.40 days           |
 caribouPopGrowthModel |  0.04 days           |
 comm_metricsNWT       |                      |

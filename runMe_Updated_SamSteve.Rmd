@@ -293,7 +293,7 @@ weather. It was not possibly to test the software needed to estimate these param
 scfm-fireSense is less sensitive to variation in vegetation and to changes in fire weather than the compleet fireSense model would be.
 
 
-## MARIO STILL TO PROVIDE INFORMATION FOR THIS ##
+<!--MARIO STILL TO PROVIDE INFORMATION FOR THIS-->
 \textcolor{blue}{anthropogenic}: The `anthropogenic` module aims to project future anthropogenic disturbances, calculate road density
                                  as km/km2 within a 10km radius, and compute a 500 meter buffer around all anthropogenic disturbances.
                                  It is composed of three submodules: `anthrDisturbanceNWT`, `lineDensity`, and `Buffer`. It provides
@@ -319,36 +319,57 @@ anthropogenic features. BEADS data for Canada (2008 to 2010) is available from
 6  seismic lines (BEADS)
 7  unknown (BEADS)
 
+The `lineDensity` module computes densities of linear feature within a specific radius around each raster cell, expressed as magnitude
+per-unit area (km/km2). The default input object is `anthrDisturb`, from which features can be selected. In this model only the roads
+layer of anthrDistur is used to calculate road density within a 10 km radius around each raster cell. The road density output
+LFDensityMap is masked to waterRaster, removing road density values in cells that represent water.
 
+`lineDensity` currently uses an approach that approximates line densities. First, lengths of linear features within each raster cell
+are calculated. The value for line length within each cell is then spread out over all neighbouring cells within a 10km radius and
+summed where they overlap using fast fourier transforms (fft). This is equivalent to summing total line length within a 10 km circle
+around each cell divided by circle area. These calculations can be done on smaller ‘tiles’ of the study area to reduce computational
+requirements and computation time (but has not been parallelized yet). The magnitude-per-unit area (km/km2) is calculated by dividing
+these summed values by pixel area (which makes m/m2) and multiplied by a factor 1000 to convert them to km/km2. These road density
+estimates are used in the `caribouRSFModel` module.
 
-
-The `lineDensity` module calculates road density (km/km^2) within a 10km search radius (sensu Environment Canada 2011), and uses
-anthrDisturb from the `anthrDisturbanceNWT` module as an input. The `lineDensity` module provides an input to the `caribouRSFModel`
-module.
-
-The `Buffer` module computes a 500 m buffer around all anthropogenic disturbances, and uses antrDisturb from the `anthrDisturbanceNWT`
-module as an input. The `Buffer` module provides an input to the `caribouPopGrowth` module.
+The `Buffer` module computes a buffer layer (bufferMap) of buffers with a specific radius around features that are being selected from
+the anthrDisturb object. The buffer radius can be varied, and the buffer layer can be converted to a raster object if desired. The
+default raster identifies all cells that are covered by the buffer layer, and assignings them a value 1; cells that are not covered by
+the buffer layer are assigned a value of 0 to creat a binomial rater layer. These raster computations can be done for all features
+together or by feature Class. This output, BufferMap, is masked to waterRaster, removing road density values in cell that represent
+water. This raster is used in the `caribouPopGrowth` module.
 
 *Important assumptions of the `anthropogenic` module*
 1. All linear features are created within one time step, regardless of feature length.
 
 2. Anthropogenic features do no deteriorate, recover, or become restored throughout the simulated period.
 
+3. Fit is an appropriate method for the calculated of feature densities (specific to the `lineDensity` module).
+
+4. Only spatial line objects are present on the landscape (specific to the `Buffer` module)
+
 
 Future versions on the `anthropogenic` module could include:
 1. Specific phases of linear feature development that are scheduled within the simulation (to address assumption #1).
 
-2. Deterioiration or recovery of anthropogenic features through time (to addess assumption #2)
+2. Deterioiration or recovery of anthropogenic features through time (to address assumption #2)
 
 3. Inclusion of other anthropogenic features (e.g. development of forestry roads, new seismic lines, etc.). This option could include a
 link to a future module simulating timber harvest that keeps track of cut-block location and age.
 
-4. Interaction between `LandR` and this `anthropogenic` module sot hat pixels that intersect with disturbance features can be classified as disturbed in vegetation succession models.
+4. Interaction between `LandR` and this `anthropogenic` module sot hat pixels that intersect with disturbance features can be
+classified as disturbed in vegetation succession models.
 
-To be completed by MT.
-IMPORTANT ASSUMPTION TO ADD: This module does not model seismic lines - see caveate for `caribouPopGrowthModel`
-ASSUMPTION: no success with anthropogenic disturbance
-Explains both road density layer and buffered 500m layer.
+5. Call python code to emulate ArcMap's lineDensity function (sensu Environment Canada 2011, Appendix 7.3).
+
+6. Incorportion of spatial objects other than spatial lines (to address assumption #4).
+
+7. An output could be provided to calculate the percentage of a cell withing the BufferMap that that is covered by the buffer layer of
+each feature class.
+
+8. The ability to vary the buffer sizes by feature class, which would allow testing of the effect of buffer sizes on caribou
+recruitment and population growth rate.
+
 
 
 \textcolor{blue}{birdsNWT}: This module projects species abundance of bird species under forecasted landscape and climate

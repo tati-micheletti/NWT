@@ -402,6 +402,7 @@ each feature class.
 9. The ability to vary the buffer widths by feature class, which would allow testing of the effect of buffer sizes on caribou
 recruitment and population growth rate.
 
+
 <!-- HERE DOWN STILL NEEDS STEVE'S EDITS-->
 \textcolor{blue}{birdsNWT}: This module projects species abundance of bird species under forecasted landscape and climate
                             conditions. The module develops boosted regression tree (BRT) models from avian point-count data and
@@ -455,8 +456,7 @@ Populus tremuloides*
 Models were developed for 71 passerine and near-passerine species that a) currently breed either in the Northwest Territories or
 Alberta portions of BCR 6, b) for which density offsets were available, and c) for which data were sufficient to fit cross-validated
 BRTs (see list below). For this project simulations were generated for 10 species, including:
-
-SWTH    Swainson's Thrush (*Catharus ustulatus*) 
+ 
 OVEN    Ovenbird (*Seiurus aurocapilla*)
 AMRE    American Redstart (*Setophaga ruticilla*)
 BLPW    Blackpoll Warbler (*Setophaga striata*) 
@@ -465,7 +465,8 @@ CAWA    Canada Warbler (*Cardellina canadensis*)
 FOSP    Fox Sparrow (*Passerella iliaca*) 
 WCSP    White-crowned Sparrow (*Zonotrichia leucophrys*)
 RUBL    Rusty Blackbird (*Euphagus carolinus*)
-RCKI    Ruby-crowned Kinglet (*Regulus calendula*) 
+RCKI    Ruby-crowned Kinglet (*Regulus calendula*)
+OSFL     Olive-sided Flycatcher (*Contopus cooperi*)
 
 
 *Important assumptions of the `birdsNWT` module*

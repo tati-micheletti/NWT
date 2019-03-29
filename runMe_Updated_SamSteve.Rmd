@@ -293,7 +293,7 @@ weather. It was not possibly to test the software needed to estimate these param
 scfm-fireSense is less sensitive to variation in vegetation and to changes in fire weather than the compleet fireSense model would be.
 
 
-<!--MARIO STILL TO REVIEW FOR THIS-->
+<!--MARIO STILL TO REVIEW THIS-->
 \textcolor{blue}{anthropogenic}: The `anthropogenic` module aims to project future anthropogenic disturbances, calculate road density
                                  as km/km2 within a 10km radius, and compute a 500 meter buffer around all anthropogenic disturbances.
                                  It is composed of three submodules: `anthrDisturbanceNWT`, `lineDensity`, and `Buffer`. It provides
@@ -355,7 +355,9 @@ Future versions on the `anthropogenic` module could include:
 2. Deterioiration or recovery of anthropogenic features through time (to address assumption #2)
 
 3. Inclusion of other anthropogenic features (e.g. development of forestry roads, new seismic lines, etc.). This option could include a
-link to a future module simulating timber harvest that keeps track of cut-block location and age.
+link to a future module simulating timber harvest that keeps track of cut-block location, age, and yeild curves. A review of
+preliminary modules written by Cumming for use in SpaDES teaching found that they were not yet ready ready to be adapted to this
+project. The development work behind a forest harvesting module are planned for the summer.
 
 4. Interaction between `LandR` and this `anthropogenic` module sot hat pixels that intersect with disturbance features can be
 classified as disturbed in vegetation succession models.

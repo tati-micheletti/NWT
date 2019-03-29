@@ -113,16 +113,19 @@ rasterToMatch <- Cache(prepInputs, url = "https://drive.google.com/open?id=1fo08
 
 times <- list(start = 0, end = 100)
 
-modules <- list("caribouRSF", "caribouPopGrowthModel")
+modules <- list("caribouRSF")
 
 cloudFolderID <- "https://drive.google.com/open?id=1PoEkOkg_ixnAdDqqTQcun77nUvkEHDc0"
 
 waterRaster <- prepInputs(url = "https://drive.google.com/open?id=1nPd03gaVXkkaHorirR4UhYrDi95ZgyJM",
-                          targetFile = "waterRasterNW.tif", studyArea = studyAreaEde, rasterToMatch = rasterToMatch,
+                          targetFile = "waterRasterNW.tif", 
+                          studyArea = studyAreaEde, 
+                          rasterToMatch = rasterToMatch, 
                           destinationPath = getPaths()$inputPath, 
-                          filename2 = "waterRasterNW.tif")
+                          filename2 = "waterRasterNW.tif", overwrite = TRUE)
 
-.objectsCaribou <- list(
+
+.objects <- list(
   "rasterToMatch" = rasterToMatch,
   "cloudFolderID" = cloudFolderID,
   "studyArea" = studyAreaEde,
@@ -133,18 +136,14 @@ parameters<- list(
   .progress = list(type = "text", interval = 1), # for a progress bar
   caribouRSF = list(
     "decidousSp" = c("Betu_Pap", "Popu_Tre", "Popu_Bal"),
-  "predictionInterval" = 10),
-  caribouPopGrowthModel = list(
-    ".plotInitialTime" = NULL,
-    "recoveryTime" = 40,
-    ".useDummyData" = FALSE,
-    ".growthInterval" = 10
+  "predictionInterval" = 10)
   )
-)
 
 if (quickPlot::isRstudioServer()) options(httr_oob_default = TRUE)
 
 caribous <- simInitAndSpades(times = times, params = parameters, modules = modules,
-                 objects = .objectsCaribou, debug = 2)
+                 objects = .objects, debug = 2)
+
+
 ```
 

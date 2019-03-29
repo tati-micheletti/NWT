@@ -293,7 +293,7 @@ weather. It was not possibly to test the software needed to estimate these param
 scfm-fireSense is less sensitive to variation in vegetation and to changes in fire weather than the compleet fireSense model would be.
 
 
-<!--MARIO STILL TO PROVIDE INFORMATION FOR THIS-->
+<!--MARIO STILL TO REVIEW FOR THIS-->
 \textcolor{blue}{anthropogenic}: The `anthropogenic` module aims to project future anthropogenic disturbances, calculate road density
                                  as km/km2 within a 10km radius, and compute a 500 meter buffer around all anthropogenic disturbances.
                                  It is composed of three submodules: `anthrDisturbanceNWT`, `lineDensity`, and `Buffer`. It provides

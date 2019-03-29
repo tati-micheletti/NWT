@@ -1,4 +1,4 @@
-comparePredictions <- function(polyList, simList) {
+compareSCFMPredictions <- function(polyList, simList) {
   out <- lapply(polyList, FUN = function(x, sim = simList) {
     regime <- sim$scfmRegimePars[[x]]
     driver <- sim$scfmDriverPars[[x]]

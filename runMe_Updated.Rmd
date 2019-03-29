@@ -140,30 +140,82 @@ herbivory). Future versions of the `LandR` modules could (1) ignore this limitat
 forested pixels; (2) incorporate estimates for these mechanisms allowing `LandR` to predict for areas that do not correspond to purely
 forested areas; or (3) set a maximum biomass limit for `LandR` projections. These changes would address current `LandR` limitation #2.
 
-## STEVE TO PROVIDE FINAL COMMENTS ON HOW FEENIX-FIRESENSE INCORPORATES BOTH FIRESENSE AND SCFM TOGETHER ##
-## THE BELOW IS JEAN'S FIRE SENSE TEXT. IAN AND ALEX HAVE PROVIDED TEXT ON SCFM IN ANOTHER DOCUMENT ##
-\textcolor{blue}{fireSense}: `fireSense` is a landscape fire simulation module that is sensitive to both climate and vegetation change;
-                              it reproduces the spatial and temporal variation of both the number of fires, and fire escape
-                              probability. `fireSense` is composed of two groups of modules; a group that prepares and formats the data
-                              (`climate_NWT_DataPrep`, `fireSense_NWT_DataPrep`, `LBMR2LCC_DataPrep`, and `MDC_NWT_DataPrep`), and a
-                              group that implements the algorithms needed to simulate fire (`fireSense_FrequencyFit`,
-                              `fireSense_FrequencyPredict`, `fireSense_EscapeFit`, and `fireSense_EscapePredict`).
+<!--STEVE TO REVIEW THE BELOW AGAIN- FRANCES TO DOUBLE CHECK INCLUSION OF REFERENCES-->
+\textcolor{blue}{scfm-fireSense}: `scfm-fireSense` is a fire hybrid of two structurally similar models, `scfm` and `fireSense`. In each
+                                  model, wildfire is simulated as a process of fire ignition (or arrival, the occurrence of a detected,
+                                  recorded fire) and fire spread on a raster grid, in this case the 250m resolution extent determined
+                                  by the model template rasterToMatch. The overall approach is a variant of the class of landscape fire
+                                  models based on simulated percolation processes (Hargrove et al. 2000). In percolation models, fires
+                                  spread iteratively from burning cells to unburned neighbours with some probability, in the simplest
+                                  case this probability is constant in time and space. Fires are extinguished when no further spreading
+                                  occurs. The arrival (or ignition) process is modelled by stating fires within cells according to some
+                                  low probability. 
 
-Briefly, the `fireSense` data preparation modules consist of:
-`climate_NWT_DataPrep` downloads climate data from the AdaptWest project, performs GIS operations on climate layers and makes them
-available to other modules.
+The original version of `scfm` is described by Cumming et al. (1998), with a more accessible version in Armstrong and Cumming (2003).
+It was recently implemented as a collection of SpaDES modules by Cumming, McIntire, and Eddy (in prep), with the addition of automated
+parameter estimation for fire management records. Scfm models fire as a three stage stochastic process of ignition, escape and spread,
+with each process represented by a dedicated module. Ignition and spread have already been described. The escape stage models the
+effect of fire suppression, or other ecological or sampling effects that alter the lower end of the fire size distribution. The
+empirical quantity is the “escape probability”, the probability that a fire will attain a final size greater than the size of a single
+pixel. This is simulated in the model by determining an initial spread probability such that the probability that a fire stays within
+its cell of origin equals the escape probability, after accounting for the effect of lakes and other non-flammable geographic features
+on fire spread. In effect, this distinguishes the first step of the iterative fire spread process. These three modules are used to
+simulate a fire regime, in terms of the number of fires that start, the escape probability, and the mean fire size. 
 
-`MDC_NWT_DataPrep` computes the Monthly Drought Code from climate data following equations in Bergeron et al. (2010) and makes the
-resulting layer available to other modules.
+In addition to the Ignition, Escape and Spread modules, scfm makes use of several support modules involved in parameter estimation and
+model calibration. Fire regime parameters for ignition, escape,  and a mean fire size, are estimated from historic fire data obtained
+from the Canadian National Fire Database (Canadian Forest Service, n.d.). Spread probabilities are tuned to replicate the empirical
+mean fire size by a newly implemented calibration procedure. First, the study region raster is buffered by a set distance and a
+flammability map is generated for the buffered region using the 2005 Land Cover Map of Canada (Latifovic et al., 2005). Landcover
+classes such as open water,  rock, and ice are classed as non-flammable.  Next, several thousand fires are ignited at random locations
+in landscape and spread with probabilities randomly sampled from a given range (typically 0.18 to 0.24) of spread probabilities. Fires
+do not start within the buffer area, but may spread to and from the buffer. This effectively removes the influence of edge effects in
+determining mean fire size, provided the buffer is “wide enough”.  Then the spread probabilities and resulting fire sizes are fit with
+a shape-constrained additive model (SCAM) (Pya and Wood, 2015). The SCAM is monotonic to ensure fire size increases for any incremental
+increase in spread probability. Lastly, a function minimiser, coupled with scam predict method, is used to find the spread probability
+that will reproduce the estimated mean fire size for the region. Parameterization and calibration of the model can be done separately
+for all the polygons in a given shapefile (e.g., by ecoregion), allowing spatial variation in fire regime parameters among regions. 
+
+This version of the model considers lightning-caused fires only, which is not a serious limitation within BCR6, based on analysis of
+historical fire records from 1965-2016. The spread model  returns an object to the sim environment that identifies all burned cells. In
+many applications, this would be inputs to other modules that maintain a forest age structure or updated vegetation state to simulate
+the effects of fire. This model does not simulate variation in fire severity, so typically fires are presumed to be stand initiating.
+These processes result in irregular patches of variously sized burns.  The model tracks the number and size of simulated fires in each
+time step. The fire spread module is such that considerable interannual variation in area burned is observed even when the fire model
+parameters are constant. However, `scfm` does not account for effects of vegetation type (other than nonflammable types) or of fire 
+weather on fire model parameters. 
+
+The `scfm-fireSense` model can be regarded as a generalisation of `scfm` where fire ignition and escape probability vary according to
+vegetation / land-cover type and fire weather. This is implemented by generating parameter maps based on the current year’s vegetation
+and fire weather, so that parameters vary in space and time.
+
+
+`scfm-fireSense` is a landscape fire simulation module where fire regime attributes are sensitive to both climate and vegetation; it
+reproduces the spatial and temporal variation of both the number of fires, and fire escape probability. `fireSense` is composed of two
+groups of modules; a group that prepares and formats the data (`climate_NWT_DataPrep`, `fireSense_NWT_DataPrep`, and
+`MDC_NWT_DataPrep`), a module that translates between `LandR` vegetation state and `fireSense` fueltypes (`LBMR2LCC_DataPrep`), and a
+group of modules that implements the algorithms needed to simulate fire (`fireSense_FrequencyFit`, `fireSense_FrequencyPredict`,
+`fireSense_EscapeFit`, and `fireSense_EscapePredict`).
+
+Briefly, the `scfm-fireSense` data preparation modules consist of:
+
+`climate_NWT_DataPrep` downloads climate data from the AdaptWest project website, performs GIS operations on climate layers and makes
+them available to other modules.
+
+`MDC_NWT_DataPrep` computes the Monthly Drought Code from annual climate data following equations in Bergeron et al. (2010) and makes
+the resulting layer available to other modules.
 
 `fireSense_NWT_DataPrep` performs GIS operations on fire and vegetation data, as well as a number of operations to prepare the data for
 analysis/prediction and makes the resulting datasets available to other modules.
 
 `LBMR2LCC_DataPrep` translates `LandR_Biomass` outputs into seven of the nine land cover classes as needed by `fireSense` (Table 1);
-the other two classes are the "non-fuel" class, which is ssumed to be static in time, and the "recently disturbed" class which is not
-based on biomass but on age. Pixels are considered disturbed if the time since last disturbance is less than 16 years. This module
-relies on a classifier built within the XGBoost library (Chen and Guestrin 2016) for the translation. Table 2 summarises the accuracy
-per land cover class for the validation dataset.
+the other two classes are the "non-fuel" class, which is assumed to be static in time , and the "recently disturbed" class which is not
+based on biomass but on age. These fuel types are defined by an iterative partitioning procedure starting from a single fuel type
+containing all vegetation classes,  continually refined until no additional fuel types could be statistically distinguished based the
+fire ignition model. fireSense depends on a fueltype a classifier built within the XGBoost library (Chen and Guestrin 2016) that
+predicts fuel type from LandR vegetation state. Table 2 summarises the accuracy per land cover class for the validation dataset. The
+non-fuel class is equivalent to the distinction between flammable and nonflammable cells used in scfm, as described above.  Pixels are
+considered disturbed if the time since last disturbance is less than 16 years.
 
 ![Table 1. Correspondence between the land cover classes used by `fireSense` and code from the Land Cover Map of Canada 2005]
 |Land cover class           | Land cover map of Canada 2005 original code(s)             |
@@ -189,14 +241,14 @@ per land cover class for the validation dataset.
 |Other treed                | 0.79    |
 |Wetlands                   | 0.82    |
 
+Briefly, the `scfm-fireSense` simulation modules consist of:
 
-Briefly, the `fireSense` simulation modules consist of:
 `fireSense_FrequencyFit` is an implementation of the method described in Marchal et al. (2017); it fits a statistical model used to
 parameterize the fire ignition component of `fireSense`. Marchal et al. (2017) introduced climate sensitivity using the Monthly Drought
 Code (MDC) of July and introduced vegetation sensitivity using five vegetation classes. In this project, we use the MDC of June along
-with nine vegetation classes, all of which are derived from the 39 classes of LCC2005 (Table 1). We did not estimate the fire frequency
-for the "non-fuel" class as it will not burn - it therefore remains as 0. This module outputs a fitted model object of class
-`fireSense_FrequencyFit`.
+with nine vegetation classes (fuel types) of Table 1, all of which are derived from the 39 classes of LCC2005 (Table 1). We did not
+estimate the fire frequency for the "non-fuel" class as it will not burn - it is defined to be 0. This module outputs a fitted model
+object of class `fireSense_FrequencyFit`.
 
 `fireSense_FrequencyPredict` uses the model object provided by `fireSense_FrequencyFit` to predict fire frequency, or rates of fire
 counts. The output of this module is a probability surface describing the expected fire frequency at a 250 m resolution. This
@@ -205,30 +257,42 @@ probability surface is updated annually, and used to feed the ignition component
 `fireSense_EscapeFit` fits a statistical model used to parameterize the fire escape component of `fireSense`; a fire escapes when it
 propagates outside the pixel in which it started. We used logistic regression to introduce climate and vegetation sensitivity to the
 fire escape component. We expressed the probability that a fire escapes as a function of the Monthly Drought Code of June, and the nine
-classes of land cover (Table 1). This module outputs a fitted glm model object.
+classes of land cover (Table 1). This module outputs a fitted glm model object. 
 
 `fireSense_EscapePredict` predicts fire frequency, or rates of fire counts, using the model object provided by `fireSense_EscapeFit`.
 The output of this module is a probability surface describing the expected probability of fire escape at a 250 m resolution. This
 probability surface is updated annually and used to feed the escape component of `fireSense`.
 
-`fireSense` uses the probability surface predicted by `fireSense_FrequencyPredict` to determine where to start fires. At the spatial
-and temporal scale used in this study, the probability of two or more fires per year is negligible, thus one may use the Bernoulli
-approximation, as in Armstrong and Cumming (2003). From those fires that started, `fireSense` determines which fires escape.
-`fireSense` then passes the information on pixels that are burning to `scfmSpread` (see below), which spreads the fires.
+`scfm-fireSense` uses the probability surface predicted by `fireSense_FrequencyPredict` to determine where to start fires. At the
+spatial and temporal scale used in this study, the probability of two or more fires per year is negligible, thus one may use the
+Bernoulli approximation, as in Armstrong and Cumming (2003). This parameter map is used to start fires by sampling uniform random
+variables for each flammable pixel, and starting a fire when the random value is smaller than the Bernoulli probability.  For each
+ignition, fire escapes are evaluated using the probabilities estimated by `fireSense_EscapePredict`. The state of all escaped fires is
+passed to `scfmSpread` (see below), which spreads the fires using the per-polygon spread probabilities.
 
-*Assumptions of the `fireSense` module*
-1. The number of fires per 6.25ha of each land class is has a negative binomial distribution. We also assume that the fire intensity
-may vary among land class types
+At the spatial and temporal scale used in this study, the probability of two or more fires per year is negligible, thus one may use the
+Bernoulli approximation, as in Armstrong and Cumming (2003). From those fires that started, `fireSense` determines which fires escape.
+`scfm-fireSense` then passes the information on pixels that are burning to `scfmSpread` (see below), which spreads the fires using the
+per-polygon spread probabilities..
 
-2. The rate of fire detection is constant.
+*Assumptions of the `scfm-fireSense` module*
+1. The number of fires per unit area has a negative binomial distribution conditional on land-cover class and fire weather. 
 
-3. The statistical relationship between fire, weather, vegetation, and fire activity will remain constant through time.
+2. The fire detection process was constant over the period of record. 
 
-4. The land cover class “non-fuels” is static throughout the simulation period. It corresponds to rock outcrops, urban areas, water
-bodies and lands permanently covered with ice/snow
+3. The statistical relationship between fire regime parameters, fire weather, and vegetation, will remain constant over the simulation
+period.
+
+4. The land cover class “non-fuels” is static throughout the simulation period, because it represents permanent and nonflammable
+landscape features such as rock outcrops, urban areas, and water.
+
+*Limitations of scfm-fireSense*
+The full version of the fireSense model has spatially and temporally variable spread parameters that vary with fueltype and annual fire
+weather. It was not possibly to test the software needed to estimate these parameters within the scope of this contract. Therefore,
+scfm-fireSense is less sensitive to variation in vegetation and to changes in fire weather than the compleet fireSense model would be.
 
 
-## MARIO TO ADD INFORMATION TO THIS ##
+## MARIO STILL TO PROVIDE INFORMATION FOR THIS ##
 \textcolor{blue}{anthropogenic}: To be completed by MT.
 IMPORTANT ASSUMPTION TO ADD: This module does not model seismic lines - see caveate for `caribouPopGrowthModel`
 ASSUMPTION: no success with anthropogenic disturbance
@@ -1287,7 +1351,7 @@ ecological, or climate driven changes that are bound to crop up over time. The r
 integrated decision making, with ramification for Canada's national and international policy commitments to our natural resources.
 
 
-
+<!--STILL TO DOUBLE CHECK FOR INCLUSION IN TEXT AND VICE VERSA--> 
 # Literature cited 
 Araújo, M. B., W. Thuiller, P. H. Williams and I. Reginster. 2005. Downscaling European species atlas distributions to a finer
 resolution: implications for conservation planning. Global Ecology and Biogeography, 14(1):17-30.
@@ -1348,6 +1412,9 @@ in measurement and assessment. Oxford University Press. Pp: 39- 54.
 
 Government of the Northwest Territories. 2019. A Framework for Boreal Caribou Range Planning: Revised Draft - Appendices. Environment
 and Natural Resources, Government of the Northwest Territories, Yellowknife, NT. 38 + ii pp.
+
+Hargrove W. W., R. H. Gardner, M. G. Turner, W. H. Romme, D. G. Despain. 2000. Simulating fire patterns in heterogeneous landscapes.
+Ecological Modelling 135:243–63.
 
 Hatter, I. W. and W. A. Bergerud. 1991. Moose recruitment, adult mortality and rate of change. Alces 27:65-73.
 

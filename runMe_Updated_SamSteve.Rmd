@@ -337,7 +337,10 @@ Future versions on the `anthropogenic` module could include:
 2. Deterioration or recovery of anthropogenic features through time (to address assumption #2)
 
 3. Inclusion of other anthropogenic features (e.g. development of forestry roads, new seismic lines, etc.). This option could include a
-link to a future module simulating timber harvest that keeps track of cut-block location and age.
+link to a future module simulating timber harvest that keeps track of cut-block location and age. A review of preliminary forest
+harvesting modules written by Cumming for use in SpaDES teaching found that they were not ready to be adapted to a situation with
+multiple yield curves; also the cut-block layout and sequencing algorithms are too slow to run over entre FMAs. Some development work
+is required, which is planned for the summer. 
 
 4. Interaction between `LandR` and this `anthropogenic` module sot hat pixels that intersect with disturbance features can be
 classified as disturbed in vegetation succession models.

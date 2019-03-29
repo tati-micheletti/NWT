@@ -123,7 +123,7 @@ herbivory). Future versions of the `LandR` modules could (1) ignore this limitat
 forested pixels; (2) incorporate estimates for these mechanisms allowing `LandR` to predict for areas that do not correspond to purely
 forested areas; or (3) set a maximum biomass limit for `LandR` projections. These changes would address current `LandR` limitation #2.
 
-<!--FRANCES TO DOUBLE CHECK FOR INCLUSION OF REFERENCES-->
+
 \textcolor{blue}{scfm-fireSense}: `scfm-fireSense` is a hybrid of two structurally similar landscape fire models, `scfm` and `fireSense`. In each
                                   model, wildfire is simulated as a process of fire ignition (or "arrival", the occurrence of a detected,
                                   recorded fire) and fire spread on a raster grid, in this case the 250m resolution extent determined
@@ -1372,6 +1372,9 @@ Mining, 2016. http://arxiv.org/abs/1603.02754
 Chubaty, A. M. and E. J. B.  McIntire. 2017. SpaDES: Develop and Run Spatially Explicit Discrete Event Simulation Models. R package
 version, 2(0).
 
+Cumming, S. G., D. Demarchi and C. Walters. 1998. A Grid-Based Spatial Model of Forest Dynamics Applied to the Boreal Mixedwood Region.
+Working Paper 1998–8. Sustainable Forest Management Network. https://doi.org/10.7939/R35N33.
+
 Cumming, S. G., K. L. Lefevre, E. Bayne, T. Fontaine, F. K. A. Schmiegelow, and S. J. Song. 2010. Toward conservation of Canada's
 boreal forest avifauna: design and application of ecological models at continental extents. Avian Conservation and Ecology 5(2):8. 
 
@@ -1412,6 +1415,10 @@ Holling, C. S. 1992. Cross‐scale morphology, geometry, and dynamics of ecosyst
 Knagss, M. 2018. Effects of burn severity and time since fire on songbird communities in the northern boreal forest. Department of
 Renewable Resources. University of Alberta. Master's Thesis. 
 
+
+Latifovic, R. and D.Pouliot. 2005. Multitemporal Land Cover Mapping for Canada: Methodology and Products. Canadian Journal of Remote
+Sensing 31(5):347–63. https://doi.org/10.5589/m05-019.
+
 Levin, S. A. 1992. The problem of pattern and scale in ecology: the Robert H. MacArthur award lecture. Ecology 73(6):pp.1943-1967.
 
 Magurran, A. 2004. Measuring Biological Diversity. Wiley. 256 pp. ISBN 0632056339
@@ -1424,6 +1431,9 @@ Management 67(4):755-761.
 
 Neilson, E. W., T. Avgar, A. C. Burton, K. Broadley, and S. Boutin. 2018. Animal movement affects interpretation of occupancy models
 from camera-trap survey of unmarked animals. Ecosphere 9(1) doi:10.1002/ecs2.2090
+
+Pya, N. and S. N. Wood. 2015. Shape Constrained Additive Models. Statistics and Computing 25(3):543–59.
+https://doi.org/10.1007/s11222013-9448-7.
 
 Riitters, K. H. 2005. Downscaling indicators of forest habitat structure from national assessments. Ecological indicators 5(4):273-279.
 

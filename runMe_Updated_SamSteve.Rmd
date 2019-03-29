@@ -81,7 +81,9 @@ anthropogenic         |                      |
 BirdsNWT              |  0.13 days           |
 caribouRSFModel       |  1.40 days           |
 caribouPopGrowthModel |  0.04 days           |
-TOTAL                 |                      |
+comm_metricsNWT       |                      |
+Edehzhie              |                      |
+TOTAL DURATION        |                      |
 
 The structure and methods used for each one of the modules is as follows:
 

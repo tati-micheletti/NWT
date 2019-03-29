@@ -18,11 +18,11 @@ output:
  #    toc: yes
  #    toc_depth: 5
 ---
-  
-  
-  # Executive Summary
-  
-  The proposed work integrates simulation models of vegetation dynamics, wildfire, and anthropogenic change with 
+
+
+# Executive Summary
+
+The proposed work integrates simulation models of vegetation dynamics, wildfire, and anthropogenic change with 
 statistical models of songbird abundances and woodland boreal caribou (*Rangifer tarandus caribou*) resouorce selection and demographic
 parameters. The integrated model is used to forecast the spatial distribution of selected songbird species and the regional potential
 to sustain viable populations of woodland boreal caribou, under climate change over the 21st century. Other potential applications
@@ -42,10 +42,11 @@ today, and under anticipated future conditions.
 
 The models contained within this project represent regional processes and do not reflect projected landscape specific results. The
 results from this project are to be used for regional planning initiatives and are built off of known ecological processes and
-statistical relationships documented at regional and national scales. These processes may not acurately predict localized processes - this discrepency between scales is well documented in ecology (Wiens 1989; Holling 1992; Levin 1992; Burton et al. in review) with
+statistical relationships documented at regional and national scales. These processes may not acurately predict localized processes -
+this discrepency between scales is well documented in ecology (Wiens 1989; Holling 1992; Levin 1992; Burton et al. in review) with
 direct ramifications on downscaling models (e.g. Riiters 2005; Araujo et al. 2005). Future iterations of this project may be able to
 address these scale-specific processes, but the models provided here will best provide results for planning at large spatial extents
-(by region or ecozone, not landscape).
+(by region or ecozone, not landscape). 
 
 
 ## General project components as stated in the RFP
@@ -58,50 +59,13 @@ Item #3: Demographic models for caribou, SAMs for landbirds, co-occurrence under
 # Integrated modules overview: Items 1, 2, and components of item 3
 
 The metamodule is composed of 8 parent modules (i.e. groups of modules), as follows:
-  ![Figure 1. Module structure that composes the NWT project]
+![Figure 1. Module structure that composes the NWT project]
 (https://github.com/tatimicheletti/NWT/raw/master/inputs/ModelStructure_2.jpg)
 
 <!-- TATI TO DOUBLE CHECK AND FINALIZE -->
 Running the entire project for a 100 year simulation can take several days on a 1 TB, 50 core RAM Linux computer.
 
 module                | approximate duration |
-  :--------------------:|:--------------------:|
-  LandR                 |  3.05 days
-fireSense             |   
-  FEENIX                |  
-  anthropogenic         |
-  BirdsNWT              |  0.13 days
-caribouRSFModel       |  1.40 days
-caribouPopGrowthModel |  0.04 days
-TOTAL                 |  5.70 days
-
-The structure and methods used for each one of the modules is as follows:
-  
-  ## CERES IS ADDING INFORMATION TO THIS ##
-  \textcolor{blue}{LandR}: This group of modules is composed of one module and one group of modules. The first module,
-`Boreal_LBMRDataPrep` calculates  site-specific parameters (ie BRC6 within NWT) needed by the biomass 
-succession modules. Maximum biomass and NPP are calculated separately for each unique combination of tree
-species, stand age, ecodistrict, and land cover. The group of modules (`LandR_Biomass`) form the core of the
-original LANDIS-II Biomass Succession module. They consist of (1) `LandR_BiomassGMOrig`,  responsible for
-cohort growth and mortality, (2) `Biomass_regeneration`, which handles post-disturbance biomass regeneration,
-and (3) `LBMR`,  the LANDR module responsible for vegetation dispersal, as well as summary figures and tables.
-LandR needs at least these last three modules to work.
-
-## JEAN TO ADD INFORMATION TO THIS ##
-\textcolor{blue}{FireSense and FEENIX}: This group of modules is composed of four submodules. `fireSense_FrequencyFit` fits a
-statistical model used to parameterize the fire ignition component of `fireSense`.
-`fireSense_FrequencyPredict`
-predicts fire frequency or rates of fire counts using the model fitted with the `fireSense_FrequencyFit`
-module. These two modules are then used to feed the ignition component of `fireSense`;
-`fireSense_EscapeFit` fits a statistical model used to parameterize the fire escape component of
-`fireSense`, and `fireSense_EscapePredict` predicts fire escape probabilities using the model fitted with
-the `fireSense_EscapeFit` module. These two ignition modules are then used to feed the fire escape
-component of `fireSense`; `fireSense` determines where fires start and then passes the fire locations to
-`scfm` which will propagate the fires.
-
-
-## MARIO TO ADD INFORMATION TO THIS ##
-=======
 :--------------------:|:--------------------:|
 LandR                 |  3.05 days           |
 scfm-fireSense        |                      | 
@@ -334,6 +298,7 @@ IMPORTANT ASSUMPTION TO ADD: This module does not model seismic lines - see cave
 ASSUMPTION: no success with anthropogenic disturbance
 Explains both road density layer and buffered 500m layer.
 
+
 \textcolor{blue}{birdsNWT}: This module projects species abundance of bird species under forecasted landscape and climate
                             conditions. The module develops boosted regression tree (BRT) models from avian point-count data and
                             associated covariates using the gbm.step function in the ‘dismo’ package (Hijmans et al. 2011) with a
@@ -347,7 +312,6 @@ Explains both road density layer and buffered 500m layer.
 
 Avian data for Bird Conservation Region (BCR) 6 were extracted from the Boreal Avian Modelling project avian dataset (Cumming et al.
 2010, Barker et al. 2015) and supplemented with data from automated recording units (ARU) collected by Environment and Climate Change
->>>>>>> 962167b78141d9509e5036ae6f2cb8c8d60b3805
 Canada (Haché et al. unpublished data) and the University of Alberta Bioacoustic Unit (Bayne et al. unpublished data). Density offsets
 were calculated according to methods described in Sólymos et al. (2013), and were based on the assumption that ARU data detectability
 is similar to detectability by human observers (Yip et al. 2017).
@@ -358,16 +322,16 @@ lag in vegetation response to climate, and associated statistical decoupling of 
 
 Model covariates assumed static through simulation periods included the following landcover covariates derived from  the Comission for
 Environmental Cooperation (CEC) North American Landcover 2005:
-  
-  WAT = water (1/0) 
+
+WAT = water (1/0) 
 URBAG = urban/agriculture (1/0)
 LED25 = water proportion within 5x5 moving window (continuous) 
 DEV25 = development proportion within 5x5 moving window (continuous)
 
 We also included a categorical landform covariate derived from AdaptWest’s land facet layer (Michalak et al. 2015), with the following
 class definitions:
-  
-  1    Valley
+
+1    Valley
 2    Hilltop in Valley
 3    Headwaters
 4    Ridges and Peaks
@@ -379,16 +343,16 @@ class definitions:
 
 Model covariates allowed to vary according to simulation outputs were tree species biomass estimates (g/m2) derived from Beaudoin et
 al.’s (2017) predicted biomass layers for 2001 or 2011, depending on the date of survey (pre-2006 was associated with 2001 vegetation;
-                                                                                         2006 and later was associated with 2011 vegetation). Biomass covariates for the following speices were included:
-  
-  *Abies balsamea, Betula papyrifera, Larix laricina, Picea glauca, Picea mariana, Pinus banksiana, Pinus contorta, Populus balsamifera,
+2006 and later was associated with 2011 vegetation). Biomass covariates for the following speices were included:
+
+*Abies balsamea, Betula papyrifera, Larix laricina, Picea glauca, Picea mariana, Pinus banksiana, Pinus contorta, Populus balsamifera,
 Populus tremuloides*
 
 Models were developed for 71 passerine and near-passerine species that a) currently breed either in the Northwest Territories or
 Alberta portions of BCR 6, b) for which density offsets were available, and c) for which data were sufficient to fit cross-validated
 BRTs (see list below). For this project simulations were generated for 10 species, including:
 
-SWTH    Swainson's Thrush (*Catharus ustulatus*)
+SWTH    Swainson's Thrush (*Catharus ustulatus*) 
 OVEN    Ovenbird (*Seiurus aurocapilla*)
 AMRE    American Redstart (*Setophaga ruticilla*)
 BLPW    Blackpoll Warbler (*Setophaga striata*) 
@@ -455,7 +419,6 @@ petechia*)
                            modules incorporate existing statistical relationships, with simulated landscape predictions, to produce the
                            probability of occurrence, and population growth rate, of Woodland caribou (boreal population) within the
                            NWT. 
->>>>>>> 962167b78141d9509e5036ae6f2cb8c8d60b3805
 
 `caribouRSFModel`
 The statistical relationship between caribou telemetry collars and the landscape has been summarized within the Environment Canada 2011
@@ -467,7 +430,7 @@ In the Taiga Plains ecozone, the relative probability of adult female boreal car
 (Environment Canada 2011; Table 46):
 
 $Relative habitat selection  ~ Elevation + Elevation^2 + Vrug + Vrug^2 + RoadDensity + Deciduous + Shrub +                 Eq 1.
-Herb + Water + RecentBurn + OldBurn$
+                                                   Herb + Water + RecentBurn + OldBurn$
 
 The definition, and units of measurement, for each of the predictor variables in this relationship can be found in Environment Canada
 2011 Table 40. The methods behind model development can be found throughout Environment Canada 2011 Appendix 7.3. 
@@ -530,7 +493,7 @@ on  a yearly time interval, and uses these data to determine the population grow
 Specifically, boreal caribou recruitment (Rec) - the proportion of caribou cows:calves at winter survey periods - is best predicted by
 the total disturbance within a caribou study area (Environment Canada 2011; Table 55, model M3): 
 
-$Rec ~ total disturbance$                                     Eq 2.
+                                          $Rec ~ total disturbance$                                     Eq 2.
 
 The methods behind Eq 2. development can be read in Environment Canada 2011 (Appendix 7.6). The total disturbance within a study area
 is described as the “percent total non-overlapping fire and anthropogenic disturbance (500 m buffer on anthropogenic; reservoirs
@@ -548,7 +511,7 @@ population size (lambda; λ) - for each polygon in [Figure 2] and [Figure 3]. Th
 time interval is well published for both caribou and other ungulates (Hatter and Bergerud 1991; McLoughlin et al. 2003; Sorensen et al.
 2006; Hervieux et al. 2014):
 
-$λ = (1 - M)/(1 - Rec)$                 Eq 3.
+                                            $λ = (1 - M)/(1 - Rec)$                 Eq 3.
 
 Where recruitment (Rec) only involves juvenile female caribou (and assumes a 50:50 sex ratio), and adult female mortality
 (M) is calculated as 1 - adult female survival (SadF). At each yearly time step λ is saved. This module outputs a plot of lambda, for
@@ -622,8 +585,8 @@ devtools::install_github("ianmseddy/LandR.CS@master") # Climate sensitivity in L
 
 First, make sure you have the correct R version. These models were created using 
 the following R version and might not workcorrectly in other versions:
-  
-  ```{r rVersion}
+
+```{r rVersion}
 
 message(paste0("This model uses R version 3.5.2 (2018-12-20). Your session runs ", 
                sessionInfo()[["R.version"]][["version.string"]]))
@@ -643,7 +606,7 @@ library("magrittr") # for piping
 ```
 
 After having all installed correctly, we need to make sure all the submodules are synced to your machine:
-  
+
 ```{r initSubmodules, eval = FALSE}
 
 # system("git submodule init", wait = TRUE) # Use only the first time you are running the project
@@ -694,7 +657,7 @@ paths <- pathsSetup(whichComputer = whichComputer, isTest = isTest)
 if (length(paths$modulePath) == 1) paths$modulePath <- c(paths$modulePath, file.path(paths$modulePath, "scfm/modules"))
 
 if (pemisc::user() %in% c("Tati", "tmichele")) {
-  setTempFolder(paths = paths, setTmpFolder = TRUE, usr = user)
+    setTempFolder(paths = paths, setTmpFolder = TRUE, usr = user)
 }
 
 # <<!!!>> ATTENTION <<!!!>>
@@ -767,24 +730,24 @@ if (quickPlot::isRstudioServer()) options(httr_oob_default = TRUE)
 Edehzhie.url <- "https://drive.google.com/open?id=1klq0nhtFJZv47iZVG8_NwcVebbimP8yT"
 EdehzhieOfficial.url <- "https://drive.google.com/open?id=1fYvNPwovjNtTABoGcegrvdFGkNfCUsxf"
 NWT.url <- "https://drive.google.com/open?id=1LUxoY2-pgkCmmNH5goagBp3IMpj6YrdU"
-
+        
 studyAreaEde <- cloudCache(prepInputs,
-url = Edehzhie.url,
-destinationPath = paths$inputPath[[1]],
-cloudFolderID = cloudFolderID,
-omitArgs = c("destinationPath", "cloudFolderID"))
-
+                           url = Edehzhie.url,
+                           destinationPath = paths$inputPath[[1]],
+                           cloudFolderID = cloudFolderID,
+                           omitArgs = c("destinationPath", "cloudFolderID"))
+        
 studyArea <- cloudCache(prepInputs,
-url = NWT.url, studyArea = studyAreaEde,
-destinationPath = paths$inputPath[[1]],
-cloudFolderID = cloudFolderID,
-omitArgs = c("destinationPath", "cloudFolderID"))
+                        url = NWT.url, studyArea = studyAreaEde,
+                        destinationPath = paths$inputPath[[1]],
+                        cloudFolderID = cloudFolderID,
+                        omitArgs = c("destinationPath", "cloudFolderID"))
 
 studyAreaNWT <- cloudCache(prepInputs,
-url = NWT.url,
-destinationPath = paths$inputPath[[1]],
-cloudFolderID = cloudFolderID,
-omitArgs = c("destinationPath", "cloudFolderID"))
+                        url = NWT.url,
+                        destinationPath = paths$inputPath[[1]],
+                        cloudFolderID = cloudFolderID,
+                        omitArgs = c("destinationPath", "cloudFolderID"))
 ```
 
 <!-- TATI STILL TO ADD FIRESENCE AND FEENIX-->
@@ -796,7 +759,7 @@ To run the first set of modules, both the parametrization model (`Boreal_LBMRDat
 ```{r run_LandR}
 
 modulesLandR_SCFM <- list("scfmLandcoverInit", "scfmRegime", "scfmDriver", "scfmIgnition", "scfmEscape", "scfmSpread",
-"Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR")
+                          "Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR")
 
 times <- list(start = 0, end = if (isTest) 3 else 100)
 
@@ -808,17 +771,11 @@ Then we need to set the parameters for the simulation call:
 
 # This raster to match contains only the uplands, it is 
 rasterToMatch <- cloudCache(prepInputs, url = "https://drive.google.com/open?id=1fo08FMACr_aTV03lteQ7KsaoN9xGx1Df", 
-studyArea = studyAreaNWT,
-targetFile = "RTM.tif", destinationPath = paths$inputPath, 
-useCloud = getOption("reproducible.useCloud", FALSE),
-cloudFolderID = cloudFolderID, overwrite = TRUE, filename2 = NULL,
-omitArgs = c("destinationPath", "cloudFolderID", "useCloud", "overwrite", "filename2"))
-
-waterRaster <- prepInputs(url = "https://drive.google.com/open?id=1nPd03gaVXkkaHorirR4UhYrDi95ZgyJM",
-targetFile = "waterRasterNW.tif", studyArea = studyAreaNWT, 
-rasterToMatch = rasterToMatch,
-destinationPath = getPaths()$inputPath, 
-filename2 = "waterRasterNW.tif")
+                            studyArea = studyAreaNWT,
+                            targetFile = "RTM.tif", destinationPath = paths$inputPath, 
+                            useCloud = getOption("reproducible.useCloud", FALSE),
+                            cloudFolderID = cloudFolderID, overwrite = TRUE, filename2 = NULL,
+                            omitArgs = c("destinationPath", "cloudFolderID", "useCloud", "overwrite", "filename2"))
 
 sppEquivCol <- "NWT"
 
@@ -827,58 +784,62 @@ defaultInterval <- 1.0
 defaultPlotInterval <- 1.0
 defaultInitialSaveTime <- NA 
 
+# cacheId of the BorealDataPrep with the correct uniqueEcoregionGroups = "b2209ccb1cb19ee1"
+# Use it explicitly if cache doesn't work for some reason
+
 parameters <- list(
-#SCFM
-".progress" = list(type = "text", interval = 1),
-scfmLandcoverInit = list(
-".plotInitialTime" = NULL
-),
-scfmIgnition = list(
-"pIgnition" = 0.0001,
-"returnInterval" = defaultInterval,
-"startTime" = times$start,
-".plotInitialTime" = NA,
-".plotInterval" = defaultPlotInterval,
-".saveInitialTime" = defaultInitialSaveTime,
-".saveInterval" = defaultInterval),
-scfmEscape = list(
-"p0" = 0.05,
-"returnInterval" = defaultInterval,
-"startTime" = times$start,
-".plotInitialTime" = NA,
-".plotInterval" = defaultPlotInterval,
-".saveInitialTime" = defaultInitialSaveTime,
-".saveInterval" = defaultInterval),
-scfmSpread = list(
-"pSpread" = 0.235,
-"returnInterval" = defaultInterval,
-"startTime" = times$start,
-".plotInitialTime" = times$start,
-".plotInterval" = defaultPlotInterval,
-".saveInitialTime" = defaultInitialSaveTime,
-".saveInterval" = defaultInterval),
-scfmRegime = list(fireCause = "L")), #c("L", "H")
-scfmDriver = list(targetN = 1000), # 1500
-# LandR_Biomass
-LBMR = list(
-".useParallel" = 3,
-".plotInitialTime" = NA,
-".saveInitialTime" = NA,
-"seedingAlgorithm" = "wardDispersal",
-".useCache" = FALSE,
-"successionTimestep" = 10,
-"initialBiomassSource" = "cohortData"),
-LandR_BiomassGMOrig = list( # dev branch
-"growthInitialTime" = 0,
-"successionTimestep" = 10,
-"growthAndMortalityDrivers" = "LandR"),
-Boreal_LBMRDataPrep = list(
-"useCloudCacheForStats" = if (pemisc::user("tmichele")) FALSE else TRUE,
-"sppEquivCol" = sppEquivCol,
-"successionTimestep" = 10,
-"pixelGroupAgeClass" = 10,
-".useCache" = c(".inputObjects", "init")
-)
+  #SCFM
+    ".progress" = list(type = "text", interval = 1),
+    scfmLandcoverInit = list(
+    ".plotInitialTime" = NULL
+  ),
+  scfmIgnition = list(
+    "pIgnition" = 0.0001,
+    "returnInterval" = defaultInterval,
+    "startTime" = times$start,
+    ".plotInitialTime" = NA,
+    ".plotInterval" = defaultPlotInterval,
+    ".saveInitialTime" = defaultInitialSaveTime,
+    ".saveInterval" = defaultInterval),
+  scfmEscape = list(
+    "p0" = 0.05,
+    "returnInterval" = defaultInterval,
+    "startTime" = times$start,
+    ".plotInitialTime" = NA,
+    ".plotInterval" = defaultPlotInterval,
+    ".saveInitialTime" = defaultInitialSaveTime,
+    ".saveInterval" = defaultInterval),
+  scfmSpread = list(
+    "pSpread" = 0.235,
+    "returnInterval" = defaultInterval,
+    "startTime" = times$start,
+    ".plotInitialTime" = times$start,
+    ".plotInterval" = defaultPlotInterval,
+    ".saveInitialTime" = defaultInitialSaveTime,
+    ".saveInterval" = defaultInterval),
+  scfmRegime = list(fireCause=c("L", "H")),
+  scfmDriver = list(targetN = 1500),
+  # LandR_Biomass
+  LBMR = list(
+    ".useParallel" = 3,
+    ".plotInitialTime" = NA,
+    ".saveInitialTime" = NA,
+    "seedingAlgorithm" = "wardDispersal",
+    ".useCache" = FALSE,
+    "successionTimestep" = 10,
+    "initialBiomassSource" = "cohortData"),
+  LandR_BiomassGMOrig = list( # dev branch
+    "growthInitialTime" = 0,
+    "successionTimestep" = 10,
+    "growthAndMortalityDrivers" = "LandR"),
+  Boreal_LBMRDataPrep = list(
+    # "cacheIDmodelBiomass" = "b2209ccb1cb19ee1", #THIS CACHE WAS FROM V1. Not passable anymore as of 13/03 (reverted changes). Cache for V3 = "cf805cd9582a9797"
+    "useCloudCacheForStats" = if (pemisc::user("tmichele")) FALSE else TRUE,
+    "sppEquivCol" = sppEquivCol,
+    "successionTimestep" = 10,
+    "pixelGroupAgeClass" = 10,
+    ".useCache" = c(".inputObjects", "init")
+  )
 )
 
 ```
@@ -897,254 +858,188 @@ Now we have to set the objects. The first object is a list of trees of interest:
 #                                 "Popu_tre", "Betu_pap"))
 # knitr::kable(spTable)
 # Bird model's tree species [30JAN19]:
-  NWTsp <- c("Abie_Bal", "Betu_Pap", "Lari_Lar", "Pice_Gla",
-             "Pice_Mar", "Pinu_Ban", "Pinu_Con", "Popu_Bal", "Popu_Tre")
-  
-  # Equivalency table for tree species
-  data("sppEquivalencies_CA", package = "LandR")
-  
-  # Make NWT spp equivalencies
-  # Popu_Tri == Popu_Bal in NWT
-  # Quer_mac in LandR needs to be Quer_Mac in NWT
-  sppEquivalencies_CA[, NWT := c(Abie_Bal = "Abie_Bal", 
-                                 Betu_Pap = "Betu_Pap", 
-                                 Lari_Lar = "Lari_Lar", 
-                                 Pice_Gla = "Pice_Gla",
-                                 Pice_Mar = "Pice_Mar", 
-                                 Pinu_Ban = "Pinu_Ban", 
-                                 Pinu_Con = "Pinu_Con", 
-                                 Popu_Bal = "Popu_Bal", 
-                                 Popu_Tre = "Popu_Tre")[Boreal]]
-  
-  sppEquivalencies_CA <- sppEquivalencies_CA[!is.na(NWT)]
-  sppEquivalencies_CA$EN_generic_short <- sppEquivalencies_CA$NWT
-  # Fix EN_generic_short for plotting. Needs to have all names. Don't have time now.
-  
-  # knitr::kable(sppEquivalencies_CA[NWT %in% NWTsp])
-  # create color palette for species used in model
-  
-  sppColors <- LandR::sppColors(sppEquiv = sppEquivalencies_CA, sppEquivCol = sppEquivCol,
-                                palette = "Set3")
-  mixed <- structure("#D0FB84", names = "Mixed")
-  sppColors[length(sppColors)+1] <- mixed
-  attributes(sppColors)$names[length(sppColors)] <- "Mixed"
-  
-```
-  
-  
-  And finally, we load the objects used by this group of modules:
-    
-``` {r objects}
-  
-  .objects <- list(
-    "rasterToMatch" = rasterToMatch,
-    "studyAreaLarge" = studyAreaNWT,
-    "sppEquiv" = sppEquivalencies_CA,
-    "sppEquivCol" = sppEquivCol,
-    "sppColors" = sppColors,
-    "omitNonVegPixels" = TRUE,
-    "cloudFolderID" = cloudFolderID,
-    "studyArea" = studyAreaNWT,
-    "waterRaster" = waterRaster
-  )
-  
-```
-  
-  After supplying the objects, we run the simulation initialization functionI'll install i, passing all arguments of interest:
-  
-``` {r simInit}
-  
-  succTS <- seq(times$start, times$end, 
-  by = parameters$LBMR$successionTimestep)
-  outputsLandR <- data.frame(
-  objectName = rep(c("burnMap",
-  "cohortData",
-  "simulationTreeOutput",
-  "summaryBySpecies",
-  "summaryBySpecies1",
-  "simulationOutput",
-  "pixelGroupMap",
-  "simulatedBiomassMap",
-  "ANPPMap",
-  "mortalityMap"), each = length(succTS)),
-  saveTime = c(rep(succTS, times = 10))
-  )
-  
-```
-  
-  And finally the simulation call (note that the argument `debug = 2` lists all processes that are happening):
-  
-```{r LandR_SCFM}
-  
-  # assign(paste0("LandR_SCFM_", runVersion), value = simInitAndSpades(times = times, params = parameters,
-  #                     modules = modulesLandR_SCFM,
-  #                     objects = .objects, paths = paths,
-  #                     loadOrder = unlist(modulesLandR_SCFM),
-  #                     outputs = outputsLandR, debug = 2))
-  
-  # To save a run
-  # if (!isTest){
-  # saveRDS(object = get(paste0("LandR_SCFM_", runVersion)), 
-  #         file = file.path(paths$outputPath, paste0("birdsFireCaribou", runVersion,"_", toupper(format(Sys.time(), "%d%b%y")))))
-  # }
-```
-  
-  ### Climate sensitive fire
-  
-  Now we try running LandR with climate sensitivity for fire (fireSense+SCFM)
-```{r LandR_fS_Carib}
-  
-  # /!\ Added cache id to modelBiomass, fireSense. Needed for saving time!!! remove after run!
-  
-  start_year <- 0
-  end_year <- 2
-  times <- list(start = start_year, end = end_year)
-  
-  library("googledrive")
-  
-  tryCatch(googledrive::drive_download(file = googledrive::as_id("1EetOiGxAq-QTZCVU9Q6Y3I26tqjZm3Oi"), 
-  path = file.path(getPaths()$inputPath, "fireSense_FrequencyFitted.rds")), 
-  error = function(e){message("Files are already present and won't be overwritten")})
-  tryCatch(googledrive::drive_download(file = googledrive::as_id("11CrK9PfNJzkU5cZg9-JYYzyr-VP23W0x"), 
-  path = file.path(getPaths()$inputPath, "fireSense_EscapeFitted.rds")), 
-  error = function(e){message("Files are already present and won't be overwritten")})
-  
-  inputs <- data.frame(
-  files = c(file.path(getPaths()$inputPath, "fireSense_FrequencyFitted.rds"), 
-  file.path(getPaths()$inputPath, "fireSense_EscapeFitted.rds")),
-  functions = c("base::readRDS", "base::readRDS"),
-  stringsAsFactors = FALSE
-  )
-  
-  modulesLandR_fS_SCFM_Carib <- c(
-  "Boreal_LBMRDataPrep",
-  "LandR_BiomassGMOrig",
-  "Biomass_regeneration",
-  "LBMR",
-  "climate_NWT_DataPrep",
-  "MDC_NWT_DataPrep",
-  "fireSense_NWT_DataPrep",
-  "fireSense_FrequencyPredict",
-  "fireSense_EscapePredict",
-  "LBMR2LCC_DataPrep",
-  "fireSense_NWT",
-  "scfmLandcoverInit",
-  "scfmRegime",
-  "scfmDriver",
-  "scfmSpread",
-  "caribouPopGrowthModel"
-  )
-  
-  #SCFM
-  defaultInterval <- 1.0
-  defaultPlotInterval <- NA
-  defaultInitialSaveTime <- NA 
-  
-  parameters <- list(
-  #SCFM
-  ".progress" = list(type = "text", interval = 1),
-  scfmLandcoverInit = list(
-  ".plotInitialTime" = NULL
-  ),
-  scfmSpread = list(
-  "pSpread" = 0.235,
-  "returnInterval" = defaultInterval,
-  "startTime" = times$start,
-  ".plotInitialTime" = times$start,
-  ".plotInterval" = defaultPlotInterval,
-  ".saveInitialTime" = defaultInitialSaveTime,
-  ".saveInterval" = defaultInterval),
-  scfmRegime = list(fireCause = "L"), #c("L", "H")
-  scfmDriver = list(targetN = 1000), # 1500
-  # LandR_Biomass
-  LBMR = list(
-  ".useParallel" = 3,
-  ".plotInitialTime" = NA,
-  ".saveInitialTime" = NA,
-  "seedingAlgorithm" = "wardDispersal",
-  ".useCache" = FALSE,
-  "successionTimestep" = 10,
-  "initialBiomassSource" = "cohortData"),
-  LandR_BiomassGMOrig = list( # dev branch
-  "growthInitialTime" = 0,
-  "successionTimestep" = 10,
-  "growthAndMortalityDrivers" = "LandR"),
-  Boreal_LBMRDataPrep = list(
-  "useCloudCacheForStats" = if (pemisc::user("tmichele")) FALSE else TRUE,
-  "sppEquivCol" = sppEquivCol,
-  "successionTimestep" = 10,
-  "pixelGroupAgeClass" = 10,
-  ".useCache" = c(".inputObjects", "init")),
-  climate_NWT_DataPrep = list(
-  "rcp" = 45, # 45 or 85
-  "gcm" = "CanESM2"), # One of CanESM2, GFDL-CM3, HadGEM2-ES, MPI-ESM-LR
-  fireSense_FrequencyPredict = list(
-  "f" = 250 / 10000, # fireSense_FrequencyFit was fitted using the 10km resolution, predictions are made at the 250m resolution?
-  "data" = c("MDC06", "LCC")),
-  fireSense_EscapePredict = list(
-  "data" = c("MDC06", "LCC")),
-  fireSense_NWT_DataPrep = list(
-  "train" = FALSE),
-  # Caribou Population Growth
-  caribouPopGrowthModel = list(
-  ".plotInitialTime" = NULL,
-  "recoveryTime" = 40,
-  ".useDummyData" = FALSE,
-  ".growthInterval" = 10)
-  )
-  
-  runVersion <- "V1"
-  assign(paste0("LandR_FireSense_", runVersion),
-  value = simInitAndSpades(inputs = inputs, times = times,
-  params = parameters,
-  modules = modulesLandR_fS_SCFM_Carib,
-  objects = .objects, paths = paths,
-  loadOrder = unlist(modulesLandR_fS_SCFM_Carib),
-  outputs = outputsLandR, debug = 2))
+NWTsp <- c("Abie_Bal", "Betu_Pap", "Lari_Lar", "Pice_Gla",
+                "Pice_Mar", "Pinu_Ban", "Pinu_Con", "Popu_Bal", "Popu_Tre")
+
+# Equivalency table for tree species
+data("sppEquivalencies_CA", package = "LandR")
+
+# Make NWT spp equivalencies
+# Popu_Tri == Popu_Bal in NWT
+# Quer_mac in LandR needs to be Quer_Mac in NWT
+sppEquivalencies_CA[, NWT := c(Abie_Bal = "Abie_Bal", 
+                               Betu_Pap = "Betu_Pap", 
+                               Lari_Lar = "Lari_Lar", 
+                               Pice_Gla = "Pice_Gla",
+                               Pice_Mar = "Pice_Mar", 
+                               Pinu_Ban = "Pinu_Ban", 
+                               Pinu_Con = "Pinu_Con", 
+                               Popu_Bal = "Popu_Bal", 
+                               Popu_Tre = "Popu_Tre")[Boreal]]
+
+sppEquivalencies_CA <- sppEquivalencies_CA[!is.na(NWT)]
+sppEquivalencies_CA$EN_generic_short <- sppEquivalencies_CA$NWT
+# Fix EN_generic_short for plotting. Needs to have all names. Don't have time now.
+
+# knitr::kable(sppEquivalencies_CA[NWT %in% NWTsp])
+# create color palette for species used in model
+
+sppColors <- LandR::sppColors(sppEquiv = sppEquivalencies_CA, sppEquivCol = sppEquivCol,
+                              palette = "Set3")
+mixed <- structure("#D0FB84", names = "Mixed")
+sppColors[length(sppColors)+1] <- mixed
+attributes(sppColors)$names[length(sppColors)] <- "Mixed"
+
 ```
 
-  
-```{r caribPop_Landr_fS_Edehzhie}
-  # 
-  # isEDHZHIE <- FALSE
-  # if (isEDHZHIE){
-  #   Edehzhie.url <- "https://drive.google.com/open?id=1o2VamVILFx8SHqMCPC8bmjM8pkr5fsks"
-  # 
-  # studyArea <- Cache(prepInputs,
-  #                            url = Edehzhie.url,
-  #                            destinationPath = getPaths()$inputPath[[1]],
-  #                            userTags = "edeSA",
-  #                            omitArgs = c("destinationPath"))
-  # 
-  # rasterToMatch <- Cache(prepInputs, url = "https://drive.google.com/open?id=1fo08FMACr_aTV03lteQ7KsaoN9xGx1Df", 
-  #                             studyArea = studyArea,
-  #                             targetFile = "RTM.tif", destinationPath = getPaths()$inputPath[[1]], 
-  #                        filename2 = NULL,
-  #                             userTags = "edeRTM",
-  #                             omitArgs = c("destinationPath", "filename2"))
-  # .objects <- list(
-  #   "rasterToMatch" = rasterToMatch,
-  #   "studyAreaLarge" = studyAreaNWT,
-  #   "sppEquiv" = sppEquivalencies_CA,
-  #   "sppEquivCol" = sppEquivCol,
-  #   "sppColors" = sppColors,
-  #   "omitNonVegPixels" = TRUE,
-  #   "cloudFolderID" = cloudFolderID,
-  #   "studyArea" = studyArea
-  #   )
-  # }
-  
-  # 
-  # runVersion <- "V1"
-  # assign(paste0("LandR_FireSense_CaribouPopGrw_", runVersion),
-  #        value = simInitAndSpades(inputs = inputs, times = times,
-  #                                 params = parameters,
-  #                                 modules = modulesLandR_fS_SCFM_CaribPop,
-  #                                 objects = .objects, paths = paths,
-  #                                 loadOrder = unlist(modulesLandR_fS_SCFM_CaribPop),
-  #                                 outputs = outputsLandR, debug = 2))
+And finally, we load the objects used by this group of modules:
+
+``` {r objects}
+
+.objects <- list(
+  "rasterToMatch" = rasterToMatch,
+  "studyAreaLarge" = studyAreaNWT,
+  "sppEquiv" = sppEquivalencies_CA,
+  "sppEquivCol" = sppEquivCol,
+  "sppColors" = sppColors,
+  "omitNonVegPixels" = TRUE,
+  "cloudFolderID" = cloudFolderID,
+  "studyArea" = studyAreaNWT
+  )
+
 ```
-  
+
+After supplying the objects, we run the simulation initialization functionI'll install i, passing all arguments of interest:
+
+``` {r simInit}
+
+succTS <- seq(times$start, times$end, 
+                       by = parameters$LBMR$successionTimestep)
+outputsLandR <- data.frame(
+  objectName = rep(c("burnMap",
+                 "cohortData",
+                 "simulationTreeOutput",
+                 "summaryBySpecies",
+                 "summaryBySpecies1",
+                 "simulationOutput",
+                 "pixelGroupMap",
+                 "simulatedBiomassMap",
+                 "ANPPMap",
+                 "mortalityMap"), each = length(succTS)),
+  saveTime = c(rep(succTS, times = 10))
+)
+
+```
+
+And finally the simulation call (note that the argument `debug = 2` lists all processes that are happening):
+
+```{r call}
+
+# assign(paste0("LandR_SCFM_", runVersion), value = simInitAndSpades(times = times, params = parameters,
+#                     modules = modulesLandR_SCFM,
+#                     objects = .objects, paths = paths,
+#                     loadOrder = unlist(modulesLandR_SCFM),
+#                     outputs = outputsLandR, debug = 2))
+
+# To save a run
+# if (!isTest){
+# saveRDS(object = get(paste0("LandR_SCFM_", runVersion)), 
+#         file = file.path(paths$outputPath, paste0("birdsFireCaribou", runVersion,"_", toupper(format(Sys.time(), "%d%b%y")))))
+# }
+```
+
+### Climate sensitive forest succession
+
+Now we try running LandR with climate sensitivity and fireSense
+```{r LandR_CS}
+
+start_year <- 0
+end_year <- 2
+times <- list(start = start_year, end = end_year)
+
+library("googledrive")
+
+tryCatch(googledrive::drive_download(file = googledrive::as_id("1EetOiGxAq-QTZCVU9Q6Y3I26tqjZm3Oi"), 
+                            path = file.path(getPaths()$inputPath, "fireSense_FrequencyFitted.rds")), 
+         error = function(e){message("Files are already present and won't be overwritten")})
+tryCatch(googledrive::drive_download(file = googledrive::as_id("11CrK9PfNJzkU5cZg9-JYYzyr-VP23W0x"), 
+                            path = file.path(getPaths()$inputPath, "fireSense_EscapeFitted.rds")), 
+         error = function(e){message("Files are already present and won't be overwritten")})
+
+inputs <- data.frame(
+   files = c(file.path(getPaths()$inputPath, "fireSense_FrequencyFitted.rds"), 
+             file.path(getPaths()$inputPath, "fireSense_EscapeFitted.rds")),
+   functions = c("base::readRDS", "base::readRDS"),
+   stringsAsFactors = FALSE
+)
+
+modulesLandR_fS_FEENIX <- c("climate_NWT_DataPrep", 
+                            "MDC_NWT_DataPrep", 
+                            "fireSense_NWT_DataPrep", 
+                            "fireSense_FrequencyPredict", 
+                            "fireSense_EscapePredict", 
+                            "LBMR2LCC_DataPrep", 
+                            "fireSense_NWT", 
+                            "PSP_Clean",
+                            "gmcsDataPrep",
+                            "Boreal_LBMRDataPrep", 
+                            "LandR_BiomassGMOrig",
+                            "Biomass_regeneration", 
+                            "LBMR")
+
+objectSynonyms <- list(c("biomassMap", "kNN_Biomass"), 
+                       c("standAgeMap", "kNN_AgeMap"),
+                       c("vegMap", "LCC2005"),
+                       c("VRUG", "Vrug"))
+
+.objects <- c(.objects, list(objectSynonyms = objectSynonyms))
+
+parametersFireSense <- list(
+  climate_NWT_DataPrep = list(
+    rcp = 45, # 45 or 85
+    gcm = "CanESM2" # One of CanESM2, GFDL-CM3, HadGEM2-ES, MPI-ESM-LR 
+  ),
+  fireSense_FrequencyPredict = list(
+    f = 250 / 10000, # fireSense_FrequencyFit was fitted using the 10km resolution, predictions are made at the 250m resolution?
+    data = c("MDC06", "LCC")
+  ),
+  fireSense_NWT_DataPrep = list(
+    train = FALSE
+  ),
+  fireSense_EscapePredict = list(
+    data = c("MDC06", "LCC")
+  ),
+  LBMR2LCC_DataPrep = list(
+    .runInitialTime = 0
+  ),
+  fireSense_NWT = list(
+    .runInitialTime = 0    
+  )
+)
+
+parameters$LandR_BiomassGMOrig$growthAndMortalityDrivers <- "LandR.CS"
+parameters <- c(parameters, parametersFireSense)
+
+runVersion <- "V1"
+assign(paste0("LandR_FireSense_", runVersion), 
+       value = simInitAndSpades(inputs = inputs, times = times, 
+                                params = parameters,
+                                modules = modulesLandR_fS_FEENIX,
+                                objects = .objects, paths = paths,
+                                loadOrder = unlist(modulesLandR_fS_FEENIX),
+                                outputs = outputsLandR, debug = 2))
+
+
+# AFTER RUNNING, NEED TO MASK OUT THE NON FORESTED PIXELS!
+# LCC05 -> So we can exclude the non-forest/non-burned classes
+# LCC05 <- LandR::prepInputsLCC(destinationPath = tempdir(),
+#                                       studyArea = studyAreaNWT,
+#                                       rasterToMatch = rasterToMatch)
+# forestClasses <- c(1:15, 34:35)
+# rasterToMatch[!LCC05 %in% forestClasses] <- NA
+
+```
+<!-- TATI STILL TO ADD-->
 #### Outputs from `LandR`, `FireSense`, and `FEENIX` 
 
 ##### Figure: Graph of total biomass per tree species per year. These data serve as an input to the `BirdsNWT` module
@@ -1153,115 +1048,70 @@ Now we have to set the objects. The first object is a list of trees of interest:
 
 ##### Figure: GIF maps of recent and old fires projected at every 10 years. These data serve as an input for both `caribouRSFModel` and `caribouPopGrowth` modules.
 
-  
-  LandRCS + fireSense-SCFM + Caribou Pop Growth
-```{r allNWT}
-  # modulesLandRCS_fS_SCFM_CaribouPop <- c("Boreal_LBMRDataPrep", 
-  #                             "LandR_BiomassGMOrig",
-  #                             "Biomass_regeneration", 
-  #                             "LBMR",
-  #                             "climate_NWT_DataPrep", 
-  #                             "MDC_NWT_DataPrep", 
-  #                             "fireSense_NWT_DataPrep", 
-  #                             "fireSense_FrequencyPredict", 
-  #                             "fireSense_EscapePredict", 
-  #                             "LBMR2LCC_DataPrep", 
-  #                             "fireSense_NWT", 
-  #                             "PSP_Clean",
-  #                             "gmcsDataPrep",
-  #                             "caribouPopGrowthModel")
-  
-  # studyAreaPSP <- prepInputs(targetFile = "BC_Alberta.shp", 
-  #                            archive = "studyAreaPSP.zip",
-  #                            url = "https://drive.google.com/open?id=19CkdAT0oaqHenyVK84-BjG0dT3JMarV0",
-  #                            alsoExtract = "similar",
-  #                            destinationPath = getPaths()$inputPath, userTags = "objectName:studyAreaPSP")
-  # 
-  # parameters$LandR_BiomassGMOrig$growthAndMortalityDrivers <- "LandR.CS"
-  # .objects <- c(.objects, list("studyAreaPSP" = studyAreaPSP))
-  # 
-  # runVersion <- "V1"
-  # assign(paste0("LandRCSFireSenseCaribPop_", runVersion), 
-  #        value = simInitAndSpades(inputs = inputs, times = times, 
-  #                                 params = parameters,
-  #                                 modules = modulesLandR_fS_FEENIX,
-  #                                 objects = .objects, paths = paths,
-  #                                 loadOrder = unlist(modulesLandR_fS_FEENIX),
-  #                                 outputs = outputsLandR, debug = 2)) # FAILING
 ```
-  
-  #### Outputs from `LandR`, `FireSense`, and `FEENIX` - STILL TO ADD
-  
-  ##### Figure: Graph of total biomass per tree species per year. These data serve as an input to the `BirdsNWT` module
-  
-  ##### Figure: GIF map of deciduous/non-deciduous trees proejcted at every 10 years. These data serve as an input for the `caribouRSFModel` module
-  
-  ##### Figure: GIF maps of recent and old fires projected at every 10 years. These data serve as an input for both `caribouRSFModel` and `caribouPopGrowth` modules.
-  
+
 ```
-  
-```
-  
-  ### Running `BirdsNWT` using the succession model
-  
+
+### Running `BirdsNWT` using the succession model
+
 ```{r birds}
-  
-  dayOfRecording <- today <- toupper(format(Sys.time(), "%d%b%y"))
-  dayOfRecording <- "19MAR19"
-  
-  isTEST <- FALSE
-  
-  if (isTEST){
-  dayOfRecording <- "19MAR19"
-  }
-  
-  # Source functions in R folder
-  invisible(sapply(X = list.files(file.path(getwd(), "R"), full.names = TRUE), FUN = source))
-  
-  # Set a storage project folder
-  workDirectory <- getwd()
-  message("Your current temporary directory is ", tempdir())
-  
-  create <- if (isTEST) NULL else TRUE 
-  checkInputPath <- tryCatch(checkPath(file.path(getwd(), "outputs", dayOfRecording)), error = function(e) NULL)
-  if (is.null(checkInputPath)){
+
+dayOfRecording <- today <- toupper(format(Sys.time(), "%d%b%y"))
+dayOfRecording <- "19MAR19"
+
+isTEST <- FALSE
+
+if (isTEST){
+    dayOfRecording <- "19MAR19"
+}
+
+# Source functions in R folder
+invisible(sapply(X = list.files(file.path(getwd(), "R"), full.names = TRUE), FUN = source))
+
+# Set a storage project folder
+workDirectory <- getwd()
+message("Your current temporary directory is ", tempdir())
+
+create <- if (isTEST) NULL else TRUE 
+checkInputPath <- tryCatch(checkPath(file.path(getwd(), "outputs", dayOfRecording)), error = function(e) NULL)
+if (is.null(checkInputPath)){
   inpPath <- tempdir()
-  } else {
+} else {
   inpPath <- checkInputPath
-  }
-  
-  checkOutputPath <- tryCatch(checkPath(file.path(getwd(), "outputs", today), create = create), error = function(e) NULL)
-  if (is.null(checkOutputPath)){
+}
+
+checkOutputPath <- tryCatch(checkPath(file.path(getwd(), "outputs", today), create = create), error = function(e) NULL)
+if (is.null(checkOutputPath)){
   outPath <- tempdir()
-  } else {
+} else {
   outPath <- checkOutputPath
-  }
-  
-  setPaths(modulePath = file.path(getwd(), "modules"), 
-  inputPath = inpPath, outputPath = outPath)
-  getPaths() # shows where the 4 relevant paths are
-  
-  times <- list(start = 0, end = 100)
-  
-  modulesBirds <- list("birdsNWT")
-  
-  parametersBirds <- list(
+}
+
+setPaths(modulePath = file.path(getwd(), "modules"), 
+         inputPath = inpPath, outputPath = outPath)
+getPaths() # shows where the 4 relevant paths are
+
+times <- list(start = 0, end = 100)
+
+modulesBirds <- list("birdsNWT")
+
+parametersBirds <- list(
   .progress = list(type = "text", interval = 1), # for a progress bar
-  birdsNWT = list(
-  "baseLayer" = 2005,
-  "overwritePredictions" = TRUE,
-  "useTestSpeciesLayers" = FALSE, # Set it to false when you actually have results from LandR_Biomass simulations to run it with
-  "useParallel" = TRUE, # Using parallel in windows is currently not working.
-  "predictionInterval" = 10
+birdsNWT = list(
+    "baseLayer" = 2005,
+    "overwritePredictions" = TRUE,
+    "useTestSpeciesLayers" = FALSE, # Set it to false when you actually have results from LandR_Biomass simulations to run it with
+    "useParallel" = TRUE, # Using parallel in windows is currently not working.
+    "predictionInterval" = 10
   )
-  )
-  cloudFolderID <- "https://drive.google.com/open?id=1PoEkOkg_ixnAdDqqTQcun77nUvkEHDc0"
-  # Passing the uplandsRaster here makes sure that all computers can use it as the operations take up a lot of memory
-  uplandsRaster <- prepInputs(targetFile = "uplandsNWT250m.tif", 
-  url = "https://drive.google.com/open?id=1EF67NCH7HqN6QZ0KGlpntB_Zcquu6NJe", 
-  destinationPath = getPaths()$inputPath, filename2 = NULL)
-  
-  .objectsBirds <- list(
+)
+cloudFolderID <- "https://drive.google.com/open?id=1PoEkOkg_ixnAdDqqTQcun77nUvkEHDc0"
+# Passing the uplandsRaster here makes sure that all computers can use it as the operations take up a lot of memory
+uplandsRaster <- prepInputs(targetFile = "uplandsNWT250m.tif", 
+                            url = "https://drive.google.com/open?id=1EF67NCH7HqN6QZ0KGlpntB_Zcquu6NJe", 
+                            destinationPath = getPaths()$inputPath, filename2 = NULL)
+
+.objectsBirds <- list(
   "birdsList" = c("BBWA", "BOCH", "RBNU"),
   "sppEquiv" = sppEquivalencies_CA,
   "sppEquivCol" = sppEquivCol,
@@ -1269,14 +1119,12 @@ Now we have to set the objects. The first object is a list of trees of interest:
   "rasterToMatch" = rasterToMatch,
   "cloudFolderID" = cloudFolderID,
   "studyArea" = studyAreaNWT)
-  
-  assign(paste0("birds", runVersion), value = simInitAndSpades(times = times, params = parametersBirds,
-  modules = modulesBirds,
-  objects = .objectsBirds,
-  loadOrder = unlist(modulesBirds), debug = 2))
+
+assign(paste0("birds", runVersion), value = simInitAndSpades(times = times, params = parametersBirds,
+                    modules = modulesBirds,
+                    objects = .objectsBirds,
+                    loadOrder = unlist(modulesBirds), debug = 2))
 ```
-
-
 <!-- TATI STILL TO ADD-->
 #### Outputs from the `BirdsNWT` module 
 ##### Figure: Bird species abundance maps (one for each species), predicted at every 10 years.
@@ -1301,79 +1149,78 @@ Now we have to set the objects. The first object is a list of trees of interest:
 
 ### Running `caribouPopGrowthModel`
 ```{r caribou}
-  
-  modulesCaribou <- list("caribouPopGrowthModel", "caribouRSF")
-  
-  parametersCaribou <- list(
+
+modulesCaribou <- list("caribouPopGrowthModel", "caribouRSF")
+
+parametersCaribou <- list(
   # Caribou
   caribouPopGrowthModel = list(
-  ".plotInitialTime" = NULL,
-  "recoveryTime" = 40
+    ".plotInitialTime" = NULL,
+    "recoveryTime" = 40
   )
-  )
-  
-  .objectsCaribou <- list(
+)
+
+.objectsCaribou <- list(
   "rasterToMatch" = rasterToMatch,
   "cloudFolderID" = cloudFolderID,
   "studyArea" = studyAreaNWT
   )
-  
-  # assign(paste0("caribous", runVersion), value = simInitAndSpades(times = times, params = parametersCaribou,
-  #                     modules = modulesCaribou,
-  #                     objects = .objectsBirds, paths = paths,
-  #                     loadOrder = unlist(modulesCaribou),
-  #                     outputs = outputsLandR, debug = 2))
-```
-  
-  #### Extracting some posthoc plots
-  
-```{r extra_plots}
-  
-  df <- comparePredictions(polyList = names(LandR_SCFM_V3$scfmDriverPars), simList = LandR_SCFM_V3) %>%
-  data.table::rbindlist()
-  
-  firePlots <- firePosthocPlots(df = df)
-  
-  lapply(X = firePlots, FUN = print)
-  
-  # Creating birds images and gif
-  createBirdsGIF(simList = birdsFireCaribouV2, version = "V2")
-  
-  # For the cohortData biomass, need to use $ [ FIX ] using the padded function 
-  cohortData <- rbindlist(lapply(X = seq(times$start, times$end, by = 10), FUN = function(year){
-  if (year != 100 & year != 0)
-  cohort <- readRDS(file.path(getwd(), paste0("outputs/14MAR19/cohortData_year0", year, ".rds")))
-  if  (year == 100)
-  cohort <- readRDS(file.path(getwd(), paste0("outputs/14MAR19/cohortData_year", year, ".rds")))
-  if (year == 0)
-  cohort <- readRDS(file.path(getwd(), paste0("outputs/14MAR19/cohortData_year00", year, ".rds"))) 
-  cohort$year <- year
-  return(cohort)
-  }))
-  
-  pixelGroupMapList <- lapply(X = seq(times$start, times$end, by = 10), FUN = function(year){
-  if (year != 100 & year != 0)
-  pxl <- readRDS(file.path(getwd(), paste0("outputs/14MAR19/pixelGroupMap_year0", year, ".rds")))
-  if  (year == 100)
-  pxl <- readRDS(file.path(getwd(), paste0("outputs/14MAR19/pixelGroupMap_year", year, ".rds")))
-  if (year == 0)
-  pxl <- readRDS(file.path(getwd(), paste0("outputs/14MAR19/pixelGroupMap_year00", year, ".rds"))) 
-  return(pxl)
-  })
-  names(pixelGroupMapList) <- paste0("Year", seq(times$start, times$end, by = 10))
-  
-  biomassMapAll <- lapply(X = seq(times$start, times$end, by = 10), function(year){
-  cohortMap <- SpaDES.tools::rasterizeReduced(cohortData[year == year, list(pixelGroup, sumB = sum(B)), by = "pixelGroup"], 
-  pixelGroupMapList[[paste0("Year", year)]], "sumB", "pixelGroup")
-  names(cohortMap) <- paste0("biomassYear", year)
-  return(cohortMap)
-  })
-  names(biomassMapAll) <- paste0("biomassYear", seq(times$start, times$end, by = 10))
-  biomassMapAll <- stack(biomassMapAll)
-  writeRaster(x = biomassMapAll, filename = file.path(paths$outputPath, "biomassMapStack"))
-  
+
+# assign(paste0("caribous", runVersion), value = simInitAndSpades(times = times, params = parametersCaribou,
+#                     modules = modulesCaribou,
+#                     objects = .objectsBirds, paths = paths,
+#                     loadOrder = unlist(modulesCaribou),
+#                     outputs = outputsLandR, debug = 2))
 ```
 
+#### Extracting some posthoc plots
+
+```{r extra_plots}
+
+df <- comparePredictions(polyList = names(LandR_SCFM_V3$scfmDriverPars), simList = LandR_SCFM_V3) %>%
+  data.table::rbindlist()
+
+firePlots <- firePosthocPlots(df = df)
+
+lapply(X = firePlots, FUN = print)
+
+# Creating birds images and gif
+createBirdsGIF(simList = birdsFireCaribouV2, version = "V2")
+
+# For the cohortData biomass, need to use $ [ FIX ] using the padded function 
+cohortData <- rbindlist(lapply(X = seq(times$start, times$end, by = 10), FUN = function(year){
+  if (year != 100 & year != 0)
+    cohort <- readRDS(file.path(getwd(), paste0("outputs/14MAR19/cohortData_year0", year, ".rds")))
+  if  (year == 100)
+    cohort <- readRDS(file.path(getwd(), paste0("outputs/14MAR19/cohortData_year", year, ".rds")))
+  if (year == 0)
+    cohort <- readRDS(file.path(getwd(), paste0("outputs/14MAR19/cohortData_year00", year, ".rds"))) 
+  cohort$year <- year
+  return(cohort)
+}))
+
+pixelGroupMapList <- lapply(X = seq(times$start, times$end, by = 10), FUN = function(year){
+  if (year != 100 & year != 0)
+    pxl <- readRDS(file.path(getwd(), paste0("outputs/14MAR19/pixelGroupMap_year0", year, ".rds")))
+  if  (year == 100)
+    pxl <- readRDS(file.path(getwd(), paste0("outputs/14MAR19/pixelGroupMap_year", year, ".rds")))
+  if (year == 0)
+    pxl <- readRDS(file.path(getwd(), paste0("outputs/14MAR19/pixelGroupMap_year00", year, ".rds"))) 
+  return(pxl)
+})
+names(pixelGroupMapList) <- paste0("Year", seq(times$start, times$end, by = 10))
+
+biomassMapAll <- lapply(X = seq(times$start, times$end, by = 10), function(year){
+  cohortMap <- SpaDES.tools::rasterizeReduced(cohortData[year == year, list(pixelGroup, sumB = sum(B)), by = "pixelGroup"], 
+                                                  pixelGroupMapList[[paste0("Year", year)]], "sumB", "pixelGroup")
+  names(cohortMap) <- paste0("biomassYear", year)
+  return(cohortMap)
+})
+names(biomassMapAll) <- paste0("biomassYear", seq(times$start, times$end, by = 10))
+biomassMapAll <- stack(biomassMapAll)
+writeRaster(x = biomassMapAll, filename = file.path(paths$outputPath, "biomassMapStack"))
+
+```
 <!-- TATI STILL TO ADD-->
 #### Outputs from `caribouPopGrowthModel` 
 
@@ -1704,4 +1551,3 @@ resprouter species resprouting will be activated, depending on whether they are 
 resprouting probability (again, light-loving species and higher resprouting probability will increase the probability of resprouting
 being activated). For any given pixel, resprouting is limited to resprouter species for whom serotiny was not activated. This provides
 some advantage to serotinous species which would otherwise be quickly shaded and out-competed by resprouters.
->>>>>>> 962167b78141d9509e5036ae6f2cb8c8d60b3805

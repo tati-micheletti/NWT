@@ -294,7 +294,58 @@ scfm-fireSense is less sensitive to variation in vegetation and to changes in fi
 
 
 ## MARIO STILL TO PROVIDE INFORMATION FOR THIS ##
-\textcolor{blue}{anthropogenic}: To be completed by MT.
+\textcolor{blue}{anthropogenic}: The `anthropogenic` module aims to project future anthropogenic disturbances, calculate road density
+                                 as km/km2 within a 10km radius, and compute a 500 meter buffer around all anthropogenic disturbances.
+                                 It is composed of three submodules: `anthrDisturbanceNWT`, `lineDensity`, and `Buffer`. It provides
+                                 information to the `birdsNWT`, `caribouPopGrowth`, and `caribouRSFModel` modules.
+
+The `anthrDisturbanceNWT` module loads, prepares, and merges all anthropogenic disturbance vector data layers into a layer called
+anthrDisturb. This layer is updated by adding disturbance features as indicated in a feature update schedule file 
+anthrDisturbSchedule.txt, which provides a planning schedule and contains columns with information on scheduling and feature
+descriptives (i.e. Class, name, shortName, fileName and url) of planned disturbances. Currently, only the proposed extention of the
+McKenzie highway is added. Other planned disturbances can easily be added to the simulation by including them to
+anthrDisturbSchedule.txt available in the module’s data directory. 
+
+The `anthrDisturbanceNWT` module uses the Boreal ecosystem anthropogenic disturbance (BEADS) vector data from two sources for seven
+anthropogenic features. BEADS data for Canada (2008 to 2010) is available from 
+(https://open.canada.ca/data/en/dataset/afd0ce47-17c3-445c-b823-2f86409da2e0). The 2010 road network file for the NWT is available from
+(https://open.canada.ca/data/en/dataset/ab807d3f-9112-4d67-b17b-12bf83ff81e2).
+
+1  airstrips (BEADS)
+2  pipelines (BEADS)
+3  powerlines (BEADS)
+4  railways (BEADS)
+5  roads (NWT road network file)
+6  seismic lines (BEADS)
+7  unknown (BEADS)
+
+
+
+
+The `lineDensity` module calculates road density (km/km^2) within a 10km search radius (sensu Environment Canada 2011), and uses
+anthrDisturb from the `anthrDisturbanceNWT` module as an input. The `lineDensity` module provides an input to the `caribouRSFModel`
+module.
+
+The `Buffer` module computes a 500 m buffer around all anthropogenic disturbances, and uses antrDisturb from the `anthrDisturbanceNWT`
+module as an input. The `Buffer` module provides an input to the `caribouPopGrowth` module.
+
+*Important assumptions of the `anthropogenic` module*
+1. All linear features are created within one time step, regardless of feature length.
+
+2. Anthropogenic features do no deteriorate, recover, or become restored throughout the simulated period.
+
+
+Future versions on the `anthropogenic` module could include:
+1. Specific phases of linear feature development that are scheduled within the simulation (to address assumption #1).
+
+2. Deterioiration or recovery of anthropogenic features through time (to addess assumption #2)
+
+3. Inclusion of other anthropogenic features (e.g. development of forestry roads, new seismic lines, etc.). This option could include a
+link to a future module simulating timber harvest that keeps track of cut-block location and age.
+
+4. Interaction between `LandR` and this `anthropogenic` module sot hat pixels that intersect with disturbance features can be classified as disturbed in vegetation succession models.
+
+To be completed by MT.
 IMPORTANT ASSUMPTION TO ADD: This module does not model seismic lines - see caveate for `caribouPopGrowthModel`
 ASSUMPTION: no success with anthropogenic disturbance
 Explains both road density layer and buffered 500m layer.

@@ -140,7 +140,8 @@ herbivory). Future versions of the `LandR` modules could (1) ignore this limitat
 forested pixels; (2) incorporate estimates for these mechanisms allowing `LandR` to predict for areas that do not correspond to purely
 forested areas; or (3) set a maximum biomass limit for `LandR` projections. These changes would address current `LandR` limitation #2.
 
-<!--STEVE TO REVIEW THE BELOW AGAIN- FRANCES TO DOUBLE CHECK INCLUSION OF REFERENCES-->
+
+
 \textcolor{blue}{scfm-fireSense}: `scfm-fireSense` is a fire hybrid of two structurally similar models, `scfm` and `fireSense`. In each
                                   model, wildfire is simulated as a process of fire ignition (or arrival, the occurrence of a detected,
                                   recorded fire) and fire spread on a raster grid, in this case the 250m resolution extent determined

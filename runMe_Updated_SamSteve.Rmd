@@ -298,13 +298,13 @@ anthropogenic features. BEADS is current to 2008-2010. It is is available from
 
 There are seven feature classes:
 
-1  airstrips (BEADS)
-2  pipelines (BEADS)
-3  powerlines (BEADS)
-4  railways (BEADS)
-5  roads (NWT ROADS)
-6  seismic lines (BEADS)
-7  unknown (BEADS)
+1.  airstrips (BEADS)
+2.  pipelines (BEADS)
+3.  powerlines (BEADS)
+4.  railways (BEADS)
+5.  roads (NWT ROADS)
+6.  seismic lines (BEADS)
+7.  unknown (BEADS)
 
 The `lineDensity` module computes the total density all specified linear feature classes within a specified radius around each raster cell, expressed as magnitude per-unit area (km/km2). The default input object is anthrDisturb, from which features can be selected. In this model only the roads layer of anthrDistur is used. The default radius is 10 km, as per the requirements of the caribou RSF model. . The road density output LFDensityMap is masked to waterRaster, such that water cells have no road density. 
 

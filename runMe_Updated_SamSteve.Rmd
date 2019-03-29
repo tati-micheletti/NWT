@@ -1,9 +1,9 @@
 ---
 title: "Simulation effects of climate change on fire regime: implications for Boreal Caribou and landbird communities in the Northwest Territories"
-authors: "Tati Micheletti^1^, Frances Stewart^2^, Eliot McIntire^1,2^, Ian Eddy^2^,  Ceres Barros^1^, Jean Marchal^3^, 
-Diana Stralberg^4^, Mario van Telgen^5^, Ana Raymundo^5^, Alex Chubaty^6^, Steve Cumming^5^"
-affiliations: "^1^ University of British Columbia, ^2^ Natural Resources Canada, Canadian Forest Service, ^3^WavX Inc ,
-^4^ University of Alberta, ^5^Universite Laval, ^6^ fRI"
+authors: "Tati Micheletti^1, Frances Stewart^2, Eliot McIntire^1,2, Ian Eddy^2,  Ceres Barros^1, Jean Marchal^3, 
+Diana Stralberg^4, Mario van Telgen^5, Ana Raymundo^5, Alex Chubaty^6, Steve Cumming^5"
+affiliations: "^1University of British Columbia, ^2 Natural Resources Canada, Canadian Forest Service, ^3WavX Inc ,
+^4 University of Alberta, ^5Universite Laval, ^6fRI"
 date: "Draft last revised 3/31/2019"
 output:
  pdf_document:

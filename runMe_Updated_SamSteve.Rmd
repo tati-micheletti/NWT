@@ -124,15 +124,15 @@ forested pixels; (2) incorporate estimates for these mechanisms allowing `LandR`
 forested areas; or (3) set a maximum biomass limit for `LandR` projections. These changes would address current `LandR` limitation #2.
 
 <!--STEVE TO REVIEW THE BELOW AGAIN- FRANCES TO DOUBLE CHECK INCLUSION OF REFERENCES-->
-\textcolor{blue}{scfm-fireSense}: `scfm-fireSense` is a fire hybrid of two structurally similar models, `scfm` and `fireSense`. In each
-                                  model, wildfire is simulated as a process of fire ignition (or arrival, the occurrence of a detected,
+\textcolor{blue}{scfm-fireSense}: `scfm-fireSense` is a hybrid of two structurally similar landscape fire models, `scfm` and `fireSense`. In each
+                                  model, wildfire is simulated as a process of fire ignition (or "arrival", the occurrence of a detected,
                                   recorded fire) and fire spread on a raster grid, in this case the 250m resolution extent determined
-                                  by the model template rasterToMatch. The overall approach is a variant of the class of landscape fire
-                                  models based on simulated percolation processes (Hargrove et al. 2000). In percolation models, fires
+                                  by the model template `rasterToMatch`. The overall approach is a variant of the class of landscape fire
+                                  models based on simulated percolation (Hargrove et al. 2000). In percolation models, fires
                                   spread iteratively from burning cells to unburned neighbours with some probability, in the simplest
                                   case this probability is constant in time and space. Fires are extinguished when no further spreading
                                   occurs. The arrival (or ignition) process is modelled by stating fires within cells according to some
-                                  low probability. 
+                                  probability. 
 
 The original version of `scfm` is described by Cumming et al. (1998), with a more accessible version in Armstrong and Cumming (2003).
 It was recently implemented as a collection of SpaDES modules by Cumming, McIntire, and Eddy (in prep), with the addition of automated
@@ -160,7 +160,7 @@ that will reproduce the estimated mean fire size for the region. Parameterizatio
 for all the polygons in a given shapefile (e.g., by ecoregion), allowing spatial variation in fire regime parameters among regions. 
 
 This version of the model considers lightning-caused fires only, which is not a serious limitation within BCR6, based on analysis of
-historical fire records from 1965-2016. The spread model  returns an object to the sim environment that identifies all burned cells. In
+historical fire records from 1965-2016. The spread model returns an object to the sim environment that identifies all burned cells. In
 many applications, this would be inputs to other modules that maintain a forest age structure or updated vegetation state to simulate
 the effects of fire. This model does not simulate variation in fire severity, so typically fires are presumed to be stand initiating.
 These processes result in irregular patches of variously sized burns.  The model tracks the number and size of simulated fires in each
@@ -270,9 +270,9 @@ period.
 landscape features such as rock outcrops, urban areas, and water.
 
 *Limitations of scfm-fireSense*
-The full version of the fireSense model has spatially and temporally variable spread parameters that vary with fueltype and annual fire
-weather. It was not possibly to test the software needed to estimate these parameters within the scope of this contract. Therefore,
-scfm-fireSense is less sensitive to variation in vegetation and to changes in fire weather than the compleet fireSense model would be.
+The full version of the `fireSense` module has spatially and temporally variable spread parameters that vary with fueltype and annual fire
+weather. It was not possible to test the software needed to estimate these parameters within the scope of this contract. Therefore,
+`scfm-fireSense` is less sensitive to variation in vegetation and to changes in fire weather than the completet fireSense model would be. Experience shows, however, that the vegetation and climate sentitivity of the ignition and escape modules produces allready considerable spatial and temporal variation in patterns of area burned.
 
 
 ## MARIO STILL TO PROVIDE INFORMATION FOR THIS ##

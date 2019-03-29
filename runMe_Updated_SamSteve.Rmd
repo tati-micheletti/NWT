@@ -1389,6 +1389,12 @@ Mining, 2016. http://arxiv.org/abs/1603.02754
 Chubaty, A. M. and E. J. B.  McIntire. 2017. SpaDES: Develop and Run Spatially Explicit Discrete Event Simulation Models. R package
 version, 2(0).
 
+Cumming, S. G., D. Demarchi and C. Walters. 1998. A Grid-Based Spatial Model of Forest Dynamics Applied to the Boreal Mixedwood
+Region. Working Paper 1998–8. Sustainable Forest Management Network. https://doi.org/10.7939/R35N33.
+
+Armstrong, G. W. and S. G. Cumming. 2003. Estimating the cost of land base changes due to wildfire using shadow prices. Forest Science,
+49(5):719-730.
+
 Cumming, S. G., K. L. Lefevre, E. Bayne, T. Fontaine, F. K. A. Schmiegelow, and S. J. Song. 2010. Toward conservation of Canada's
 boreal forest avifauna: design and application of ecological models at continental extents. Avian Conservation and Ecology 5(2):8. 
 
@@ -1429,6 +1435,9 @@ Holling, C. S. 1992. Cross‐scale morphology, geometry, and dynamics of ecosyst
 Knagss, M. 2018. Effects of burn severity and time since fire on songbird communities in the northern boreal forest. Department of
 Renewable Resources. University of Alberta. Master's Thesis. 
 
+Latifovic, R. and D. Pouliot. 2005. Multitemporal Land Cover Mapping for Canada: Methodology and Products. Canadian Journal of Remote
+Sensing 31 (5):347–63. https://doi.org/10.5589/m05-019.
+
 Levin, S. A. 1992. The problem of pattern and scale in ecology: the Robert H. MacArthur award lecture. Ecology 73(6):pp.1943-1967.
 
 Magurran, A. 2004. Measuring Biological Diversity. Wiley. 256 pp. ISBN 0632056339
@@ -1436,11 +1445,16 @@ Magurran, A. 2004. Measuring Biological Diversity. Wiley. 256 pp. ISBN 063205633
 Manly, B. F. J., L. L. McDonald, D. L. Thomas, T. L. McDonald, and W. P. Erickson, editors. 2002. Resource selection by animals:
 statistical analysis and design for field studies. Second Edition. Kluwer, Boston, USA.
 
+Marchal, J., S. G. Cumming, and E. J. B McIntire. 2017. Land Cover, More than Monthly Fire Weather, Drives Fire-Size Distribution in
+Southern Québec Forests: Implications for Fire Risk Management. PLoS ONE 12(6):1–17. https://doi.org/10.1371/journal.pone.0179294.
+
 Mcloughlin, P. D., E. Dzus, B. O. B. Wynes, and S. Boutin. 2003. Declines in populations of woodland caribou. The Journal of Wildlife
 Management 67(4):755-761.
 
 Neilson, E. W., T. Avgar, A. C. Burton, K. Broadley, and S. Boutin. 2018. Animal movement affects interpretation of occupancy models
 from camera-trap survey of unmarked animals. Ecosphere 9(1) doi:10.1002/ecs2.2090
+
+Pya, N. S. N. Wood. 2015. Shape constrained additive models. Statistics and Computing, 25(3):543-559.
 
 Riitters, K. H. 2005. Downscaling indicators of forest habitat structure from national assessments. Ecological indicators 5(4):273-279.
 

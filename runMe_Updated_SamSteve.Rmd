@@ -22,48 +22,37 @@ output:
 
 # Executive Summary
 
-The proposed work integrates simulation models of vegetation dynamics, wildfire, and anthropogenic change with 
-statistical models of songbird abundances and woodland boreal caribou (*Rangifer tarandus caribou*) resouorce selection and demographic
-parameters. The integrated model is used to forecast the spatial distribution of selected songbird species and the regional potential
+The purpose of this project was to support multi-species modelling objectives of Environment and Climate Change Canada with respect to woodland caribou and migratory songbirds. We sought to integrate models of vegetation dynamics, wildfire, and anthropogenic change with statistical models of songbird abundances and woodland boreal caribou (*Rangifer tarandus caribou*) resource selection and demographic parameters. The integration framework is SpaDES (Chubaty and McIntire 2017), a system of R packages for statistical and geospatial analysis and spatial simulation, designed for ecological forecasting applications over very large areas. The integrated model is used to forecast the spatial distribution of selected songbird species and the regional potential
 to sustain viable populations of woodland boreal caribou, under climate change over the 21st century. Other potential applications
 include quantifying the overlap between areas of high conservation value for birds and for caribou, and evaluating the conservation
-potential inthese respects of specific candidate protected areas. The integrated model is implemented as a suite of eight modules in
-SpaDES (Chubaty and McIntire 2017), a cutting-edge R-based environment for developing and running spatial simulations over large
-spatial extents. The spatial extent of this work is Bird Conservation Region (BCR) 6 as contained within the Northwest Territories of
-Canada. All modules in this project output 250m resolution layers, and all LandR, bird, and caribou modules mask all landscape features
-that are not forested from their analyses; their outputs are based on forested landclasses (see the `LandR` module description, and
-future directions, below).
+potential in these respects of specific candidate protected areas.  The spatial extent of this work is Bird Conservation Region (BCR) 6 as contained within the Northwest Territories of Canada. The integrated model is implemented as a suite of eight groups of 
+SpaDES modules. A common spatial resolution of 250m is used in all modules. Most reporting is done over forested habitats only, neglecting waterbodies, wetlands, and areas of tundra vegetation or shrubands (see the `LandR` module description, and
+future directions, below). 
 
-This project represents the cummulation of a novel integration method for discrete event simulations. To our knowledge it is the
-largest and most comprehensive integration of landscape and climate change effects on Species At Risk todate. It represents a novel and
-important contribution to ecological forecasting, and contains the ability to uniquely address both national (i.e. *Species At Risk
-Act*) and international (i.e. *Convention on Biological Diversity Aichi Target 11*) policy mandates for biodiversity conservation
-today, and under anticipated future conditions.
+This project is, to our knowledge, the most comprehensive and extensive integration of landscape and climate change effects on Species At Risk to date. It represents a novel and important contribution to ecological forecasting, and contains the ability to uniquely address both national (i.e. *Species At Risk Act*) and international (i.e. *Convention on Biological Diversity Aichi Target 11*) policy mandates for biodiversity conservation today, and under anticipated future conditions.
 
-The models contained within this project represent regional processes and do not reflect projected landscape specific results. The
-results from this project are to be used for regional planning initiatives and are built off of known ecological processes and
-statistical relationships documented at regional and national scales. These processes may not acurately predict localized processes -
-this discrepency between scales is well documented in ecology (Wiens 1989; Holling 1992; Levin 1992; Burton et al. in review) with
-direct ramifications on downscaling models (e.g. Riiters 2005; Araujo et al. 2005). Future iterations of this project may be able to
-address these scale-specific processes, but the models provided here will best provide results for planning at large spatial extents
-(by region or ecozone, not landscape). 
+The models contained within this project represent regional processes and are intended to support regional planning initiatives. The models incorporpate the best current understanding of ecological processes, and make use of statistical relationships at regional and national scales. They may not acurately predict localized processes. Accordingly, the results should not be taken as predictions of the specific conditions at any given location and time. This discrepency between regional and local scales is well documented in ecology (Wiens 1989; Holling 1992; Levin 1992; Burton et al. in review) with
+direct ramifications on downscaling models (e.g. Riiters 2005; Araujo et al. 2005). 
+
+The work was conducted under EC Contract No. 30000675933. The final deliverable under this contract is intended to be a manuscript for publication in the primary literature. This report represents a draft of the Methods Section of this target manuscript, with some preliminary results. 
+
 
 
 ## General project components as stated in the RFP
 
 Item #1: Species Abundance Models (SAMs) for landbirds under current conditions.
 Item #2: Land change simulation (2000-2100).
-Item #3: Demographic models for caribou, SAMs for landbirds, co-occurrence under future conditions. 
+Item #3: Demographic models for caribou, SAMs for landbirds, co-occurrence of caribou and landbirds under future conditions. 
 
 
 # Integrated modules overview: Items 1, 2, and components of item 3
 
-The metamodule is composed of 8 parent modules (i.e. groups of modules), as follows:
+This integrated model is implemented as a SpaDES metamodule. The metamodule is composed of eight named groups of tightly coupled modules; there are are known as "parent modules" in SpaDES parlance. Each parent implements a key model process (e.g. fire, vegetation dynamics) or component (e.g. bird abundance predictions). For an overview of the concept of SpaDES modules, see https://cran.r-project.org/web/packages/SpaDES.core/vignettes/ii-modules.html. The eight parents are as follows:
 ![Figure 1. Module structure that composes the NWT project]
 (https://github.com/tatimicheletti/NWT/raw/master/inputs/ModelStructure_2.jpg)
 
-<!-- TATI TO DOUBLE CHECK AND FINALIZE -->
-Running the entire project for a 100 year simulation can take several days on a 1 TB, 50 core RAM Linux computer.
+<!-- TATI TO DOUBLE CHECK AND FINALIZE Note only 6 parents, not 8, are mentioned-->
+Running the full metadmodule for a 100 year simulation over the entire study area can take many days on a 1 TB, 50 core RAM Linux computer.
 
 module                | approximate duration |
 :--------------------:|:--------------------:|
@@ -78,13 +67,11 @@ TOTAL                 |                      |
 The structure and methods used for each one of the modules is as follows:
 
 <!--TATI TO REVIEW APPENDIX 1 AND ADD PARAMETERS-->
-\textcolor{blue}{LandR}: `LandR` is a landscape dynamic vegetation model; it simulates landscape-scale forest dynamics in a spatio
-                          temporally explicit manner. The `LandR` group of modules is composed of one data treatment and
-                          parameterisation module, and a group of modules that simulate biomass succession dynamics. These modules
-                          estimate parameters for the study area specified. The methods and results of these estimations can be found
+\textcolor{blue}{LandR}: `LandR` is a spatially explicit model of vegetation dynamics. It models the biomass of cohorts of tree species within cells, which interact over a landscape by the process of seed dispersal. The `LandR` group of modules is composed of one data treatment and
+                          parameterisation module, and a group of modules that simulate biomass succession dynamics. The paramaters goverening biomass change are estimated for the study area specified. The methods and results of these estimations can be found
                           in Appendix 1.
 
-The first `LandR` module, `Boreal_LBMRDataPrep` calculates site-specific parameters needed by the biomass succession modules - for this
+The first `LandR` module, `Boreal_LBMRDataPrep`, calculates site-specific parameters needed by the biomass succession modules - for this
 project these site specific parameters are estimated for Bird Conservation Region (BCR) 6 within the Northwest Territories. For
 instance, maximum biomass, above-ground net primary productiviey (aNPP), and establishment probabilities from seed germination are
 calculated separately depending on tree species cover and biomass, ecodistrict, land cover class (from the Land Cover Map of Canada
@@ -93,23 +80,20 @@ calculated separately depending on tree species cover and biomass, ecodistrict, 
 simulation model, and are available from Dominic Cyr's GitHub page: 
 (https://raw.githubusercontent.com/dcyr/LANDIS-II_IA_generalUseFiles/master/speciesTraits.csv)
 
-The group of modules, named `LandR_Biomass` form the core of the vegetation succession model. These modules were inspired by the
-LANDIS-II Biomass Success module (v6.2), but have since been changed (*i.e.* spin-up was removed and some algorithms were improved;
-Barros et al. in prep). They consist of (1) `LBMR`, the `LandR` module responsible for vegetation aging, dispersal, updating biomass
+The group of modules, named `LandR_Biomass` form the core of the vegetation succession model. These modules began as a re-implementation in SpaDES of the
+LANDIS-II Biomass Success module (v6.2), but have since been changed in several ways (Barros et al. in prep). They consist of (1) `LBMR`, the `LandR` module responsible for vegetation aging, dispersal, updating biomass
 folowing other modules' events, and producing summary figures and tables; (2) `LandR_BiomassGMOrig`, the `LandR` module responsible for
 cohort growth and mortality; and (3) `Biomass_regeneration`, the `LandR` module which handles post-disturbance biomass regeneration
 (e.g. fire;  Appendix 1). `LandR` needs at least the first two modules (`LBMR` and `LandR_BiomassGMOrig`) to produce sensible
 vegetation dynamics.
 
 In brief, the `LandR` modules simulate biomass changes by cohort (species-age combinations) as a function of age, between-cohort
-competition for light resources, seed dispersal and germination, regeneration following a disturbance, and background or fire-related
-mortality.
+competition for light, seed dispersal and germination, regeneration following a disturbance, and mortality due to senescence, competition or distrubance.
 
 *Current limitations of the `LandR` module*
-One of the greatest advantages of using `Boreal_LBMRDataPrep` is that parameters used for the vegetation succession modules can be
-directly estimated from data. This is done “automatically” should the data or study area change. As with any model, this means that
-model predictions need to be calibrated every time the study area changes. At the moment, none of the modules within the `LandR` group
-automatically calibrate themselves. We have identified some limitations arising from this:
+<!--THIS IS CONTRADICTORY SC-->
+The purpose of the module `Boreal_LBMRDataPrep` is to estimate parameters of the vegetation succession modules directly from data. This is done “automatically” should the data or study area change. At the moment, none of the modules within the `LandR` group
+automatically calibrate themselves. We have identified some limitations arising from this: 
 
 1. *Initial decrease in biomass in forested pixels*. Initial decreases in biomass during the first decades of the simulation are most
 likely due to starting ages (![Canada national stand age map](http://tree.pfc.forestry.ca/kNN-StructureStandVolume.tar)) being too
@@ -121,8 +105,7 @@ the average maximum “observed” ages (i.e. realized age) for a given species;
 disturbance conditions to which populations are exposed, rather than the potential maximum age of a tree under favourable conditions.
 There isnt a clear answer as to what is the best way of dealing with these issues, but see below for some potential suggestions.
 
-2. Because the `LandR` model is suited for forest dynamics, pixeLs that correspond to non-forested LCC2005 classes were not used to
-report results presented here, although they were allowed to be in the simulation for fire spread.
+2. Because the `LandR` model is desiged to mode the dynamics tree species on pathes of forest. It does not represnet shrubs, grasses or non-vascular plants, and can not reproduce the processes that cause large areas of the northern forest to be dominated by these taxa. Therefore, pixels initially assigned to non-forested land-cover classes are assumed to remain in that state, indpendent of `LandR` predictions. Model results are summarised only for pixels that were in forested classes initially. 
 
 
 Future versions of the `LandR` module group could include:
@@ -140,8 +123,7 @@ herbivory). Future versions of the `LandR` modules could (1) ignore this limitat
 forested pixels; (2) incorporate estimates for these mechanisms allowing `LandR` to predict for areas that do not correspond to purely
 forested areas; or (3) set a maximum biomass limit for `LandR` projections. These changes would address current `LandR` limitation #2.
 
-
-
+<!--STEVE TO REVIEW THE BELOW AGAIN- FRANCES TO DOUBLE CHECK INCLUSION OF REFERENCES-->
 \textcolor{blue}{scfm-fireSense}: `scfm-fireSense` is a fire hybrid of two structurally similar models, `scfm` and `fireSense`. In each
                                   model, wildfire is simulated as a process of fire ignition (or arrival, the occurrence of a detected,
                                   recorded fire) and fire spread on a raster grid, in this case the 250m resolution extent determined
@@ -293,85 +275,11 @@ weather. It was not possibly to test the software needed to estimate these param
 scfm-fireSense is less sensitive to variation in vegetation and to changes in fire weather than the compleet fireSense model would be.
 
 
-<!--MARIO STILL TO REVIEW THIS-->
-\textcolor{blue}{anthropogenic}: The `anthropogenic` module aims to project future anthropogenic disturbances, calculate road density
-                                 as km/km2 within a 10km radius, and compute a 500 meter buffer around all anthropogenic disturbances.
-                                 It is composed of three submodules: `anthrDisturbanceNWT`, `lineDensity`, and `Buffer`. It provides
-                                 information to the `birdsNWT`, `caribouPopGrowth`, and `caribouRSFModel` modules.
-
-The `anthrDisturbanceNWT` module loads, prepares, and merges all anthropogenic disturbance vector data layers into a layer called
-anthrDisturb. This layer is updated by adding disturbance features as indicated in a feature update schedule file 
-anthrDisturbSchedule.txt, which provides a planning schedule and contains columns with information on scheduling and feature
-descriptives (i.e. Class, name, shortName, fileName and url) of planned disturbances. Currently, only the proposed extention of the
-McKenzie highway is added. Other planned disturbances can easily be added to the simulation by including them to
-anthrDisturbSchedule.txt available in the module’s data directory. 
-
-The `anthrDisturbanceNWT` module uses the Boreal ecosystem anthropogenic disturbance (BEADS) vector data from two sources for seven
-anthropogenic features. BEADS data for Canada (2008 to 2010) is available from 
-(https://open.canada.ca/data/en/dataset/afd0ce47-17c3-445c-b823-2f86409da2e0). The 2010 road network file for the NWT is available from
-(https://open.canada.ca/data/en/dataset/ab807d3f-9112-4d67-b17b-12bf83ff81e2).
-
-1  airstrips (BEADS)
-2  pipelines (BEADS)
-3  powerlines (BEADS)
-4  railways (BEADS)
-5  roads (NWT road network file)
-6  seismic lines (BEADS)
-7  unknown (BEADS)
-
-The `lineDensity` module computes densities of linear feature within a specific radius around each raster cell, expressed as magnitude
-per-unit area (km/km2). The default input object is `anthrDisturb`, from which features can be selected. In this model only the roads
-layer of anthrDistur is used to calculate road density within a 10 km radius around each raster cell. The road density output
-LFDensityMap is masked to waterRaster, removing road density values in cells that represent water.
-
-`lineDensity` currently uses an approach that approximates line densities. First, lengths of linear features within each raster cell
-are calculated. The value for line length within each cell is then spread out over all neighbouring cells within a 10km radius and
-summed where they overlap using fast fourier transforms (fft). This is equivalent to summing total line length within a 10 km circle
-around each cell divided by circle area. These calculations can be done on smaller ‘tiles’ of the study area to reduce computational
-requirements and computation time (but has not been parallelized yet). The magnitude-per-unit area (km/km2) is calculated by dividing
-these summed values by pixel area (which makes m/m2) and multiplied by a factor 1000 to convert them to km/km2. These road density
-estimates are used in the `caribouRSFModel` module.
-
-The `Buffer` module computes a buffer layer (bufferMap) of buffers with a specific radius around features that are being selected from
-the anthrDisturb object. The buffer radius can be varied, and the buffer layer can be converted to a raster object if desired. The
-default raster identifies all cells that are covered by the buffer layer, and assignings them a value 1; cells that are not covered by
-the buffer layer are assigned a value of 0 to creat a binomial rater layer. These raster computations can be done for all features
-together or by feature Class. This output, BufferMap, is masked to waterRaster, removing road density values in cell that represent
-water. This raster is used in the `caribouPopGrowth` module.
-
-*Important assumptions of the `anthropogenic` module*
-1. All linear features are created within one time step, regardless of feature length.
-
-2. Anthropogenic features do no deteriorate, recover, or become restored throughout the simulated period.
-
-3. Fit is an appropriate method for the calculated of feature densities (specific to the `lineDensity` module).
-
-4. Only spatial line objects are present on the landscape (specific to the `Buffer` module)
-
-
-Future versions on the `anthropogenic` module could include:
-1. Specific phases of linear feature development that are scheduled within the simulation (to address assumption #1).
-
-2. Deterioiration or recovery of anthropogenic features through time (to address assumption #2)
-
-3. Inclusion of other anthropogenic features (e.g. development of forestry roads, new seismic lines, etc.). This option could include a
-link to a future module simulating timber harvest that keeps track of cut-block location, age, and yeild curves. A review of
-preliminary modules written by Cumming for use in SpaDES teaching found that they were not yet ready ready to be adapted to this
-project. The development work behind a forest harvesting module are planned for the summer.
-
-4. Interaction between `LandR` and this `anthropogenic` module sot hat pixels that intersect with disturbance features can be
-classified as disturbed in vegetation succession models.
-
-5. Call python code to emulate ArcMap's lineDensity function (sensu Environment Canada 2011, Appendix 7.3).
-
-6. Incorportion of spatial objects other than spatial lines (to address assumption #4).
-
-7. An output could be provided to calculate the percentage of a cell withing the BufferMap that that is covered by the buffer layer of
-each feature class.
-
-8. The ability to vary the buffer sizes by feature class, which would allow testing of the effect of buffer sizes on caribou
-recruitment and population growth rate.
-
+## MARIO STILL TO PROVIDE INFORMATION FOR THIS ##
+\textcolor{blue}{anthropogenic}: To be completed by MT.
+IMPORTANT ASSUMPTION TO ADD: This module does not model seismic lines - see caveate for `caribouPopGrowthModel`
+ASSUMPTION: no success with anthropogenic disturbance
+Explains both road density layer and buffered 500m layer.
 
 
 \textcolor{blue}{birdsNWT}: This module projects species abundance of bird species under forecasted landscape and climate
@@ -1464,12 +1372,6 @@ Mining, 2016. http://arxiv.org/abs/1603.02754
 Chubaty, A. M. and E. J. B.  McIntire. 2017. SpaDES: Develop and Run Spatially Explicit Discrete Event Simulation Models. R package
 version, 2(0).
 
-Cumming, S. G., D. Demarchi and C. Walters. 1998. A Grid-Based Spatial Model of Forest Dynamics Applied to the Boreal Mixedwood
-Region. Working Paper 1998–8. Sustainable Forest Management Network. https://doi.org/10.7939/R35N33.
-
-Armstrong, G. W. and S. G. Cumming. 2003. Estimating the cost of land base changes due to wildfire using shadow prices. Forest Science,
-49(5):719-730.
-
 Cumming, S. G., K. L. Lefevre, E. Bayne, T. Fontaine, F. K. A. Schmiegelow, and S. J. Song. 2010. Toward conservation of Canada's
 boreal forest avifauna: design and application of ecological models at continental extents. Avian Conservation and Ecology 5(2):8. 
 
@@ -1510,9 +1412,6 @@ Holling, C. S. 1992. Cross‐scale morphology, geometry, and dynamics of ecosyst
 Knagss, M. 2018. Effects of burn severity and time since fire on songbird communities in the northern boreal forest. Department of
 Renewable Resources. University of Alberta. Master's Thesis. 
 
-Latifovic, R. and D. Pouliot. 2005. Multitemporal Land Cover Mapping for Canada: Methodology and Products. Canadian Journal of Remote
-Sensing 31 (5):347–63. https://doi.org/10.5589/m05-019.
-
 Levin, S. A. 1992. The problem of pattern and scale in ecology: the Robert H. MacArthur award lecture. Ecology 73(6):pp.1943-1967.
 
 Magurran, A. 2004. Measuring Biological Diversity. Wiley. 256 pp. ISBN 0632056339
@@ -1520,16 +1419,11 @@ Magurran, A. 2004. Measuring Biological Diversity. Wiley. 256 pp. ISBN 063205633
 Manly, B. F. J., L. L. McDonald, D. L. Thomas, T. L. McDonald, and W. P. Erickson, editors. 2002. Resource selection by animals:
 statistical analysis and design for field studies. Second Edition. Kluwer, Boston, USA.
 
-Marchal, J., S. G. Cumming, and E. J. B McIntire. 2017. Land Cover, More than Monthly Fire Weather, Drives Fire-Size Distribution in
-Southern Québec Forests: Implications for Fire Risk Management. PLoS ONE 12(6):1–17. https://doi.org/10.1371/journal.pone.0179294.
-
 Mcloughlin, P. D., E. Dzus, B. O. B. Wynes, and S. Boutin. 2003. Declines in populations of woodland caribou. The Journal of Wildlife
 Management 67(4):755-761.
 
 Neilson, E. W., T. Avgar, A. C. Burton, K. Broadley, and S. Boutin. 2018. Animal movement affects interpretation of occupancy models
 from camera-trap survey of unmarked animals. Ecosphere 9(1) doi:10.1002/ecs2.2090
-
-Pya, N. S. N. Wood. 2015. Shape constrained additive models. Statistics and Computing, 25(3):543-559.
 
 Riitters, K. H. 2005. Downscaling indicators of forest habitat structure from national assessments. Ecological indicators 5(4):273-279.
 

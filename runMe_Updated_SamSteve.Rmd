@@ -527,7 +527,13 @@ Sparrow (*Zonotrichia albicollis*), White-winged Crossbill (*Loxia leucoptera*),
 Yellow-bellied Flycatcher (*Empidonax flaviventris*), Yellow-rumped Warbler (*Setophaga coronata*), Yellow Warbler (*Setophaga
 petechia*) 
 
-** Current state: ** This module is completely functional, but depends on the model objects being accessed and loaded in R for the predictions. Separating the model estimation from the forecasting procedures is not ideal in that human intervention is required, and many opportutnites for error are introduced. Further, when new observational data become available, or the use of new covariates is indicated, coordinated effforts of several people are requied to update the simulation model, which is difficult to arrange and introduces additional sources of error. This is why the SpaDES approach emphasises tight integration of statistical and simulation modelling. A fully reproducible automated workflow (i.e. statistical model estimation from raw data + predictions) should be incorporated in the next version of this product.
+** Current state: ** This module is completely functional, but depends on the model objects being accessed and loaded in R for the
+predictions. Separating the model estimation from the forecasting procedures is not ideal in that human intervention is required, 
+and many opportutnites for error are introduced. Further, when new observational data become available, or the use of new covariates is
+indicated, coordinated effforts of several people are requied to update the simulation model, which is difficult to arrange and 
+introduces additional sources of error. This is why the SpaDES approach emphasises tight integration of statistical and simulation 
+modelling. A fully reproducible automated workflow (i.e. statistical model estimation from raw data + predictions) 
+should be incorporated in the next version of this product.
 
 ### **caribou**  
 The `caribou` group of modules is composed of two main ones:  `caribouRSFModel` and `caribouPopGrowthModel`. Each

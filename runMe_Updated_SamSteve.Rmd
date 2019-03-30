@@ -748,6 +748,8 @@ For the third deliverable, we have repeated the analysis developed for the whole
 
 #### Figure 7: RSF over the three areas.
 
+#### Figure 8: Community metrics for the three areas.
+
 
 # Intgrated modules final component of Item 3: Species co-occurrence
 As requested deliverable of this project was to conduct species co-occurrence analyses for bird Species At Risk to evaluate potential

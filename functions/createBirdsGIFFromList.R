@@ -1,4 +1,5 @@
-createBirdsGIFFromList <- function(species, pathData, version, uploadFiles){
+createBirdsGIFFromList <- function(species, pathData, version, 
+                                   whereToReport, uploadFiles){
   
   reproducible::Require("animation")
   reproducible::Require("raster")
@@ -26,20 +27,30 @@ createBirdsGIFFromList <- function(species, pathData, version, uploadFiles){
     # FOR VERSION 2, WE NEED TO MASK ONLY YEAR0 to WATER + WATERLAND BEFORE MAKING THE PLOT
     # FOR VERSION 3, WE NEED TO MASK for forest pixels only
     
+    
+    if (whereToReport == "Edehzhie"){
+      urlSA <- "https://drive.google.com/open?id=1VP91AyIeGCFwJS9oPSEno4_SbtJQJMh7"
+    } else {
+      if (whereToReport == "BCR6_NWT"){
+        urlSA <- "https://drive.google.com/open?id=1LUxoY2-pgkCmmNH5goagBp3IMpj6YrdU"
+      } else stop("Please provide as 'whereToReport' either 'Edehzhie' or 'BCR6_NWT'")
+    }
+    
+    message(paste0("Reporting biomass per species for ", whereToReport))
     studyArea <- Cache(prepInputs,
-                            url = "https://drive.google.com/open?id=1LUxoY2-pgkCmmNH5goagBp3IMpj6YrdU",
-                            destinationPath = tempdir(),
+                       url = urlSA,
+                       destinationPath = tempdir(),
                        omitArgs = "destinationPath", filename2 = NULL)
     
-    rasterToMatch <- Cache(prepInputs, url = "https://drive.google.com/open?id=1fo08FMACr_aTV03lteQ7KsaoN9xGx1Df", 
-                                studyArea = studyArea,
-                                targetFile = "RTM.tif", destinationPath = tempdir(), 
+    rasterToMatch <- Cache(prepInputs, url = "https://drive.google.com/open?id=1fo08FMACr_aTV03lteQ7KsaoN9xGx1Df",
+                           studyArea = studyArea,
+                           targetFile = "RTM.tif", destinationPath = tempdir(),
                            filename2 = NULL,
-                                omitArgs = "destinationPath")
+                           omitArgs = "destinationPath")
     
     LCC05 <- LandR::prepInputsLCC(destinationPath = tempdir(),
-                                          studyArea = studyAreaNWT,
-                                          rasterToMatch = rasterToMatch)
+                                  studyArea = studyArea,
+                                  rasterToMatch = rasterToMatch)
     forestClasses <- c(1:15, 34:35)
     rasterToMatch[!LCC05 %in% forestClasses] <- NA
     

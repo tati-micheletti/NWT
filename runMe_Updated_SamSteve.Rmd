@@ -142,7 +142,7 @@ reach quasi-equilibrium, before introducing the subsequent modules within this p
 `birdsNWT`, `caribouRSFModel`, and `caribouPopGrowthModel`). These solutions would address current `LandR` limitation #1.
 
 2. Models such as `LandR` will often overestimate tree cover and biomass in open habitats because they lack quantified ecological
-mechanisms that limit tree growth in these areas (*i.e.* differences in growing season length, soil nutrient and water availability, or
+mechanisms that limit tree growth in these areas (*i.e.* differences in growing season length, soil nutrient and water availability, competition from non-vascular plants, or
 herbivory). Future versions of the `LandR` modules could (1) ignore this limitation and restrict simulation dynamics to currently
 forested pixels; (2) incorporate estimates for these mechanisms allowing `LandR` to predict for areas that do not correspond to purely
 forested areas; or (3) set a maximum biomass limit for `LandR` projections. These changes would address current `LandR` limitation #2.  
@@ -172,7 +172,7 @@ its cell of origin equals the escape probability, after accounting for the effec
 on fire spread. In effect, this distinguishes the first step of the iterative fire spread process. These three modules are used to
 simulate a fire regime, in terms of the number of fires that start, the escape probability, and the mean fire size. 
 
-In addition to the Ignition, Escape and Spread modules, scfm makes use of several support modules involved in parameter estimation and
+In addition to the scfmIgnition, scfmEscape and scfmSpread modules, scfm makes use of several support modules involved in parameter estimation and
 model calibration. Fire regime parameters for ignition, escape,  and a mean fire size, are estimated from historic fire data obtained
 from the Canadian National Fire Database (Canadian Forest Service, n.d.). Spread probabilities are tuned to replicate the empirical
 mean fire size by a newly implemented calibration procedure. First, the study region raster is buffered by a set distance and a
@@ -182,7 +182,7 @@ in landscape and spread with probabilities randomly sampled from a given range (
 do not start within the buffer area, but may spread to and from the buffer. This effectively removes the influence of edge effects in
 determining mean fire size, provided the buffer is “wide enough”.  Then the spread probabilities and resulting fire sizes are fit with
 a shape-constrained additive model (SCAM) (Pya and Wood, 2015). The SCAM is monotonic to ensure fire size increases for any incremental
-increase in spread probability. Lastly, a function minimiser, coupled with scam predict method, is used to find the spread probability
+increase in spread probability. Lastly, a function minimiser, coupled with the `scam predict` method, is used to find the spread probability
 that will reproduce the estimated mean fire size for the region. Parameterization and calibration of the model can be done separately
 for all the polygons in a given shapefile (e.g., by ecoregion), allowing spatial variation in fire regime parameters among regions. 
 
@@ -288,7 +288,7 @@ passed to `scfmSpread` (see below), which spreads the fires using the per-polygo
 
 At the spatial and temporal scale used in this study, the probability of two or more fires per year is negligible, thus one may use the
 Bernoulli approximation, as in Armstrong and Cumming (2003). From those fires that started, `fireSense` determines which fires escape.
-`scfm-fireSense` then passes the information on pixels that are burning to `scfmSpread` (see below), which spreads the fires using the
+`scfm-fireSense` then passes the information on pixels that are burning to `scfmSpread` (see above), which spreads the fires using the
 per-polygon spread probabilities..
 
 *Assumptions of the `scfm-fireSense` module*
@@ -413,9 +413,9 @@ recruitment and population growth rate.
 
 ** Current state: ** Currently, both caribou RSF and Population growth predictions are using a static disturbance layer that doesn't contain the McKenzie Valley Highway (MVH) disturbances as this last has not yet been finalized.  
 
-<!-- HERE DOWN STILL NEEDS STEVE'S EDITS-->
+<!-- HERE DOWN STILL NEEDS STEVE'S EDITS....DONE SC-->
 ### **birdsNWT**  
-This module projects species abundance of bird species under forecasted landscape and climate
+This module projects species abundance of bird species under forecast landscape and climate
                             conditions. The module develops boosted regression tree (BRT) models from avian point-count data and
                             associated covariates using the gbm.step function in the ‘dismo’ package (Hijmans et al. 2011) with a
                             Poisson distribution and 10-fold cross-validation. BRT settings are as recommended by Elith et al. (2008)
@@ -424,7 +424,7 @@ This module projects species abundance of bird species under forecasted landscap
                             output), generates partial dependence plots (pdf output), generates spatial predictions from input data
                             layers (geotiff format), and generates maps of spatial predictions (png format). The ‘cvsum’ function
                             summarizes cross-validation statistics across species. Individual species results are posted here:
-                            (https://drive.google.com/drive/folders/1cpt-AKDbnlUEi6r70Oow2lEPrbzQfVpt?usp=sharing)
+                            (https://drive.google.com/drive/folders/1cpt-AKDbnlUEi6r70Oow2lEPrbzQfVpt?usp=sharing). The cross-validation statistics serve as the indicators of model performance required in the Statement of Work. We note that AUC and similar diagnostics were mentioned in the Statement of Work, but these are not appropriate to count data.
 
 Avian data for Bird Conservation Region (BCR) 6 were extracted from the Boreal Avian Modelling project avian dataset (Cumming et al.
 2010, Barker et al. 2015) and supplemented with data from automated recording units (ARU) collected by Environment and Climate Change
@@ -447,15 +447,15 @@ DEV25 = development proportion within 5x5 moving window (continuous)
 We also included a categorical landform covariate derived from AdaptWest’s land facet layer (Michalak et al. 2015), with the following
 class definitions:
 
-1    Valley
-2    Hilltop in Valley
-3    Headwaters
-4    Ridges and Peaks
-5    Plains
-6    Local Ridge in Plain
-7    Local Valley in Plain
-8    Gentle Slopes
-9    Steep Slopes
+1.    Valley
+2.    Hilltop in Valley
+3.    Headwaters
+4.    Ridges and Peaks
+5.    Plains
+6.    Local Ridge in Plain
+7.    Local Valley in Plain
+8.    Gentle Slopes
+9.    Steep Slopes
 
 Model covariates allowed to vary according to simulation outputs were tree species biomass estimates (g/m2) derived from Beaudoin et
 al.’s (2017) predicted biomass layers for 2001 or 2011, depending on the date of survey (pre-2006 was associated with 2001 vegetation;
@@ -466,7 +466,7 @@ Populus tremuloides*
 
 Models were developed for 71 passerine and near-passerine species that a) currently breed either in the Northwest Territories or
 Alberta portions of BCR 6, b) for which density offsets were available, and c) for which data were sufficient to fit cross-validated
-BRTs (see list below). For this project, predictions were performed for 10 species, including:
+BRTs (see list below). For this report, predictions were performed for 10 species, including:
  
 OVEN    Ovenbird (*Seiurus aurocapilla*)
 AMRE    American Redstart (*Setophaga ruticilla*)
@@ -479,6 +479,7 @@ RUBL    Rusty Blackbird (*Euphagus carolinus*)
 RCKI    Ruby-crowned Kinglet (*Regulus calendula*)
 OSFL    Olive-sided Flycatcher (*Contopus cooperi*)
 
+The limit of 10 species was necessary at this time because running the full set of species would have increased runtime length by several days.
 
 *Important assumptions of the `birdsNWT` module*
 1. The relative abundance of bird species is based on an environmental niche modeling approach with associated assumptions (Wiens et
@@ -526,8 +527,7 @@ Sparrow (*Zonotrichia albicollis*), White-winged Crossbill (*Loxia leucoptera*),
 Yellow-bellied Flycatcher (*Empidonax flaviventris*), Yellow-rumped Warbler (*Setophaga coronata*), Yellow Warbler (*Setophaga
 petechia*) 
 
-** Current state: ** This module is completely functional, but depends on the model objects being accessed and loaded in R for the predictions. The fully reproducible workflow (i.e. statistical model + predictions) might be incorporated in the future.
-
+** Current state: ** This module is completely functional, but depends on the model objects being accessed and loaded in R for the predictions. Separating the model estimation from the forecasting procedures is not ideal in that human intervention is required, and many opportutnites for error are introduced. Further, when new observational data become available, or the use of new covariates is indicated, coordinated effforts of several people are requied to update the simulation model, which is difficult to arrange and introduces additional sources of error. This is why the SpaDES approach emphasises tight integration of statistical and simulation modelling. A fully reproducible automated workflow (i.e. statistical model estimation from raw data + predictions) should be incorporated in the next version of this product.
 
 ### **caribou**  
 The `caribou` group of modules is composed of two main ones:  `caribouRSFModel` and `caribouPopGrowthModel`. Each

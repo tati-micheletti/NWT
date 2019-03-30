@@ -105,8 +105,8 @@ simulation model, and are available from Dominic Cyr's GitHub page:
 (https://raw.githubusercontent.com/dcyr/LANDIS-II_IA_generalUseFiles/master/speciesTraits.csv)
 
 The group of modules, named `LandR_Biomass` form the core of the vegetation succession model. These modules began as a re
-implementation in SpaDES of the LANDIS-II Biomass Success module (v3.2.1), but have since been changed in several ways (Barros et al.
-in prep). They consist of (1) `LBMR`, the `LandR` module responsible for vegetation aging, dispersal, updating biomass
+implementation in SpaDES of the LANDIS-II Biomass Succession module (v3.2.1), but have since been changed in several ways (Barros et
+al. in prep). They consist of (1) `LBMR`, the `LandR` module responsible for vegetation aging, dispersal, updating biomass
 folowing other modules' events, and producing summary figures and tables; (2) `LandR_BiomassGMOrig`, the `LandR` module responsible for
 cohort growth and mortality; and (3) `Biomass_regeneration`, the `LandR` module which handles post-disturbance biomass regeneration
 (e.g. fire;  Appendix 1). `LandR` needs at least the first two modules (`LBMR` and `LandR_BiomassGMOrig`) to produce sensible

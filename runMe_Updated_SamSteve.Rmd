@@ -17,28 +17,32 @@ toc: yes
 
 # Executive Summary
 
-The purpose of this project was to support multi-species modelling objectives of Environment and Climate Change Canada with respect to
+The purpose of this project was to support multi-species modelling objectives of Environment and Climate Change Canada (ECCC) 
+with respect to
 woodland caribou and migratory songbirds. We sought to integrate models of vegetation dynamics, wildfire, and anthropogenic change with
 statistical models of songbird abundances and woodland boreal caribou (*Rangifer tarandus caribou*) resource selection and demographic
 parameters. The integration framework is SpaDES (Chubaty and McIntire 2017), a system of R packages for statistical and geospatial
 analysis and spatial simulation, designed for ecological forecasting applications, especially powerful over very large areas. 
-The integrated model is used to forecast the spatial distribution of selected songbird species and the regional potential to sustain viable populations of woodland
+The integrated model is used to forecast the spatial distribution of selected songbird species 
+and the regional potential to sustain viable populations of woodland
 boreal caribou, under climate change over the 21st century. Other potential applications include quantifying the overlap between areas
 of high conservation value for birds and for caribou, and evaluating the conservation potential in these respects of specific candidate
 protected areas.  The spatial extent of this work is Bird Conservation Region (BCR) 6 as contained within the Northwest Territories of
 Canada. The integrated model is implemented as a suite of eight groups of  SpaDES modules. A common spatial resolution of 250m is used
-in all modules for processing and reporting. Most reporting is done over forested habitats only, neglecting waterbodies, wetlands, and areas of tundra vegetation or
+in all modules for processing and reporting. Most reporting is done over forested habitats only, 
+neglecting waterbodies, wetlands, and areas of tundra vegetation or
 shrubands (see the `LandR` module description, and future directions, below). 
 
 This project is, to our knowledge, the most comprehensive and extensive integration of landscape and climate change effects on Species
-At Risk to date. It represents a novel and important contribution to ecological forecasting, and contains the ability to uniquely
-address both national (i.e. *Species At Risk Act*) and international (i.e. *Convention on Biological Diversity Aichi Target 11*) policy
+At Risk to date. It represents a novel and important contribution to ecological forecasting which, with some further development, will 
+support ECCC in addressing both national (i.e. *Species At Risk Act*) and 
+international (i.e. *Convention on Biological Diversity Aichi Target 11*) policy
 mandates for biodiversity conservation today, and under anticipated future conditions.
 
 The models contained within this project represent regional processes and are intended to support regional planning initiatives. The
 models incorporpate the best current understanding of ecological processes, and make use of statistical relationships at regional and
 national scales. They may not acurately predict localized processes. Accordingly, the results should not be taken as predictions of the
-specific conditions at any given location and time. This discrepency between regional and local scales is well documented in ecology
+conditions at any particular location and time. This discrepency between regional and local scales is well documented in ecology
 (Wiens 1989; Holling 1992; Levin 1992; Burton et al. in review) with direct ramifications on downscaling models (e.g. Riiters 2005;
 Araujo et al. 2005). 
 
@@ -536,7 +540,7 @@ modelling. A fully reproducible automated workflow (i.e. statistical model estim
 should be incorporated in the next version of this product.
 
 ### **caribou**  
-The `caribou` group of modules is composed of two main ones:  `caribouRSFModel` and `caribouPopGrowthModel`. Each
+The `caribou` group of modules is composed of two main modules:  `caribouRSFModel` and `caribouPopGrowthModel`. Each
                            module loads existing glms developped by Environment Canada 2011 to project caribou occurrence and
                            demographics over 100 years as the anthropogenic (`anthropogenic` module), fire (`FireSense` module), and
                            natural features (`LandR` module) of the NWT BCR6 region (i.e. Taiga plains) change. Combined, these

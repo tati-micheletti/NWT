@@ -1,4 +1,7 @@
-biomassPerSpeciesYearGRAPH <- function(pathData, times, version, overwriteRasters = TRUE, uploadFiles = FALSE){
+biomassPerSpeciesYearGRAPH <- function(pathData, times, version, 
+                                       overwriteRasters = TRUE, 
+                                       uploadFiles = FALSE,
+                                       whereToReport){
   
   # Bring the tables, bring the pixel groups, maske the rasters, mask them to the RTM masked to the forest pixels
   reproducible::Require("raster")
@@ -11,18 +14,27 @@ biomassPerSpeciesYearGRAPH <- function(pathData, times, version, overwriteRaster
   years <- paddedFloatToChar(y, padL = 3)
   listCohort <- lapply(X = years, FUN = function(yr){
     cohortData <- createModObject(data = "cohortData", sim = NULL,
-                                  pathInput = pathData, currentTime = yr)
+                                  pathInput = pathData, currentTime = as.numeric(yr))
     return(cohortData)
   })
   
   listPixelGroupMap <- lapply(X = years, FUN = function(yr){
     pixelGroupMap <- createModObject(data = "pixelGroupMap", sim = NULL,
-                                     pathInput = pathData, currentTime = yr)
+                                     pathInput = pathData, currentTime = as.numeric(yr))
     return(pixelGroupMap)
   })
   
+  if (whereToReport == "Edehzhie"){
+    urlSA <- "https://drive.google.com/open?id=1VP91AyIeGCFwJS9oPSEno4_SbtJQJMh7"
+  } else {
+    if (whereToReport == "BCR6_NWT"){
+      urlSA <- "https://drive.google.com/open?id=1LUxoY2-pgkCmmNH5goagBp3IMpj6YrdU"
+    } else stop("Please provide as 'whereToReport' either 'Edehzhie' or 'BCR6_NWT'")
+  }
+
+  message(paste0("Reporting biomass per species for ", whereToReport))
     studyArea <- Cache(prepInputs,
-                       url = "https://drive.google.com/open?id=1LUxoY2-pgkCmmNH5goagBp3IMpj6YrdU",
+                       url = urlSA,
                        destinationPath = tempdir(),
                        omitArgs = "destinationPath", filename2 = NULL)
 
@@ -109,5 +121,5 @@ biomassPerSpeciesYearGRAPH <- function(pathData, times, version, overwriteRaster
                                                  path = as_id("1ZqPVs33HxnnmjLUW94i7AuwAS-nloPGH")) 
                      }
                    })
-    return(list(averageBiomassHa = totalBiomassPerHa, totalBiomassPerHa = totalBiomassPerHa))
+    return(list(averageBiomassHa = averageBiomassHa, totalBiomassPerHa = totalBiomassPerHa))
 }

@@ -759,11 +759,12 @@ For the third deliverable, we have repeated the analysis developed for the whole
 <!-- ![Figure 7b](outputs/28MAR19/RSF_29MAR19.gif) -->
 <!-- ![Figure 7a](outputs/28MAR19/RSFuncertainty_29MAR19.gif) -->
 
-#### Figure 8: Community metrics for the three areas.
-<!-- [Figure 8]()TO ADD WHEN I FINISH COMM METRICS -->
+#### Figure 8a and b: Community metrics for the three areas, showing 4 diversity indices in 2011 and 2111.
+[Figure 8a](outputs/28MAR19/DiversityIndexYear0.png)
+[Figure 8b](outputs/28MAR19/DiversityIndexYear100.png)
 
-#### Table 2: Community metrics for the three areas.
-<!-- [Table 2]()TO ADD WHEN I FINISH COMM METRICS -->
+#### Figure 9: Community metrics for the three areas showing 4 diversity indices for each polygon for every 10 years of simulations.
+[Figure 9](outputs/28MAR19/CommunityMetrics.png)
 
 # Intgrated modules final component of Item 3: Species co-occurrence
 As requested deliverable of this project was to conduct species co-occurrence analyses for bird Species At Risk to evaluate potential

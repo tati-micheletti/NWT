@@ -608,8 +608,7 @@ $$Rec \sim total disturbance$$                                     Eq 2.
 
 The methods behind Eq 2. development can be read in Environment Canada 2011 (Appendix 7.6). The total disturbance within a study area
 is described as the “percent total non-overlapping fire and anthropogenic disturbance (500 m buffer on anthropogenic; reservoirs
-removed)" (Environment Canada 2011, Table 54). Fire is measured as “percent fire < 40 years old” within a caribou study area and
-anthropogenic is measured as “percent non-overlapping anthropogenic disturbance (500 m buffer)” within a caribou study area
+removed)" (Environment Canada 2011, Table 54). `Fire disturbance` in the proportion of the landscape burned in the last < 40 years within a caribou study area. `Anthropogenic disturbance` is measured as the proportion of non-overlapping anthropogenic disturbance with a 500 m buffer within a caribou study area
 (Environment Canada 2011; Table 52). This module uses the rasterized output maps of the `fire` module, and
 `anthropogenic` modules. These map the presence/absence of fire < 40 years old, or anthropogenic disturbances, at each 250 m x 250m
 pixels. These rasterized maps were over-layed, were used to calculate the percent non-overlapping total disturbance within a caribou
@@ -668,7 +667,7 @@ assumption # 2 above).
 5. Incorporation of a caribou population model that is both logistic (i.e. density dependent) and/ or stochastic to look at
 projected variations in population size.
 
-** Current state: ** Both these modules are completely functional, and currently depend only on having outputs from LandR and a fire model.
+** Current state: ** Both these modules are functional, and currently depend only on having outputs from LandR and a fire model. There is, however, the need of an ecological sanity check on the results these are producing. 
 
 
 ## Intgrated modules components of Item 3: Community metrics, and an analysis of the Edehzhie
@@ -748,9 +747,12 @@ For the third deliverable, we have repeated the analysis developed for the whole
 
 #### Figure 5:  American Redstart (AMRE) abundance prediction without climate sensitive vegetation (`LandR`) or fire (`scfm`).
 <!-- ![Figure 5](outputs/28MAR19/AMREpredNWT_30MAR19.gif) -->
+![Figure 5](outputs/28MAR19/BirdPredictionExample.png)
 
-#### Figure 6: Caribou population growth on the three areas.
-<!-- [Figure 6]()TO ADD WHEN I FINISH RUNNING CARIBOU POP GROWTH -->
+<!-- Steve, please double check the caption -->
+#### Figure 6: Caribou population growth projected for the shapefiles provided by ECCC: `Boreal caribou NT1 range planning regions 2018` and the `Units for ECCC modeling project 2019` for the first four years of simulation (2011-2014) as a sample of the preliminary results.
+[Figure 6a](outputs/28MAR19/Area1.png)
+[Figure 6b](outputs/28MAR19/Area2.png)
 
 #### Figure 7: RSF over the three areas.
 ![Figure 7](outputs/28MAR19/RSFExample.png)

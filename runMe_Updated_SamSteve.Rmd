@@ -6,9 +6,9 @@ author: Tati Micheletti\textsuperscript 1, Frances Stewart\textsuperscript 2, El
   Barros\textsuperscript 1, Jean Marchal\textsuperscript 3, Diana Stralberg\textsuperscript 4, Mario van Telgen\textsuperscript 5, Ana Raymundo\textsuperscript 5,
   Alex Chubaty\textsuperscript 6, Steve Cumming\textsuperscript 5
 output:
-  pdf_document:
-    df_print: paged
   html_document:
+    df_print: paged
+  pdf_document:
     df_print: paged
 toc: yes
 ---
@@ -738,7 +738,7 @@ For the third deliverable, we have repeated the analysis developed for the whole
                             areas randomly located north and south of Edehzhie. These results are presented below.
 
 #### Figure 4: `LandR` biomass simulation per species per decade. Average biomass in tons/ha.
-[Figure 4](outputs/19MAR19/averageBiomassHaV3_29MAR19.png)
+![Figure 4](outputs/19MAR19/averageBiomassHaV3_29MAR19.png)
 
 #### Figure 5: Ovenbird (OVEN) and American Redstart (AMRE) abundance prediction without climate sensitive vegetation (`LandR`) or fire (`scfm`).
 <!-- [Figure 5]() TO ADD WHEN IN BC! -->
@@ -747,6 +747,9 @@ For the third deliverable, we have repeated the analysis developed for the whole
 <!-- [Figure 6]()TO ADD WHEN I FINISH RUNNING LANDR + SCFM + CARIBOU -->
 
 #### Figure 7: RSF over the three areas.
+![Figure 7](outputs/28MAR19/RSFExample.png)
+![Figure 7b](outputs/28MAR19/RSF_29MAR19.gif)
+![Figure 7a](outputs/28MAR19/RSFuncertainty_29MAR19.gif)
 
 #### Figure 8: Community metrics for the three areas.
 

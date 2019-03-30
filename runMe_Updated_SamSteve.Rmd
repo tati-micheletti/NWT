@@ -740,11 +740,11 @@ For the third deliverable, we have repeated the analysis developed for the whole
 #### Figure 4: `LandR` biomass simulation per species per decade. Average biomass in tons/ha.
 ![Figure 4](outputs/19MAR19/averageBiomassHaV3_29MAR19.png)
 
-#### Figure 5: Ovenbird (OVEN) and American Redstart (AMRE) abundance prediction without climate sensitive vegetation (`LandR`) or fire (`scfm`).
-<!-- [Figure 5]() TO ADD WHEN IN BC! -->
+#### Figure 5:  American Redstart (AMRE) abundance prediction without climate sensitive vegetation (`LandR`) or fire (`scfm`).
+![Figure 5](outputs/28MAR19/AMREpredNWT_30MAR19.gif)
 
 #### Figure 6: Caribou population growth on the three areas.
-<!-- [Figure 6]()TO ADD WHEN I FINISH RUNNING LANDR + SCFM + CARIBOU -->
+<!-- [Figure 6]()TO ADD WHEN I FINISH RUNNING CARIBOU POP GROWTH -->
 
 #### Figure 7: RSF over the three areas.
 ![Figure 7](outputs/28MAR19/RSFExample.png)
@@ -752,7 +752,10 @@ For the third deliverable, we have repeated the analysis developed for the whole
 ![Figure 7a](outputs/28MAR19/RSFuncertainty_29MAR19.gif)
 
 #### Figure 8: Community metrics for the three areas.
+<!-- [Figure 8]()TO ADD WHEN I FINISH COMM METRICS -->
 
+#### Table 2: Community metrics for the three areas.
+<!-- [Table 2]()TO ADD WHEN I FINISH COMM METRICS -->
 
 # Intgrated modules final component of Item 3: Species co-occurrence
 As requested deliverable of this project was to conduct species co-occurrence analyses for bird Species At Risk to evaluate potential

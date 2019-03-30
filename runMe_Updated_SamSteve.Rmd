@@ -5,15 +5,20 @@ authors: Tati Micheletti^1, Frances Stewart^2, Eliot McIntire^1,2, Ian Eddy^2,  
   Barros^1, Jean Marchal^3, Diana Stralberg^4, Mario van Telgen^5, Ana Raymundo^5,
   Alex Chubaty^6, Steve Cumming^5
 date: "Draft last revised 3/31/2019"
+# header-includes: 
+#         - \usepackage{color}
+#         - \usepackage{lmodern}
+#         - \usepackage[utf8]{inputenc}
+#         - \usepackage{bbm}
+#         - \usepackage{newtxtext,newtxmath} % Times Roman text and math fonts
+#         - \usepackage{mathptmx}
 output:
-  html_document:
-    df_print: paged
-header-includes: \usepackage{color}
+  pdf_document:
+          df_print: paged
 affiliations: ^1University of British Columbia, ^2 Natural Resources Canada, Canadian
   Forest Service, ^3WavX Inc , ^4 University of Alberta, ^5Universite Laval, ^6fRI
 toc: yes
 ---
-
 
 # Executive Summary
 
@@ -21,13 +26,13 @@ The purpose of this project was to support multi-species modelling objectives of
 woodland caribou and migratory songbirds. We sought to integrate models of vegetation dynamics, wildfire, and anthropogenic change with
 statistical models of songbird abundances and woodland boreal caribou (*Rangifer tarandus caribou*) resource selection and demographic
 parameters. The integration framework is SpaDES (Chubaty and McIntire 2017), a system of R packages for statistical and geospatial
-analysis and spatial simulation, designed for ecological forecasting applications over very large areas. The integrated model is used
-to forecast the spatial distribution of selected songbird species and the regional potential to sustain viable populations of woodland
+analysis and spatial simulation, designed for ecological forecasting applications, especially powerful over very large areas. 
+The integrated model is used to forecast the spatial distribution of selected songbird species and the regional potential to sustain viable populations of woodland
 boreal caribou, under climate change over the 21st century. Other potential applications include quantifying the overlap between areas
 of high conservation value for birds and for caribou, and evaluating the conservation potential in these respects of specific candidate
 protected areas.  The spatial extent of this work is Bird Conservation Region (BCR) 6 as contained within the Northwest Territories of
 Canada. The integrated model is implemented as a suite of eight groups of  SpaDES modules. A common spatial resolution of 250m is used
-in all modules. Most reporting is done over forested habitats only, neglecting waterbodies, wetlands, and areas of tundra vegetation or
+in all modules for processing and reporting. Most reporting is done over forested habitats only, neglecting waterbodies, wetlands, and areas of tundra vegetation or
 shrubands (see the `LandR` module description, and future directions, below). 
 
 This project is, to our knowledge, the most comprehensive and extensive integration of landscape and climate change effects on Species
@@ -84,7 +89,7 @@ The structure and methods used for each one of the modules is as follows:
 
 
 <!--TATI TO REVIEW APPENDIX 1 AND ADD PARAMETERS-->
-\textcolor{blue}{LandR}: `LandR` is a spatially explicit model of vegetation dynamics. It models the biomass of cohorts of tree species
+**LandR**: `LandR` is a spatially explicit model of vegetation dynamics. It models the biomass of cohorts of tree species
                          within cells, which interact over a landscape by the process of seed dispersal. The `LandR` group of modules
                          is composed of one data treatment and parameterisation module, and a group of modules that simulate biomass
                          succession dynamics. The paramaters goverening biomass change are estimated for the study area specified. The
@@ -118,7 +123,7 @@ is done “automatically” should the data or study area change. At the moment,
 automatically calibrate themselves. We have identified some limitations arising from this: 
 
 1. *Initial decrease in biomass in forested pixels*. Initial decreases in biomass during the first decades of the simulation are most
-likely due to starting ages (![Canada national stand age map](http://tree.pfc.forestry.ca/kNN-StructureStandVolume.tar)) being too
+likely due to starting ages (Canada national stand age map: "http://tree.pfc.forestry.ca/kNN-StructureStandVolume.tar") being too
 close to species’ longevity parameters (from LANDIS-II Biomass Succession v6.2 traits table). This results in many cohorts either dying
 immediately, or almost immediately, at the beginning of the simulation leading to a decrease in total biomass. Stand age maps and tree
 longevity are known to be flawed. On the one hand, estimating stand age can be tricky and often relies on allometric
@@ -149,7 +154,7 @@ forested pixels; (2) incorporate estimates for these mechanisms allowing `LandR`
 forested areas; or (3) set a maximum biomass limit for `LandR` projections. These changes would address current `LandR` limitation #2.
 
 
-\textcolor{blue}{scfm-fireSense}: `scfm-fireSense` is a hybrid of two structurally similar landscape fire models, `scfm` and
+**scfm-fireSense**: `scfm-fireSense` is a hybrid of two structurally similar landscape fire models, `scfm` and
                                   `fireSense`. In each model, wildfire is simulated as a process of fire ignition (or "arrival", the
                                   occurrence of a detected, recorded fire) and fire spread on a raster grid, in this case the 250m
                                   resolution extent determined by the model template `rasterToMatch`. The overall approach is a variant
@@ -303,7 +308,7 @@ allready considerable spatial and temporal variation in patterns of area burned.
 
 
 
-\textcolor{blue}{anthropogenic}: The `anthropogenic` parent module aims to represent current and project future anthropogenic
+**anthropogenic**: The `anthropogenic` parent module aims to represent current and project future anthropogenic
                                  disturbances, and to produce metrics of anthropegenic disturbance as required by other modiles. These
                                  metrics include:
 
@@ -401,7 +406,7 @@ recruitment and population growth rate.
 
 
 <!-- HERE DOWN STILL NEEDS STEVE'S EDITS-->
-\textcolor{blue}{birdsNWT}: This module projects species abundance of bird species under forecasted landscape and climate
+**birdsNWT**: This module projects species abundance of bird species under forecasted landscape and climate
                             conditions. The module develops boosted regression tree (BRT) models from avian point-count data and
                             associated covariates using the gbm.step function in the ‘dismo’ package (Hijmans et al. 2011) with a
                             Poisson distribution and 10-fold cross-validation. BRT settings are as recommended by Elith et al. (2008)
@@ -514,7 +519,7 @@ petechia*)
 
  
  
-\textcolor{blue}{caribou}: The `caribou` module is composed of two main modules:  `caribouRSFModel` and `caribouPopGrowthModel`. Each
+**caribou**: The `caribou` module is composed of two main modules:  `caribouRSFModel` and `caribouPopGrowthModel`. Each
                            module loads existing glms developped by Environment Canada 2011 to project caribou occurrence and
                            demographics over 100 years as the anthropogenic (`anthropogenic` module), fire (`FireSense` module), and
                            natural features (`LandR` module) of the NWT BCR6 region (i.e. Taiga plains) changes. Combined, these
@@ -531,8 +536,8 @@ and 169 NWT collared adult female caribou between 2000 and 2010 (Environment Can
 In the Taiga Plains ecozone, the relative probability of adult female boreal caribou resource selection (0 to 1) is best described by
 (Environment Canada 2011; Table 46):
 
-$Relative habitat selection  ~ Elevation + Elevation^2 + Vrug + Vrug^2 + RoadDensity + Deciduous + Shrub +                 Eq 1.
-                                                   Herb + Water + RecentBurn + OldBurn$
+$$Relative habitat selection  ~ Elevation + Elevation^2 + Vrug + Vrug^2 + RoadDensity + Deciduous + Shrub +                 Eq 1.
+                                                   Herb + Water + RecentBurn + OldBurn$$
 
 The definition, and units of measurement, for each of the predictor variables in this relationship can be found in Environment Canada
 2011 Table 40. The methods behind model development can be found throughout Environment Canada 2011 Appendix 7.3. 
@@ -590,12 +595,12 @@ relative selection at each pixel) maps.
 `caribouPopGrowthModel`
 The `caribouPopGrowthModel` module builds upon the statistical relationship underpinning today’s national boreal caribou recovery
 strategy (Environment Canada 2011; 2012). The module recalculates the response variable of this relationship (caribou calf recruitment)
-on  a yearly time interval, and uses these data to determine the population growth rate, lambda (λ). 
+on  a yearly time interval, and uses these data to determine the population growth rate, lambda ($\lambda$).
 
 Specifically, boreal caribou recruitment (Rec) - the proportion of caribou cows:calves at winter survey periods - is best predicted by
 the total disturbance within a caribou study area (Environment Canada 2011; Table 55, model M3): 
 
-                                          $Rec ~ total disturbance$                                     Eq 2.
+$$Rec \sim total disturbance$$                                     Eq 2.
 
 The methods behind Eq 2. development can be read in Environment Canada 2011 (Appendix 7.6). The total disturbance within a study area
 is described as the “percent total non-overlapping fire and anthropogenic disturbance (500 m buffer on anthropogenic; reservoirs
@@ -609,14 +614,14 @@ study area for each time step, and are used as inputs for this statistical relat
 This module projects Eq 2 based off the the coefficients provided in (Environment Canada 2011; Table 56, model M3).
 
 This module uses annually calculated recruitment values to determine the caribou  population growth rate - the proportional change in
-population size (lambda; λ) - for each polygon in [Figure 2] and [Figure 3]. The population model used to estimate lambda on a yearly
+population size (lambda; $\lambda$) - for each polygon in [Figure 2] and [Figure 3]. The population model used to estimate lambda on a yearly
 time interval is well published for both caribou and other ungulates (Hatter and Bergerud 1991; McLoughlin et al. 2003; Sorensen et al.
 2006; Hervieux et al. 2014):
 
-                                            $λ = (1 - M)/(1 - Rec)$                 Eq 3.
+$$\lambda = (1 - M)/(1 - Rec)$$                 Eq 3.
 
 Where recruitment (Rec) only involves juvenile female caribou (and assumes a 50:50 sex ratio), and adult female mortality
-(M) is calculated as 1 - adult female survival (SadF). At each yearly time step λ is saved. This module outputs a plot of lambda, for
+(M) is calculated as 1 - adult female survival (SadF). At each yearly time step lambda is saved. This module outputs a plot of lambda, for
 each requested region or caribou planning area [Figure 2], [Figure 3], over the simulated time interval (100 years; 2010 through 2110).
 Please see the below assumptions for important information regarding these output plots.
 
@@ -674,7 +679,7 @@ projected variations in population size.
 # Intgrated modules components of Item 3: Community metrics, and an analysis of the Edehzhie
 
 
-\textcolor{blue}{comm_metricsNWT}: This module computes a series of avian community metrics based on the suite of species-level
+**comm_metricsNWT**: This module computes a series of avian community metrics based on the suite of species-level
                                    predicted abundance maps provided from the `birdsNWT` module. These community metrics were
                                    calculated on a 10 year interval. This module outputs a raster for each diversity metric of the
                                    current simulation year, along with a table of mean value for the Shannon diversity index, Simpson
@@ -686,14 +691,16 @@ There are four community metrics computed as part of the `comm_metricsNWT` modul
 1. Expected Species Richness:
 Expected Species Richness was estimated as the probability of occupancy based on the poisson distribution:
 
- $$ S: 1 - \exp^{\lambda}$$  
-where:  $$ exp^{-\lambda} = \frac{exp^{-\lambda}\lambda^k{}{k!} $$
+ $$ S: 1 - \exp^{\lambda}$$ 
+where:  
+$$ exp^{-\lambda} = \frac{exp^{-\lambda}\lambda^k}{k!} $$
 
 2. Shannon diversity index:
 This index assumes that individuals are randomly sample from an infinitely large community, and that all species are represented in the
 sample (Magurran 2004). 
 
- $$ H^' = - \sum_{i=1}^{S} p_ilnp_i $$
+ $$ H' = - \sum_{i=1}^{S} p_i lnp_i $$
+
 where: $$p_i$$ is the proportion of individuals found in  the _ith_ species.
 
 3. Simpson diversity index:
@@ -711,7 +718,7 @@ the same species meet.
 $$ \sum_{i=1}^{S-1} \sum_{j=i+1}^{S} d_ij* p_i* p_i$$
 
 Where: $$d_{ij}$$ is the difference between the _ith_ and _jth_ species. This difference is is estimated using functional
-attributes\for each species. In addition, Raos Quadratic Entropy incorporates two elements:
+attributes for each species. In addition, Raos Quadratic Entropy incorporates two elements:
 1. relative abundances of species, and 
 2. a measure of pairwise functional differences between species (Botta-Dukat 2005). For this second element, we used Life history
 traits as considered in Knaggs (2018). 
@@ -735,7 +742,7 @@ Future versions of the `comm_metricsNWT` module could include:
 
 
 <!-- TATI STILL TO ADD FIGURES AND TABLES -->
-\textcolor{blue}{Edehzhie}: For the third deliverable, we have repeated the analysis developed for the whole BCR6 within NWT territory
+**Edehzhie**: For the third deliverable, we have repeated the analysis developed for the whole BCR6 within NWT territory
                             described above, but only within the proposed area of Edehzhie. Bird species abundance (`birdsNWT`),
                             caribou population growth (`caribouPopGrowthModel`), and caribou and relative habitat selection
                             (`caribouRSFModel`) predictions from this polygon (area) were compared to predictions on three similar
@@ -954,7 +961,7 @@ species longevity parameters (obtained from LANDIS-II species traits tables). Th
 biomass (totalB) and species identity (speciesCode) and % cover, accounting for the random effect of combination of ecodistrict and LCC
 (ecoregionCode):
 
-$$age ~ totalB * speciesCode + % cover + (1 | ecoregionCode)$$  [Eq. 1]
+$$age \sim totalB * speciesCode + \% cover + (1 | ecoregionCode)$$  [Eq. 1]
 
 This model was then used to predict missing age values, bounded to 0 on the lower limit. 
 
@@ -969,7 +976,7 @@ ecoregionGroup on the intercepts. In this case, species % cover was treated as t
 pixels with cover > 0) per ecoregionGroup, thus following a binomial distribution that was account for in the model with a logit link
 function:
 
-$$logit(pi) ~ speciesCode + (1 | ecoregionGroup)$$ [Eq. 3]
+$$logit(pi) \sim speciesCode + (1 | ecoregionGroup)$$ [Eq. 3]
 
 where *pi* is the probability of finding a species (cover > 0) in an ecoregionGroup, in other words the proportion of pixels that it
 occupies.

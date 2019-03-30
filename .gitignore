@@ -53,4 +53,8 @@ outputs/
 inputs/
 ./outputs
 ./inputs
+*.html
+*.tex
+*.log
+!runMe_Updated_SamSteve.Rmd
 

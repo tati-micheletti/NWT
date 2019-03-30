@@ -1,24 +1,19 @@
 ---
-title: 'Simulation effects of climate change on fire regime: implications for Boreal
+title: 'Simulation effects of climate change on fire regime\: implications for Boreal
   Caribou and landbird communities in the Northwest Territories'
-authors: Tati Micheletti^1, Frances Stewart^2, Eliot McIntire^1,2, Ian Eddy^2,  Ceres
-  Barros^1, Jean Marchal^3, Diana Stralberg^4, Mario van Telgen^5, Ana Raymundo^5,
-  Alex Chubaty^6, Steve Cumming^5
-date: "Draft last revised 3/31/2019"
-# header-includes: 
-#         - \usepackage{color}
-#         - \usepackage{lmodern}
-#         - \usepackage[utf8]{inputenc}
-#         - \usepackage{bbm}
-#         - \usepackage{newtxtext,newtxmath} % Times Roman text and math fonts
-#         - \usepackage{mathptmx}
+subtitle: "Draft last revised 3/31/2019"
+author: Tati Micheletti\textsuperscript 1, Frances Stewart\textsuperscript 2, Eliot McIntire\textsuperscript {1,2}, Ian Eddy\textsuperscript 2,  Ceres
+  Barros\textsuperscript 1, Jean Marchal\textsuperscript 3, Diana Stralberg\textsuperscript 4, Mario van Telgen\textsuperscript 5, Ana Raymundo\textsuperscript 5,
+  Alex Chubaty\textsuperscript 6, Steve Cumming\textsuperscript 5
 output:
   pdf_document:
-          df_print: paged
-affiliations: ^1University of British Columbia, ^2 Natural Resources Canada, Canadian
-  Forest Service, ^3WavX Inc , ^4 University of Alberta, ^5Universite Laval, ^6fRI
+    df_print: paged
+  html_document:
+    df_print: paged
 toc: yes
 ---
+^[\textsuperscript University of British Columbia, \textsuperscript 2 Natural Resources Canada, Canadian
+  Forest Service, \textsuperscript 3WavX Inc , \textsuperscript 4 University of Alberta, \textsuperscript 5Universite Laval, \textsuperscript 6fRI]
 
 # Executive Summary
 
@@ -66,30 +61,30 @@ modules; there are are known as "parent modules" in SpaDES parlance. Each parent
 dynamics) or component (e.g. bird abundance predictions). For an overview of the concept of SpaDES modules, see
 https://cran.rproject.org/web/packages/SpaDES.core/vignettes/ii-modules.html. 
 The modules are structured as follows:
-![Figure 1. Module structure that composes the NWT project]
-(https://github.com/tatimicheletti/NWT/raw/master/inputs/ModelStructure_2.jpg)
+![Figure 1. Module structure that composes the NWT project](inputs/ModelStructure_2.jpg)
 
-<!-- TATI TO DOUBLE CHECK AND FINALIZE Note only 6 parents, not 8, are mentioned-->
 Running the full metadmodule for a 100 year simulation over the entire study area can take many days on a 1 TB, 50 core RAM Linux
-computer.
+computer. For the whole BCR 6 within the NWT, the following table indicates an average running time for each module group:  
 
 module                | approximate duration |
 :--------------------:|:--------------------:|
-LandR                 |  3.05 days           |
-scfm-fireSense        |                      | 
-anthropogenic         |                      |
-BirdsNWT              |  6.25 days           |
+LandR                 |  3.50 days           |
+LandR.CS (climate)    | ...to be determined  |
+scfm-fireSense        | ...to be determined  | 
+anthropogenic         | ...to be determined  |
+BirdsNWT (10 sp)      |  6.25 days           |
 caribouRSFModel       |  1.40 days           |
-caribouPopGrowthModel |  0.04 days           |
-comm_metricsNWT       |                      |
-Edehzhie              |                      |
-TOTAL DURATION        |                      |
+caribouPopGrowthModel |  3.50 days           |
+comm_metricsNWT       |   ...to determine    |
+Edehzhie (10 bird sp) |  3 days              |
+
 
 The structure and methods used for each one of the modules is as follows:
 
-
 <!--TATI TO REVIEW APPENDIX 1 AND ADD PARAMETERS-->
-**LandR**: `LandR` is a spatially explicit model of vegetation dynamics. It models the biomass of cohorts of tree species
+### **LandR**  
+
+`LandR` is a spatially explicit model of vegetation dynamics. It models the biomass of cohorts of tree species
                          within cells, which interact over a landscape by the process of seed dispersal. The `LandR` group of modules
                          is composed of one data treatment and parameterisation module, and a group of modules that simulate biomass
                          succession dynamics. The paramaters goverening biomass change are estimated for the study area specified. The
@@ -117,10 +112,9 @@ competition for light, seed dispersal and germination, regeneration following a 
 competition or distrubance.
 
 *Current limitations of the `LandR` module*
-<!--THIS IS CONTRADICTORY SC-->
+<!--THIS IS CONTRADICTORY SC --- IS IT BETTER NOW, Steve? ~ TM --> 
 The purpose of the module `Boreal_LBMRDataPrep` is to estimate parameters of the vegetation succession modules directly from data. This
-is done “automatically” should the data or study area change. At the moment, none of the modules within the `LandR` group
-automatically calibrate themselves. We have identified some limitations arising from this: 
+is done “automatically” should the data or study area change. However, this automatica parameter estimation has been tested in only a few places and there is still the need to test how this calibration is responding to new study areas. We have identified some limitations arising from this: 
 
 1. *Initial decrease in biomass in forested pixels*. Initial decreases in biomass during the first decades of the simulation are most
 likely due to starting ages (Canada national stand age map: "http://tree.pfc.forestry.ca/kNN-StructureStandVolume.tar") being too
@@ -151,10 +145,13 @@ reach quasi-equilibrium, before introducing the subsequent modules within this p
 mechanisms that limit tree growth in these areas (*i.e.* differences in growing season length, soil nutrient and water availability, or
 herbivory). Future versions of the `LandR` modules could (1) ignore this limitation and restrict simulation dynamics to currently
 forested pixels; (2) incorporate estimates for these mechanisms allowing `LandR` to predict for areas that do not correspond to purely
-forested areas; or (3) set a maximum biomass limit for `LandR` projections. These changes would address current `LandR` limitation #2.
+forested areas; or (3) set a maximum biomass limit for `LandR` projections. These changes would address current `LandR` limitation #2.  
 
+** Current state: ** Currently, LandR (non climate sentive) is working and has been tested in the whole BCR6/NWT. We do not present these results yet in the current report, as the species components haven't yet been integrated with this landscape simulation module. LandR.CS (climate sensitive tree growth and mortality) is in final testing phase for BC/Yukon before it will be tested in the BCR6/NWT area.
 
-**scfm-fireSense**: `scfm-fireSense` is a hybrid of two structurally similar landscape fire models, `scfm` and
+### **scfm-fireSense**  
+
+`scfm-fireSense` is a hybrid of two structurally similar landscape fire models, `scfm` and
                                   `fireSense`. In each model, wildfire is simulated as a process of fire ignition (or "arrival", the
                                   occurrence of a detected, recorded fire) and fire spread on a raster grid, in this case the 250m
                                   resolution extent determined by the model template `rasterToMatch`. The overall approach is a variant
@@ -228,7 +225,7 @@ containing all vegetation classes,  continually refined until no additional fuel
 fire ignition model. fireSense depends on a fueltype a classifier built within the XGBoost library (Chen and Guestrin 2016) that
 predicts fuel type from LandR vegetation state. Table 2 summarises the accuracy per land cover class for the validation dataset. The
 non-fuel class is equivalent to the distinction between flammable and nonflammable cells used in scfm, as described above.  Pixels are
-considered disturbed if the time since last disturbance is less than 16 years.
+considered disturbed if the time since last disturbance is less than 21 years.
 
 ![Table 1. Correspondence between the land cover classes used by `fireSense` and code from the Land Cover Map of Canada 2005]
 |Land cover class           | Land cover map of Canada 2005 original code(s)             |
@@ -302,13 +299,17 @@ landscape features such as rock outcrops, urban areas, and water.
 *Limitations of scfm-fireSense*
 The full version of the `fireSense` module has spatially and temporally variable spread parameters that vary with fueltype and annual
 fire weather. It was not possible to test the software needed to estimate these parameters within the scope of this contract.
-Therefore, `scfm-fireSense` is less sensitive to variation in vegetation and to changes in fire weather than the completet fireSense
+Therefore, `scfm-fireSense` is less sensitive to variation in vegetation and to changes in fire weather than the complete fireSense
 model would be. Experience shows, however, that the vegetation and climate sentitivity of the ignition and escape modules produces
 allready considerable spatial and temporal variation in patterns of area burned.
+Currently, we are integrating LandR and scfm-fireSense, as well as LandR.CS and scfm-fireSense to allow for climate sensitivity.  
+
+** Current state: ** While scfm has been tested and calibrated for the BCR6/NWT (results not shown as species haven't yet been integrated with this module and LandR) and integrated with LandR, scfm-fireSense-LandR integration is still being implemented. after this implementation, scfm-fireSense will be implemented with LandR.CS, bringuing a bigger spectrum of climate sensitivity to the species predictions.  
 
 
+### **anthropogenic**  
 
-**anthropogenic**: The `anthropogenic` parent module aims to represent current and project future anthropogenic
+The `anthropogenic` parent module aims to represent current and project future anthropogenic
                                  disturbances, and to produce metrics of anthropegenic disturbance as required by other modiles. These
                                  metrics include:
 
@@ -404,9 +405,11 @@ each feature class.
 9. The ability to vary the buffer widths by feature class, which would allow testing of the effect of buffer sizes on caribou
 recruitment and population growth rate.
 
+** Current state: ** Currently, both caribou RSF and Population growth predictions are using a static disturbance layer that doesn't contain the McKenzie Valley Highway (MVH) disturbances as this last has not yet been finalized.  
 
 <!-- HERE DOWN STILL NEEDS STEVE'S EDITS-->
-**birdsNWT**: This module projects species abundance of bird species under forecasted landscape and climate
+### **birdsNWT**  
+This module projects species abundance of bird species under forecasted landscape and climate
                             conditions. The module develops boosted regression tree (BRT) models from avian point-count data and
                             associated covariates using the gbm.step function in the ‘dismo’ package (Hijmans et al. 2011) with a
                             Poisson distribution and 10-fold cross-validation. BRT settings are as recommended by Elith et al. (2008)
@@ -424,7 +427,7 @@ were calculated according to methods described in Sólymos et al. (2013), and we
 is similar to detectability by human observers (Yip et al. 2017).
 
 Bird models were based on a restricted set of covariates that were either (a) assumed static over time or (b) direct outputs of the
-`LandR` biomass module. We intentionally excluded climate covariates that also drive changes in vegetation and fire, given the assumed
+`LandR` biomass module, and `scfm` or `scfm-fireSense`. We intentionally excluded climate covariates that also drive changes in vegetation and fire, given the assumed
 lag in vegetation response to climate, and associated statistical decoupling of these covariates over time (Figure 1).
 
 Model covariates assumed static through simulation periods included the following landcover covariates derived from  the Comission for
@@ -457,7 +460,7 @@ Populus tremuloides*
 
 Models were developed for 71 passerine and near-passerine species that a) currently breed either in the Northwest Territories or
 Alberta portions of BCR 6, b) for which density offsets were available, and c) for which data were sufficient to fit cross-validated
-BRTs (see list below). For this project simulations were generated for 10 species, including:
+BRTs (see list below). For this project, predictions were performed for 10 species, including:
  
 OVEN    Ovenbird (*Seiurus aurocapilla*)
 AMRE    American Redstart (*Setophaga ruticilla*)
@@ -468,7 +471,7 @@ FOSP    Fox Sparrow (*Passerella iliaca*)
 WCSP    White-crowned Sparrow (*Zonotrichia leucophrys*)
 RUBL    Rusty Blackbird (*Euphagus carolinus*)
 RCKI    Ruby-crowned Kinglet (*Regulus calendula*)
-OSFL     Olive-sided Flycatcher (*Contopus cooperi*)
+OSFL    Olive-sided Flycatcher (*Contopus cooperi*)
 
 
 *Important assumptions of the `birdsNWT` module*
@@ -517,15 +520,17 @@ Sparrow (*Zonotrichia albicollis*), White-winged Crossbill (*Loxia leucoptera*),
 Yellow-bellied Flycatcher (*Empidonax flaviventris*), Yellow-rumped Warbler (*Setophaga coronata*), Yellow Warbler (*Setophaga
 petechia*) 
 
- 
- 
-**caribou**: The `caribou` module is composed of two main modules:  `caribouRSFModel` and `caribouPopGrowthModel`. Each
+** Current state: ** This module is completely functional, but depends on the model objects being accessed and loaded in R for the predictions. The fully reproducible workflow (i.e. statistical model + predictions) might be incorporated in the future.
+
+
+### **caribou**  
+The `caribou` group of modules is composed of two main ones:  `caribouRSFModel` and `caribouPopGrowthModel`. Each
                            module loads existing glms developped by Environment Canada 2011 to project caribou occurrence and
                            demographics over 100 years as the anthropogenic (`anthropogenic` module), fire (`FireSense` module), and
-                           natural features (`LandR` module) of the NWT BCR6 region (i.e. Taiga plains) changes. Combined, these
+                           natural features (`LandR` module) of the NWT BCR6 region (i.e. Taiga plains) change. Combined, these
                            modules incorporate existing statistical relationships, with simulated landscape predictions, to produce the
                            probability of occurrence, and population growth rate, of Woodland caribou (boreal population) within the
-                           NWT. 
+                           BCR6/NWT. 
 
 `caribouRSFModel`
 The statistical relationship between caribou telemetry collars and the landscape has been summarized within the Environment Canada 2011
@@ -549,13 +554,15 @@ Model covariates were assumed to either be static, or were obtained from other m
 4  Deciduous (dynamic; `LandR`)
 5  Shrub (static; LCC05)
 6  Herb (static; LCC05)
-7  Water (static; LCC05)
-8  RecentBurn (dynamic;  `FireSense`)
-9  OldBurn (dynamic; `FireSense`)
+7  Water (static; DucksUnlimited)
+8  RecentBurn (dynamic;  `scfm-fireSense`/`scfm`)
+9  OldBurn (dynamic;  `scfm-fireSense`/`scfm`)
 
 This module determines the relative habitat selection of caribou based on each of the above habitats on a yearly time step. This
 module produces a rasterized map of this relative selection across the NT1 Boreal Caribou Range (i.e. BCR6 within the NWT) for every 10
-years of the simulation. Options include outputting maps for range planning regions outlined in either Figure 2 and/or Figure 3.
+years of the simulation, as well as an uncertainty map of the relative selection (i.e. standard deviation of the mean
+relative selection at each pixel).
+
 
 *Important assumptions of the `caribouRSFModel` module*
 1. Caribou are distributed in an ideal free distribution across the Taiga plains (Fretwell and Lucas 1970).
@@ -575,21 +582,12 @@ monitoring impacts of natural resource development projects, or other motives.
 6. Caribou do not display season-specific habitat selection; the RSF model used here is based off of annual caribou ccurrences. It does
 not account for seasonal variations.
 
-7. OldBurns are considered to be anything older than 40 years. We assume that OldBurns are between 41 and 93 years old, as this would
-have been the maximum time since fire that was quantifiable in Environment Canada 2011 (Appendix 7.3, section 5.3;1917 to 2010). 
+7. OldBurns are considered to be anything older than 40 years. We assume that OldBurns are above 41 (Environment Canada 2011, Appendix 7.3, section 5.3;1917 to 2010). 
 
 
-Future versions of the `caribouRSFModel` module could incorporate;
+Future versions of the `caribouRSFModel` module could;
 1. Incorporation of the national realized caribou RSF model (Environment Canada 2011; Table 43) which has higher predictive capacity
-than the Taiga Plains RSF modeled here. 
-
-2. Future model outputs could be based off of the regional planning units specified in:
-![Figure 2. Boreal caribou NT1 range planning regions 2018]
-(https://github.com/tatimicheletti/NWT/blob/master/Boreal_caribou_NT1_range_planning_regions_2018.jpg)
-![Figure 3. Units for ECCC modeling project 2019]
-(https://github.com/tati-micheletti/NWT/blob/master/Units_for_ECCC_modeling_project_2019.jpg)
-The outputs could involve both relative selection, and uncertainty of the relative selection (i.e. standard deviation of the mean
-relative selection at each pixel) maps.
+than the Taiga Plains RSF modeled here. That depends on the preparations of several extra layers for prediction.
 
 
 `caribouPopGrowthModel`
@@ -604,12 +602,12 @@ $$Rec \sim total disturbance$$                                     Eq 2.
 
 The methods behind Eq 2. development can be read in Environment Canada 2011 (Appendix 7.6). The total disturbance within a study area
 is described as the “percent total non-overlapping fire and anthropogenic disturbance (500 m buffer on anthropogenic; reservoirs
-removed)" (Environment Canada 2011, Table 54). Fire is measured as “percent fire > 40 years old” within a caribou study area and
+removed)" (Environment Canada 2011, Table 54). Fire is measured as “percent fire < 40 years old” within a caribou study area and
 anthropogenic is measured as “percent non-overlapping anthropogenic disturbance (500 m buffer)” within a caribou study area
-(Environment Canada 2011; Table 52). This module uses the rasterized output maps of both the `FireSense` (climate sensitive), and
-`anthropogenic` module. These map the presence/absence of fire < 40 years old, or anthropogenic disturbances, at each 250 m x 250m
+(Environment Canada 2011; Table 52). This module uses the rasterized output maps of the `fire` module, and
+`anthropogenic` modules. These map the presence/absence of fire < 40 years old, or anthropogenic disturbances, at each 250 m x 250m
 pixels. These rasterized maps were over-layed, were used to calculate the percent non-overlapping total disturbance within a caribou
-study area for each time step, and are used as inputs for this statistical relationship (Eq 2.).
+study area for each time step (i.e. annual), and are used as inputs for this statistical relationship (Eq 2.).
 
 This module projects Eq 2 based off the the coefficients provided in (Environment Canada 2011; Table 56, model M3).
 
@@ -622,8 +620,8 @@ $$\lambda = (1 - M)/(1 - Rec)$$                 Eq 3.
 
 Where recruitment (Rec) only involves juvenile female caribou (and assumes a 50:50 sex ratio), and adult female mortality
 (M) is calculated as 1 - adult female survival (SadF). At each yearly time step lambda is saved. This module outputs a plot of lambda, for
-each requested region or caribou planning area [Figure 2], [Figure 3], over the simulated time interval (100 years; 2010 through 2110).
-Please see the below assumptions for important information regarding these output plots.
+each requested region or caribou planning area [Figure 2](Boreal_caribou_NT1_range_planning_regions_2018.jpg), [Figure 3](Units_for_ECCC_modeling_project_2019.jpg), over the simulated time interval (100 years; 2010 through 2110).
+<!-- Please see the below assumptions for important information regarding these output plots. -->
 
 *Important assumptions of the `caribouPopGrowthModel` module*
 1. The statistical relationship between recruitment and the landscape described by Environment Canada is the correct
@@ -643,43 +641,35 @@ Range Planning Regions’ and requested ‘Units for ECCC modeling projects’);
 from one another.
 
 
-Future versions of the `caribouPopGrowthModel` module could address many of the above assumptions. An updated module could
-incorporate;
-1. Incorporation of seismic lines as part of the `anthropogenic` module to ensure that the effect of future seismic lines
-affects caribou recruitment, as assumed in Environment Canada 2011.
-
-2. Revised caribou study areas (or local population units - the recommended scale of population management; Environment
+Future versions of the `caribouPopGrowthModel` module could address many of the above assumptions. An updated module could propose;
+1. Revised caribou study areas (or local population units - the recommended scale of population management; Environment
 Canada 2012), demographic values, and/or statistical models to incorporate contemporary data under updated data sharing
 agreements.
 
-3a. Flexibility to test multiple top statistical models presented in Environment Canada 2011 ( i.e. rather than solely Eq 3.; Table 55,
+2a. Flexibility to test multiple top statistical models presented in Environment Canada 2011 (i.e. rather than solely Eq 3.; Table 55,
 Table 56) or future reports.
 
-3b. The output of the `caribouRSFModel` as a predictor in the `caribouPopGrowthModel` statistical model. This would explicitly
+2b. The output of the `caribouRSFModel` as a predictor in the `caribouPopGrowthModel` statistical model. This would explicitly
 link these two modules by using high quality habitat as a predictor of caribou recruitment  (sensu Environment Canada 2011,
 Table 55, model M12).
 
-4. A statistical relationship between recruitment and landscape change that is specific to the NWT (addressing assumption #
+3. A statistical relationship between recruitment and landscape change that is specific to the NWT (addressing assumption #
 1 above).
 
-5. A statistical relationship between adult female survival and landscape change that is specific to the NWT (addressing
+4. A statistical relationship between adult female survival and landscape change that is specific to the NWT (addressing
 assumption # 2 above).
 
-7. Incorporation of a caribou population model that is both logistic (i.e. density dependent) and/ or stochastic to look at
-projected variations in population size. 
+5. Incorporation of a caribou population model that is both logistic (i.e. density dependent) and/ or stochastic to look at
+projected variations in population size.
 
-#### Outputs from `caribouPopGrowthModel` 
-
-#### Figure: Annual plot of projected lambda across each requested study region of the NWT. 
-
-#### Figure: Annual plot of projected lambda uncertainty across each requested study region of the NWT. Uncertainty is measured for each study region as the standard deviation of the projected lambda values.
+** Current state: ** Both these modules are completely functional, and currently depend only on having outputs from LandR and a fire model.
 
 
+## Intgrated modules components of Item 3: Community metrics, and an analysis of the Edehzhie
 
-# Intgrated modules components of Item 3: Community metrics, and an analysis of the Edehzhie
 
-
-**comm_metricsNWT**: This module computes a series of avian community metrics based on the suite of species-level
+###**comm_metricsNWT**   
+This module computes a series of avian community metrics based on the suite of species-level
                                    predicted abundance maps provided from the `birdsNWT` module. These community metrics were
                                    calculated on a 10 year interval. This module outputs a raster for each diversity metric of the
                                    current simulation year, along with a table of mean value for the Shannon diversity index, Simpson
@@ -737,24 +727,26 @@ Future versions of the `comm_metricsNWT` module could include:
 
 2. Outputs for each community metric that are specific to different study areas (e.g. specific to different caribou study areas).
 
-3. Species turnover based on community dissimilatiry that considers different climate change scenarios (sensu Stralberg et al. 2009)
+3. Species turnover based on community dissimilarity that considers different climate change scenarios (sensu Stralberg et al. 2009)
 
 
-
-<!-- TATI STILL TO ADD FIGURES AND TABLES -->
-**Edehzhie**: For the third deliverable, we have repeated the analysis developed for the whole BCR6 within NWT territory
-                            described above, but only within the proposed area of Edehzhie. Bird species abundance (`birdsNWT`),
+### **Edehzhie**
+For the third deliverable, we have repeated the analysis developed for the whole BCR6 within NWT territory
+                            described above, within the proposed area of Edehzhie. Bird species abundance (`birdsNWT`),
                             caribou population growth (`caribouPopGrowthModel`), and caribou and relative habitat selection
-                            (`caribouRSFModel`) predictions from this polygon (area) were compared to predictions on three similar
-                            areas randomly located north, west, and south of the Edehzhie area. These results are presented below.
+                            (`caribouRSFModel`) predictions from this polygon (area) were compared to predictions on two similar
+                            areas randomly located north and south of Edehzhie. These results are presented below.
 
-#### Figure: One bird species example, 10 plots of prediction for the three areas one next to the other (gif for html/all other species)
+#### Figure 4: `LandR` biomass simulation per species per decade. Average biomass in tons/ha.
+[Figure 4](outputs/19MAR19/averageBiomassHaV3_29MAR19.png)
 
-#### Figure: Caribou population growth on the three areas
+#### Figure 5: Ovenbird (OVEN) and American Redstart (AMRE) abundance prediction without climate sensitive vegetation (`LandR`) or fire (`scfm`).
+<!-- [Figure 5]() TO ADD WHEN IN BC! -->
 
-#### Figure: RSF over the three areas
+#### Figure 6: Caribou population growth on the three areas.
+<!-- [Figure 6]()TO ADD WHEN I FINISH RUNNING LANDR + SCFM + CARIBOU -->
 
-#### Table: Summarized RSF mean values
+#### Figure 7: RSF over the three areas.
 
 
 # Intgrated modules final component of Item 3: Species co-occurrence
@@ -762,45 +754,43 @@ As requested deliverable of this project was to conduct species co-occurrence an
 conservation claues of multi-species conservation planning throughout the simulation period. Results from this type of anlysis could
 help inform land use planning and conservation efforts in the study area.
 
-Future versions of this project could incorporate this species co-occurrence deliverable one the other module components are fully
-tested. This will be completed for a manuscript, and is subject to (1) greater precision of the above mentioned modules, and the
+Future versions of this project could incorporate this species co-occurrence deliverable once the other module components are fully
+tested. This will be completed for a manuscript, and is subject to (1) greater precision of the above mentioned modules, and (2) the
 finalized set of bird Species At Risk for which models can be fit (see `birdsNWT`).
 
 To best perform this analysis we require more information on the objective of the analysis. For example, how is multi-species co
 occurence of birds and caribou to be measured, and over what spatial units?
 
 
-<!--First draft, I'd appreciate comments from others on this-->
 # Concluding remarks
-## From data to decisions in SpaDES: an integrated projection project for the Northwest Territories
+## Data to decisions: an integrated landscape multispecies forecasting project for the Northwest Territories with SpaDES
 
 This project represents a first in data integration and decision making of natural resources; it combines state of the art models from
-multiple ecological fields over an extensive spatial area to forecast vertebrate ecology. As such, the project represents a powerful
-tool for natural resource decition making, but also demonstrates the intensive collaborative ability of ecologists to work
-simultaneously on a national project. Finally, the project is open source and repeatable - the basic requirements to hold science
-accountable and a must for the, sometimes controversial, natural resource desitions required both today and in future.
+multiple ecological fields over an extensive spatial area to forecast vertebrate ecology. As such, the project's outputs represent a powerful
+tool for natural resource decision making. It also demonstrates the intensive collaborative ability of ecologists to work
+simultaneously on a national project. Finally, the project is open source and reproducible - the basic requirements to hold science
+accountable and a must for the, sometimes controversial, natural resource decisions required both today and in future.
 
-Recovering Species at Risk is mandated nationally under the federal Species at Risk Act, and internationally under the United Nationas
+Recovering Species at Risk is mandated nationally under the federal Species at Risk Act, and internationally under the United Nations
 Convention on Biological Diversity Aichi Target 1. However, the ideal location and strategies required to recover species may vary with
 spatial and temporal landscape change. These strategies may also require tradeoffs in natural resource development such as altered
 anthropogenic landuses (mining, oil and gas, forestry) with conservation strategies (such as protected areas). The ideal location and
 configuration of such spatial tradeoffs are best evaluated if we can anticipate landscape change, and the effect of this change on
-species abundance and demography, in the future. Here, we take a first step to integrating all of this information,and provide
-relecavant results for boreal bird, and woodland boreal caribiou, species - listed under the Species at Risk Act. The structure of this
-integrative project could be repeated for other Species at Risk, and represents an important step towards species conservation
-considering future, rather than current or past, landscape considerations.
+species abundance and demography, in the future. Here, we take a first step to integrating all of this information, and provide
+relevant results for boreal bird and woodland boreal caribou species - listed under the Species at Risk Act. The structure of this
+integrative project could be repeated for other regions and Species at Risk, and represents an important step towards species conservation
+using state-of-the-art models and data, and considering future landscape changes, rather than current or past.
 
 Ensuring science is repeatable, adaptable, and open allows applied disciplines to ensure they progress under an adaptive management
-framework. Discrete event simulation modeling that is scheduled, through platforms such as SpaDES, ensure that assumptions can be built
-upon in an open and repeatable way that enhances projections through time. Within this project we have provided the required bird
+framework. Discrete event simulation modeling that is scheduled, based on platforms such as SpaDES, ensure that assumptions can be built
+upon in an open and repeatable way that enhances projections through time as well as transparency. Within this project we have provided the required bird
 species abundance models, caribou occurence, and caribou population growth rates using SpaDES to ensure that the project can
 continually improve, the projections can be refined, and natural resouce decisions can be adapted to anticipate policy, economic,
 ecological, or climate driven changes that are bound to crop up over time. The reported project represents the cutting edge in
 integrated decision making, with ramification for Canada's national and international policy commitments to our natural resources.
 
 
-<!--STILL TO DOUBLE CHECK FOR INCLUSION IN TEXT AND VICE VERSA--> 
-# Literature cited 
+## Literature cited 
 Araújo, M. B., W. Thuiller, P. H. Williams and I. Reginster. 2005. Downscaling European species atlas distributions to a finer
 resolution: implications for conservation planning. Global Ecology and Biogeography, 14(1):17-30.
 

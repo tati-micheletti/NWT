@@ -541,38 +541,38 @@ should be incorporated in the next version of this product.
 
 ### **caribou**  
 The `caribou` group of modules has two main components:  `caribouRSFModel` and `caribouPopGrowthModel`. Each
-                           module applies statistical models developed by Environment Canada (2011) to project caribou occurrence and
-                           demographics over 100 years. The statistical models respond to the amount and location of 
+                           module applies Environment Canada's (2011) 
+                           statistical models to forecast caribou occurrence and
+                           demographics. The statistical models respond to the amount and location of 
                            landscape disturbances due to anthropogenic processes (`anthropogenic` module) and 
                            wildfire (`scfm-FireSense` module), and to the state of vegetation (`LandR` module).
                            Caribou occurrence is modeled as the probability of habitat selection at the pixellevel. 
                            Population parameters are calculated over specified regions that could be interpreted 
                            as herd or subpopulation ranges.                          
                            The specific statistical models selected were those approporiate to 
-                           our study area of BCR6 in the NWT, which corresponds closely to the Taiga Plain ecozone.       
+                           our study area of BCR6 in the NWT, which corresponds closely to the Taiga Plains ecozone.       
 
 `caribouRSFModel`
-The statistical relationships between caribou locations detectect by telemetry and habitat characteristics have been 
+The statistical relationships between caribou telemetry locations and habitat characteristics have been 
 summarized (Environment Canada 2011) by resource selection function (RSF) models (sensu Manly et al. 2002) 
 for various parts of Canada, under alternate hypothesis on the importance of various environmental characteristics. 
 We used the top RSF model for the Taiga Plains ecozone (Environment Canada 2011; Table 46). This model was estimated 
 from carobou location data collected from 24 Alberta, 50 British Columbia,
 and 169 NWT collared adult female caribou between 2000 and 2010 (Environment Canada 2011; Table 39).
+The analysis used a habitat use-abailabilty design, so the RSF models predict relative, not absolute, selection probability (Manly et al. 2002)
 
-According to the selected RSF model, relative probabilities of habitat selection by adult, female, boreal caribou are best described by
-
+According to the RSF model we selected, relative probabilities of habitat selection by adult, female, boreal caribou 
+are best described by
 
 $$selection probability  ~ Elevation + Elevation^2 + Vrug + Vrug^2 + RoadDensity + Deciduous + Shrub +            
                                                    Herb + Water + RecentBurn + OldBurn$$ Eq.1
 
 The definitions and units of measurement for each covariate can be found in Table 40 of Environment Canada (2011). 
-The methods behind model development can be found in Environment Canada (2011) Appendix 7.3. 
-Note that the RSF model predicts relative selection probability, rather than absolute probability, 
-as a use-available design was used (Manly et al. 2002)
+The methodology is described in Appendix 7.3 of Environment Canada (2011). 
 
-Model covariates were either static or dynamic. Static covariates were determined by initial conditions. Dynamic covariates were
-determined by raster layers maintained by one or other of the ecological process modules. 
-Covariate types and sources are given in the following table: 
+
+The model includes most static and dynamic covariates. Static covariates were determined from initial conditions. Dynamic covariates were
+derived from raster layers maintained by one or other of the ecological process modules. Covariate types and sources are given in the following table: 
 
 1.  Elevation (static; AdaptWest)
 2.  Vrug (static; adapted from AdaptWest sensu Sappington et al. 2007)
@@ -586,33 +586,30 @@ Covariate types and sources are given in the following table:
 
 <!-- RecentBurn and OldBurn should be derived from an age map -->
 
-The RSF model is applied on a yearly (or decadal?) time step. The output is a raster layer of resouce selection probabilities across the study area. A measure of model prediction error is also produced.
+The RSF model is applied on a yearly time step. The output is a raster layer of relative resource selection probabilities across the study area. A measure of model prediction error is also produced.
 <!-- more details needed -->.
 
 *Important assumptions of the `caribouRSFModel` module*
 1. Caribou are distributed in an ideal free distribution (Fretwell and Lucas 1970).
 
-2. Resource selection probability is positivey correlated with population fitness and population density (Manly et al. 2002). .
+2. Resource selection probability is positivley correlated with population fitness and population density (Manly et al. 2002). .
 
 3. The RSF model reliably predicts the relative probability of occurrence for
-woodland boreal caribou. See section 6.2.4 of Environment Canada 2011 for reasons this assumption may be violated.
+woodland boreal caribou. See Section 6.2.4 of Environment Canada (2011) for reasons why this assumption may be violated.
 
-4. Shrub and Herbacious landcover remains constant across the simulation period (2010 to 2110) independent of fire, succession,
-or other landscape change processes.
+4. Shrub and Herbacious landcover remains constant over the simulation period (2010 to 2110), independent of fire, succession,
+or other processes.
 
-5. Caribou VHF collar data is not biased - caribou were randomly, and opportunistically, collared. Caribou were not collared for
-monitoring impacts of natural resource development projects, or other motives.
+5. Caribou location data are unbiased. 
 
-6. Caribou do not display season-specific habitat selection; the RSF model used here is based off of annual caribou ccurrences. It does
-not account for seasonal variations.
+6. Caribou do not display seasonal habitat selection; the RSF model used here is based on annual caribou ccurrences. Data were not stratified by season. 
 
-7. OldBurns are considered to be anything older than 40 years. We assume that OldBurns are above 41 (Environment Canada 2011, Appendix 7.3, section 5.3;1917 to 2010). 
+#7. OldBurns are considered to be anything older than 40 years. 
+#We assume that OldBurns are above 41 (Environment Canada 2011, Appendix 7.3, section 5.3;1917 to 2010). 
+<!-- these two sentences are inconsisent, also not really assumptions SC-->
 
 
-Future versions of the `caribouRSFModel` module could;
-1. Incorporation of the national realized caribou RSF model (Environment Canada 2011; Table 43) which has higher predictive capacity
-than the Taiga Plains RSF modeled here. That depends on the preparations of several extra layers for prediction.
-
+Future versions of the `caribouRSFModel` module could consider using the national RSF model (Environment Canada 2011; Table 43) which has higher prediction reliability than the Taiga Plains RSF modeled here. However this would require statistical prediction of some dynamic covariates such as Net Primary Production, which would introduce possibly large new sources of forecast error.
 
 `caribouPopGrowthModel`
 The `caribouPopGrowthModel` module builds upon the statistical relationship underpinning today’s national boreal caribou recovery

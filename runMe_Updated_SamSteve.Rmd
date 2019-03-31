@@ -945,7 +945,10 @@ http://dx.doi.org/10.5751/ACE00997-120111
 # Appendix 1
 ## `LandR` vegetation parameter estimates for Bird Conservation Region (BCR) 6
 
+<!--Tati Ignore
 maxB, aNPP and SEP per species and ecodistrict-land cover combination
+-->
+### This section is in progress.
 
 `Boreal_LBMRDataPrep` uses available data on species percent cover (% cover), stand age, total biomass, ecodistricts and land cover
 class (LCC) (see `LandR` documentation for product links) to estimate species-specific parameters of maximum biomass (maxB), seed
@@ -997,8 +1000,10 @@ tables). Remaining parameters, i.e. species traits, were obtained from LANDIS-II
 consulted in Table A1
 
 <!--TATI TO ADD TABLE HERE-->
-Other parameters
+Complete tables for all estimated parameters will be added to a later version.
+<!--
 [Table A1: Species trait values and estimated values of seed establishment probability (establishprob), maximum biomass (maxB) and maximum aboveground net primary productivity (maxANPP) by combination of ecodistrict and land-cover class (ecoregionGroup)]
+!>
 
 The `Biomass_regeneration` module simulates post-disturbance regeneration, in this case after fire events, assuming stand-replacing
 fires. In each burnt pixel, the module resets pixel biomass to 0 and activates post-fire resprouting and, or, serotiny depending on

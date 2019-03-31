@@ -565,7 +565,7 @@ According to the RSF model we selected, relative probabilities of habitat select
 are best described by
 
 $$selection probability  ~ Elevation + Elevation^2 + Vrug + Vrug^2 + RoadDensity + Deciduous + Shrub +            
-                                                   Herb + Water + RecentBurn + OldBurn$$ Eq.1
+                                                   Herb + Water + RecentBurn + OldBurn$$ [Eqn. 1]
 
 The definitions and units of measurement for each covariate can be found in Table 40 of Environment Canada (2011). 
 The methodology is described in Appendix 7.3 of Environment Canada (2011). 
@@ -615,13 +615,13 @@ Future versions of the `caribouRSFModel` module could consider using the nationa
 #### `caribouPopGrowthModel`
 The `caribouPopGrowthModel` is based on the statistical relationships between landscape condition and demographic parameters 
 that underpin Canada's national boreal caribou recovery strategy (Environment Canada 2011; 2012). The critical demographic paramater is 
-the annual calf recruitment ($Rec$) rate of caribou calves per adult female. 
+the annual calf recruitment rate ($R$) of caribou calves per adult female. 
 This is estimated from the observed ratio of caribou cows to calves during winter durvey periods. 
 The data are estimated for "caribou ranges", in effect the various spatial units over which the young-at-heel surveys were conducted. 
 The best statistical model of these data (Environment Canada 2011; Table 55, Model M3) was found to be
 <!-- is it Table 55 or 56? -->
 
-$$Rec \sim total disturbance,$$   Eq 2.
+$$R \sim total disturbance,$$   [Eqn.  2]
 
 where "total disturbance" over a "range" area is “the percent total non-overlapping fire and anthropogenic disturbances
  (Environment Canada 2011, Table 54). 
@@ -630,14 +630,14 @@ where "total disturbance" over a "range" area is “the percent total non-overla
  `Fire disturbance` in the proportional area burned within the past 40 years.
  For methodological details, see Appendix 7.6 of Environment Canada (2011) (Appendix 7.6).
  
-$Rec$ is predicted over each polygon within the two coverages shown in [Figure 2] and [Figure 3]. The total disturbance covariate is calculated for each polygon from raster laters maintained by the `scrm-fireSense` and `anthropogenic` modules. These rasters are overlad and summed to calculate the percentage non-overlapping area of total disturbance within each polygon. The calculation is annual.
+$R$ is predicted over each polygon within the two coverages shown in [Figure 2] and [Figure 3]. The total disturbance covariate is calculated for each polygon from raster laters maintained by the `scrm-fireSense` and `anthropogenic` modules. These rasters are overlad and summed to calculate the percentage non-overlapping area of total disturbance within each polygon. The calculation is annual.
 
 The demographic parameter actually reported for each polygon is the estimated annual per-capita population growt rate $\lambda$. 
 Assuming a two-stage population structure of adult females and juveniles, we can calculate
 
-$$\lambda = (1 - M)/(1 - Rec)$$                 Eq 3.
+$$\lambda = (1 - M)/(1 - R),$$  [Eqn. 3]
 
-where $Rec$ is juvenile female recruitment as predicted from Eq. 2, and $M = 1-S$ where $S$ is the adult female survivorship. 
+where $R$ is juvenile female recruitment as predicted from Eq. 2, and $M = 1-S$ where $S$ is the adult female survivorship. 
 We assume fixed $S=0.85$. We report $\lambda$ periodically for the regions in
 [Figure 2](Boreal_caribou_NT1_range_planning_regions_2018.jpg), and [Figure 3](Units_for_ECCC_modeling_project_2019.jpg). 
 We note that any desired reporting units could be accomodated given the appropriate shapefile. 
@@ -677,7 +677,7 @@ outputs from LandR and a landscape fire model. It remains to evaluate the result
 ecologica realism.  
 
 
-## Integrated modules components of SOW Item 3: Community metrics, and an analysis of the Edehzhie
+## Integrated modules component of SOW Item 3: Community metrics, and an analysis of the Edehzhie
 
 
 ### `comm_metricsNWT`  
@@ -712,7 +712,7 @@ species (Magurran 2004).
 
 $$ \sum_{i=1}^{S-1} \sum_{j=i+1}^{S} d_ij* p_i^2,$$
 
-where $d_{ij}$ is the ecological distance between species $i$ and $j$ as measured in trait-space (Botta-Dukat 2005, Knaggs 2018). 
+where $d_{ij}$ is the ecological distance between species $i$ and $j$ as measured in trait-space (Botta-Dukat 2005, Knaggs 2018), 
 and $p_i$ is the proportion of individuals of species $i$ among all individuals present. 
 
 *Current limitations of the `comm_metricsNWT` module*
@@ -723,20 +723,21 @@ the degree of difference between species. They do not account for differences in
 
 
 Future versions of the `comm_metricsNWT` module could include:
-1. Additional species richness estimates (e.g. Cowel, Clench , or Chao 1; Gotelli and Colwell 2011)
+1. Additional species richness estimates (e.g. Cowel, Clench , or Chao; Gotelli and Colwell 2011)
 
 2. Different choices of reporting regions, or multiple regionalisations, as for the caribou modules.
 
-3. Species turnover based on community dissimilarity under alternate landuse or climate scenarios (sensu Stralberg et al. 2009)
+3. Species turnover based on community dissimilarities under alternate landuse or climate scenarios (sensu Stralberg et al. 2009)
 
 
 ### **Edehzhie**
-For the third deliverable, we have repeated the analysis developed for the whole BCR6 within NWT territory
-                            described above, within the proposed area of Edehzhie. Bird species abundance (`birdsNWT`),
+For the third deliverable, we have conducted a limited multi-species analysis over 
+the proposed Edehzhie potected area. Over this region, we calculated Bird species abundance (`birdsNWT`),
                             caribou population growth (`caribouPopGrowthModel`), and caribou and relative habitat selection
-                            (`caribouRSFModel`) predictions from this polygon (area) were compared to predictions on two similar
-                            areas randomly located north and south of Edehzhie. These results are presented below.
-
+                            (`caribouRSFModel`). We caclulated these same indicators for two other nearby polygons of the same
+                            size and shape. The purpose was to assess the performance of the proposed 
+                            new potected areas with respect to these indicators.
+                           
 #### Figure 4: `LandR` biomass simulation per species per decade. Average biomass in tons/ha.
 ![Figure 4](outputs/19MAR19/averageBiomassHaV3_29MAR19.png)
 
@@ -745,7 +746,8 @@ For the third deliverable, we have repeated the analysis developed for the whole
 ![Figure 5](outputs/28MAR19/BirdPredictionExample.png)
 
 <!-- Steve, please double check the caption -->
-#### Figure 6: Caribou population growth projected for the shapefiles provided by ECCC: `Boreal caribou NT1 range planning regions 2018` and the `Units for ECCC modeling project 2019` for the first four years of simulation (2011-2014) as a sample of the preliminary results.
+#### Figure 6: Caribou population growth rates.
+These figures show forecast demographic paramaters with standard errors for the two sets of reporting regions provided `Boreal caribou NT1 range planning regions 2018` and the `Units for ECCC modeling project 2019`. Results are shown for the first four years of the simulation period only, as a sample of the preliminary results.
 [Figure 6a](outputs/28MAR19/Area1.png)
 [Figure 6b](outputs/28MAR19/Area2.png)
 
@@ -760,17 +762,10 @@ For the third deliverable, we have repeated the analysis developed for the whole
 #### Table 2: Community metrics for the three areas.
 <!-- [Table 2]()TO ADD WHEN I FINISH COMM METRICS -->
 
-# Intgrated modules final component of Item 3: Species co-occurrence
-As requested deliverable of this project was to conduct species co-occurrence analyses for bird Species At Risk to evaluate potential
-conservation claues of multi-species conservation planning throughout the simulation period. Results from this type of anlysis could
-help inform land use planning and conservation efforts in the study area.
-
-Future versions of this project could incorporate this species co-occurrence deliverable once the other module components are fully
-tested. This will be completed for a manuscript, and is subject to (1) greater precision of the above mentioned modules, and (2) the
-finalized set of bird Species At Risk for which models can be fit (see `birdsNWT`).
-
-To best perform this analysis we require more information on the objective of the analysis. For example, how is multi-species co
-occurence of birds and caribou to be measured, and over what spatial units?
+# Integrated modules final component of Item 3: Species co-occurrence
+One deliverable was to conduct species co-occurrence analyses for bird Species At Risk and 
+carbou within proyected areas and eslewhere, to evaluate potential for multi-species conservation planning. 
+It was not possible to complete this analysis by deadline. We will pursue it in April.
 
 
 # Concluding remarks

@@ -774,10 +774,11 @@ occurence of birds and caribou to be measured, and over what spatial units?
 
 
 # Concluding remarks
-## Data to decisions: an integrated landscape multispecies forecasting project for the Northwest Territories with SpaDES
+## Data to decisions: integrated, spatially explicit, multispecies forecasting for BCR6, in SpaDES. 
 
 This project represents a first in data integration and decision making of natural resources; it combines state of the art models from
-multiple ecological fields over an extensive spatial area to forecast vertebrate ecology. As such, the project's outputs represent a powerful
+multiple ecological fields over an extensive spatial area to forecast vertebrate ecology. 
+As such, the project's outputs represent a powerful
 tool for natural resource decision making. It also demonstrates the intensive collaborative ability of ecologists to work
 simultaneously on a national project. Finally, the project is open source and reproducible - the basic requirements to hold science
 accountable and a must for the, sometimes controversial, natural resource decisions required both today and in future.
@@ -794,7 +795,8 @@ using state-of-the-art models and data, and considering future landscape changes
 
 Ensuring science is repeatable, adaptable, and open allows applied disciplines to ensure they progress under an adaptive management
 framework. Discrete event simulation modeling that is scheduled, based on platforms such as SpaDES, ensure that assumptions can be built
-upon in an open and repeatable way that enhances projections through time as well as transparency. Within this project we have provided the required bird
+upon in an open and repeatable way that enhances projections through time as well as transparency. 
+Within this project we have provided the required bird
 species abundance models, caribou occurence, and caribou population growth rates using SpaDES to ensure that the project can
 continually improve, the projections can be refined, and natural resouce decisions can be adapted to anticipate policy, economic,
 ecological, or climate driven changes that are bound to crop up over time. The reported project represents the cutting edge in

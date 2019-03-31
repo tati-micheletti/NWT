@@ -771,7 +771,10 @@ It was not possible to complete this analysis by deadline. We will pursue it in 
 # Concluding remarks
 ## Data to decisions: integrated, spatially explicit, multispecies forecasting for BCR6, in SpaDES. 
 
-This project represents a first in data integration and decision making of natural resources; it combines state of the art models from
+<!-- needs to be toned down. Steve will do later Saturday night --!>
+
+This project represents a first comprehensive effort in data integration and ecological modelling to
+support decision making forof natural resources; it combines state of the art models from
 multiple ecological fields over an extensive spatial area to forecast vertebrate ecology. 
 As such, the project's outputs represent a powerful
 tool for natural resource decision making. It also demonstrates the intensive collaborative ability of ecologists to work
@@ -995,7 +998,7 @@ tables). Remaining parameters, i.e. species traits, were obtained from LANDIS-II
 consulted in Table A1
 
 <!--TATI TO ADD TABLE HERE-->
-Complete tables for all estimated parameters will be added to a later version.
+Complete tables for all estimated parameters will be added to a later version of this document..
 <!--
 [Table A1: Species trait values and estimated values of seed establishment probability (establishprob), maximum biomass (maxB) and maximum aboveground net primary productivity (maxANPP) by combination of ecodistrict and land-cover class (ecoregionGroup)]
 !>

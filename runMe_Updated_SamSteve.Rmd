@@ -756,11 +756,12 @@ These figures show forecast demographic paramaters with standard errors for the 
 <!-- ![Figure 7b](outputs/28MAR19/RSF_29MAR19.gif) -->
 <!-- ![Figure 7a](outputs/28MAR19/RSFuncertainty_29MAR19.gif) -->
 
-#### Figure 8: Community metrics for the three areas.
-<!-- [Figure 8]()TO ADD WHEN I FINISH COMM METRICS -->
+#### Figure 8a and b: Community metrics for the three areas, showing 4 diversity indices in 2011 and 2111.
+[Figure 8a](outputs/28MAR19/DiversityIndexYear0.png)
+[Figure 8b](outputs/28MAR19/DiversityIndexYear100.png)
 
-#### Table 2: Community metrics for the three areas.
-<!-- [Table 2]()TO ADD WHEN I FINISH COMM METRICS -->
+#### Figure 9: Community metrics for the three areas showing 4 diversity indices for each polygon for every 10 years of simulations.
+[Figure 9](outputs/28MAR19/CommunityMetrics.png)
 
 # Integrated modules final component of Item 3: Species co-occurrence
 One deliverable was to conduct species co-occurrence analyses for bird Species At Risk and 
@@ -944,7 +945,7 @@ class (LCC) (see `LandR` documentation for product links) to estimate species-sp
 establishment probability (SEP) and aboveground net primary productivity (aNPP), and to build initial unique communities to populate
 the landscape and start simulating vegetation dynamics. The selection of tree species entering the simulation was based on species
 cover for the study area from the  kNN Species Map Layers available from the Canadian Forest Service (http://tree.pfc.forestry.ca/).
-Species A B C… where selected after removing species that occupied < 5 pixels in the study area. Prior to parameter estimation,
+Jack pine, Black spruce, White spruce, Balsam poplar, Trembling aspen and Paper birch where selected after removing species that occupied < 5 pixels in the study area. Prior to parameter estimation,
 incongruencies between stand age, % cover and total biomass datasets were addressed and species-specific biomasses were estimated. For
 instance, we detected pixels with 0 % cover across all species layers, but where stand age and biomass had > 0 values. Given that
 biomass and stand age are generally more problematic in terms of estimation than % cover, we decided to trust % cover estimates and

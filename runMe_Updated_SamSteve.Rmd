@@ -680,66 +680,54 @@ ecologica realism.
 ## Integrated modules components of SOW Item 3: Community metrics, and an analysis of the Edehzhie
 
 
-###**comm_metricsNWT**   
-This module computes a series of avian community metrics based on the suite of species-level
-                                   predicted abundance maps provided from the `birdsNWT` module. These community metrics were
-                                   calculated on a 10 year interval. This module outputs a raster for each diversity metric of the
-                                   current simulation year, along with a table of mean value for the Shannon diversity index, Simpson
-                                   diversity index, and Rao's quadratic entropy metrics.
+### `comm_metricsNWT`  
+This module computes a series of avian community metrics based on a stack of species-level
+                                   predicted abundance maps, as provided by `birdsNWT` module. 
+                                   Metrics are caclulated every 10 years.hese community metrics were
+                                   A raster brick of metrics is saved. A list of per-polyon tables is 
+                                   maintained which keep the mean of every index for each reporting period.
 
                                    
-There are four community metrics computed as part of the `comm_metricsNWT` module:
+At present, four metrics are calculated:
 
 1. Expected Species Richness:
-Expected Species Richness was estimated as the probability of occupancy based on the poisson distribution:
-
- $$ S: 1 - \exp^{\lambda}$$ 
-where:  
-$$ exp^{-\lambda} = \frac{exp^{-\lambda}\lambda^k}{k!} $$
+Expected Species Richness is the summed probability of occupancy for each species on each pixel: expeced mean
+$$ S: 1 - \exp^{-\lambda} = 1 - P[X=0 | \lambda] $$
+where random variable X is the number of individuals present in the cell, assuming a Poisson distribution with mean $\lambda$.
 
 2. Shannon diversity index:
-This index assumes that individuals are randomly sample from an infinitely large community, and that all species are represented in the
-sample (Magurran 2004). 
 
- $$ H' = - \sum_{i=1}^{S} p_i lnp_i $$
+ $$ H' = - \sum_{i=1}^{S} p_i lnp_i, $$
 
-where: $$p_i$$ is the proportion of individuals found in  the _ith_ species.
+where $p_i$ is the proportion of individuals of species $i$ among all individuals present. This index assumes that individuals are randomly sampleed from a large community, and that all species present are represented in the sample (Magurran 2004). 
 
 3. Simpson diversity index:
+
+ $$ 1-D = \sum p_i^2,$$
+where $p_i$ is the proportion of individuals of species $i$ among all individuals present. 
 This index estimates the probability of any two individuals drawn at randoms from an infinitely large community belonging to the same
 species (Magurran 2004). 
 
- $$ 1-D = \sum p_i^2 $$
- where:$$p_i$$ is the proportion of individuals found in  the _ith_ species.
-
-Simpson’s diversity has more ecological significance than Shannon index, because it represents the probability that two individuals of
-the same species meet. 
-
 4. Rao's Quadratic Entropy: 
 
-$$ \sum_{i=1}^{S-1} \sum_{j=i+1}^{S} d_ij* p_i* p_i$$
+$$ \sum_{i=1}^{S-1} \sum_{j=i+1}^{S} d_ij* p_i^2,$$
 
-Where: $$d_{ij}$$ is the difference between the _ith_ and _jth_ species. This difference is is estimated using functional
-attributes for each species. In addition, Raos Quadratic Entropy incorporates two elements:
-1. relative abundances of species, and 
-2. a measure of pairwise functional differences between species (Botta-Dukat 2005). For this second element, we used Life history
-traits as considered in Knaggs (2018). 
+where $d_{ij}$ is the ecological distance between species $i$ and $j$ as measured in trait-space (Botta-Dukat 2005, Knaggs 2018). 
+and $p_i$ is the proportion of individuals of species $i$ among all individuals present. 
 
 *Current limitations of the `comm_metricsNWT` module*
 1. Species richness and diversity indices summarize information about the relative abundance of species within a community but ignore
-the degree of difference between species. This limitation has been criticized  because this measures does not take into account the
-uniqueness or ecological importance of individual species. 
+the degree of difference between species. They do not account for differences in uniqueness or ecological importance among species.  
 
-2. Rao's Entropy depends on delineating functional groups within an significant ecological sense. Functional traits must be selected
-carefully. 
+2. Rao's Entropy depends on the choice of distance metric, which in this case depends on the choice of functional traits to be used in comparing pairs of species.  
 
 
 Future versions of the `comm_metricsNWT` module could include:
 1. Additional species richness estimates (e.g. Cowel, Clench , or Chao 1; Gotelli and Colwell 2011)
 
-2. Outputs for each community metric that are specific to different study areas (e.g. specific to different caribou study areas).
+2. Different choices of reporting regions, or multiple regionalisations, as for the caribou modules.
 
-3. Species turnover based on community dissimilarity that considers different climate change scenarios (sensu Stralberg et al. 2009)
+3. Species turnover based on community dissimilarity under alternate landuse or climate scenarios (sensu Stralberg et al. 2009)
 
 
 ### **Edehzhie**

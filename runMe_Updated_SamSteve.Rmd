@@ -428,7 +428,7 @@ recruitment and population growth rate.
 
 **Current state:** Currently, both caribou RSF and Population growth predictions are using a static disturbance layer that doesn't contain the McKenzie Valley Highway (MVH) disturbances as this last has not yet been finalized.  
 
-<!-- HERE DOWN STILL NEEDS STEVE'S EDITS....DONE SC-->
+
 ### **boreal birds**  
 This module projects species abundance of bird species under forecast landscape and climate
                             conditions. The module develops boosted regression tree (BRT) models from avian point-count data and
@@ -567,20 +567,18 @@ The `caribou` group of modules has two main components:  `caribouRSFModel` and `
                            Caribou occurrence is modeled as the probability of habitat selection at the pixellevel. 
                            Population parameters are calculated over specified regions that could be interpreted 
                            as herd or subpopulation ranges.               
-                           The specific statistical models selected were those approporiate to 
-                           our study area of BCR6 in the NWT, which corresponds closely to the Taiga Plains ecozone.       
+                           The specific statistical model selected for the `caribouRSFModel` module was approporiate to 
+                           our study area of BCR6 in the NWT, which corresponds closely to the Taiga Plains ecozone. The specific
+                           statistial model selected for the `caribouPopGrowthModel` module was appropriate for all boreal caribou
+                           across Canada.      
 
 #### `caribouRSFModel`
-The statistical relationships between caribou telemetry locations and habitat characteristics have been 
-summarized (Environment Canada 2011) by resource selection function (RSF) models (sensu Manly et al. 2002) 
-for various parts of Canada, under alternate hypothesis on the importance of various environmental characteristics. 
-We used the top RSF model for the Taiga Plains ecozone (Environment Canada 2011; Table 46). This model was estimated 
-from carobou location data collected from 24 Alberta, 50 British Columbia,
-and 169 NWT collared adult female caribou between 2000 and 2010 (Environment Canada 2011; Table 39).
-The analysis used a habitat use-abailabilty design, so the RSF models predict relative, not absolute, selection probability (Manly et al. 2002)
+Statistical relationships between caribou telemetry locations and habitat characteristics have been 
+summarized (Environment Canada 2011) by resource selection function (RSF; Manly et al. 2002) type models 
+for various parts of Canada. We used the top RSF-type model, a binomial GLMM, for the Taiga Plains ecozone (Environment Canada 2011; Table 46). This model was estimated from individual carobou location data collected from 24 Alberta, 50 British Columbia,
+and 169 NWT VHF-collared adult female caribou between 2000 and 2010 (Environment Canada 2011; Table 39). The analysis used a habitat use-availabilty design, so the model predicts relative, not absolute, resource selection (Manly et al. 2002).
 
-According to the RSF model we selected, relative probabilities of habitat selection by adult, female, boreal caribou 
-are best described by
+In the Taiga Plains ecozone, relative resource selection by adult female boreal caribou is best described by:
 
 $$selection Probability \sim Elevation + Elevation^2 + Vrug + Vrug^2 +$$ 
 $$RoadDensity + Deciduous + Shrub + Herb + Water + RecentBurn + OldBurn$$ [Eq. 1]
@@ -589,115 +587,97 @@ The definitions and units of measurement for each covariate can be found in Tabl
 The methodology is described in Appendix 7.3 of Environment Canada (2011). 
 
 
-The model includes most static and dynamic covariates. Static covariates were determined from initial conditions. Dynamic covariates were
-derived from raster layers maintained by one or other of the ecological process modules. Covariate types and sources are given in the following table: 
+The model [Eq. 1] includes both static and dynamic covariates. Static covariates were determined from initial conditions. Dynamic covariates were
+derived from raster layers maintained by one of the ecological process modules (modules listed above). Covariate types and sources are provided below: 
 
 1.  Elevation (static; AdaptWest)
 2.  Vrug (static; topographic ruggedness (Sappington et al. 2007) taken from AdaptWest.
 3.  RoadDensity (static; `anthropogenic`)
 4.  Deciduous (dynamic; `LandR`)
-5.  Shrub (static; LCC05)
-6.  Herb (static; LCC05)
+5.  Shrub (static; LCC2005)
+6.  Herb (static; LCC2005)
 7.  Water (static; Ducks Unlimited Canada Hybird Wetland Layer)
 8.  RecentBurn (dynamic;  `scfm-fireSense`/`scfm`)
 9.  OldBurn (dynamic;  `scfm-fireSense`/`scfm`)
 
 <!-- RecentBurn and OldBurn should be derived from an age map -->
 
-The RSF model is applied on a yearly time step. The output is a raster layer of relative resource selection probabilities across the study area. A measure of model prediction error is also produced.
-<!-- more details needed -->.
+The RSF model is applied on a yearly time step. The output is a raster layer of relative resource selection across the study area. A map of model prediction error (standard error) is also produced.
+<!-- more details needed -->
 
 *Important assumptions of the `caribouRSFModel` module*  
 
 1. Caribou are distributed in an ideal free distribution (Fretwell and Lucas 1970).
 
-2. Resource selection probability is positivley correlated with population fitness and population density (Manly et al. 2002). .
+2. Resource selection is positivley correlated with population fitness and population density (Manly et al. 2002). .
 
-3. The RSF model reliably predicts the relative probability of occurrence for
-woodland boreal caribou. See Section 6.2.4 of Environment Canada (2011) for reasons why this assumption may be violated.
+3. The model reliably predicts the relative resource selection for woodland boreal caribou. See Section 6.2.4 of Environment Canada (2011) for reasons why this assumption may be violated.
 
 4. Shrub and Herbacious landcover remains constant over the simulation period (2010 to 2110), independent of fire, succession,
 or other processes.
 
 5. Caribou location data are unbiased. 
 
-6. Caribou do not display seasonal habitat selection; the RSF model used here is based on annual caribou ccurrences. Data were not stratified by season. 
+6. Caribou do not display seasonal resource selection; the RSF model used here is based on annual caribou occurrences. Data were not stratified by season. 
 
 <!-- 
 #7. OldBurns are considered to be anything older than 40 years. 
-#We assume that OldBurns are above 41 (Environment Canada 2011, Appendix 7.3, section 5.3;1917 to 2010). 
+#We assume that OldBurns are above 41 (Environment Canada 2011, Appendix 7.3, section 5.3; 1917 to 2010). 
 These two sentences are inconsisent, also not really assumptions 
 -->
 
 *Future versions of the `caribouRSFModel` module could include:*  
 
-1. Consider using the national RSF model (Environment Canada 2011; Table 43) which has higher prediction reliability than the Taiga Plains RSF modeled here. However this would require statistical prediction of some dynamic covariates such as Net Primary Production, which would introduce possibly large new sources of forecast error.
+1. Consider using the National resource selection model (Environment Canada 2011; Table 43) which has a better fit to national data than the Taiga Plains specific model used here. However this would require prediction of some dynamic covariates, such as Net Primary Productivity, which could possibly introduce large sources of prediction error.
 
 #### `caribouPopGrowthModel`
-The `caribouPopGrowthModel` is based on the statistical relationships between landscape condition and demographic parameters 
-that underpin Canada's national boreal caribou recovery strategy (Environment Canada 2011; 2012). The critical demographic paramater is 
-the annual calf recruitment rate ($R$) of caribou calves per adult female. 
-This is estimated from the observed ratio of caribou cows to calves during winter durvey periods. 
-The data are estimated for "caribou ranges", in effect the various spatial units over which the young-at-heel surveys were conducted. 
-The best statistical model of these data (Environment Canada 2011; Table 55, Model M3) was found to be
-<!-- is it Table 55 or 56? -->
+The `caribouPopGrowthModel` is based on the statistical relationship between the landscape and a single demographic parameter, recruitment, that underpins Canada's national woodland boreal caribou recovery strategy (Environment Canada 2011; 2012). The critical demographic paramater is the annual rate of calf recruitment ($R$), measured as caribou calves per 100 adult female at the time of winter flight surveys. The data used here are estimated for "caribou study areas", in effect the various spatial units over which  aunual caribou surveys were conducted (Environment Canada 2011). 
+The best statistical model of these data (Environment Canada 2011; Table 55, Model M3) was determined as:
+<!-- is it Table 55 or 56? -- FS: It is table 55-->
 
 $$R \sim total Disturbance$$ [Eqn.  2]
 
-where "total disturbance" over a "range" area is “the percent total non-overlapping fire and anthropogenic disturbances
- (Environment Canada 2011, Table 54). 
- `Anthropogenic disturbance` is mapped from the union of 500m buffers applied to all anthropgenic disturbances,
- not counting hydroelectric reservoirs.  
- `Fire disturbance` in the proportional area burned within the past 40 years.
- For methodological details, see Appendix 7.6 of Environment Canada (2011) (Appendix 7.6).
+where "total disturbance" over each study area is “the percent total non-overlapping fire and anthropogenic disturbances
+ (Environment Canada 2011; Table 54). `Anthropogenic disturbance` is mapped from the union of 500m buffers applied to all anthropgenic disturbances (see the `andthropogenic` module). `Fire disturbance` is the proportional area burned within the past 40 years (see the `scfm-fireSense`. For methodological details, see Appendix 7.6 of Environment Canada (2011) (Appendix 7.6).
  
-$R$ is predicted over each polygon within the two coverages shown in [Figure 2] and [Figure 3]. The total disturbance covariate is calculated for each polygon from raster laters maintained by the `scrm-fireSense` and `anthropogenic` modules. These rasters are overlad and summed to calculate the percentage non-overlapping area of total disturbance within each polygon. The calculation is annual.
+$R$ is predicted over each polygon within the two coverages shown in [Figure 2] and [Figure 3]. The total disturbance covariate is calculated for each polygon from raster laters maintained by the `scfm-fireSense` and `anthropogenic` modules. These rasters are overlaid and summed to calculate the percentage non-overlapping area of total disturbance within each polygon. This prediction is an annual calculation.
 
-The demographic parameter actually reported for each polygon is the estimated annual per-capita population growt rate $\lambda$. 
-Assuming a two-stage population structure of adult females and juveniles, we can calculate
+The demographic parameter reported for each polygon is the estimated annual per-capita population growth rate ($\lambda$). 
+Using a well published two-stage population structure of adult females and juveniles (Hatter and Bergerud 1991; McLoughlin et al. 2003; Sorensen et al. 2006; Hervieux et al. 2014), we can calculate:
 
 $$\lambda = (1 - M)/(1 - R),$$  [Eqn. 3]
 
-where $R$ is juvenile female recruitment as predicted from Eq. 2, and $M = 1-S$ where $S$ is the adult female survivorship. 
-We assume fixed $S=0.85$. We report $\lambda$ periodically for the regions in
-[Figure 2](Boreal_caribou_NT1_range_planning_regions_2018.jpg), and [Figure 3](Units_for_ECCC_modeling_project_2019.jpg). 
-We note that any desired reporting units could be accomodated given the appropriate shapefile. 
-That there exists a relationship between $\lambda$ and landscape disturbance is well supported for both caribou and other ungulates
-(Hatter and Bergerud 1991; McLoughlin et al. 2003; Sorensen et al. 2006; Hervieux et al. 2014):
+where $R$ is juvenile female recruitment as predicted from [Eq. 2], and $M = 1-S$ where $S$ is the adult female survivorship. 
+We assume fixed $S=0.85$, as was done in Environment Canada's recovery strategy reports (Environment Canada 2011, 2012). We report $\lambda$ periodically for the regions in [Figure 2](Boreal_caribou_NT1_range_planning_regions_2018.jpg), and [Figure 3](Units_for_ECCC_modeling_project_2019.jpg). We note that any desired reporting units, or periods, could be accomodated given the appropriate shapefile. 
 
 <!-- Please see the below assumptions for important information regarding these output plots. -->
 
 *Important assumptions of the `caribouPopGrowthModel` module*  
 
-1. The statistical relationship between recruitment and the landscape described by Environment Canada (2011; Table 56, Model M3) applies
-to all Northwest Territories boreal caribou local population units. This
-relationship was estimated from from 24 boreal caribou units across Canada (N = 24).
-Fire is the dominant disturbance agent only on a few of these (EC 2011, Figure 67).
+1. The statistical relationship between recruitment and the landscape described by Environment Canada (2011; Table 56, Model M3) applies to all Northwest Territories boreal caribou study areas. This statistical relationship was estimated from 24 boreal caribou units across Canada (N = 24). Fire is the dominant disturbance agent only on a few of these (EC 2011, Figure 67).
 
-2. Adult female survival is constant over time and does not vary among spatial units. 
+2. Adult female survival is constant over time and does not vary among spatial units (sensu EC 2011). 
 
 3. We assume that caribou are homogeneously distributed throughout the reporting polygons.
 
-4. Movement rates of indivduals between reporting polygons are negligible, i.e. these polygoins aree functionally isolated
+4. Movement rates of indivduals between reporting polygons are negligible, i.e. these polygoins are functionally isolated
 from one another.
 
 *Future versions of the `caribouPopGrowthModel` module could include:*  
 
-1. Revised model paramaters or demographic values
+1. Revised model paramaters or demographic values appropriate to the spatial locations of desired predictions.
 
-2. Compare predictions of alternate statistical models. In particular, the output of the `caribouRSFModel`
+2. Comparison of predictions generated by alternate, but not statistically different, statistical models. In particular, the output of the `caribouRSFModel`
 could be used as covariate in a version of the `caribouPopGrowthModel` statistical model,
-linking cell-level habitat quality with demographic paramaters (e.g.Environment Canada 2011,Table 55, model M12).
+linking cell-level habitat quality with demographic paramaters (see Environment Canada 2011, Table 55, model M12).
 
-3. NWT-specific relationships between recruitment and survivorship rates and landscape condition could be developed
+3. NWT-specific relationships between both recruitment and survivorship rates with landscape could be developed
 using local data, adressing assumptions 1 and 2 above. 
 
 4. If some form of density dependence could be included, the predictions of demographic paramaters could be used to 
 model population dynamics and extinction risk.
 
-**Current state:** Both these modules are functional, and currently depend only on having 
-outputs from LandR and a landscape fire model. It remains to evaluate the results however for
-ecologica realism.  
+**Current state:** Both these modules are functional, and currently depend only on having outputs from LandR and a landscape fire model. However, these results have yet to be evaluated for ecological realism.  
 
 
 ## Integrated modules component of SOW Item 3: Community metrics, and an analysis of the Edehzhie

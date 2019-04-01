@@ -980,7 +980,7 @@ species longevity parameters (obtained from LANDIS-II species traits tables). Th
 biomass (totalB) and species identity (speciesCode) and % cover, accounting for the random effect of combination of ecodistrict and LCC
 (ecoregionCode):
 
-$$age \sim totalB * speciesCode + \% cover + (1 | ecoregionCode)$$  [Eq. 1]
+$$\mathrm{age} \sim \mathrm{totalB} * \mathrm{speciesCode} + \mathrm{%cover} + (1 | \mathrm{ecoregionCode})$$  [Eq. 1]
 
 This model was then used to predict missing age values, bounded to 0 on the lower limit. 
 
@@ -988,14 +988,14 @@ Parameters maxB and aNPP were then estimated from a linear mixed effects model r
 to the interaction between age (on the log scale, logAge) and species and % cover and species, accounting for the random effect of
 ecoregionGroup on the calculated slopes (per species) and intercepts:
 
-$$B ~ logAge * speciesCode + cover * speciesCode + (speciesCode | ecoregionGroup)$$ [Eq. 2]
+$$B ~ \log(\mathrm{Age} * \mathrm{speciesCode} + \mathrm{cover} * \mathrm{speciesCode} + (\mathrm{speciesCode} | \mathrm{ecoregionGroup})$$ [Eq. 2]
 
 Estimates of SEP based on a generalized mixed effects model relating % cover and species, accounting for the random effect of
 ecoregionGroup on the intercepts. In this case, species % cover was treated as the number of times a species was observed (no. of
 pixels with cover > 0) per ecoregionGroup, thus following a binomial distribution that was account for in the model with a logit link
 function:
 
-$\operatorname{logit}(p_i) \sim \mathrm{speciesCode} + (1 | \mathrm{ecoregionGroup})$$ [Eq. 3]
+$$\operatorname{logit}(p_i) \sim \mathrm{speciesCode} + (1 | \mathrm{ecoregionGroup})$$ [Eq. 3]
 
 where $p_i$ is the probability of finding a non-zero amount of cover of species $i$ in an ecoregionGroup. In other words, is is the species' prevalence, or the proportion of pixels wherein it occurs. 
 
@@ -1007,8 +1007,8 @@ conditional r^2^ were  0.70 and  0.77, respectively, and for the percentage cove
 To estimate maxB we predicted biomass for unique combinations of species and ecoregion code assuming maximum age (i.e. longevity). aNPP
 was then calculated per species and ecoregionGroup as maxB/30 (following LANDIS-II). Before estimating SEP, the predicted values of %
 cover per ecoregionGroup per species (obtained from Eq. 3) where temporally integrated to reflect the simulation timescale (10 years)
-as $1 - (1 - \mathrm{predictedCover})^1$. These estimates were then multiplied by 
-$(1 - \rm{resprouting probability}) of each species, so that SEP
+as $1 - (1 - \mathrm{predictedCover})^10$. These estimates were then multiplied by 
+$(1 - \mathrm{resprouting probability})$ of each species, so that SEP
 reflects only the probability of seed germination (note that resprouting probabilities were taken from the LANDIS-II species trait
 tables). Remaining parameters, i.e. species traits, were obtained from LANDIS-II trait data (see above for reference) and can be
 consulted in Table A1

@@ -988,7 +988,7 @@ Parameters maxB and aNPP were then estimated from a linear mixed effects model r
 to the interaction between age (on the log scale, logAge) and species and % cover and species, accounting for the random effect of
 ecoregionGroup on the calculated slopes (per species) and intercepts:
 
-$$B ~ \log(\mathrm{Age} * \mathrm{speciesCode} + \mathrm{cover} * \mathrm{speciesCode} + (\mathrm{speciesCode} | \mathrm{ecoregionGroup})$$ [Eq. 2]
+$$B \sim \log(\mathrm{Age}) * \mathrm{speciesCode} + \mathrm{cover} * \mathrm{speciesCode} + (\mathrm{speciesCode} | \mathrm{ecoregionGroup})$$ [Eq. 2]
 
 Estimates of SEP based on a generalized mixed effects model relating % cover and species, accounting for the random effect of
 ecoregionGroup on the intercepts. In this case, species % cover was treated as the number of times a species was observed (no. of

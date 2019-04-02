@@ -1017,7 +1017,7 @@ consulted in Table A1
 Complete tables for all estimated parameters will be added to a later version of this document..
 <!--
 [Table A1: Species trait values and estimated values of seed establishment probability (establishprob), maximum biomass (maxB) and maximum aboveground net primary productivity (maxANPP) by combination of ecodistrict and land-cover class (ecoregionGroup)]
-!>
+-->
 
 The `Biomass_regeneration` module simulates post-disturbance regeneration, in this case after fire events, assuming stand-replacing
 fires. In each burnt pixel, the module resets pixel biomass to 0 and activates post-fire resprouting and, or, serotiny depending on

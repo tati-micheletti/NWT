@@ -53,4 +53,14 @@ outputs/
 inputs/
 ./outputs
 ./inputs
+*.html
+*.tex
+*.log
+!runMe_Updated_SamSteve.Rmd
+!./outputs/19MAR19/averageBiomassHaV3_29MAR19.png
+!Boreal_caribou_NT1_range_planning_regions_2018.jpg
+!Units_for_ECCC_modeling_project_2019.jpg
+!./outputs/28MAR19/RSFuncertainty_29MAR19.gif
+!./outputs/28MAR19/RSF_29MAR19.gif
+
 

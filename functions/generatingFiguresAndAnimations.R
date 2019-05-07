@@ -1,5 +1,5 @@
 # Generating plots for NWT project
-invisible(sapply(X = list.files(file.path(getwd(), "Documents/GitHub/NWT/functions/"), 
+invisible(sapply(X = list.files(file.path(getwd(), "functions/"), 
                                 full.names = TRUE), FUN = source))
 
 biomassPerSpeciesYearGRAPH(pathData = file.path(getwd(), "Documents/GitHub/NWT/outputs/19MAR19"), 
@@ -9,7 +9,19 @@ biomassPerSpeciesYearGRAPH(pathData = file.path(getwd(), "Documents/GitHub/NWT/o
 createCaribouGIFFromList(pathData = file.path(getwd(), "outputs/28MAR19/"), 
                          uploadFiles = FALSE)
 
-createBirdsGIFFromList(pathData = file.path(getwd(), "outputs/28MAR19/"), 
-                       species = c("AMRE", "BLPW", "CAWA", "FOSP", 
-                                   "OVEN", "PAWA", "RCKI", "RUBL", "WCSP", "OSFL"), 
-                       version = "V3", uploadFiles = FALSE)
+species <- c("AMRE", "BLPW", "CAWA", "FOSP", 
+            "OVEN", "PAWA", "RCKI", "RUBL", "WCSP", "OSFL")
+createBirdsGIFFromList(pathData = file.path(getwd(), "modules/birdsNWT/data/predicted"), 
+                       species = species, 
+                       version = "V3", uploadFiles = TRUE, whereToReport = "Edehzhie")
+
+WhichToUp <- c("/mnt/data/Micheletti/NWT/outputs/PredictedAMREYear.0_30MAR19.png",
+            "/mnt/data/Micheletti/NWT/outputs/PredictedAMREYear.50_30MAR19.png",
+            "/mnt/data/Micheletti/NWT/outputs/PredictedAMREYear.100_30MAR19.png",
+            "/mnt/data/Micheletti/NWT/outputs/PredictedOVENYear.0_30MAR19.png",
+            "/mnt/data/Micheletti/NWT/outputs/PredictedOVENYear.50_30MAR19.png",
+            "/mnt/data/Micheletti/NWT/outputs/PredictedOVENYear.100_30MAR19.png")
+  lapply(WhichToUp, function(each){
+    googledrive::drive_upload(each,
+                              path = as_id("1ZqPVs33HxnnmjLUW94i7AuwAS-nloPGH"))
+  })

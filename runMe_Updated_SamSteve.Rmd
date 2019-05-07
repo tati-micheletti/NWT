@@ -6,7 +6,7 @@ authors: Tati Micheletti^1, Frances Stewart^2, Eliot McIntire^1,2, Ian Eddy^2,  
   Alex Chubaty^6, Steve Cumming^5
 date: "Draft last revised 3/31/2019"
 output:
-  html_document:
+  pdf_document:
     df_print: paged
 header-includes: \usepackage{color}
 affiliations: ^1University of British Columbia, ^2 Natural Resources Canada, Canadian

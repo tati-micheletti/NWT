@@ -57,9 +57,4 @@
 [submodule "modules/fireSense_NWT"]
 	path = modules/fireSense_NWT
 	url = git@github.com:ygc2l/fireSense_NWT.git
-[submodule "modules/comm_metricsNWT"]
-	path = modules/comm_metricsNWT
-	url = git@github.com:araymund83/comm_metricsNWT.git
-[submodule "modules/communityMetrics"]
-	path = modules/communityMetrics
-	url = git@github.com:tati-micheletti/communityMetrics.git
+

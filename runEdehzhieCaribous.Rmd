@@ -59,20 +59,17 @@ library("magrittr") # for piping
 
 ```{r birds}
 
-dayOfRecording <- today <- toupper(format(Sys.time(), "%d%b%y"))
-dayOfRecording <- "19MAR19"
+# Set the WD to the NWT folder if not inside a project
+# setwd("/mnt/data/Micheletti/NWT")
 
-isTEST <- FALSE
+dayOfRecording <- today <- toupper(format(Sys.time(), "%d%b%y"))
+
+isTEST <- TRUE
 
 if (isTEST){
     dayOfRecording <- "19MAR19"
 }
 
-# Source functions in R folder
-invisible(sapply(X = list.files(file.path(getwd(), "R"), full.names = TRUE), FUN = source))
-
-# Set a storage project folder
-workDirectory <- getwd()
 message("Your current temporary directory is ", tempdir())
 
 create <- if (isTEST) NULL else TRUE 
@@ -90,11 +87,14 @@ if (is.null(checkOutputPath)){
   outPath <- checkOutputPath
 }
 
-setPaths(modulePath = file.path(dirname(getwd())), cachePath = "/home/tmichele/Documents/GitHub/NWT/outputs/28MAR19/cache",
-         inputPath = "/home/tmichele/Documents/GitHub/NWT/outputs/19MAR19", 
-         outputPath = "/home/tmichele/Documents/GitHub/NWT/outputs/28MAR19") # Had to override... don't have time to redo the code up there
+setPaths(modulePath = file.path(getwd(), "modules"), 
+         cachePath = file.path(getwd(), "cache"),
+         inputPath = inpPath, 
+         outputPath = outPath)
+
 getPaths() # shows where the 4 relevant paths are
 
+invisible(sapply(X = list.files(file.path(getwd(), "functions"), full.names = TRUE), FUN = source))
 
 Edehzhie.url <- "https://drive.google.com/open?id=1o2VamVILFx8SHqMCPC8bmjM8pkr5fsks"
 
@@ -141,8 +141,13 @@ parameters<- list(
 
 if (quickPlot::isRstudioServer()) options(httr_oob_default = TRUE)
 
-caribous <- simInitAndSpades(times = times, params = parameters, modules = modules,
-                 objects = .objects, debug = 2)
+caribousInit <- simInit(times = times, params = parameters, modules = modules,
+                 objects = .objects)
+
+# caribouCall <- spades(caribousInit) # You don't need to run this
+
+library("SpaDES.shiny")
+SpaDES.shiny::shine(sim = caribousInit, title = "Caribous in Edehzhie, NWT")
 
 # Quick check on Caribou rasters
 presProbList <- lapply(caribous$predictedPresenceProbability, FUN = function(yr){

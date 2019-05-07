@@ -36,7 +36,7 @@ createBirdsGIFFromList <- function(species, pathData, version,
       } else stop("Please provide as 'whereToReport' either 'Edehzhie' or 'BCR6_NWT'")
     }
     
-    message(paste0("Reporting biomass per species for ", whereToReport))
+    message(paste0("Reporting bird predictions for ", sp," in ", whereToReport))
     studyArea <- Cache(prepInputs,
                        url = urlSA,
                        destinationPath = tempdir(),
@@ -73,7 +73,7 @@ createBirdsGIFFromList <- function(species, pathData, version,
       }
     }
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    
+
     gifName <- file.path(getwd(), paste0("outputs/birdPreds/", species[sp], "predNWT_", toupper(format(Sys.time(), "%d%b%y")),".gif"))
     ceiling_dec <- function(x, level = 1) round(x + 5*10^(-level-1), level)
     mxVal <- ceiling_dec(max(raster::maxValue(out)), level = 2)
@@ -110,9 +110,7 @@ pngPlotName <- file.path(getwd(), "outputs", paste0("Predicted", species[sp], "Y
                                                     strsplit(x = names(out[[ras]]),
                                                              split = "Year")[[1]][2],
                                                     "_", toupper(format(Sys.time(), "%d%b%y")),".png"))
-if (uploadFiles)
-  googledrive::drive_upload(gifName, 
-                          path = as_id("1ZqPVs33HxnnmjLUW94i7AuwAS-nloPGH"))
+
       png(pngPlotName, width = 700, height = 480)
       print(spPlot)
       dev.off()

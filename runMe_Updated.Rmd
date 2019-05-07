@@ -770,19 +770,19 @@ NWT.url <- "https://drive.google.com/open?id=1LUxoY2-pgkCmmNH5goagBp3IMpj6YrdU"
 
 studyAreaEde <- cloudCache(prepInputs,
 url = Edehzhie.url,
-destinationPath = paths$inputPath[[1]],
+destinationPath = getPaths()$inputPath[[1]],
 cloudFolderID = cloudFolderID,
 omitArgs = c("destinationPath", "cloudFolderID"))
 
 studyArea <- cloudCache(prepInputs,
 url = NWT.url, studyArea = studyAreaEde,
-destinationPath = paths$inputPath[[1]],
+destinationPath = getPaths()$inputPath[[1]],
 cloudFolderID = cloudFolderID,
 omitArgs = c("destinationPath", "cloudFolderID"))
 
 studyAreaNWT <- cloudCache(prepInputs,
 url = NWT.url,
-destinationPath = paths$inputPath[[1]],
+destinationPath = getPaths()$inputPath[[1]],
 cloudFolderID = cloudFolderID,
 omitArgs = c("destinationPath", "cloudFolderID"))
 ```
@@ -807,7 +807,7 @@ Then we need to set the parameters for the simulation call:
 ``` {r params}
 
 # This raster to match contains only the uplands, it is 
-rasterToMatch <- cloudCache(prepInputs, url = "https://drive.google.com/open?id=1fo08FMACr_aTV03lteQ7KsaoN9xGx1Df", 
+rasterToMatch <- cloudCache(prepInputs, url = "https://drive.google.com/open?id=1fo08FMACr_aTV03lteQ7KsaoN9xGx1Df",
 studyArea = studyAreaNWT,
 targetFile = "RTM.tif", destinationPath = paths$inputPath, 
 useCloud = getOption("reproducible.useCloud", FALSE),
@@ -830,6 +830,12 @@ defaultInitialSaveTime <- NA
 parameters <- list(
 #SCFM
 ".progress" = list(type = "text", interval = 1),
+  caribouPopGrowthModel = list(
+  ".plotInitialTime" = NULL,
+  "recoveryTime" = 40,
+  ".useDummyData" = FALSE,
+  ".growthInterval" = 1
+  ),
 scfmLandcoverInit = list(
 ".plotInitialTime" = NULL
 ),
@@ -857,7 +863,7 @@ scfmSpread = list(
 ".plotInterval" = defaultPlotInterval,
 ".saveInitialTime" = defaultInitialSaveTime,
 ".saveInterval" = defaultInterval),
-scfmRegime = list(fireCause = "L")), #c("L", "H")
+scfmRegime = list(fireCause = "L"), #c("L", "H")
 scfmDriver = list(targetN = 1000), # 1500
 # LandR_Biomass
 LBMR = list(
@@ -988,6 +994,70 @@ Now we have to set the objects. The first object is a list of trees of interest:
   #         file = file.path(paths$outputPath, paste0("birdsFireCaribou", runVersion,"_", toupper(format(Sys.time(), "%d%b%y")))))
   # }
 ```
+
+And LandR+SCFM+CaribouGrowth  
+```{r LandR_SCFM_Caribou}
+  
+
+setPaths(modulePath = c(file.path(getwd(), "modules/"), file.path(getwd(), "modules/scfm/modules/")), cachePath = "cache/",
+         inputPath = "inputs/", 
+         outputPath = "outputs/29MAR19") # Had to override... don't have time to redo the code up there
+getPaths() # shows where the 4 relevant paths are
+
+modulesLandR_SCFM_Caribou <- list("scfmLandcoverInit", "scfmRegime", "scfmDriver", "scfmIgnition", "scfmEscape", "scfmSpread",
+"Boreal_LBMRDataPrep", "LandR_BiomassGMOrig","Biomass_regeneration", "LBMR", "caribouPopGrowthModel")
+
+
+  isEDHZHIE <- TRUE
+  if (isEDHZHIE){
+    Edehzhie.url <- "https://drive.google.com/open?id=1o2VamVILFx8SHqMCPC8bmjM8pkr5fsks"
+
+  studyArea <- Cache(prepInputs,
+                             url = Edehzhie.url,
+                             destinationPath = getPaths()$inputPath[[1]],
+                             userTags = "edeSA",
+                             omitArgs = c("destinationPath"))
+
+  rasterToMatch <- Cache(prepInputs, url = "https://drive.google.com/open?id=1fo08FMACr_aTV03lteQ7KsaoN9xGx1Df",
+                              studyArea = studyArea,
+                              targetFile = "RTM.tif", destinationPath = getPaths()$inputPath[[1]],
+                         filename2 = NULL,
+                              userTags = "edeRTM",
+                              omitArgs = c("destinationPath", "filename2"))
+  waterRaster <- prepInputs(url = "https://drive.google.com/open?id=1nPd03gaVXkkaHorirR4UhYrDi95ZgyJM", 
+                            destinationPath = getPaths()$inputPath, 
+                            targetFile = "waterRasterNWT.tif",studyArea = studyArea,
+                            rasterToMatch = rasterToMatch,
+                            filename2 = NULL)
+  .objects <- list(
+    "rasterToMatch" = rasterToMatch,
+    "studyAreaLarge" = studyArea,
+    "sppEquiv" = sppEquivalencies_CA,
+    "sppEquivCol" = sppEquivCol,
+    "sppColors" = sppColors,
+    "omitNonVegPixels" = TRUE,
+    "cloudFolderID" = cloudFolderID,
+    "studyArea" = studyArea,
+    "waterRaster" = waterRaster
+    )
+  }
+
+
+  runVersion <- "V2"
+  assign(paste0("EdeLandRSCFMCaribouPopGrw_", runVersion),
+         value = simInitAndSpades(times = times,
+                                  params = parameters,
+                                  modules = modulesLandR_SCFM_Caribou,
+                                  objects = .objects,
+                                  loadOrder = unlist(modulesLandR_SCFM_Caribou),
+                                  outputs = outputsLandR, debug = 2))
+  
+  # To save a run
+  # if (!isTest){
+  # saveRDS(object = get(paste0("LandR_SCFM_", runVersion)), 
+  #         file = file.path(paths$outputPath, paste0("birdsFireCaribou", runVersion,"_", toupper(format(Sys.time(), "%d%b%y")))))
+  # }
+```
   
   ### Climate sensitive fire
   
@@ -1093,56 +1163,56 @@ Now we have to set the objects. The first object is a list of trees of interest:
   ".growthInterval" = 10)
   )
   
-  runVersion <- "V1"
-  assign(paste0("LandR_FireSense_", runVersion),
-  value = simInitAndSpades(inputs = inputs, times = times,
-  params = parameters,
-  modules = modulesLandR_fS_SCFM_Carib,
-  objects = .objects, paths = paths,
-  loadOrder = unlist(modulesLandR_fS_SCFM_Carib),
-  outputs = outputsLandR, debug = 2))
+  # runVersion <- "V1"
+  # assign(paste0("LandR_FireSense_", runVersion),
+  # value = simInitAndSpades(inputs = inputs, times = times,
+  # params = parameters,
+  # modules = modulesLandR_fS_SCFM_Carib,
+  # objects = .objects, paths = paths,
+  # loadOrder = unlist(modulesLandR_fS_SCFM_Carib),
+  # outputs = outputsLandR, debug = 2))
 ```
 
   
 ```{r caribPop_Landr_fS_Edehzhie}
-  # 
-  # isEDHZHIE <- FALSE
-  # if (isEDHZHIE){
-  #   Edehzhie.url <- "https://drive.google.com/open?id=1o2VamVILFx8SHqMCPC8bmjM8pkr5fsks"
-  # 
-  # studyArea <- Cache(prepInputs,
-  #                            url = Edehzhie.url,
-  #                            destinationPath = getPaths()$inputPath[[1]],
-  #                            userTags = "edeSA",
-  #                            omitArgs = c("destinationPath"))
-  # 
-  # rasterToMatch <- Cache(prepInputs, url = "https://drive.google.com/open?id=1fo08FMACr_aTV03lteQ7KsaoN9xGx1Df", 
-  #                             studyArea = studyArea,
-  #                             targetFile = "RTM.tif", destinationPath = getPaths()$inputPath[[1]], 
-  #                        filename2 = NULL,
-  #                             userTags = "edeRTM",
-  #                             omitArgs = c("destinationPath", "filename2"))
-  # .objects <- list(
-  #   "rasterToMatch" = rasterToMatch,
-  #   "studyAreaLarge" = studyAreaNWT,
-  #   "sppEquiv" = sppEquivalencies_CA,
-  #   "sppEquivCol" = sppEquivCol,
-  #   "sppColors" = sppColors,
-  #   "omitNonVegPixels" = TRUE,
-  #   "cloudFolderID" = cloudFolderID,
-  #   "studyArea" = studyArea
-  #   )
-  # }
-  
-  # 
-  # runVersion <- "V1"
-  # assign(paste0("LandR_FireSense_CaribouPopGrw_", runVersion),
-  #        value = simInitAndSpades(inputs = inputs, times = times,
-  #                                 params = parameters,
-  #                                 modules = modulesLandR_fS_SCFM_CaribPop,
-  #                                 objects = .objects, paths = paths,
-  #                                 loadOrder = unlist(modulesLandR_fS_SCFM_CaribPop),
-  #                                 outputs = outputsLandR, debug = 2))
+
+  isEDHZHIE <- TRUE
+  if (isEDHZHIE){
+    Edehzhie.url <- "https://drive.google.com/open?id=1o2VamVILFx8SHqMCPC8bmjM8pkr5fsks"
+
+  studyArea <- Cache(prepInputs,
+                             url = Edehzhie.url,
+                             destinationPath = getPaths()$inputPath[[1]],
+                             userTags = "edeSA",
+                             omitArgs = c("destinationPath"))
+
+  rasterToMatch <- Cache(prepInputs, url = "https://drive.google.com/open?id=1fo08FMACr_aTV03lteQ7KsaoN9xGx1Df",
+                              studyArea = studyArea,
+                              targetFile = "RTM.tif", destinationPath = getPaths()$inputPath[[1]],
+                         filename2 = NULL,
+                              userTags = "edeRTM",
+                              omitArgs = c("destinationPath", "filename2"))
+  .objects <- list(
+    "rasterToMatch" = rasterToMatch,
+    "studyAreaLarge" = studyAreaNWT,
+    "sppEquiv" = sppEquivalencies_CA,
+    "sppEquivCol" = sppEquivCol,
+    "sppColors" = sppColors,
+    "omitNonVegPixels" = TRUE,
+    "cloudFolderID" = cloudFolderID,
+    "studyArea" = studyArea
+    )
+  }
+
+
+  runVersion <- "V1"
+  assign(paste0("EdeLandRFireSenseCaribouPopGrw_", runVersion),
+         value = simInitAndSpades(inputs = inputs, times = times,
+                                  params = parameters,
+                                  modules = modulesLandR_fS_SCFM_CaribPop,
+                                  objects = .objects, paths = paths,
+                                  loadOrder = unlist(modulesLandR_fS_SCFM_CaribPop),
+                                  outputs = outputsLandR, debug = 2))
 ```
   
 #### Outputs from `LandR`, `FireSense`, and `FEENIX` 
@@ -1155,6 +1225,7 @@ Now we have to set the objects. The first object is a list of trees of interest:
 
   
   LandRCS + fireSense-SCFM + Caribou Pop Growth
+  
 ```{r allNWT}
   # modulesLandRCS_fS_SCFM_CaribouPop <- c("Boreal_LBMRDataPrep", 
   #                             "LandR_BiomassGMOrig",

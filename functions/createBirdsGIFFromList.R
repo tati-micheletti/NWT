@@ -29,7 +29,8 @@ createBirdsGIFFromList <- function(species, pathData, version,
     
     
     if (whereToReport == "Edehzhie"){
-      urlSA <- "https://drive.google.com/open?id=1VP91AyIeGCFwJS9oPSEno4_SbtJQJMh7"
+      urlSA <- "https://drive.google.com/open?id=15n9BOtswKCJ81-us1u8Dbs0WT9f8bagq"
+      # urlSA <- "https://drive.google.com/open?id=1VP91AyIeGCFwJS9oPSEno4_SbtJQJMh7"
     } else {
       if (whereToReport == "BCR6_NWT"){
         urlSA <- "https://drive.google.com/open?id=1LUxoY2-pgkCmmNH5goagBp3IMpj6YrdU"
@@ -73,12 +74,15 @@ createBirdsGIFFromList <- function(species, pathData, version,
       }
     }
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+    library("ggmap")
+    mapsKey <- "AIzaSyBEzfVauyBANtryiVes4ECcJywAd4_2_k0"
+    ggmap::register_google(key = mapsKey)
+    
     gifName <- file.path(getwd(), paste0("outputs/birdPreds/", species[sp], "predNWT_", toupper(format(Sys.time(), "%d%b%y")),".gif"))
     ceiling_dec <- function(x, level = 1) round(x + 5*10^(-level-1), level)
     mxVal <- ceiling_dec(max(raster::maxValue(out)), level = 2)
-    breaks <- quantile(x = out, probs = seq(from = 0, to = 1, by = 0.1), na.rm = TRUE) %>%
-      apply(MARGIN = 2, FUN = max)
+    breaks <- quantile(x = out, probs = seq(from = 0, to = 1, by = 0.1), na.rm = TRUE)
+      breaks <-  apply(breaks, MARGIN = 2, FUN = max)
     cols <- RColorBrewer::brewer.pal(n = length(breaks), name = "Spectral")
     
     fixedStack <- lapply(X = 1:quickPlot::numLayers(out), FUN = function(ras){
@@ -87,12 +91,17 @@ createBirdsGIFFromList <- function(species, pathData, version,
                                   long = FALSE)
       names(dt) <- c("x", "y", "value")
       dtable <- data.table::data.table(dt) 
-      dtable[, group := cut(value, breaks)]
+      dtable[, group := cut(value, unique(breaks))]
       dt  <- as.data.frame(dtable)
       names(cols) <- unique(sort(dt$group))
       cols[is.na(cols)] <- "grey93"
       library(ggplot2)
-      spPlot <- ggplot2::ggplot(data = dt, aes(x = x, y = y)) +
+      spPlot <- 
+        # ggmap(get_googlemap(center = c(lon = -121.771563, lat = 63.840037),
+        #                                     zoom = 2, scale = 2,
+        #                                     maptype ='terrain',
+        #                                     color = 'color')) +
+        ggplot2::ggplot(data = dt, aes(x = x, y = y)) +
         geom_tile(aes(fill = group)) +
         scale_fill_manual(
           values = cols) +
@@ -122,7 +131,7 @@ pngPlotName <- file.path(getwd(), "outputs", paste0("Predicted", species[sp], "Y
     })
     if (uploadFiles)
       googledrive::drive_upload(gifName, 
-                              path = as_id("1ZqPVs33HxnnmjLUW94i7AuwAS-nloPGH"))
+                              path = as_id("1kMoKU3zOUtDA4NDP-JTozuKYxZcuKOpo"))
   })
   
 }

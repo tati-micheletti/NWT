@@ -347,7 +347,6 @@ Explains both road density layer and buffered 500m layer.
 
 Avian data for Bird Conservation Region (BCR) 6 were extracted from the Boreal Avian Modelling project avian dataset (Cumming et al.
 2010, Barker et al. 2015) and supplemented with data from automated recording units (ARU) collected by Environment and Climate Change
->>>>>>> 962167b78141d9509e5036ae6f2cb8c8d60b3805
 Canada (Haché et al. unpublished data) and the University of Alberta Bioacoustic Unit (Bayne et al. unpublished data). Density offsets
 were calculated according to methods described in Sólymos et al. (2013), and were based on the assumption that ARU data detectability
 is similar to detectability by human observers (Yip et al. 2017).
@@ -455,7 +454,6 @@ petechia*)
                            modules incorporate existing statistical relationships, with simulated landscape predictions, to produce the
                            probability of occurrence, and population growth rate, of Woodland caribou (boreal population) within the
                            NWT. 
->>>>>>> 962167b78141d9509e5036ae6f2cb8c8d60b3805
 
 `caribouRSFModel`
 The statistical relationship between caribou telemetry collars and the landscape has been summarized within the Environment Canada 2011
@@ -765,11 +763,12 @@ in a google drive's folder (`cloudFolderID`). This folder is sharable with all p
 if (quickPlot::isRstudioServer()) options(httr_oob_default = TRUE)
 
 Edehzhie.url <- "https://drive.google.com/open?id=1klq0nhtFJZv47iZVG8_NwcVebbimP8yT"
-EdehzhieOfficial.url <- "https://drive.google.com/open?id=1fYvNPwovjNtTABoGcegrvdFGkNfCUsxf"
+EdehzhieOfficial3.url <- "https://drive.google.com/open?id=1fYvNPwovjNtTABoGcegrvdFGkNfCUsxf"
 NWT.url <- "https://drive.google.com/open?id=1LUxoY2-pgkCmmNH5goagBp3IMpj6YrdU"
+EdeOficial <- "https://drive.google.com/open?id=15n9BOtswKCJ81-us1u8Dbs0WT9f8bagq"
 
-studyAreaEde <- cloudCache(prepInputs,
-url = Edehzhie.url,
+studyArea <- cloudCache(prepInputs,
+url = EdeURL,
 destinationPath = getPaths()$inputPath[[1]],
 cloudFolderID = cloudFolderID,
 omitArgs = c("destinationPath", "cloudFolderID"))

@@ -6,7 +6,7 @@ library("raster")
 library("plyr"); library("dplyr")
 library("magrittr") # for piping
 
-updateAll <- TRUE
+updateAll <- FALSE
 updateSubmodules <- FALSE
 
 if (updateAll){
@@ -164,23 +164,23 @@ modules <- c(
   "Boreal_LBMRDataPrep",
   "Biomass_regeneration",
   "LBMR",
-  # "climate_NWT_DataPrep",
-  # "MDC_NWT_DataPrep",
-  # "fireSense_NWT_DataPrep",
-  # "fireSense_FrequencyPredict",
-  # "fireSense_EscapePredict",
-  # "LBMR2LCC_DataPrep",
-  # "fireSense_NWT",
-  # "scfmLandcoverInit",
-  # "scfmRegime",
-  # "scfmDriver",
-  # "scfmSpread",
+  "climate_NWT_DataPrep",
+  "MDC_NWT_DataPrep",
+  "fireSense_NWT_DataPrep",
+  "fireSense_FrequencyPredict",
+  "fireSense_EscapePredict",
+  "LBMR2LCC_DataPrep",
+  "fireSense_NWT",
+  "scfmLandcoverInit",
+  "scfmRegime",
+  "scfmDriver",
+  "scfmSpread",
   "PSP_Clean",
   "gmcsDataPrep",
   "caribouPopGrowthModel"
 )
 
-times <- list(start = 10, end = 110)
+times <- list(start = 2001, end = 2100)
 
 #SCFM
 defaultInterval <- 1.0
@@ -205,7 +205,7 @@ parameters <- list(
   scfmDriver = list(targetN = 1000), # 1500
   # LandR_Biomass
   LBMR = list(
-    # "growthInitialTime" = 2011,
+    # "growthInitialTime" = 2011, # Has a default to be start(sim) Maybe Ian changed it here when debugging?
     "successionTimestep" = 10,
     ".useParallel" = 3,
     ".plotInitialTime" = NA,

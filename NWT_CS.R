@@ -1,4 +1,3 @@
-
 setwd("/mnt/data/Micheletti/NWT")
 
 library("LandR")
@@ -7,7 +6,7 @@ library("raster")
 library("plyr"); library("dplyr")
 library("magrittr") # for piping
 
-updateAll <- FALSE
+updateAll <- TRUE
 updateSubmodules <- FALSE
 
 if (updateAll){
@@ -165,23 +164,23 @@ modules <- c(
   "Boreal_LBMRDataPrep",
   "Biomass_regeneration",
   "LBMR",
-  "climate_NWT_DataPrep",
-  "MDC_NWT_DataPrep",
-  "fireSense_NWT_DataPrep",
-  "fireSense_FrequencyPredict",
-  "fireSense_EscapePredict",
-  "LBMR2LCC_DataPrep",
-  "fireSense_NWT",
-  "scfmLandcoverInit",
-  "scfmRegime",
-  "scfmDriver",
-  "scfmSpread",
+  # "climate_NWT_DataPrep",
+  # "MDC_NWT_DataPrep",
+  # "fireSense_NWT_DataPrep",
+  # "fireSense_FrequencyPredict",
+  # "fireSense_EscapePredict",
+  # "LBMR2LCC_DataPrep",
+  # "fireSense_NWT",
+  # "scfmLandcoverInit",
+  # "scfmRegime",
+  # "scfmDriver",
+  # "scfmSpread",
   "PSP_Clean",
   "gmcsDataPrep",
   "caribouPopGrowthModel"
 )
 
-times <- list(start = 0, end = 100)
+times <- list(start = 10, end = 110)
 
 #SCFM
 defaultInterval <- 1.0
@@ -206,14 +205,13 @@ parameters <- list(
   scfmDriver = list(targetN = 1000), # 1500
   # LandR_Biomass
   LBMR = list(
-    "growthInitialTime" = 0,
+    # "growthInitialTime" = 2011,
     "successionTimestep" = 10,
     ".useParallel" = 3,
     ".plotInitialTime" = NA,
     ".saveInitialTime" = NA,
     "seedingAlgorithm" = "wardDispersal",
     ".useCache" = FALSE,
-    "successionTimestep" = 10,
     "initialBiomassSource" = "cohortData",
     "growthAndMortalityDrivers" = "LandR.CS"),
   Boreal_LBMRDataPrep = list(
@@ -223,6 +221,9 @@ parameters <- list(
     "pixelGroupAgeClass" = 10,
     ".useCache" = c(".inputObjects", "init"),
     "subsetDataBiomassModel" = 50),
+  Biomass_regeneration = list(
+    "fireInitialTime" = times$start
+  ),
   climate_NWT_DataPrep = list(
     "rcp" = 45, # 45 or 85
     "gcm" = "CanESM2"), # One of CanESM2, GFDL-CM3, HadGEM2-ES, MPI-ESM-LR
@@ -247,15 +248,12 @@ outputsLandR <- data.frame(
   objectName = rep(c("rstCurrentBurn",
                      "burnMap",
                      "cohortData",
-                     "simulationTreeOutput",
-                     "summaryBySpecies",
-                     "summaryBySpecies1",
                      "simulationOutput",
                      "pixelGroupMap",
                      "simulatedBiomassMap",
                      "ANPPMap",
                      "mortalityMap"), each = length(succTS)),
-  saveTime = c(rep(succTS, times = 11))
+  saveTime = c(rep(succTS, times = 8))
 )
 
 .objects <- list(
@@ -270,10 +268,11 @@ outputsLandR <- data.frame(
   "studyArea" = studyArea,
   "waterRaster" = waterRaster
 )
+ 
 
-NWT_CS <- simInitAndSpades(inputs = inputs, times = times,
-                                       params = parameters,
-                                       modules = modules,
-                                       objects = .objects, paths = paths,
-                                       loadOrder = unlist(modules),
-                                       outputs = outputsLandR, debug = 2)
+NWT_CS <- simInitAndSpades(inputs, times = times,
+                           params = parameters,
+                           modules = modules,
+                           objects = .objects, paths = paths,
+                           loadOrder = unlist(modules),
+                           outputs = outputsLandR, debug = 2)

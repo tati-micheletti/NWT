@@ -32,7 +32,7 @@ if (updateSubmodules){
 # LANDR: Assumption at a landscape level is ok. We are assuming that you (we) are essentially making 
 # the assumption that 2011 looked like 2001. At the _landscape_ level that's not a terrible assumption
 # Oldest PSP stand is way younger than the data we have
-# ee593bdc17cd434c7d29588eed10bdfef8f2c6d6 modules/Biomass_regeneration (heads/development)
+# 35335d977c5e432fbaa7301bdcc8112b5d4dfc80 modules/Biomass_regeneration (heads/development)
 # 019d688e1858792d3eddf3e9d1551a117d55535c modules/Boreal_LBMRDataPrep (heads/development)
 # 84886af3a99fd341c7461158c1ae8c25a8f0c099 modules/LBMR (heads/development)
 # a40bafbb4ea338f37ad8efdae06c2b32aad5f3af modules/LBMR2LCC_DataPrep (heads/master)
@@ -48,7 +48,7 @@ if (updateSubmodules){
 # 78ddd05efd17d9e9931201ee9449ba8dc99f18e7 modules/fireSense_FrequencyPredict (heads/master)
 # dfc61faa8272e9c06c2f4ebeeada58d298c874cc modules/fireSense_NWT (heads/master)
 # c3d3c54e82fbfb34ff53fe34fec9cc3ea8b0bec3 modules/fireSense_NWT_DataPrep (heads/master)
-# ece56c624219ff0937e1322078a82dd896ae7c42 modules/gmcsDataPrep (heads/development)
+# 886184b6d832aee3a57186b53dec65eea1ae16ed modules/gmcsDataPrep (heads/development)
 # 38557980e8675ce39aecafbd6fc6886a7a0cd57b modules/scfm (heads/development)
 
 # Source all common functions

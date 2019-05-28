@@ -42,7 +42,7 @@ if (updateSubmodules){
 # c120d8e1b106cd8d31e54f76bc07e8afbbf23309 modules/birdsNWT (heads/master)
 # 1d1d04d410d55eb07961476dd97073918bb1e63a modules/caribouPopGrowthModel (heads/master)
 # 7797b61b6291400fe3c709744ea367a33c072c3b modules/caribouRSF (heads/master)
-# 9df420dde8f698ee53ad81a9148995e3fdc98c83 modules/climate_NWT_DataPrep (heads/master)
+# 4fc2e61cabf063722b17bb645ce0a180a3331899 modules/climate_NWT_DataPrep (heads/master)
 # dba12450d340ef2a277cac00b633967745db0f80 modules/comm_metricsNWT (heads/master)
 # d976b680f99d7a029dc216984c5fa96c96df42c4 modules/fireSense_EscapePredict (heads/master)
 # 78ddd05efd17d9e9931201ee9449ba8dc99f18e7 modules/fireSense_FrequencyPredict (heads/master)

@@ -31,7 +31,7 @@ if (updateSubmodules){
 # FIRE: fireSense runs a "climate sensitive" fire from 2001 to 2011 using the 2011 climate layer
 # LANDR: Assumption at a landscape level is ok. We are assuming that you (we) are essentially making 
 # the assumption that 2011 looked like 2001. At the _landscape_ level that's not a terrible assumption
-
+# Oldest PSP stand is way younger than the data we have
 # ee593bdc17cd434c7d29588eed10bdfef8f2c6d6 modules/Biomass_regeneration (heads/development)
 # 019d688e1858792d3eddf3e9d1551a117d55535c modules/Boreal_LBMRDataPrep (heads/development)
 # 84886af3a99fd341c7461158c1ae8c25a8f0c099 modules/LBMR (heads/development)

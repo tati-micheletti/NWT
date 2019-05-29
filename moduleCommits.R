@@ -7,6 +7,8 @@
 # the assumption that 2011 looked like 2001. At the _landscape_ level that's not a terrible assumption
 # Oldest PSP stand is way younger than the data we have
 
+# NWT project: 745ce53b4cb1f827819fe8797c4c0ad26b592a44 (heads/master)
+
 # 35335d977c5e432fbaa7301bdcc8112b5d4dfc80 modules/Biomass_regeneration (heads/development)
 # 019d688e1858792d3eddf3e9d1551a117d55535c modules/Boreal_LBMRDataPrep (heads/development)
 # 84886af3a99fd341c7461158c1ae8c25a8f0c099 modules/LBMR (heads/development)
@@ -17,11 +19,11 @@
 # c120d8e1b106cd8d31e54f76bc07e8afbbf23309 modules/birdsNWT (heads/master)
 # 1d1d04d410d55eb07961476dd97073918bb1e63a modules/caribouPopGrowthModel (heads/master)
 # 7797b61b6291400fe3c709744ea367a33c072c3b modules/caribouRSF (heads/master)
-# cce369a99077e5e22abff910a7a0fa1d41b43594 modules/climate_NWT_DataPrep (heads/master)
+# 85f43cee09912a918ef9035376d83ea6b6f924e1 modules/climate_NWT_DataPrep (heads/master)
 # dba12450d340ef2a277cac00b633967745db0f80 modules/comm_metricsNWT (heads/master)
 # d976b680f99d7a029dc216984c5fa96c96df42c4 modules/fireSense_EscapePredict (heads/master)
 # 78ddd05efd17d9e9931201ee9449ba8dc99f18e7 modules/fireSense_FrequencyPredict (heads/master)
 # dfc61faa8272e9c06c2f4ebeeada58d298c874cc modules/fireSense_NWT (heads/master)
-# c3d3c54e82fbfb34ff53fe34fec9cc3ea8b0bec3 modules/fireSense_NWT_DataPrep (heads/master)
+# 3beeb13eb18c2e7f1961bdc9dca29b9253024691 modules/fireSense_NWT_DataPrep (heads/master)
 # 886184b6d832aee3a57186b53dec65eea1ae16ed modules/gmcsDataPrep (heads/development)
 # 38557980e8675ce39aecafbd6fc6886a7a0cd57b modules/scfm (heads/development)

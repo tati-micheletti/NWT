@@ -270,7 +270,7 @@ outputsLandR <- data.frame(
 )
  
 
-NWT_CS <- simInitAndSpades(inputs, times = times,
+NWT_CS <- simInitAndSpades(inputs = inputs, times = times,
                            params = parameters,
                            modules = modules,
                            objects = .objects, paths = paths,

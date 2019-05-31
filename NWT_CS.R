@@ -190,13 +190,13 @@ parameters <- list(
   #SCFM
   # ".progress" = list(type = "text", interval = 1),
   scfmLandcoverInit = list(
-    ".plotInitialTime" = NULL
+    ".plotInitialTime" = NA
   ),
   scfmSpread = list(
     "pSpread" = 0.235,
     "returnInterval" = defaultInterval,
     "startTime" = times$start,
-    ".plotInitialTime" = times$start,
+    ".plotInitialTime" = NA,
     ".plotInterval" = defaultPlotInterval,
     ".saveInitialTime" = defaultInitialSaveTime,
     ".saveInterval" = defaultInterval),

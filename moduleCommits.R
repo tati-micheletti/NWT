@@ -1,3 +1,5 @@
+
+# Stuck at   Dispersal for pixels 11255148 to 11364899 and crashed... > 5hs 
 # Modules and Submodules commits used in version 3 (whole NWT)
 # 
 # Commits on 28th May - Whole NWT run
@@ -7,7 +9,7 @@
 # the assumption that 2011 looked like 2001. At the _landscape_ level that's not a terrible assumption
 # Oldest PSP stand is way younger than the data we have
 
-# NWT project: 745ce53b4cb1f827819fe8797c4c0ad26b592a44 (heads/master)
+# NWT project: a933e355eea45c89ffd22020898f60fdd7e5b8ae (heads/master)
 
 # 35335d977c5e432fbaa7301bdcc8112b5d4dfc80 modules/Biomass_regeneration (heads/development)
 # 019d688e1858792d3eddf3e9d1551a117d55535c modules/Boreal_LBMRDataPrep (heads/development)
@@ -27,3 +29,6 @@
 # 3beeb13eb18c2e7f1961bdc9dca29b9253024691 modules/fireSense_NWT_DataPrep (heads/master)
 # 886184b6d832aee3a57186b53dec65eea1ae16ed modules/gmcsDataPrep (heads/development)
 # 38557980e8675ce39aecafbd6fc6886a7a0cd57b modules/scfm (heads/development)
+
+# Commits of key packages: updated to changes made until the 30th at 11:30am
+# 

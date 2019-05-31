@@ -179,7 +179,6 @@ modules <- c(
   "gmcsDataPrep",
   "caribouPopGrowthModel"
 )
-
 times <- list(start = 2001, end = 2100)
 
 #SCFM
@@ -189,7 +188,7 @@ defaultInitialSaveTime <- NA
 
 parameters <- list(
   #SCFM
-  ".progress" = list(type = "text", interval = 1),
+  # ".progress" = list(type = "text", interval = 1),
   scfmLandcoverInit = list(
     ".plotInitialTime" = NULL
   ),
@@ -269,6 +268,7 @@ outputsLandR <- data.frame(
   "waterRaster" = waterRaster
 )
  
+setDTthreads(10) # Data.table has all threads by default, which is inconveninent and unecessary. Will try setting it for only 10 cores.  
 
 NWT_CS <- simInitAndSpades(inputs = inputs, times = times,
                            params = parameters,

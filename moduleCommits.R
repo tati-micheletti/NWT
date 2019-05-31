@@ -9,12 +9,12 @@
 # the assumption that 2011 looked like 2001. At the _landscape_ level that's not a terrible assumption
 # Oldest PSP stand is way younger than the data we have
 
-# NWT project: 09bf55e153ac2b91e53d0528fc4a334347691a74 (heads/master)
+# NWT project: 4af453e14db327163865f3bb65070601e44e4edf (heads/master) + next commit
 
 # 35335d977c5e432fbaa7301bdcc8112b5d4dfc80 modules/Biomass_regeneration (heads/development)
 # 019d688e1858792d3eddf3e9d1551a117d55535c modules/Boreal_LBMRDataPrep (heads/development)
-# 84886af3a99fd341c7461158c1ae8c25a8f0c099 modules/LBMR (heads/development)
-# 34b490323866e0089cf812575bb2ad4933b603b1 modules/LBMR2LCC_DataPrep (heads/master)
+# 58b08d71465c37a66f5c2a2f97e353ce09281b92 modules/LBMR (heads/development)
+# 0c5b6715fc47261c938262807613a8da23b37c58 modules/LBMR2LCC_DataPrep (heads/master)
 # 0d674d3a264e59148aa03fa4f3d004a007d115d2 modules/LandR_BiomassGMOrig (heads/development)
 # 881957951841d667734556b84e39789622518343 modules/MDC_NWT_DataPrep (heads/master)
 # 6e140843c8b307b69128289b8e377072b9265676 modules/PSP_Clean (heads/master)

@@ -269,10 +269,11 @@ outputsLandR <- data.frame(
 )
  
 setDTthreads(10) # Data.table has all threads by default, which is inconveninent and unecessary. Will try setting it for only 10 cores.  
-
+t1 <- Sys.time()
 NWT_CS <- simInitAndSpades(inputs = inputs, times = times,
                            params = parameters,
                            modules = modules,
                            objects = .objects, paths = paths,
                            loadOrder = unlist(modules),
                            outputs = outputsLandR, debug = 2)
+t2 <- Sys.time()

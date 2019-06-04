@@ -2,15 +2,17 @@
 # Stuck at   Dispersal for pixels 11255148 to 11364899 and crashed... > 5hs 
 # Modules and Submodules commits used in version 3 (whole NWT)
 # 
-# Commits on 28th May - Whole NWT run
+# Commits on 03rd June - Whole NWT run
 # Assumptions: 
 # FIRE: fireSense runs a "climate sensitive" fire from 2001 to 2011 using the 2011 climate layer
 # LANDR: Assumption at a landscape level is ok. We are assuming that you (we) are essentially making 
 # the assumption that 2011 looked like 2001. At the _landscape_ level that's not a terrible assumption
 # Oldest PSP stand is way younger than the data we have
-# LBMR: We found a bug coming from LANDIS-II: double mortality in species. We are working on fixing it.
+# LBMR: We found a bug coming from LANDIS-II: double mortality in species. We are working on fixing it but not fixed for this run.
+# FOR THIS RUN: LandR package - script `maps.R`, function `vegTypeMapGenerator`'s unit test was not run as it was erroring. 
+# I will check it ASAP
 
-# NWT project: 4af453e14db327163865f3bb65070601e44e4edf (heads/master) + next commit
+# NWT project: 34fb75a20f4f51b21ae6fe5c0cf5eb77a960ef5e (heads/master) + next commit
 
 # 35335d977c5e432fbaa7301bdcc8112b5d4dfc80 modules/Biomass_regeneration (heads/development)
 # 019d688e1858792d3eddf3e9d1551a117d55535c modules/Boreal_LBMRDataPrep (heads/development)

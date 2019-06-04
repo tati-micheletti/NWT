@@ -8,6 +8,7 @@
 # LANDR: Assumption at a landscape level is ok. We are assuming that you (we) are essentially making 
 # the assumption that 2011 looked like 2001. At the _landscape_ level that's not a terrible assumption
 # Oldest PSP stand is way younger than the data we have
+# LBMR: We found a bug coming from LANDIS-II: double mortality in species. We are working on fixing it.
 
 # NWT project: 4af453e14db327163865f3bb65070601e44e4edf (heads/master) + next commit
 

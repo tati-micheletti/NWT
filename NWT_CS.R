@@ -1,10 +1,13 @@
 setwd("/mnt/data/Micheletti/NWT")
 
-library("LandR")
+# library("LandR") 3 fix to UnitTest problem in LandR
+devtools::load_all("/mnt/data/Micheletti/LandR")
+library("LandR.CS")
 library("SpaDES")
 library("raster")
 library("plyr"); library("dplyr")
 library("magrittr") # for piping
+
 
 updateAll <- FALSE
 updateSubmodules <- FALSE
@@ -241,8 +244,8 @@ parameters <- list(
     ".growthInterval" = 10)
 )
 
-succTS <- seq(times$start, times$end, 
-              by = parameters$LBMR$successionTimestep)
+succTS <- c(seq(times$start, times$end, 
+              by = parameters$LBMR$successionTimestep), times$end)
 outputsLandR <- data.frame(
   objectName = rep(c("rstCurrentBurn",
                      "burnMap",
@@ -277,3 +280,7 @@ NWT_CS <- simInitAndSpades(inputs = inputs, times = times,
                            loadOrder = unlist(modules),
                            outputs = outputsLandR, debug = 2)
 t2 <- Sys.time()
+
+runVersion <- "V3"
+saveRDS(object = NWT_CS, 
+        file = file.path(paths$outputPath, paste0("NWT_CS_", runVersion,"_", toupper(format(Sys.time(), "%d%b%y")))))

@@ -2,6 +2,10 @@
 # Stuck at   Dispersal for pixels 11255148 to 11364899 and crashed... > 5hs 
 # Modules and Submodules commits used in version 3 (whole NWT)
 # 
+# RESULTS:
+# NWT no climate change: 19MAR19
+# NWT climate change: 03JUN19
+# 
 # Commits on 03rd June - Whole NWT run
 # Assumptions: 
 # FIRE: fireSense runs a "climate sensitive" fire from 2001 to 2011 using the 2011 climate layer
@@ -22,7 +26,7 @@
 # 881957951841d667734556b84e39789622518343 modules/MDC_NWT_DataPrep (heads/master)
 # 6e140843c8b307b69128289b8e377072b9265676 modules/PSP_Clean (heads/master)
 # c120d8e1b106cd8d31e54f76bc07e8afbbf23309 modules/birdsNWT (heads/master)
-# 1d1d04d410d55eb07961476dd97073918bb1e63a modules/caribouPopGrowthModel (heads/master)
+# 1d617235d129b410ece776c07e18972e1bfd9bd0 modules/caribouPopGrowthModel (heads/master)
 # 7797b61b6291400fe3c709744ea367a33c072c3b modules/caribouRSF (heads/master)
 # 61cc11a15502b7ee7199faead74b39d5e2801cb7 modules/climate_NWT_DataPrep (heads/master)
 # dba12450d340ef2a277cac00b633967745db0f80 modules/comm_metricsNWT (heads/master)

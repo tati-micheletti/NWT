@@ -1,10 +1,9 @@
 # Generating plots for NWT project
-# invisible(sapply(X = list.files(file.path(getwd(), "functions/"), 
-#                                 full.names = TRUE), FUN = source))
 
-biomassPerSpeciesYearGRAPH(pathData = file.path(getwd(), "Documents/GitHub/NWT/outputs/19MAR19"), 
-                           times = list(start = 0, end = 100), version = "V3", overwriteRasters = TRUE, 
-                           uploadFiles = FALSE, whereToReport = "Edehzhie")
+biomassPerSpeciesYearGRAPH(pathData = file.path(getwd(), "outputs/03JUN19/"), 
+                           times = list(start = 2001, end = 2100), 
+                           version = "V3_CS", overwriteRasters = TRUE, 
+                           uploadFiles = TRUE, whereToReport = "BCR6_NWT")
 
 createCaribouGIFFromList(pathData = file.path(getwd(), "outputs/28MAR19/"), 
                          uploadFiles = FALSE)

@@ -13,8 +13,15 @@ biomassPerSpeciesYearGRAPH <- function(pathData, times, version,
   y <- seq(times$start, times$end, by = 10)
   years <- paddedFloatToChar(y, padL = 3)
   listCohort <- lapply(X = years, FUN = function(yr){
+    cM <- grepMulti(patterns = "createModObject", x = list.files(getwd()))
+    if (length(cM)!=0)
+      source(cM) else
+        stop("Couldn't find `creatModObject` function. Please debug the code.")
     cohortData <- createModObject(data = "cohortData", sim = NULL,
                                   pathInput = pathData, currentTime = as.numeric(yr))
+    if (is.null(cohortData))
+        stop(paste0("`creatModObject` function did not find the needed file.",
+                       "\n Did you pass the correct time used in the simulation?"))
     return(cohortData)
   })
   
@@ -49,7 +56,6 @@ biomassPerSpeciesYearGRAPH <- function(pathData, times, version,
                                   rasterToMatch = rasterToMatch)
     forestClasses <- c(1:15, 34:35)
     rasterToMatch[!LCC05 %in% forestClasses] <- NA
-  
     speciesYearList <- rbindlist(lapply(X = seq_len(length(listCohort)), FUN = function(y){
     
     listPixelGroupMap[[y]] <- postProcess(x = listPixelGroupMap[[y]],
@@ -118,7 +124,7 @@ biomassPerSpeciesYearGRAPH <- function(pathData, times, version,
                      dev.off()
                      if (uploadFiles){
                        googledrive::drive_upload(gifName,
-                                                 path = as_id("1ZqPVs33HxnnmjLUW94i7AuwAS-nloPGH")) 
+                                                 path = as_id("1yM3v8BdpXbNPfnNZqr4q34D52dH1nEcb")) 
                      }
                    })
     return(list(averageBiomassHa = averageBiomassHa, totalBiomassPerHa = totalBiomassPerHa))

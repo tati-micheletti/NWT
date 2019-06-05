@@ -230,7 +230,7 @@ parameters <- list(
     "rcp" = 45, # 45 or 85
     "gcm" = "CanESM2"), # One of CanESM2, GFDL-CM3, HadGEM2-ES, MPI-ESM-LR
   fireSense_FrequencyPredict = list(
-    "f" = 250 / 10000, # fireSense_FrequencyFit was fitted using the 10km resolution, predictions are made at the 250m resolution?
+    "f" = (250 / 10000)^2, # fireSense_FrequencyFit was fitted using the 10km resolution, predictions are made at the 250m resolution
     "data" = c("MDC06", "LCC")),
   fireSense_EscapePredict = list(
     "data" = c("MDC06", "LCC")),
@@ -241,7 +241,7 @@ parameters <- list(
     ".plotInitialTime" = NULL,
     "recoveryTime" = 40,
     ".useDummyData" = FALSE,
-    ".growthInterval" = 10)
+    ".growthInterval" = 1)
 )
 
 succTS <- c(seq(times$start, times$end, 
@@ -281,6 +281,6 @@ NWT_CS <- simInitAndSpades(inputs = inputs, times = times,
                            outputs = outputsLandR, debug = 2)
 t2 <- Sys.time()
 
-runVersion <- "V3"
+runVersion <- "V4" # V3 had wrong fire parameters
 saveRDS(object = NWT_CS, 
         file = file.path(paths$outputPath, paste0("NWT_CS_", runVersion,"_", toupper(format(Sys.time(), "%d%b%y")))))

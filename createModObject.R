@@ -18,9 +18,11 @@ createModObject <- function(data, sim, pathInput, currentTime){
     } else {
       dt <- readRDS(file.path(pathInput, dataName))
     }
-    if (!is.null(dt)) message(paste0(data, " loaded from " , 
-                                     crayon::magenta(file.path(pathInput, dataName)),
-                                     " for year ", paddedFloatToChar(currentTime, padL = 3)))
+    if (!is.null(dt))
+      message(paste0(data, " loaded from " ,
+                     crayon::magenta(file.path(pathInput, dataName)),
+                     " for year ", paddedFloatToChar(currentTime, padL = 3))) else
+                      message(crayon::red(paste0("No file found for ", currentTime,". Returning NULL")))
   }
   return(dt)  
 }

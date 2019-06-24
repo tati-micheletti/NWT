@@ -275,11 +275,9 @@ outputsLandR <- data.frame(
   "studyArea" = studyArea,
   "waterRaster" = waterRaster
 )
-NWT_CS <- simInit(inputs = inputs, times = times,
+NWT_CS <- simInitAndSpades(inputs = inputs, times = times,
                            params = parameters,
                            modules = modules,
                            objects = .objects, paths = paths,
                            loadOrder = unlist(modules),
-                           outputs = outputsLandR)#, debug = 2)
-# pedev::reload_all("reproducible")
-spades(NWT_CS)
+                           outputs = outputsLandR, debug = 2)

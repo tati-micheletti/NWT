@@ -1,5 +1,6 @@
 
-setwd("/mnt/data/Micheletti/NWT")
+if (!pemisc::user("emcintir"))
+  setwd("/mnt/data/Micheletti/NWT")
 
 library("LandR")
 library("SpaDES")
@@ -46,7 +47,11 @@ if (pemisc::user() %in% c("Tati", "tmichele")) {
   setTempFolder(paths = paths, setTmpFolder = TRUE, usr = user)
 }
 maxMemory <- 5e+12
-scratchDir <- checkPath(path = paste0("/mnt/tmp/rasterTMP/", user), create = TRUE)
+scratchDir <- if (pemisc::user("emcintir")) {
+  checkPath(path = paste0("~/HDD/tmp"), create = TRUE)
+} else {
+  checkPath(path = paste0("/mnt/tmp/rasterTMP/", user), create = TRUE)
+}
 #Here we check that the creation of the folder worked (we might have problems with writting access, only tested with my own user)
 if(dir.create(scratchDir)) system(paste0("sudo chmod -R 777 /mnt/tmp/rasterTMP"), wait = TRUE) 
 rasterOptions(default = TRUE)
@@ -108,11 +113,11 @@ inputs <- data.frame(
 
 # NWT.url <- "https://drive.google.com/open?id=1LUxoY2-pgkCmmNH5goagBp3IMpj6YrdU"
 # EDE.url <- "https://drive.google.com/open?id=1fYvNPwovjNtTABoGcegrvdFGkNfCUsxf"
-# smallArea.url <- "https://drive.google.com/open?id=1SUvMX4A5RJ057XYa2W_feX6P1L9As4g8"
+smallArea.url <- "https://drive.google.com/open?id=1SUvMX4A5RJ057XYa2W_feX6P1L9As4g8"
 
 # Small study area
 studyArea <- Cache(prepInputs, url = smallArea.url, 
-                   destinationPath = tempdir()))
+                   destinationPath = tempdir())
 
 rasterToMatch <- Cache(prepInputs, url = "https://drive.google.com/open?id=1fo08FMACr_aTV03lteQ7KsaoN9xGx1Df",
                        studyArea = studyArea,
@@ -270,10 +275,11 @@ outputsLandR <- data.frame(
   "studyArea" = studyArea,
   "waterRaster" = waterRaster
 )
-
-NWT_CS <- simInitAndSpades(inputs = inputs, times = times,
+NWT_CS <- simInit(inputs = inputs, times = times,
                            params = parameters,
                            modules = modules,
                            objects = .objects, paths = paths,
                            loadOrder = unlist(modules),
-                           outputs = outputsLandR, debug = 2)
+                           outputs = outputsLandR)#, debug = 2)
+# pedev::reload_all("reproducible")
+spades(NWT_CS)

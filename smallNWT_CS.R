@@ -228,6 +228,11 @@ parameters <- list(
     "pixelGroupAgeClass" = 10,
     ".useCache" = c(".inputObjects", "init"),
     "subsetDataBiomassModel" = 50),
+  Biomass_regeneration = list(
+    "fireInitialTime" = times$start,
+    "fireTimestep" = defaultInterval,
+    ".useCache" = c(".inputObjects")
+    ),
   climate_NWT_DataPrep = list(
     "rcp" = 45, # 45 or 85
     "gcm" = "CanESM2"), # One of CanESM2, GFDL-CM3, HadGEM2-ES, MPI-ESM-LR

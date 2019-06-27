@@ -96,20 +96,20 @@ getPaths() # shows where the 4 relevant paths are
 
 invisible(sapply(X = list.files(file.path(getwd(), "functions"), full.names = TRUE), FUN = source))
 
-Edehzhie.url <- "https://drive.google.com/open?id=1o2VamVILFx8SHqMCPC8bmjM8pkr5fsks"
+# Edehzhie.url <- "https://drive.google.com/open?id=1o2VamVILFx8SHqMCPC8bmjM8pkr5fsks"
 
-studyAreaEde <- Cache(prepInputs,
-                           url = Edehzhie.url,
-                           destinationPath = getPaths()$inputPath[[1]],
-                           userTags = "edeSA",
-                           omitArgs = c("destinationPath"))
-
-rasterToMatch <- Cache(prepInputs, url = "https://drive.google.com/open?id=1fo08FMACr_aTV03lteQ7KsaoN9xGx1Df", 
-                            studyArea = studyAreaEde,
-                            targetFile = "RTM.tif", destinationPath = getPaths()$inputPath[[1]], 
-                       filename2 = NULL,
-                            userTags = "edeRTM",
-                            omitArgs = c("destinationPath", "filename2"))
+# studyAreaEde <- Cache(prepInputs,
+#                            url = Edehzhie.url,
+#                            destinationPath = getPaths()$inputPath[[1]],
+#                            userTags = "edeSA",
+#                            omitArgs = c("destinationPath"))
+# 
+# rasterToMatch <- Cache(prepInputs, url = "https://drive.google.com/open?id=1fo08FMACr_aTV03lteQ7KsaoN9xGx1Df", 
+#                             studyArea = studyAreaEde,
+#                             targetFile = "RTM.tif", destinationPath = getPaths()$inputPath[[1]], 
+#                        filename2 = NULL,
+#                             userTags = "edeRTM",
+#                             omitArgs = c("destinationPath", "filename2"))
 
 times <- list(start = 0, end = 100)
 
@@ -117,13 +117,17 @@ modules <- list("caribouRSF")
 
 cloudFolderID <- "https://drive.google.com/open?id=1PoEkOkg_ixnAdDqqTQcun77nUvkEHDc0"
 
-waterRaster <- prepInputs(url = "https://drive.google.com/open?id=1nPd03gaVXkkaHorirR4UhYrDi95ZgyJM",
-                          targetFile = "waterRasterNW.tif", 
-                          studyArea = studyAreaEde, 
-                          rasterToMatch = rasterToMatch, 
+# waterRaster <- prepInputs(url = "https://drive.google.com/open?id=1nPd03gaVXkkaHorirR4UhYrDi95ZgyJM",
+#                           targetFile = "waterRasterNW.tif", 
+#                           studyArea = studyAreaEde, 
+#                           rasterToMatch = rasterToMatch, 
+#                           destinationPath = getPaths()$inputPath, 
+#                           filename2 = "waterRasterNW.tif", overwrite = TRUE)
+waterRaster <- prepInputs(url = "https://drive.google.com/open?id=1nPd03gaVXkkaHorirR4UhYrDi95ZgyJM", 
                           destinationPath = getPaths()$inputPath, 
-                          filename2 = "waterRasterNW.tif", overwrite = TRUE)
-
+                          targetFile = "waterRasterNWT.tif",studyArea = studyArea,
+                          rasterToMatch = rasterToMatch,
+                          filename2 = NULL)
 
 .objects <- list(
   "rasterToMatch" = rasterToMatch,
@@ -136,7 +140,7 @@ parameters<- list(
   .progress = list(type = "text", interval = 1), # for a progress bar
   caribouRSF = list(
     "decidousSp" = c("Betu_Pap", "Popu_Tre", "Popu_Bal"),
-  "predictionInterval" = 10)
+  "predictionInterval" = 100)
   )
 
 if (quickPlot::isRstudioServer()) options(httr_oob_default = TRUE)
@@ -144,10 +148,10 @@ if (quickPlot::isRstudioServer()) options(httr_oob_default = TRUE)
 caribousInit <- simInit(times = times, params = parameters, modules = modules,
                  objects = .objects)
 
-# caribouCall <- spades(caribousInit) # You don't need to run this
+caribouCall <- spades(caribousInit, debug = 2) # You don't need to run this
 
-library("SpaDES.shiny")
-SpaDES.shiny::shine(sim = caribousInit, title = "Caribous in Edehzhie, NWT")
+# library("SpaDES.shiny")
+# SpaDES.shiny::shine(sim = caribousInit, title = "Caribous in Edehzhie, NWT")
 
 # Quick check on Caribou rasters
 presProbList <- lapply(caribous$predictedPresenceProbability, FUN = function(yr){

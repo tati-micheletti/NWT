@@ -1,10 +1,17 @@
-setwd("/mnt/data/Micheletti/NWT")
 
-updateCRAN <- FALSE
-updateGithubPackages <- FALSE
+if (pemisc::user("tmichele"))
+  setwd("/mnt/data/Micheletti/NWT")
+
+library("LandR")
+library("SpaDES")
+library("raster")
+library("plyr"); library("dplyr")
+library("magrittr") # for piping
+
+updateAll <- FALSE
 updateSubmodules <- FALSE
 
-if (updateGithubPackages){
+if (updateAll){
   devtools::install_github("PredictiveEcology/reproducible@development")
   devtools::install_github("achubaty/amc@development")
   devtools::install_github("PredictiveEcology/pemisc@development")
@@ -12,24 +19,14 @@ if (updateGithubPackages){
   devtools::install_github("PredictiveEcology/LandR@development") # Updates SpaDES.tools and SpaDES.core quickPlot
   devtools::install_github("ianmseddy/LandR.CS@master") # Climate sensitivity in LandR
 }
-
-# library("LandR")
-devtools::load_all("/mnt/data/Micheletti/LandR/")
-library("LandR.CS")
-library("SpaDES")
-library("raster")
-library("plyr"); library("dplyr")
-library("magrittr") # for piping
-
 if (updateSubmodules){
   system(paste0("cd ", getwd(),
                 " && git submodule foreach git pull"), wait = TRUE)
   system(paste0("cd ", getwd(),
                 " && git pull"), wait = TRUE)
   system("git submodule", wait = TRUE) # checks if the branches and commits you are using are the correct ones
-}
-if (updateCRAN)
   update.packages(checkBuilt = TRUE)
+}
 
 # Source all common functions
 invisible(sapply(X = list.files(file.path(getwd(), "functions"), full.names = TRUE), FUN = source))
@@ -50,7 +47,11 @@ if (pemisc::user() %in% c("Tati", "tmichele")) {
   setTempFolder(paths = paths, setTmpFolder = TRUE, usr = user)
 }
 maxMemory <- 5e+12
-scratchDir <- checkPath(path = paste0("/mnt/tmp/rasterTMP/", user), create = TRUE)
+scratchDir <- if (pemisc::user("emcintir")) {
+  checkPath(path = paste0("~/HDD/tmp"), create = TRUE)
+} else {
+  checkPath(path = paste0("/mnt/tmp/rasterTMP/", user), create = TRUE)
+}
 #Here we check that the creation of the folder worked (we might have problems with writting access, only tested with my own user)
 if(dir.create(scratchDir)) system(paste0("sudo chmod -R 777 /mnt/tmp/rasterTMP"), wait = TRUE) 
 rasterOptions(default = TRUE)
@@ -63,7 +64,6 @@ tilePath <- file.path(paths$outputPath, "tiles")
 # Setting all SpaDES options to be used in the project
 .plotInitialTime <- NA
 opts <- options(
-  "spades.recoveryMode" = 2,
   "future.globals.maxSize" = 1000*1024^2,
   "LandR.assertions" = FALSE,
   "LandR.verbose" = 1,
@@ -111,13 +111,17 @@ inputs <- data.frame(
   stringsAsFactors = FALSE
 )
 
-NWT.url <- "https://drive.google.com/open?id=1LUxoY2-pgkCmmNH5goagBp3IMpj6YrdU"
-# EDE.url <- "https://drive.google.com/open?id=1fYvNPwovjNtTABoGcegrvdFGkNfCUsxf"
-studyArea <- Cache(prepInputs,
-                   url = NWT.url,
-                   destinationPath = getPaths()$inputPath[[1]],
-                   userTags = "edeSA",
-                   omitArgs = c("destinationPath"))
+# NWT.url <- "https://drive.google.com/open?id=1LUxoY2-pgkCmmNH5goagBp3IMpj6YrdU"
+EDE.url <- "https://drive.google.com/open?id=1fYvNPwovjNtTABoGcegrvdFGkNfCUsxf"
+# smallArea.url <- "https://drive.google.com/open?id=1SUvMX4A5RJ057XYa2W_feX6P1L9As4g8"
+
+# Small study area
+studyArea <- Cache(prepInputs, url = EDE.url, 
+                   destinationPath = tempdir())
+originalCRS <- crs(studyArea)
+studyArea <- spTransform(studyArea, CRS("+init=epsg:3347"))  # gBuffer needs planas coords
+studyArea <- rgeos::gBuffer(studyArea, width = 300000)
+studyArea <- sp::spTransform(x = studyArea, CRSobj = originalCRS)  # gBuffer needs planas coords
 
 rasterToMatch <- Cache(prepInputs, url = "https://drive.google.com/open?id=1fo08FMACr_aTV03lteQ7KsaoN9xGx1Df",
                        studyArea = studyArea,
@@ -161,17 +165,15 @@ sppEquivalencies_CA$EN_generic_short <- sppEquivalencies_CA$NWT
 # Fix EN_generic_short for plotting. Needs to have all names. Don't have time now.
 
 sppColorVect <- LandR::sppColors(sppEquiv = sppEquivalencies_CA, sppEquivCol = sppEquivCol,
-                              palette = "Set3")
+                                 palette = "Set3")
 mixed <- structure("#D0FB84", names = "Mixed")
 sppColorVect[length(sppColorVect)+1] <- mixed
 attributes(sppColorVect)$names[length(sppColorVect)] <- "Mixed"
 
 modules <- c(
-  # LandR
   "Boreal_LBMRDataPrep",
   "Biomass_regeneration",
   "LBMR",
-  # fireSense
   "climate_NWT_DataPrep",
   "MDC_NWT_DataPrep",
   "fireSense_NWT_DataPrep",
@@ -179,18 +181,16 @@ modules <- c(
   "fireSense_EscapePredict",
   "LBMR2LCC_DataPrep",
   "fireSense_NWT",
-  #SCFM
   "scfmLandcoverInit",
   "scfmRegime",
   "scfmDriver",
   "scfmSpread",
-  #LandR.CS
   "PSP_Clean",
   "gmcsDataPrep",
-  #Caribou
   "caribouPopGrowthModel"
 )
-times <- list(start = 2001, end = 2100)
+
+times <- list(start = 0, end = 100)
 
 #SCFM
 defaultInterval <- 1.0
@@ -199,15 +199,15 @@ defaultInitialSaveTime <- NA
 
 parameters <- list(
   #SCFM
-  # ".progress" = list(type = "text", interval = 1),
+  ".progress" = list(type = "text", interval = 1),
   scfmLandcoverInit = list(
-    ".plotInitialTime" = NA
+    ".plotInitialTime" = NULL
   ),
   scfmSpread = list(
     "pSpread" = 0.235,
     "returnInterval" = defaultInterval,
     "startTime" = times$start,
-    ".plotInitialTime" = NA,
+    ".plotInitialTime" = times$start,
     ".plotInterval" = defaultPlotInterval,
     ".saveInitialTime" = defaultInitialSaveTime,
     ".saveInterval" = defaultInterval),
@@ -215,8 +215,8 @@ parameters <- list(
   scfmDriver = list(targetN = 1000), # 1500
   # LandR_Biomass
   LBMR = list(
-    # "growthInitialTime" = 2011, # Has a default to be start(sim) Maybe Ian changed it here when debugging?
-    "successionTimestep" = 10,
+    "growthInitialTime" = 0,
+    "successionTimestep" = 5,
     ".useParallel" = 3,
     ".plotInitialTime" = NA,
     ".saveInitialTime" = NA,
@@ -225,20 +225,22 @@ parameters <- list(
     "initialBiomassSource" = "cohortData",
     "growthAndMortalityDrivers" = "LandR.CS"),
   Boreal_LBMRDataPrep = list(
-    "useCloudCacheForStats" = if (pemisc::user("tmichele")) TRUE else TRUE,
+    "useCloudCacheForStats" = if (pemisc::user("tmichele")) FALSE else TRUE,
     "sppEquivCol" = sppEquivCol,
     "successionTimestep" = 10,
     "pixelGroupAgeClass" = 10,
     ".useCache" = c(".inputObjects", "init"),
     "subsetDataBiomassModel" = 50),
   Biomass_regeneration = list(
-    "fireInitialTime" = times$start
-  ),
+    "fireInitialTime" = times$start,
+    "fireTimestep" = defaultInterval,
+    ".useCache" = c(".inputObjects")
+    ),
   climate_NWT_DataPrep = list(
     "rcp" = 45, # 45 or 85
     "gcm" = "CanESM2"), # One of CanESM2, GFDL-CM3, HadGEM2-ES, MPI-ESM-LR
   fireSense_FrequencyPredict = list(
-    "f" = (250 / 10000)^2, # fireSense_FrequencyFit was fitted using the 10km resolution, predictions are made at the 250m resolution
+    "f" = 250 / 10000, # fireSense_FrequencyFit was fitted using the 10km resolution, predictions are made at the 250m resolution?
     "data" = c("MDC06", "LCC")),
   fireSense_EscapePredict = list(
     "data" = c("MDC06", "LCC")),
@@ -272,7 +274,6 @@ rasBurn <- data.frame(objectName = rep("burnDT",
 )
 outputsLandR <- rbind(outputsLandR, rasBurn)
 
-
 .objects <- list(
   "studyAreaPSP" = studyAreaPSP,
   "rasterToMatch" = rasterToMatch,
@@ -285,20 +286,17 @@ outputsLandR <- rbind(outputsLandR, rasBurn)
   "studyArea" = studyArea,
   "waterRaster" = waterRaster
 )
- 
+
 data.table::setDTthreads(10) # Data.table has all threads by default, which is inconveninent and unecessary. Will try setting it for only 10 cores.  
 t1 <- Sys.time()
-NWT_CS <- Cache(simInitAndSpades, inputs = inputs, times = times,
-                params = parameters,
-                modules = modules,
-                objects = .objects, 
-                paths = paths,
-                loadOrder = unlist(modules),
-                outputs = outputsLandR, debug = 2,
-                useCloud = options("reproducible.useCloud"),
-                cloudFolderID = cloudFolderID,
-                omitArgs = c("debug", "paths"))
+Edehzhie_CS <- Cache(simInitAndSpades, inputs = inputs, times = times,
+                           params = parameters,
+                           modules = modules,
+                           .objects = .objects, 
+                           paths = paths,
+                           loadOrder = unlist(modules),
+                           outputs = outputsLandR, debug = 2,
+                     useCloud = options("reproducible.useCloud")[[1]],
+                     cloudFolderID = cloudFolderID,
+                     omitArgs = c("debug", "paths"))
 t2 <- Sys.time()
-
-saveRDS(object = NWT_CS,
-        file = file.path(paths$outputPath, paste0("NWT_CS_", toupper(format(Sys.time(), "%d%b%y")))))

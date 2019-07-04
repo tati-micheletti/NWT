@@ -8,8 +8,8 @@ library("raster")
 library("plyr"); library("dplyr")
 library("magrittr") # for piping
 
-updateAll <- FALSE
-updateSubmodules <- FALSE
+updateAll <- TRUE
+updateSubmodules <- TRUE
 
 if (updateAll){
   devtools::install_github("PredictiveEcology/reproducible@development")
@@ -268,7 +268,7 @@ parameters <- list(
     "rcp" = 45, # 45 or 85
     "gcm" = "CanESM2"), # One of CanESM2, GFDL-CM3, HadGEM2-ES, MPI-ESM-LR
   fireSense_FrequencyPredict = list(
-    "f" = (250 / 10000)^2, # fireSense_FrequencyFit was fitted using the 10km resolution, predictions are made at the 250m resolution
+    "rescalFactorq" = (250 / 10000)^2, # fireSense_FrequencyFit was fitted using the 10km resolution, predictions are made at the 250m resolution
     "data" = c("MDC06", "LCC")),
   fireSense_EscapePredict = list(
     "data" = c("MDC06", "LCC")),

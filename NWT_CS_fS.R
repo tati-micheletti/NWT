@@ -215,16 +215,22 @@ parameters <- list(
   scfmDriver = list(targetN = 1000), # 1500
   # LandR_Biomass
   LBMR = list(
-    # "growthInitialTime" = 2011, # Has a default to be start(sim) Maybe Ian changed it here when debugging?
     "successionTimestep" = 10,
-    ".useParallel" = 3,
     ".plotInitialTime" = NA,
     ".saveInitialTime" = NA,
     "seedingAlgorithm" = "wardDispersal",
     ".useCache" = FALSE,
     "initialBiomassSource" = "cohortData",
-    "growthAndMortalityDrivers" = "LandR.CS"),
+    "growthAndMortalityDrivers" = "LandR.CS",
+    ".useParallel" = 2),
   Boreal_LBMRDataPrep = list(
+    "speciesUpdateFunction" = list(
+      quote(LandR::speciesTableUpdate(sim$species, sim$speciesTable, sim$sppEquiv, P(sim)$sppEquivCol)),
+      quote(setSeedDist(speciesTable = sim$species, 
+                               param = "seeddistance_max", 
+                               facMult = 0.4, 
+                               species = c("Betu_Pap", "Popu_Tre")))
+    ),
     "useCloudCacheForStats" = if (pemisc::user("tmichele")) TRUE else TRUE,
     "sppEquivCol" = sppEquivCol,
     "successionTimestep" = 10,
@@ -232,6 +238,7 @@ parameters <- list(
     ".useCache" = c(".inputObjects", "init"),
     "subsetDataBiomassModel" = 50),
   Biomass_regeneration = list(
+    "fireTimestep" = 1,
     "fireInitialTime" = times$start
   ),
   climate_NWT_DataPrep = list(
@@ -288,6 +295,9 @@ outputsLandR <- rbind(outputsLandR, rasBurn)
  
 data.table::setDTthreads(10) # Data.table has all threads by default, which is inconveninent and unecessary. Will try setting it for only 10 cores.  
 t1 <- Sys.time()
+
+# TO DEBUG :
+# devtools::load_all("/mnt/data/Micheletti/LandR")
 NWT_CS <- Cache(simInitAndSpades, inputs = inputs, times = times,
                 params = parameters,
                 modules = modules,
@@ -295,9 +305,10 @@ NWT_CS <- Cache(simInitAndSpades, inputs = inputs, times = times,
                 paths = paths,
                 loadOrder = unlist(modules),
                 outputs = outputsLandR, debug = 2,
-                useCloud = options("reproducible.useCloud"),
+                useCloud = options("reproducible.useCloud")[[1]],
                 cloudFolderID = cloudFolderID,
                 omitArgs = c("debug", "paths"))
+
 t2 <- Sys.time()
 
 saveRDS(object = NWT_CS,

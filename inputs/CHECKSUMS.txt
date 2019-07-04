@@ -153,3 +153,4 @@
 "BC_Alberta.shx" "0d3677f7ba71be2d" "116" "xxhash64"
 "waterRasterNW.tif" "2cf4f2c41e0f2930" "3996049" "xxhash64"
 "waterRasterNWT.tif" "2cf4f2c41e0f2930" "3996049" "xxhash64"
+"wetlandsNWT250m.tif" "31b9ced39a6a5d5e" "3996492" "xxhash64"

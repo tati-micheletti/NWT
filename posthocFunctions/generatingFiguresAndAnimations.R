@@ -57,7 +57,7 @@ sppEquivalencies_CA$EN_generic_short <- sppEquivalencies_CA$NWT
 sppColorVect <- LandR::sppColors(sppEquiv = sppEquivalencies_CA, sppEquivCol = sppEquivCol,
                                  palette = "Set3")
 
-folder <- "18JUN19_CS_SCFM" #"08JUN19"
+folder <- "29JUN19"#18JUN19_CS_SCFM" #"08JUN19"
 simul <- "CS_SCFM"
 folderPath <- paste0("/mnt/data/Micheletti/NWT/outputs/", folder,"/")
 cohorDataList <- bringObjectTS(path = folderPath, rastersNamePattern = "cohortData")
@@ -74,6 +74,25 @@ maxAge <- data.table::rbindlist(lapply(X = 1:length(cohorDataList), function(ind
               maxAge = max(r[], na.rm = TRUE),
               medianAge = median(r[], na.rm = TRUE)))
 }))
+# AGE ~~~~~~~~~~~~~~~~
+maxAgePlot <- lapply(X = c(1, length(cohorDataList)), function(index){
+  cohort <- cohorDataList[[index]]
+  pixelGroup <- pixelGroupList[[index]]
+  a <- cohort[, list(maxAge = max(age, na.rm = TRUE)), by = "pixelGroup"]
+  r <- SpaDES.tools::rasterizeReduced(a, pixelGroup, "maxAge", "pixelGroup")
+  return(r)
+})
+names(maxAgePlot) <- c("maxAgePlot2011", "maxAgePlot2100")
+rng = range(c(getValues(maxAgePlot[[1]]), getValues(maxAgePlot[[2]])), na.rm = TRUE)
+brks <- c(seq(min(rng), max(rng), by = 10),max(rng)) 
+nb <- length(brks)-1
+cols <- rev(heat.colors(nb))
+par(mfrow=c(1,2))
+plot(maxAgePlot[[1]], breaks=brks, col=cols, lab.breaks=brks, main='Max Age 2011', colNA = "grey85")
+plot(maxAgePlot[[2]], breaks=brks, col=cols, lab.breaks=brks, main='Max Age 2100', colNA = "grey85")
+plot(maxAgePlot[[1]], breaks=brks, col=cols, lab.breaks=brks, main='Max Age 2011') 
+plot(maxAgePlot[[2]], breaks=brks, col=cols, lab.breaks=brks, main='Max Age 2100', legend = FALSE)
+
 # BIOMASS ~~~~~~~~~~~~~~~~
 maxBiomassPlot <- lapply(X = c(1, length(cohorDataList)), function(index){
   cohort <- cohorDataList[[index]]
@@ -88,8 +107,8 @@ brks <- seq(min(rng), max(rng)/10, by = (max(rng)/10-min(rng))/10)
 nb <- length(brks)-1
 cols <- rev(heat.colors(nb))
 par(mfrow=c(1,2))
-plot(maxBiomassPlot[[1]], breaks=brks, col=cols, lab.breaks=brks, main='Max Age 2011', colNA = "grey85")
-plot(maxBiomassPlot[[2]], breaks=brks, col=cols, lab.breaks=brks, main='Max Age 2100', colNA = "grey85")
+plot(maxBiomassPlot[[1]], breaks=brks, col=cols, lab.breaks=brks, main='Max biomass 2011', colNA = "grey85")
+plot(maxBiomassPlot[[2]], breaks=brks, col=cols, lab.breaks=brks, main='Max biomass 2100', colNA = "grey85")
 plot(maxBiomassPlot[[1]], breaks=brks, col=cols, lab.breaks=brks, main='Max biomass 2011') 
 plot(maxBiomassPlot[[2]], breaks=brks, col=cols, lab.breaks=brks, main='Max biomass 2100', legend = FALSE)
 
@@ -111,7 +130,7 @@ cols <- levels(leadingSpecies[[1]])[[1]]$colors
 par(mfrow=c(1,1))
 plot(leadingSpecies[[1]], col=cols, main='Leading species 2011', legend = TRUE)
 plot(leadingSpecies[[2]], col=cols, main='Leading species 2100', legend = FALSE)
-legend("bottom", legend = legendNames, fill = cols, horiz = TRUE)
+legend("right", legend = legendNames, fill = cols, horiz = TRUE)
 
 
 maxAge$years <- c(seq(2001, 2100, by = 10), 2100)
@@ -152,6 +171,7 @@ histAge$color <- ifelse(histAge$vals < 40, "yellow",
 
 
 leadingMaps <- data.table::rbindlist(lapply(X = 1:length(cohorDataList), function(index){
+  browser()
   cohort <- cohorDataList[[index]]
   pixelGroup <- pixelGroupList[[index]]
   

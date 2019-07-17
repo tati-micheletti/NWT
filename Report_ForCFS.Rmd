@@ -1,14 +1,18 @@
 ---
 title: 'Simulation effects of climate change on fire regime\: implications for Boreal
   Caribou and landbird communities in the Northwest Territories'
-subtitle: "Draft last revised 3/31/2019"
-author: Tati Micheletti\textsuperscript 1, Frances Stewart\textsuperscript 2, Eliot McIntire\textsuperscript {1,2}, Ian Eddy\textsuperscript 2,  Ceres
-  Barros\textsuperscript 1, Jean Marchal\textsuperscript 3, Diana Stralberg\textsuperscript 4, Mario van Telgen\textsuperscript 5, Ana Raymundo\textsuperscript 5,
-  Alex Chubaty\textsuperscript 6, Steve Cumming\textsuperscript 5
+author: Tati Micheletti\textsuperscript 1, Frances Stewart\textsuperscript 2, Eliot
+  McIntire\textsuperscript {1,2}, Ian Eddy\textsuperscript 2,  Ceres Barros\textsuperscript
+  1, Jean Marchal\textsuperscript 3, Diana Stralberg\textsuperscript 4, Mario van
+  Telgen\textsuperscript 5, Ana Raymundo\textsuperscript 5, Alex Chubaty\textsuperscript
+  6, Steve Cumming\textsuperscript 5
+subtitle: Draft last revised 3/31/2019
 output:
   pdf_document:
     df_print: paged
-    number_sections: TRUE
+    number_sections: yes
+  html_document:
+    df_print: paged
 toc: yes
 ---
 ^[\textsuperscript. University of British Columbia, \textsuperscript 2 Natural Resources Canada, Canadian
@@ -71,11 +75,11 @@ computer. For the whole BCR 6 within the NWT, the following table indicates an a
 
 module                | approximate duration |
 :--------------------:|:--------------------:|
-LandR                 |  10 hours*           |
-LandR.CS (climate)    |  10 hours*           |
-scfm-fireSense        |  14 hours            | 
+LandR                 |  3 hours*            |
+LandR.CS (climate)    |  5 hours*            |
+scfm-fireSense        |  11 hours            | 
 anthropogenic         |  10 minutes          |
-birdsNWT (84 sp)      |  48 hours            |
+birdsNWT (84 sp)      |  80 hours            |
 caribouRSFModel       |  1.4 days            |
 caribouPopGrowthModel |  10 hours**          |
 comm_metricsNWT       |  3 hours             |
@@ -261,7 +265,7 @@ T2 <- structure(list(Land.cover.class = structure(1:7, .Label = c("Conifer mediu
 "Other treed", "Wetlands"), class = "factor"), 
     Accuracy = c(0.68, 0.79, 0.72, 0.7, 0.57, 0.79, 0.82)), class = "data.frame", row.names = c(NA, 
 -7L))
-knitr::kable(T1)
+knitr::kable(T2)
 ```
 
 Briefly, the `scfm-fireSense` simulation modules consist of:
@@ -577,7 +581,7 @@ and 169 NWT VHF-collared adult female caribou between 2000 and 2010 (Environment
 In the Taiga Plains ecozone, relative resource selection by adult female boreal caribou is best described by:
 
 $$selection Probability \sim Elevation + Elevation^2 + Vrug + Vrug^2 +$$ 
-$$RoadDensity + Deciduous + Shrub + Herb + Water + RecentBurn + OldBurn$$ [Eq. 1]
+<!-- $$RoadDensity + Deciduous + Shrub + Herb + Water + RecentBurn + OldBurn$$ [Eq. 1] -->
 
 The definitions and units of measurement for each covariate can be found in Table 40 of Environment Canada (2011). 
 The methodology is described in Appendix 7.3 of Environment Canada (2011). 
@@ -721,61 +725,39 @@ the degree of difference between species. They do not account for differences in
 
 \pagebreak                           
 
-### **Edehzhie**
-For the third deliverable, we have conducted a limited multi-species analysis over 
-the proposed Edehzhie protected area. Over this region, we calculated Bird species abundance (`birdsNWT`),
+### **Preliminary Results**
+We have conducted a limited multi-species analysis over the study area. We calculated Bird species abundance (`birdsNWT`),
                             caribou population growth (`caribouPopGrowthModel`), and caribou and relative habitat selection
-                            (`caribouRSFModel`). We calculated these same indicators for two other nearby polygons of the same
-                            size and shape. The purpose was to assess the performance of the proposed 
-                            new protected areas with respect to these indicators.  
+                            (`caribouRSFModel`).
 
-
-Figure 4: `LandR` biomass simulation per species per decade. Average biomass in tons/ha. 
-
+Figure 4: `LandR.CS` biomass simulation per species per decade. Average biomass in tons/ha from 2001 to 2100.
 <center>
-![Figure 4](outputs/19MAR19/averageBiomassHaV3_29MAR19.png)
+![Figure 4](figures/totalBiomassPerSpecies.png)
 </center>
 
 \pagebreak
 
-Figure 5:  American Redstart (AMRE) and Overnbird (OVEN) abundance prediction without climate sensitive vegetation (`LandR`) or fire (`scfm`).
-
+Figures 5 and 6:  Example of Olive-sided flycatcher (OSFL) and Boreal chickadee (BOCH) abundance prediction with climate sensitive vegetation (`LandR.CS`) and fire (`fireSense`) in 2011 and 2100.
 <center>
-![Figure 5](outputs/28MAR19/BirdPredictionExample.png)
+![Figure 5](figures/OSFL.PNG)
 </center>
-Figure 7: Caribou selection preference over the three areas.
 <center>
-![Figure 7](outputs/28MAR19/RSFExample.png)
+![Figure 6](figures/BOCH.PNG)
 </center>
-
-Figure 6: Caribou population growth rates. These figures show forecast demographic parameters with standard errors for the two sets of reporting regions provided `Boreal caribou NT1 range planning regions 2018` and the `Units for ECCC modeling project 2019`. Results are shown for the first four years of the simulation period only, as a sample of the preliminary results.
+Figure 7: Caribou selection preference in 2011 and 2100.
 <center>
-![Figure 6a](outputs/28MAR19/Area1.png)
-![Figure 6b](outputs/28MAR19/Area2.png)
+![Figure 7](figures/CaribouRSF.PNG)
 </center>
 
-Figure 8a and b: Community metrics for the three areas, showing 4 diversity indices in 2011 and 2111.
-
+Figure 6: Caribou population growth rates. These figures show forecast demographic parameters with standard errors for the `Boreal caribou NT1 range planning regions 2018`. Results are shown for 20.
 <center>
-![Figure 8a](outputs/28MAR19/DiversityIndexYear0.png)  
-![Figure 8b](outputs/28MAR19/DiversityIndexYear100.png)
-</center>
-
-\pagebreak
-
-Figure 9: Community metrics for the three areas showing 4 diversity indices for each polygon for every 10 years of simulations.
-
-<center>
-
-![Figure 9](outputs/28MAR19/CommunityMetrics.png)
-
+![Figure 6a](figures/popGrowth2.png)
 </center>
 
 # Integrated modules final component of Item 3: Species co-occurrence
 One deliverable was to conduct species co-occurrence analyses for bird Species At Risk and 
 caribou within protected areas and elsewhere, to evaluate potential for multi-species conservation planning. 
-It was not possible to complete this analysis by deadline. We will pursue it in April.
-
+It was not possible to complete this analysis by deadline. We will pursue it in the next weeks.
 
 # Concluding remarks
 ## Data to decisions: integrated, spatially explicit, multispecies forecasting for BCR6, in SpaDES. 
@@ -932,9 +914,9 @@ http://dx.doi.org/10.5751/ACE00997-120111
 ## `LandR` vegetation parameter estimates for Bird Conservation Region (BCR) 6
 
 <!--Tati Ignore maxB, aNPP and SEP per species and ecodistrict-land cover combination -->
-### This section is in progress.
-
-`Boreal_LBMRDataPrep` uses available data on species percent cover (% cover), stand age, total biomass, ecodistricts and land cover
+  ### This section is in progress.
+  
+  `Boreal_LBMRDataPrep` uses available data on species percent cover (% cover), stand age, total biomass, ecodistricts and land cover
 class (LCC) (see `LandR` documentation for product links) to estimate species-specific parameters of maximum biomass (maxB), seed
 establishment probability (SEP) and above ground net primary productivity (aNPP), and to build initial unique communities to populate
 the landscape and start simulating vegetation dynamics. The selection of tree species entering the simulation was based on species
@@ -950,23 +932,23 @@ species longevity parameters (obtained from LANDIS-II species traits tables). Th
 “correct” age observations (those already corrected for 0 cover and that were not > longevity) against the interaction of observed
 biomass (totalB) and species identity (speciesCode) and % cover, accounting for the random effect of combination of ecodistrict and LCC
 (ecoregionCode):
+  
+  $$\mathrm{age} \sim \mathrm{totalB} * \mathrm{speciesCode} + \mathrm{\%cover} + (1 | \mathrm{ecoregionCode})$$  [Eq. 1]
 
-$$\mathrm{age} \sim \mathrm{totalB} * \mathrm{speciesCode} + \mathrm{%cover} + (1 | \mathrm{ecoregionCode})$$  [Eq. 1]
-
-This model was then used to predict missing age values, bounded to 0 on the lower limit. 
+This model was then used to predict missing age values, bounded to 0 on the lower limit.  
 
 Parameters maxB and aNPP were then estimated from a linear mixed effects model reflecting the response of species-specific biomass (B)
 to the interaction between age (on the log scale, logAge) and species and % cover and species, accounting for the random effect of
 ecoregionGroup on the calculated slopes (per species) and intercepts:
-
-$$B \sim \log(\mathrm{Age}) * \mathrm{speciesCode} + \mathrm{cover} * \mathrm{speciesCode} + (\mathrm{speciesCode} | \mathrm{ecoregionGroup})$$ [Eq. 2]
+  
+  $$B \sim \log(\mathrm{Age}) * \mathrm{speciesCode} + \mathrm{cover} * \mathrm{speciesCode} + (\mathrm{speciesCode} | \mathrm{ecoregionGroup})$$ [Eq. 2]  
 
 Estimates of SEP based on a generalized mixed effects model relating % cover and species, accounting for the random effect of
 ecoregionGroup on the intercepts. In this case, species % cover was treated as the number of times a species was observed (no. of
-pixels with cover > 0) per ecoregionGroup, thus following a binomial distribution that was account for in the model with a logit link
+                                                                                                                           pixels with cover > 0) per ecoregionGroup, thus following a binomial distribution that was account for in the model with a logit link
 function:
-
-$$\operatorname{logit}(p_i) \sim \mathrm{speciesCode} + (1 | \mathrm{ecoregionGroup})$$ [Eq. 3]
+  
+  $$\operatorname{logit}(p_i) \sim \mathrm{speciesCode} + (1 | \mathrm{ecoregionGroup})$$ [Eq. 3]  
 
 where $p_i$ is the probability of finding a non-zero amount of cover of species $i$ in an ecoregionGroup. In other words, is is the species' prevalence, or the proportion of pixels wherein it occurs. 
 
@@ -978,14 +960,12 @@ conditional r^2^ were  0.70 and  0.77, respectively, and for the percentage cove
 To estimate maxB we predicted biomass for unique combinations of species and ecoregion code assuming maximum age (i.e. longevity). aNPP
 was then calculated per species and ecoregionGroup as maxB/30 (following LANDIS-II). Before estimating SEP, the predicted values of %
 cover per ecoregionGroup per species (obtained from Eq. 3) where temporally integrated to reflect the simulation timescale (10 years)
-as $1 - (1 - \mathrm{predictedCover})^10$. These estimates were then multiplied by 
-$(1 - \mathrm{resprouting probability})$ of each species, so that SEP
-reflects only the probability of seed germination (note that re-sprouting probabilities were taken from the LANDIS-II species trait
+as $1 - (1 - \mathrm{predictedCover})^10$. These estimates were then multiplied by $(1 - \mathrm{resprouting probability})$ of each species, so that SEP reflects only the probability of seed germination (note that re-sprouting probabilities were taken from the LANDIS-II species trait
 tables). Remaining parameters, i.e. species traits, were obtained from LANDIS-II trait data (see above for reference) and can be
 consulted in Table A1
 
 <!--TATI TO ADD TABLE HERE-->
-Complete tables for all estimated parameters will be added to a later version of this document..
+Complete tables for all estimated parameters will be added to a later version of this document.
 <!--
 [Table A1: Species trait values and estimated values of seed establishment probability (establishprob), maximum biomass (maxB) and maximum aboveground net primary productivity (maxANPP) by combination of ecodistrict and land-cover class (ecoregionGroup)]
 -->

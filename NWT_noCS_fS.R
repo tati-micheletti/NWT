@@ -1,24 +1,18 @@
 setwd("/mnt/data/Micheletti/NWT")
-
+t1 <- Sys.time()
 updateCRAN <- FALSE
 updateGithubPackages <- FALSE
 updateSubmodules <- FALSE
 
 if (updateGithubPackages){
   devtools::install_github("PredictiveEcology/reproducible@development")
+  devtools::install_github("tati-micheletti/usefun")
   devtools::install_github("achubaty/amc@development")
   devtools::install_github("PredictiveEcology/pemisc@development")
   devtools::install_github("PredictiveEcology/map@development")
   devtools::install_github("PredictiveEcology/LandR@development") # Updates SpaDES.tools and SpaDES.core quickPlot
   devtools::install_github("ianmseddy/LandR.CS@master") # Climate sensitivity in LandR
 }
-
-# library("LandR")
-devtools::load_all("/mnt/data/Micheletti/LandR/")
-library("SpaDES")
-library("raster")
-library("plyr"); library("dplyr")
-library("magrittr") # for piping
 
 if (updateSubmodules){
   system(paste0("cd ", getwd(),
@@ -30,8 +24,16 @@ if (updateSubmodules){
 if (updateCRAN)
   update.packages(checkBuilt = TRUE)
 
-# Source all common functions
-invisible(sapply(X = list.files(file.path(getwd(), "functions"), full.names = TRUE), FUN = source))
+library("LandR")
+library("SpaDES")
+library("raster")
+library("plyr"); library("dplyr")
+library("magrittr") # for piping
+library("usefun")
+
+# # Source all common functions
+# invisible(sapply(X = list.files(file.path(getwd(), "functions"), full.names = TRUE), FUN = source))
+source("/mnt/data/Micheletti/NWT/functions/not_included/pathsSetup.R")
 
 user <- pemisc::user()
 whichComputer <- if (user == "emcintir") "LocalMachine" else if (user == "tmichele") "BorealCloud" else "LocalMachine"
@@ -43,7 +45,6 @@ if (whichComputer == "BorealCloud" & basename(getwd()) != "NWT"){
 isTest <- FALSE
 
 paths <- pathsSetup(whichComputer = whichComputer, isTest = isTest)
-paths$outputPath <- "/mnt/data/Micheletti/NWT/outputs/11JUN19_noCS_fS/"
 if (length(paths$modulePath) == 1) paths$modulePath <- c(paths$modulePath, file.path(paths$modulePath, "scfm/modules"))
 
 if (pemisc::user() %in% c("Tati", "tmichele")) {
@@ -80,21 +81,20 @@ opts <- options(
   "reproducible.useCache" = TRUE,
   "reproducible.cachePath" = paths$cachePath,
   "reproducible.showSimilar" = FALSE,
-  "reproducible.useCloud" = if (pemisc::user("emcintir")|pemisc::user("tmichele")) FALSE else TRUE,
+  "reproducible.useCloud" = TRUE,
   "spades.moduleCodeChecks" = FALSE, # Turn off all module's code checking
   "spades.useRequire" = FALSE, # assuming all pkgs installed correctly
   "pemisc.useParallel" = TRUE
 )
 
 SpaDES.core::setPaths(modulePath = paths$modulePath, inputPath = paths$inputPath, 
-                      outputPath = "/mnt/data/Micheletti/NWT/outputs/08JUN19_noCS/", cachePath = paths$cachePath)
+                      outputPath = paths$outputPath, cachePath = paths$cachePath)
 
 if (quickPlot::isRstudioServer()) options(httr_oob_default = TRUE)
 
 #################################################################################
 ################################## SIMULATION SET UP ############################
 #################################################################################
-
 
 library("googledrive")
 
@@ -126,6 +126,9 @@ rasterToMatch <- Cache(prepInputs, url = "https://drive.google.com/open?id=1fo08
                        filename2 = NULL,
                        userTags = "edeRTM",
                        omitArgs = c("destinationPath", "filename2"))
+# rasterToMatch2 <- rasterToMatch
+# res(rasterToMatch2) <- c(100, 100)
+# rasterToMatch <- Cache(raster::resample, rasterToMatch, rasterToMatch2, userTags = "rtmHD")
 
 studyAreaPSP <- prepInputs(targetFile = "BC_Alberta.shp",
                            archive = "studyAreaPSP.zip",
@@ -213,30 +216,56 @@ parameters <- list(
   scfmDriver = list(targetN = 1000), # 1500
   # LandR_Biomass
   LBMR = list(
-    # "growthInitialTime" = 2011, # Has a default to be start(sim) Maybe Ian changed it here when debugging?
     "successionTimestep" = 10,
-    ".useParallel" = 3,
     ".plotInitialTime" = NA,
     ".saveInitialTime" = NA,
     "seedingAlgorithm" = "wardDispersal",
     ".useCache" = FALSE,
     "initialBiomassSource" = "cohortData",
-    "growthAndMortalityDrivers" = "LandR"),
+    "growthAndMortalityDrivers" = "LandR",
+    ".useParallel" = 2),
   Boreal_LBMRDataPrep = list(
-    "useCloudCacheForStats" = if (pemisc::user("tmichele")) FALSE else TRUE,
+    "speciesUpdateFunction" = list(
+      quote(LandR::speciesTableUpdate(sim$species, sim$speciesTable, sim$sppEquiv, P(sim)$sppEquivCol)),
+      quote(changeTraits(speciesTable = sim$species, 
+                         param = "seeddistance_max", 
+                         facMult = 0.4, 
+                         species = c("Betu_Pap", "Popu_Tre"))),
+      quote(changeTraits(speciesTable = sim$species, 
+                         param = "longevity", 
+                         facMult = 1.3, 
+                         species = "Pinu_Ban")),
+      quote(changeTraits(speciesTable = sim$species, 
+                         param = "longevity", 
+                         facMult = 1.3, 
+                         species = "Pinu_Ban")),
+      quote(changeTraits(speciesTable = sim$species, 
+                         param = "longevity", 
+                         facMult = 0.80, 
+                         species = "Pice_Gla")),
+      quote(changeTraits(speciesTable = sim$species, 
+                         param = "sexualmature", 
+                         facMult = 0.5, 
+                         species = "Pinu_Ban")),
+      quote(changeTraits(speciesTable = sim$species, 
+                         param = "seeddistance_eff", 
+                         facMult = 1.25, 
+                         species = "Pinu_Ban"))
+    ),
+    "useCloudCacheForStats" = if (pemisc::user("tmichele")) TRUE else TRUE,
     "sppEquivCol" = sppEquivCol,
     "successionTimestep" = 10,
     "pixelGroupAgeClass" = 10,
     ".useCache" = c(".inputObjects", "init"),
     "subsetDataBiomassModel" = 50),
   Biomass_regeneration = list(
+    "fireTimestep" = 1,
     "fireInitialTime" = times$start
   ),
   climate_NWT_DataPrep = list(
     "rcp" = 45, # 45 or 85
     "gcm" = "CanESM2"), # One of CanESM2, GFDL-CM3, HadGEM2-ES, MPI-ESM-LR
   fireSense_FrequencyPredict = list(
-    "f" = (250 / 10000)^2, # fireSense_FrequencyFit was fitted using the 10km resolution, predictions are made at the 250m resolution
     "data" = c("MDC06", "LCC")),
   fireSense_EscapePredict = list(
     "data" = c("MDC06", "LCC")),
@@ -259,14 +288,18 @@ outputsLandR <- data.frame(
                      "pixelGroupMap",
                      "simulatedBiomassMap",
                      "ANPPMap",
-                     "mortalityMap"), each = length(succTS)),
-  saveTime = c(rep(succTS, times = 7))
+                     "mortalityMap",
+                     "climateLayers",
+                     "MDC06"), each = length(succTS)),
+  saveTime = c(rep(succTS, times = 9))
 )
-rasBurn <- data.frame(objectName = rep("burnDT", 
+caribLambda <- data.frame(objectName = c("predictedCaribou", "fireRegimeRas", "speciesEcoregion", "species"),
+                          saveTime = times$end)
+rasBurn <- data.frame(objectName = rep("burnSummary", 
                                        times = length(times$end-times$start)),
                       saveTime = times$start:times$end
 )
-outputsLandR <- rbind(outputsLandR, rasBurn)
+outputsLandR <- rbind(outputsLandR, rasBurn, caribLambda)
 
 
 .objects <- list(
@@ -279,17 +312,23 @@ outputsLandR <- rbind(outputsLandR, rasBurn)
   "omitNonVegPixels" = TRUE,
   "cloudFolderID" = cloudFolderID,
   "studyArea" = studyArea,
-  "waterRaster" = waterRaster
+  "waterRaster" = waterRaster,
+  "fireRegimePolys" = studyArea
 )
 
-data.table::setDTthreads(10) # Data.table has all threads by default, which is inconveninent and unecessary. Will try setting it for only 10 cores.  
-t1 <- Sys.time()
+data.table::setDTthreads(10) # Data.table has all threads by default, which is inconveninent and unecessary. 
+# Will try setting it for only 10 cores.  
+# t1 <- Sys.time()
+paths
+
 NWT_noCS_fS <- simInitAndSpades(inputs = inputs, times = times,
-                           params = parameters,
-                           modules = modules,
-                           objects = .objects, paths = paths,
-                           loadOrder = unlist(modules),
-                           outputs = outputsLandR, debug = 2)
+                              params = parameters,
+                              modules = modules,
+                              objects = .objects,
+                              paths = paths,
+                              loadOrder = unlist(modules),
+                              outputs = outputsLandR, debug = 1)
+
 t2 <- Sys.time()
 
 saveRDS(object = NWT_noCS_fS,

@@ -288,7 +288,7 @@ NWT_CS_SCFM <- simInitAndSpades(times = times,
                              modules = modules,
                              objects = .objects, paths = paths,
                              loadOrder = unlist(modules),
-                             outputs = outputsLandR, debug = 2)
+                             outputs = outputsLandR, debug = 1)
 t2 <- Sys.time()
 
 saveRDS(object = NWT_CS_SCFM,

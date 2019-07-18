@@ -1,25 +1,23 @@
 setwd("/mnt/data/Micheletti/NWT")
 
-updateCRAN <- FALSE
-updateGithubPackages <- FALSE
-updateSubmodules <- FALSE
+whichRUN <- "run1"
+t1 <- Sys.time()
+updateCRAN <- TRUE
+updateGithubPackages <- TRUE
+updateSubmodules <- TRUE
+
+if (updateCRAN)
+  update.packages(checkBuilt = TRUE)
 
 if (updateGithubPackages){
   devtools::install_github("PredictiveEcology/reproducible@development")
+  devtools::install_github("tati-micheletti/usefun")
   devtools::install_github("achubaty/amc@development")
   devtools::install_github("PredictiveEcology/pemisc@development")
   devtools::install_github("PredictiveEcology/map@development")
   devtools::install_github("PredictiveEcology/LandR@development") # Updates SpaDES.tools and SpaDES.core quickPlot
   devtools::install_github("ianmseddy/LandR.CS@master") # Climate sensitivity in LandR
 }
-
-# library("LandR")
-devtools::load_all("/mnt/data/Micheletti/LandR/")
-library("LandR.CS")
-library("SpaDES")
-library("raster")
-library("plyr"); library("dplyr")
-library("magrittr") # for piping
 
 if (updateSubmodules){
   system(paste0("cd ", getwd(),
@@ -28,11 +26,19 @@ if (updateSubmodules){
                 " && git pull"), wait = TRUE)
   system("git submodule", wait = TRUE) # checks if the branches and commits you are using are the correct ones
 }
-if (updateCRAN)
-  update.packages(checkBuilt = TRUE)
+
+library("usefun")
+library("LandR")
+library("LandR.CS")
+library("SpaDES")
+library("raster")
+library("plyr"); library("dplyr")
+library("magrittr") # for piping
 
 # Source all common functions
-invisible(sapply(X = list.files(file.path(getwd(), "functions"), full.names = TRUE), FUN = source))
+# invisible(sapply(X = list.files(file.path(getwd(), "functions"), full.names = TRUE), FUN = source))
+source("/mnt/data/Micheletti/NWT/functions/not_included/pathsSetup.R")
+source("/mnt/data/Micheletti/NWT/posthocFunctions/reviseSpeciesTraits.R") # TEMPORARY UNTIL IN LANDR!
 
 user <- pemisc::user()
 whichComputer <- if (user == "emcintir") "LocalMachine" else if (user == "tmichele") "BorealCloud" else "LocalMachine"
@@ -45,6 +51,7 @@ isTest <- FALSE
 
 paths <- pathsSetup(whichComputer = whichComputer, isTest = isTest)
 if (length(paths$modulePath) == 1) paths$modulePath <- c(paths$modulePath, file.path(paths$modulePath, "scfm/modules"))
+paths$outputPath <- checkPath(file.path(paths$outputPath, whichRUN), create = TRUE)
 
 if (pemisc::user() %in% c("Tati", "tmichele")) {
   setTempFolder(paths = paths, setTmpFolder = TRUE, usr = user)
@@ -75,12 +82,12 @@ opts <- options(
   "reproducible.inputPaths" = if (pemisc::user("emcintir")) "~/data" else paths$inputPath,
   "reproducible.quick" = FALSE,
   "reproducible.overwrite" = TRUE,
-  "reproducible.useMemoise" = TRUE, # Brings cached stuff to memory during the second run
+  "reproducible.useMemoise" = FALSE, # Brings cached stuff to memory during the second run
   "reproducible.useNewDigestAlgorithm" = TRUE,  # use the new less strict hashing algo
   "reproducible.useCache" = TRUE,
   "reproducible.cachePath" = paths$cachePath,
   "reproducible.showSimilar" = FALSE,
-  "reproducible.useCloud" = if (pemisc::user("emcintir")|pemisc::user("tmichele")) TRUE else TRUE,
+  "reproducible.useCloud" = TRUE,
   "spades.moduleCodeChecks" = FALSE, # Turn off all module's code checking
   "spades.useRequire" = FALSE, # assuming all pkgs installed correctly
   "pemisc.useParallel" = TRUE
@@ -125,6 +132,9 @@ rasterToMatch <- Cache(prepInputs, url = "https://drive.google.com/open?id=1fo08
                        filename2 = NULL,
                        userTags = "edeRTM",
                        omitArgs = c("destinationPath", "filename2"))
+# rasterToMatch2 <- rasterToMatch
+# res(rasterToMatch2) <- c(100, 100)
+# rasterToMatch <- Cache(raster::resample, rasterToMatch, rasterToMatch2, userTags = "rtmHD")
 
 studyAreaPSP <- prepInputs(targetFile = "BC_Alberta.shp",
                            archive = "studyAreaPSP.zip",
@@ -146,14 +156,11 @@ data("sppEquivalencies_CA", package = "LandR")
 # Make NWT spp equivalencies
 # Popu_Tri == Popu_Bal in NWT
 # Quer_mac in LandR needs to be Quer_Mac in NWT
-sppEquivalencies_CA[, NWT := c(Abie_Bal = "Abie_Bal", 
-                               Betu_Pap = "Betu_Pap", 
+sppEquivalencies_CA[, NWT := c(Betu_Pap = "Betu_Pap", 
                                Lari_Lar = "Lari_Lar", 
                                Pice_Gla = "Pice_Gla",
                                Pice_Mar = "Pice_Mar", 
                                Pinu_Ban = "Pinu_Ban", 
-                               # Pinu_Con = "Pinu_Con", 
-                               # Popu_Bal = "Popu_Bal", 
                                Popu_Tre = "Popu_Tre")[Boreal]]
 
 sppEquivalencies_CA <- sppEquivalencies_CA[!is.na(NWT)]
@@ -190,7 +197,7 @@ modules <- c(
   #Caribou
   "caribouPopGrowthModel"
 )
-times <- list(start = 2001, end = 2100)
+times <- list(start = 2010, end = 2012)
 
 #SCFM
 defaultInterval <- 1.0
@@ -226,10 +233,9 @@ parameters <- list(
   Boreal_LBMRDataPrep = list(
     "speciesUpdateFunction" = list(
       quote(LandR::speciesTableUpdate(sim$species, sim$speciesTable, sim$sppEquiv, P(sim)$sppEquivCol)),
-      quote(setSeedDist(speciesTable = sim$species, 
-                               param = "seeddistance_max", 
-                               facMult = 0.4, 
-                               species = c("Betu_Pap", "Popu_Tre")))
+      quote(reviseSpeciesTraits(speciesTable = sim$species)),
+      quote(usefun::changeTraits(speciesTable = sim$species, param = "seeddistance_max",
+                                 facMult = 0.4, species = c("Betu_Pap", "Popu_Tre")))
     ),
     "useCloudCacheForStats" = if (pemisc::user("tmichele")) TRUE else TRUE,
     "sppEquivCol" = sppEquivCol,
@@ -245,8 +251,7 @@ parameters <- list(
     "rcp" = 45, # 45 or 85
     "gcm" = "CanESM2"), # One of CanESM2, GFDL-CM3, HadGEM2-ES, MPI-ESM-LR
   fireSense_FrequencyPredict = list(
-    "rescalFactor" = (250 / 10000)^2, # fireSense_FrequencyFit was fitted using the 10km resolution, predictions are made at the 250m resolution
-    "data" = c("MDC06", "LCC")),
+     "data" = c("MDC06", "LCC")),
   fireSense_EscapePredict = list(
     "data" = c("MDC06", "LCC")),
   fireSense_NWT_DataPrep = list(
@@ -273,12 +278,11 @@ outputsLandR <- data.frame(
                      "MDC06"), each = length(succTS)),
   saveTime = c(rep(succTS, times = 9))
 )
-rasBurn <- data.frame(objectName = rep("burnDT", 
-                                       times = length(times$end-times$start)),
-                      saveTime = times$start:times$end
-)
-outputsLandR <- rbind(outputsLandR, rasBurn)
-
+lastYears <- data.frame(objectName = c("predictedCaribou", "plotCaribou", 
+                                         "fireRegimeRas", "speciesEcoregion", 
+                                         "species","burnSummary"),
+                          saveTime = times$end)
+outputsLandR <- rbind(outputsLandR, lastYears)
 
 .objects <- list(
   "studyAreaPSP" = studyAreaPSP,
@@ -290,26 +294,39 @@ outputsLandR <- rbind(outputsLandR, rasBurn)
   "omitNonVegPixels" = TRUE,
   "cloudFolderID" = cloudFolderID,
   "studyArea" = studyArea,
-  "waterRaster" = waterRaster
+  "waterRaster" = waterRaster,
+  "fireRegimePolys" = studyArea,
+  "t1" = t1
 )
- 
+
 data.table::setDTthreads(10) # Data.table has all threads by default, which is inconveninent and unecessary. Will try setting it for only 10 cores.  
-t1 <- Sys.time()
+# t1 <- Sys.time()
+paths
+# FOR EXPERIMENT
+# paths$outputPath <- "/mnt/data/Micheletti/NWT/outputs/05JUL19_1"
+# paths2 <- paths
+# paths2$outputPath <- "/mnt/data/Micheletti/NWT/outputs/05JUL19_2"
+# listPaths <- list(paths, paths2)
 
-# TO DEBUG :
-# devtools::load_all("/mnt/data/Micheletti/LandR")
-NWT_CS <- Cache(simInitAndSpades, inputs = inputs, times = times,
-                params = parameters,
-                modules = modules,
-                objects = .objects, 
-                paths = paths,
-                loadOrder = unlist(modules),
-                outputs = outputsLandR, debug = 2,
-                useCloud = options("reproducible.useCloud")[[1]],
-                cloudFolderID = cloudFolderID,
-                omitArgs = c("debug", "paths"))
+# cl <- parallel::makeForkCluster(2, outfile = "/mnt/data/Micheletti/NWT/parallel")
+# NWT_CS_fS <- simInitAndExperiment(inputs = inputs, times = times,
+#                 params = parameters,
+#                 modules = modules,
+#                 objects = .objects, 
+#                 paths = listPaths,
+#                 loadOrder = unlist(modules),
+#                 outputs = outputsLandR, debug = 1, 
+#                 replicates = 2, cl = cl)
 
+NWT_CS_fS <- simInitAndSpades(inputs = inputs, times = times,
+                                  params = parameters,
+                                  modules = modules,
+                                  objects = .objects,
+                                  paths = paths,
+                                  loadOrder = unlist(modules),
+                                  outputs = outputsLandR, debug = 1)
 t2 <- Sys.time()
 
-saveRDS(object = NWT_CS,
-        file = file.path(paths$outputPath, paste0("NWT_CS_", toupper(format(Sys.time(), "%d%b%y")))))
+saveRDS(object = NWT_CS_fS,
+        file = file.path(paths$outputPath, paste0("NWT_CS_fS_", whichRUN, "_", 
+                                                  toupper(format(Sys.time(), "%d%b%y")))))

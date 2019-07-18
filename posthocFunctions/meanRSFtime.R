@@ -7,7 +7,7 @@ meanRSFtime <- function(predictedPresenceProbability,
 meanAndUnc <- lapply(mod, function(eachRas){
   average <- median(eachRas[], na.rm = TRUE)
   rasType <- ifelse(grepl(names(eachRas), pattern = "Uncertain"), "SD", "AVERAGE")
-  yr <- as.numeric(substrLast(string = names(eachRas), howManyCharacters = nchar(initialTime)))
+  yr <- as.numeric(substrBoth(string = names(eachRas), howManyCharacters = nchar(initialTime)))
   dt <- data.table::data.table(average = average, year = yr, scenario = scenario)
   return(dt)
 })

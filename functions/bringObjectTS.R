@@ -1,3 +1,19 @@
+#' bringObjectTS brings objects that represent time series into a list
+#'
+#' @param path path to the directory containing the files to be brought as list.
+#'
+#' @param rastersNamePattern Character vector of the name pattern to be used for the search.
+#'                
+#' @return A list of the objects that were read from disk. Currently the 
+#'             function only works with `.tif` (i.e. raster) and `.rds` objects.
+#'
+#' @author Tati Micheletti
+#' @export
+#' @include grepMulti
+#' @importFrom crayon green magenta
+#' @importFrom raster raster
+#' @rdname bringObjectTS
+
 bringObjectTS <- function(path,
                           rastersNamePattern){
   message(crayon::green(paste0("Looking for files in ", path, "\nUsing the following pattern(s): ", 

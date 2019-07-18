@@ -1,4 +1,4 @@
-booAvrgTimePlot <- function(dtCS, dtNoCS, upload, outputFolder){
+booAvrgTimePlot <- function(dtCS, dtNoCS, upload, outputFolder){ # Caribou RSF average through time. Can take up to 2 comparisons for now
   dt <- rbind(dtCS, dtNoCS)
   library("ggplot2")
   p <- ggplot(data = dt, aes(x = year, y = average, ymin = (average - IC), ymax = (average + IC), group = scenario)) +

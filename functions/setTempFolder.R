@@ -1,3 +1,19 @@
+#' This functions sets a temporary folder for raster and other packages inside the user's cache folder.
+#' Make sure you understand the consequences of using it.
+#'
+#' @param paths paths set with \code{SpaDES.core::setPaths()}.      
+#' @param setTmpFolder logical. Should the function reset your temp folder to a new location? 
+#' @param name caracter. User name for a final verification. If you are sure you want to set
+#'             your temporary location, use "Tati".
+#' 
+#' @return invisible
+#'
+#' @author Tati Micheletti
+#' @export
+#' @importFrom reproducible asPath checkPath
+#' 
+#' @rdname setTempFolder
+#' 
 setTempFolder <- function(paths, setTmpFolder, usr){
   # Set a storage project folder
   require("reproducible")

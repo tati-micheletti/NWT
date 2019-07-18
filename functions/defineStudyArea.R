@@ -1,5 +1,6 @@
 #' @title
-#' Preparing study area for Simulation of effects of climate change on fire regime: implications for BCR6 Caribou and landbird communities in the Northwest Territories project
+#' Preparing study area for Simulation of effects of climate change on fire regime: 
+#' implications for BCR6 Caribou and landbird communities in the Northwest Territories project
 #' 
 #' @description
 #' Downloads, reprojects, crops and masks to speficic areas in canada such as: 

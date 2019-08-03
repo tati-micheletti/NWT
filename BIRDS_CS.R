@@ -3,8 +3,10 @@ setwd("/mnt/data/Micheletti/NWT/")
 # Load SpaDES
 library("SpaDES")
 library("raster")
+library("usefun")
+library("LandR")
 
-options("spades.recoveryMode" = 1)
+options("spades.recoveryMode" = 3)
 
 # Source functions in R folder
 invisible(sapply(X = list.files(file.path(getwd(), "R"), full.names = TRUE), FUN = source))
@@ -12,13 +14,14 @@ invisible(sapply(X = list.files(file.path("/mnt/data/Micheletti/NWT/modules/bird
 invisible(sapply(X = list.files(dirname(getwd()), "functions", full.names = TRUE), FUN = source)) 
 
 setPaths(modulePath = file.path(getwd(), "modules"), cachePath = file.path(getwd(), "cache"),
-         inputPath = file.path(getwd(), "outputs/18JUN19_CS_SCFM/"), 
-         outputPath = file.path(getwd(), "outputs/18JUN19_CS_SCFM/birdPredictions"))
+         inputPath = file.path(getwd(), "outputs/18JUL19/run1/"), 
+         outputPath = file.path(getwd(), "outputs/18JUL19/birdPredictionsV3_Fixed"))
 getPaths() # shows where the 4 relevant paths are
 
 parameters <- list(
   # .progress = list(type = "text", interval = 1), # for a progress bar
   birdsNWT = list(
+    "version" = 3,
     "scenario" = "CS",
     "useStaticPredictionsForNonForest" = TRUE,
     "useOnlyUplandsForPrediction" = TRUE,
@@ -26,8 +29,8 @@ parameters <- list(
     "overwritePredictions" = FALSE,
     "useTestSpeciesLayers" = FALSE, # Set it to false when you actually have results from LandR_Biomass simulations to run it with
     "useParallel" = TRUE, # Using parallel in windows is currently not working.
-    "predictionInterval" = 10,
-    "quickLoad" = TRUE
+    "predictionInterval" = 20,
+    "quickLoad" = FALSE
   )
 )
 
@@ -60,17 +63,13 @@ uplandsRaster <- prepInputs(targetFile = "uplandsNWT250m.tif", studyArea = study
 # Check the list of species available:
 showAvailableBirdSpecies()
 
-# This is the original, do based on the models that are already in the folder. not ideal.
-# birdSpecies <- list.files(path = file.path(getwd(), "modules/birdsNWT/data/models"), pattern = "brt2.R")
-# birdSpecies <- unlist(strsplit(birdSpecies, split = "brt2.R"))
-
 # Each species takes around 20Gb of RAM to run, and about 12hs. Keep that in mind when running on smaller computers.
-spG0 <- c("AMRE", "BLPW", "CAWA", "FOSP",  
-            "OSFL", "OVEN", "PAWA", "RCKI", "RUBL", "WCSP")
+spG0 <- c("AMRE", "BLPW", "CAWA", "FOSP", "BBWA", "BOCH",  
+            "OSFL", "OVEN", "PAWA", "RCKI", "RUBL", "WCSP", "CMWA")
 
-spG1 <- c("ALFL", "AMCR", "AMGO", "AMRO", "ATSP", "BAOR", "BAWW", "BBWA", 
-          "BBWO", "BCCH", "BHCO", "BHVI", "BLBW", "BLJA", "BOCH", "BRBL", 
-          "BRCR", "BRTH", "BTNW", "CCSP", "CEDW", "CHSP", "CMWA", "COGR",
+spG1 <- c("ALFL", "AMCR", "AMGO", "AMRO", "ATSP", "BAOR", "BAWW",  
+          "BBWO", "BCCH", "BHCO", "BHVI", "BLBW", "BLJA", "BRBL", 
+          "BRCR", "BRTH", "BTNW", "CCSP", "CEDW", "CHSP", "COGR",
           "YEWA")
 
 spG2 <- c("HOLA", "HOWR", "LEFL", "LISP", "MAWA", "MOWA", "NOFL", "NOWA", 
@@ -82,33 +81,33 @@ spG3 <- c("CORA", "CORE", "COYE", "CSWA", "DEJU", "EAKI", "EAPH", "EVGR",
           "GCKI", "GCTH", "GRAJ", "GRCA", "HAFL", "VESP", "WAVI", "WBNU", 
           "WETA", "WEWP", "WIWA", "WIWR", "WTSP", "WWCR", "YBFL", "YBSA")
 
-birdSpeciesList <- list(G0 = spG0, G1 = spG1, G2 = spG2, G3 = spG3)
+birdSpeciesList <- list(G0 = spG0, G1 = spG1, G2 = spG2, G3 = spG3) #  # Already completed
 
 env <- environment()
-
-lapply(X = c(2011, 2100), function(YEAR) {
+# ys <- c()
+# lapply(X = ys, function(YEAR) {
   lapply(names(birdSpeciesList), function(groupIndex) {
-  times <- list(start = YEAR, end = YEAR)
+  times <- list(start = 2001, end = 2100)
   birdSpecies <- birdSpeciesList[[groupIndex]]
-
-  # times <- list(start = 2011, end = 2011) #
-  # birdSpecies <- groupIndex <- spG0 #
-  # YEAR <- times$start
 
   sppEquivCol <- "NWT"
   data("sppEquivalencies_CA", package = "LandR")
-  sppEquivalencies_CA[, NWT := c(Abie_Bal = "Abie_Bal", 
-                                 Betu_Pap = "Betu_Pap", 
+  sppEquivalencies_CA[, NWT := c(Betu_Pap = "Betu_Pap", 
                                  Lari_Lar = "Lari_Lar", 
                                  Pice_Gla = "Pice_Gla",
                                  Pice_Mar = "Pice_Mar", 
                                  Pinu_Ban = "Pinu_Ban", 
-                                 Pinu_Con = "Pinu_Con", 
-                                 Popu_Bal = "Popu_Bal", 
                                  Popu_Tre = "Popu_Tre")[Boreal]]
   
   sppEquivalencies_CA <- sppEquivalencies_CA[!is.na(NWT)]
   sppEquivalencies_CA$EN_generic_short <- sppEquivalencies_CA$NWT
+  # Fix EN_generic_short for plotting. Needs to have all names. Don't have time now.
+  
+  sppColorVect <- LandR::sppColors(sppEquiv = sppEquivalencies_CA, sppEquivCol = sppEquivCol,
+                                   palette = "Set3")
+  mixed <- structure("#D0FB84", names = "Mixed")
+  sppColorVect[length(sppColorVect)+1] <- mixed
+  attributes(sppColorVect)$names[length(sppColorVect)] <- "Mixed"
   
   
   .objects <- list(
@@ -117,22 +116,24 @@ lapply(X = c(2011, 2100), function(YEAR) {
     "rasterToMatch" = rasterToMatch,
     "studyArea" = studyArea,
     "sppEquiv" = sppEquivalencies_CA,
-    "sppEquivCol" = sppEquivCol)
+    "sppEquivCol" = sppEquivCol,
+    "urlModels" = "https://drive.google.com/open?id=19Ys5vHj6L_jyfrZdbUb6qpKyEfDfosQ9", # Folder where models are
+    "urlStaticLayers" = "https://drive.google.com/open?id=1DsuIAt1eEkd1jXqSNCmlhs-DGoCa3KEY") # Link to static layers used
   
   modules <- list("birdsNWT")
   inputs <- list()
   outputs <- list()
-  runName <- paste0(groupIndex, "_BIRDS_CS_SCFM_", YEAR)
+  runName <- paste0(groupIndex, "_BIRDS_CS_fS")
 
   assign(x = runName, value = simInitAndSpades(times = times,
                                                params = parameters, 
                                                modules = modules, 
                                                objects = .objects,
-                                               debug = 2), envir = env)
+                                               debug = 1), envir = env)
   saveRDS(object = get(runName),
           file = file.path(SpaDES.core::getPaths()$outputPath, 
                            paste0(runName,
                                   toupper(format(Sys.time(), "%d%b%y")))))
   rm(runName, envir = env)
   })
-})
+# })

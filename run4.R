@@ -1,4 +1,5 @@
 setwd("/mnt/data/Micheletti/NWT")
+whichRUN <- "run4"
 t1 <- Sys.time()
 updateCRAN <- FALSE
 updateGithubPackages <- FALSE
@@ -49,6 +50,7 @@ isTest <- FALSE
 
 paths <- pathsSetup(whichComputer = whichComputer, isTest = isTest)
 if (length(paths$modulePath) == 1) paths$modulePath <- c(paths$modulePath, file.path(paths$modulePath, "scfm/modules"))
+paths$outputPath <- checkPath(file.path(paths$outputPath, whichRUN), create = TRUE)
 
 if (pemisc::user() %in% c("Tati", "tmichele")) {
   setTempFolder(paths = paths, setTmpFolder = TRUE, usr = user)
@@ -160,7 +162,7 @@ sppEquivalencies_CA$EN_generic_short <- sppEquivalencies_CA$NWT
 # Fix EN_generic_short for plotting. Needs to have all names. Don't have time now.
 
 sppColorVect <- LandR::sppColors(sppEquiv = sppEquivalencies_CA, sppEquivCol = sppEquivCol,
-                                palette = "Set3")
+                                 palette = "Set3")
 mixed <- structure("#D0FB84", names = "Mixed")
 sppColorVect[length(sppColorVect)+1] <- mixed
 attributes(sppColorVect)$names[length(sppColorVect)] <- "Mixed"
@@ -189,7 +191,7 @@ modules <- c(
   #Caribou
   "caribouPopGrowthModel"
 )
-times <- list(start = 2001, end = 2001)
+times <- list(start = 2001, end = 2100)
 
 #SCFM
 defaultInterval <- 1.0
@@ -271,9 +273,9 @@ outputsLandR <- data.frame(
   saveTime = c(rep(succTS, times = 9))
 )
 lastYears <- data.frame(objectName = c("predictedCaribou", "plotCaribou", 
-                                         "fireRegimeRas", "speciesEcoregion", 
-                                         "species","burnSummary"),
-                          saveTime = times$end)
+                                       "fireRegimeRas", "speciesEcoregion", 
+                                       "species","burnSummary"),
+                        saveTime = times$end)
 outputsLandR <- rbind(outputsLandR, lastYears)
 
 .objects <- list(

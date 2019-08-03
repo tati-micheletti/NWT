@@ -1,5 +1,5 @@
 setwd("/mnt/data/Micheletti/NWT")
-whichRUN <- "run2"
+whichRUN <- "run1"
 t1 <- Sys.time()
 updateCRAN <- FALSE
 updateGithubPackages <- FALSE
@@ -130,9 +130,6 @@ rasterToMatch <- Cache(prepInputs, url = "https://drive.google.com/open?id=1fo08
                        filename2 = NULL,
                        userTags = "edeRTM",
                        omitArgs = c("destinationPath", "filename2"))
-# rasterToMatch2 <- rasterToMatch
-# res(rasterToMatch2) <- c(100, 100)
-# rasterToMatch <- Cache(raster::resample, rasterToMatch, rasterToMatch2, userTags = "rtmHD")
 
 studyAreaPSP <- prepInputs(targetFile = "BC_Alberta.shp",
                            archive = "studyAreaPSP.zip",
@@ -152,8 +149,6 @@ sppEquivCol <- "NWT"
 data("sppEquivalencies_CA", package = "LandR")
 
 # Make NWT spp equivalencies
-# Popu_Tri == Popu_Bal in NWT
-# Quer_mac in LandR needs to be Quer_Mac in NWT
 sppEquivalencies_CA[, NWT := c(Betu_Pap = "Betu_Pap", 
                                Lari_Lar = "Lari_Lar", 
                                Pice_Gla = "Pice_Gla",
@@ -195,7 +190,7 @@ modules <- c(
   #Caribou
   "caribouPopGrowthModel"
 )
-times <- list(start = 2001, end = 2100)
+times <- list(start = 2010, end = 2012)
 
 #SCFM
 defaultInterval <- 1.0
@@ -277,9 +272,9 @@ outputsLandR <- data.frame(
   saveTime = c(rep(succTS, times = 9))
 )
 lastYears <- data.frame(objectName = c("predictedCaribou", "plotCaribou", 
-                                       "fireRegimeRas", "speciesEcoregion", 
-                                       "species","burnSummary"),
-                        saveTime = times$end)
+                                          "fireRegimeRas", "speciesEcoregion", 
+                                          "species","burnSummary"),
+                          saveTime = times$end)
 outputsLandR <- rbind(outputsLandR, lastYears)
 
 .objects <- list(
@@ -301,20 +296,16 @@ data.table::setDTthreads(10) # Data.table has all threads by default, which is i
 # t1 <- Sys.time()
 paths
 # FOR EXPERIMENT
-# paths$outputPath <- "/mnt/data/Micheletti/NWT/outputs/05JUL19_1"
-# paths2 <- paths
-# paths2$outputPath <- "/mnt/data/Micheletti/NWT/outputs/05JUL19_2"
-# listPaths <- list(paths, paths2)
-
 # cl <- parallel::makeForkCluster(2, outfile = "/mnt/data/Micheletti/NWT/parallel")
+# paths$outputPath <- checkPath("/mnt/data/Micheletti/NWT/outputs/TEST", create = TRUE)
 # NWT_CS_fS <- simInitAndExperiment(inputs = inputs, times = times,
 #                 params = parameters,
 #                 modules = modules,
-#                 objects = .objects, 
-#                 paths = listPaths,
+#                 objects = .objects,
+#                 paths = paths,
 #                 loadOrder = unlist(modules),
-#                 outputs = outputsLandR, debug = 1, 
-#                 replicates = 2, cl = cl)
+#                 outputs = outputsLandR, debug = 1,
+#                 replicates = 2) # cl = cl
 NWT_CS_fS <- simInitAndSpades(inputs = inputs, times = times,
                               params = parameters,
                               modules = modules,
@@ -322,12 +313,6 @@ NWT_CS_fS <- simInitAndSpades(inputs = inputs, times = times,
                               paths = paths,
                               loadOrder = unlist(modules),
                               outputs = outputsLandR, debug = 1)
-
-# Uploading new cached object 528f9d144a0fb34f6123c5beebb3f893.rda, with cacheId: 2d2a73c4e8527bac to cloud folder
-# This is the Cached fire calibration for the new set of polygons ("fireRegimePolys" = studyArea)
-# latest one: Uploading new cached object badc78f4f755fb355dc577c984d08da8.rda, with cacheId: 38f26eb199bbdd91 to cloud folder
-# No idea why this was different than previous!
-# 
 
 t2 <- Sys.time()
 

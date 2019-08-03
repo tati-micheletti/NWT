@@ -33,14 +33,16 @@ if (!is(studyArea, "RasterLayer")) {
   
   dt$herd <- as.factor(dt$studyArea)
   dt$richnessIndex <- scale(dt$richness)
-  mod <- lm(data = dt, formula = RSF ~ richnessIndex + herd  + richnessIndex  : herd)
-  summary(mod)
+  browser()
   
+  # CONVERT INTO A GLMER Herd should be a RE... No interaction either!
+  mod <- lm(data = dt, formula = RSF ~ richnessIndex + herd + richnessIndex:herd)
+  summary(mod)
   
   tbl <- data.table::data.table(herd = sort(unique(dt$herd)),
                                 herdEstimate = c(0, mod$coefficients[3]), # [ FIX ] can't be hardcoded!! Redo it  
                                 richnessIndex = mod$coefficients["richnessIndex"])
-  tbl$slope <- tbl$herdEstimate + tbl$richnessIndex
+  tbl$slope <- tbl$herdEstimate + tbl$richnessIndex # DOUBLE CHECK THIS... SEEMS WEIRD...
   tbl[, c("herdEstimate", "richnessIndex") := NULL]
   dt <- merge(dt, tbl, all.x = TRUE)
   setkey(dt, pixelID)

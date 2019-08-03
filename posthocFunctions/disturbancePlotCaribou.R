@@ -23,7 +23,7 @@ disturbancePlotCaribou <- function(folderData,
                 minAge = min(r[], na.rm = TRUE),
                 maxAge = max(r[], na.rm = TRUE),
                 medianAge = median(r[], na.rm = TRUE),
-                years = as.numeric(usefun::substrBoth(string = index, 
+                years = as.numeric(usefun::substrBoth(strng = index, 
                                                       howManyCharacters = 4, 
                                                       fromEnd = TRUE))))
   }))

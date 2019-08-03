@@ -24,7 +24,7 @@ plotMaxAge <- function(years = c(2001, 2100),
                 minAge = min(r[], na.rm = TRUE),
                 maxAge = max(r[], na.rm = TRUE),
                 medianAge = median(r[], na.rm = TRUE),
-                years = as.numeric(usefun::substrBoth(string = index, 
+                years = as.numeric(usefun::substrBoth(strng = index, 
                                                       howManyCharacters = 4, 
                                                       fromEnd = TRUE))))
   }))
@@ -55,7 +55,7 @@ plotMaxAge <- function(years = c(2001, 2100),
   # df <- rbindlist(lapply(X = names(maxAgePlot), function(plt){
   #   coord <- data.table::data.table(coordinates(obj = maxAgePlot[[plt]]))
   #   vals <- data.table::data.table(age = raster::getValues(x = maxAgePlot[[plt]]))
-  #   year <- data.table::data.table(year = as.numeric(usefun::substrBoth(string = plt, howManyCharacters = 4, fromEnd = TRUE)))
+  #   year <- data.table::data.table(year = as.numeric(usefun::substrBoth(strng = plt, howManyCharacters = 4, fromEnd = TRUE)))
   #   dt <- cbind(coord, vals, year)
   #   return(dt)
   # })

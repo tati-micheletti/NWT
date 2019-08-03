@@ -40,7 +40,7 @@ totalBiomassPerSpecies <- function(years = NULL,
       cohort <- cohort[!duplicated(cohort)]
     pixelCohortData <- LandR::addNoPixel2CohortData(cohort, pixelGroup)
     pixelCohortData[, B := as.double(B)]
-    thisPeriod <- pixelCohortData[, list(year = as.numeric(substrBoth(string = yr, 
+    thisPeriod <- pixelCohortData[, list(year = as.numeric(substrBoth(strng = yr, 
                                                                       howManyCharacters = 4, 
                                                                       fromEnd = TRUE)),
                                          BiomassBySpecies = sum(B*noPixels, na.rm = TRUE)),

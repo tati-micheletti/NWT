@@ -4,7 +4,7 @@
 fl <- usefun::grepMulti(x = list.files("/mnt/data/Micheletti/NWT/outputs/18JUL19/birdPredictionsV3_Fixed", 
                                        full.names = TRUE), patterns = c("predicted"))
 lapply(fl, function(ras){
-  googledrive::drive_upload(ras,
+  googledrive::drive_upload("/mnt/data/Micheletti/NWT/outputs/30JUL19//comparisonrelative.png",
                             path = googledrive::as_id("1ZAT58duMpetvoweR6yHBnXDDhbEuQAVP"))
 })
 # 1rLON4rDbvjbq-hHnAqFVXvehPQ-AcOkj
@@ -22,6 +22,7 @@ library("usefun")
 library("LandR")
 library("reproducible")
 library("data.table")
+library("raster")
 invisible(lapply(paste0("/mnt/data/Micheletti/NWT/posthocFunctions/", c("plotMaxAge.R",
                                                               "plotVegetationBiomass.R",
                                                               "plotLeadingVegetationType.R",
@@ -29,31 +30,56 @@ invisible(lapply(paste0("/mnt/data/Micheletti/NWT/posthocFunctions/", c("plotMax
                                                               "plotBurnSummary.R",
                                                               "disturbancePlotCaribou.R")), source))
 # 
-CSfolder <- "30JUL19/run"
-typeSim <- "CS_run"
+CSfolder <- "11AUG19/LandR_SCFM_run1"
+typeSim <- "noCS"
 
-biomassPerSpecies_1 <- totalBiomassPerSpecies(folderData = paste0(CSfolder, "1"), typeSim = paste0(typeSim, "1"))
-biomassPerSpecies_2 <- totalBiomassPerSpecies(folderData = paste0(CSfolder, "2"), typeSim = paste0(typeSim, "2"))
-biomassPerSpecies_3 <- totalBiomassPerSpecies(folderData = paste0(CSfolder, "3"), typeSim = paste0(typeSim, "3"))
-biomassPerSpecies_4 <- totalBiomassPerSpecies(folderData = paste0(CSfolder, "4"), typeSim = paste0(typeSim, "4"))
-biomassPerSpecies_5 <- totalBiomassPerSpecies(folderData = paste0(CSfolder, "5"), typeSim = paste0(typeSim, "5"))
-biomassPerSpecies_6 <- totalBiomassPerSpecies(folderData = paste0(CSfolder, "6"), typeSim = paste0(typeSim, "6"))
-biomassPerSpecies_7 <- totalBiomassPerSpecies(folderData = paste0(CSfolder, "7"), typeSim = paste0(typeSim, "7"))
-biomassPerSpecies_8 <- totalBiomassPerSpecies(folderData = paste0(CSfolder, "8"), typeSim = paste0(typeSim, "8"))
+# biomassPerSpecies_1 <- totalBiomassPerSpecies(folderData = paste0(CSfolder, "1"), typeSim = paste0(typeSim, "1"))
+# biomassPerSpecies_2 <- totalBiomassPerSpecies(folderData = paste0(CSfolder, "2"), typeSim = paste0(typeSim, "2"))
+# biomassPerSpecies_3 <- totalBiomassPerSpecies(folderData = paste0(CSfolder, "3"), typeSim = paste0(typeSim, "3"))
+# biomassPerSpecies_4 <- totalBiomassPerSpecies(folderData = paste0(CSfolder, "4"), typeSim = paste0(typeSim, "4"))
+# biomassPerSpecies_5 <- totalBiomassPerSpecies(folderData = paste0(CSfolder, "5"), typeSim = paste0(typeSim, "5"))
+# biomassPerSpecies_6 <- totalBiomassPerSpecies(folderData = paste0(CSfolder, "6"), typeSim = paste0(typeSim, "6"))
+# biomassPerSpecies_7 <- totalBiomassPerSpecies(folderData = paste0(CSfolder, "7"), typeSim = paste0(typeSim, "7"))
+# biomassPerSpecies_8 <- totalBiomassPerSpecies(folderData = paste0(CSfolder, "8"), typeSim = paste0(typeSim, "8"))
 
-# leadVegType <- plotLeadingVegetationType(folderData = CSfolder, typeSim = typeSim)
-# maxAge <- plotMaxAge(folderData = CSfolder, typeSim = typeSim)
-# maxBiomass <- plotVegetationBiomass(folderData = CSfolder, typeSim = typeSim)
-# biomassPerSpecies <- totalBiomassPerSpecies(folderData = CSfolder, 
-#                                                 typeSim = typeSim)
-# biomassPerSpeciesProp <- totalBiomassPerSpecies(folderData = CSfolder, 
-#                                                     typeSim = typeSim, proportional = TRUE)
-# burnSumm <- plotBurnSummary(CSfolder, typeSim = typeSim)
-# disturbPlot <- disturbancePlotCaribou(CSfolder, typeSim = typeSim)
+leadVegType <- plotLeadingVegetationType(folderData = CSfolder, typeSim = typeSim, years = c(seq(2001, 2091, by = 10), 2100))
+maxAge <- plotMaxAge(folderData = CSfolder, typeSim = typeSim, years = c(seq(2001, 2091, by = 10), 2100))
+maxBiomass <- plotVegetationBiomass(folderData = CSfolder, typeSim = typeSim, years = c(seq(2001, 2091, by = 10), 2100))
+biomassPerSpecies <- totalBiomassPerSpecies(folderData = CSfolder, years = c(seq(2001, 2091, by = 10), 2100),
+                                                typeSim = typeSim)
+biomassPerSpeciesProp <- totalBiomassPerSpecies(folderData = CSfolder, years = c(seq(2001, 2091, by = 10), 2100),
+                                                    typeSim = typeSim, proportional = TRUE)
+burnSumm <- plotBurnSummary(CSfolder, typeSim = typeSim)
+disturbPlot <- disturbancePlotCaribou(CSfolder, typeSim = typeSim)
 
-# source('/mnt/data/Micheletti/NWT/posthocFunctions/makeAllPlots.R') # NEVER RUN ALL AT ONCE!
-# run1 <- makeAllPlots(CSfolder = "30JUL19/run1", typeSim = "CS_run1")
+# source('/mnt/data/Micheletti/NWT/posthocFunctions/makeAllPlots.R') # NEVER RUN ALL REPETITIONS AT ONCE!
+# run7 <- makeAllPlots(CSfolder = "30JUL19/run7", typeSim = "CS_run7")
 
+# ~~~~~~~~~~~~~~~~~~~~ COMPARISON EDEhzhie
+
+source('/mnt/data/Micheletti/NWT/posthocFunctions/compareAveragesInOutSHP.R')
+shp <- "https://drive.google.com/open?id=1GA7hGslGEE1DGIMsD4Ou9duesS-eGbyZ"
+plt <- compareAveragesInOutSHP(shp = shp, targetFile = "birdRTMEdehzhie.tif",
+                               folder = "/mnt/data/Micheletti/NWT/outputs/30JUL19/", 
+                               raster1Name = "richnessRaster",
+                               years = c(2001, 2100), 
+                               useSE = TRUE,
+                               facetPlot = FALSE,
+                               plotMedian = TRUE)
+toUpload <- file.path("/mnt/data/Micheletti/NWT/outputs/30JUL19", "rasterEdehzie.tif")
+file.exists(toUpload)
+googledrive::drive_upload(toUpload, path = googledrive::as_id("1EmkeRatJdMjwxvJBQjYwLRF7jDrujy5G"))
+
+# ~~~~~~~~~~~~~~~~~BIRDS CHANGE TABLE
+
+# [ FIX ] Still need to test this function with shp == NULL!
+source('/mnt/data/Micheletti/NWT/posthocFunctions/bootstrapPercentChanges.R') # INTERNAL FUNCTIONS TO BE PUT IN USEFUN!!! [ FIX ]
+shp <- "https://drive.google.com/open?id=1GA7hGslGEE1DGIMsD4Ou9duesS-eGbyZ"
+cacheFolder <- "/mnt/data/Micheletti/NWT/cache/"
+SpaDES.core::setPaths(cachePath = cacheFolder)
+boot <- bootstrapPercentChanges(folder = "/mnt/data/Micheletti/NWT/outputs/18JUL19/birdPredictionsV3_Fixed/", 
+                                    years = c(2001, 2100), sampleSize = 50, n = 2, shp = shp) # FIGURE OUT WHY IT TAKES SO LONG TO SIMULATE!
+saveRDS(object = boot, file = file.path("/mnt/data/Micheletti/NWT/outputs/18JUL19/birdPredictionsV3_Fixed/speciesChangeTables.rds"))
 # ~~~~~~~~~~~~~~~~~ CARIBOU POP GROWTH
 
 plotCaribou <- plotCaribou(startTime = 2011,

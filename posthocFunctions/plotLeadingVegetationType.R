@@ -1,7 +1,7 @@
 plotLeadingVegetationType <- function(years = c(2001, 2100), 
                                       folderData, 
                                       typeSim,
-                                      colNA = "grey85"){
+                                      colNA = "grey85", saveRAS = TRUE){
   library("usefun")
   library("LandR")
   library("reproducible")
@@ -40,6 +40,11 @@ plotLeadingVegetationType <- function(years = c(2001, 2100),
     return(r)
   })
   names(leadingSpecies) <- paste0("LeadingType", names(cohorDataList))
+  if (saveRAS){
+    lapply(1:length(leadingSpecies), function(index){
+      writeRaster(x = leadingSpecies[[index]], filename = paste0(folderPath, "RAS", names(leadingSpecies)[index]), format = "GTiff")
+    })
+  }
   # library("quickPlot")
   # quickPlot::clearPlot()
   # for (index in seq_along(leadingSpecies))

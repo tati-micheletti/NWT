@@ -1,7 +1,7 @@
 plotMaxAge <- function(years = c(2001, 2100), 
                        folderData, 
                        typeSim, 
-                       colNA = "grey85"){
+                       colNA = "grey85", saveRAS = TRUE){
   library("usefun")
   library("LandR")
   library("reproducible")
@@ -37,7 +37,12 @@ plotMaxAge <- function(years = c(2001, 2100),
     r <- SpaDES.tools::rasterizeReduced(a, pixelGroup, "maxAge", "pixelGroup")
     return(r)
   })
-  names(maxAgePlot) <- paste0("Year", years)
+  names(maxAgePlot) <- paste0("maxAgeYear", years)
+  if (saveRAS){
+    lapply(1:length(maxAgePlot), function(index){
+      writeRaster(x = maxAgePlot[[index]], filename = paste0(folderPath, "RAS", names(maxAgePlot)[index]), format = "GTiff")
+    })
+  }
   rng = range(c(raster::getValues(maxAgePlot[[1]]), raster::getValues(maxAgePlot[[2]])), na.rm = TRUE)
   brks <- c(seq(min(rng), max(rng), by = 10))
   nb <- length(brks)-1

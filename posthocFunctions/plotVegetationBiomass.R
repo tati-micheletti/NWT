@@ -1,7 +1,7 @@
 plotVegetationBiomass <- function(years = c(2001, 2100), 
                                   folderData, 
                                   typeSim, 
-                                  colNA = "grey85"){
+                                  colNA = "grey85", saveRAS = TRUE){
   library("usefun")
   library("LandR")
   library("reproducible")
@@ -15,15 +15,19 @@ plotVegetationBiomass <- function(years = c(2001, 2100),
   pixelGroupList <- bringObjectTS(path = folderPath, rastersNamePattern = "pixelGroupMap")
   
   # BIOMASS ~~~~~~~~~~~~~~~~
-  maxBiomassPlot <- lapply(X = c(1, length(cohorDataList)), function(index){
+  maxBiomassPlot <- lapply(X = c(1:length(cohorDataList)), function(index){
     cohort <- cohorDataList[[index]]
     pixelGroup <- pixelGroupList[[index]]
     a <- cohort[, list(sumBio = sum(B, na.rm = TRUE)), by = "pixelGroup"]
     r <- SpaDES.tools::rasterizeReduced(a, pixelGroup, "sumBio", "pixelGroup")
     return(r)
   })
-  names(maxBiomassPlot) <- paste0("Year", years)
-  
+  names(maxBiomassPlot) <- paste0("biomassYear", years)
+  if (saveRAS){
+    lapply(1:length(maxBiomassPlot), function(index){
+      writeRaster(x = maxBiomassPlot[[index]], filename = paste0(folderPath, "RAS", names(maxBiomassPlot)[index]), format = "GTiff")
+    })
+  }
   rng = range(c(getValues(maxBiomassPlot[[1]]), getValues(maxBiomassPlot[[2]])), na.rm = TRUE)
   # brks <- seq(min(rng), max(rng)/10, by = (max(rng)/10-min(rng))/10) # Looks like the problem of the cohort that had 10x more biomass is gone...
   brks <- c(seq(min(rng), max(rng), by = 1000),max(rng))

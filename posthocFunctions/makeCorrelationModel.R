@@ -36,7 +36,7 @@ if (!is(studyArea, "RasterLayer")) {
   browser()
   
   # CONVERT INTO A GLMER Herd should be a RE... No interaction either!
-  mod <- lm(data = dt, formula = RSF ~ richnessIndex + herd + richnessIndex:herd)
+  mod <- lm(data = dt, formula = RSF ~ richnessIndex + herd + richnessIndex:herd) # Use data from all years of simulation (Caribou interval?)
   summary(mod)
   
   tbl <- data.table::data.table(herd = sort(unique(dt$herd)),
@@ -48,8 +48,7 @@ if (!is(studyArea, "RasterLayer")) {
   setkey(dt, pixelID)
   slopeRas <- raster::setValues(x = raster(caribouRSFRas), values = dt$slope)
   
-  # + beta --> Umbrella species
-  # - beta --> tradeoff
+
 
   return(slopeRas)
 }

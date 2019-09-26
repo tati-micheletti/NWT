@@ -1,8 +1,13 @@
 setwd("/mnt/data/Micheletti/NWT")
+whichRUN <- "LandR_CS_SCFM"
 t1 <- Sys.time()
+
 updateCRAN <- FALSE
 updateGithubPackages <- FALSE
 updateSubmodules <- FALSE
+
+if (updateCRAN)
+  update.packages(checkBuilt = TRUE)
 
 if (updateGithubPackages){
   devtools::install_github("PredictiveEcology/reproducible@development")
@@ -21,19 +26,19 @@ if (updateSubmodules){
                 " && git pull"), wait = TRUE)
   system("git submodule", wait = TRUE) # checks if the branches and commits you are using are the correct ones
 }
-if (updateCRAN)
-  update.packages(checkBuilt = TRUE)
 
+library("usefun")
 library("LandR")
+library("LandR.CS")
 library("SpaDES")
 library("raster")
 library("plyr"); library("dplyr")
 library("magrittr") # for piping
-library("usefun")
 
-# # Source all common functions
+# Source all common functions
 # invisible(sapply(X = list.files(file.path(getwd(), "functions"), full.names = TRUE), FUN = source))
 source("/mnt/data/Micheletti/NWT/functions/not_included/pathsSetup.R")
+source("/mnt/data/Micheletti/NWT/posthocFunctions/reviseSpeciesTraits.R") # TEMPORARY UNTIL IN LANDR!
 
 user <- pemisc::user()
 whichComputer <- if (user == "emcintir") "LocalMachine" else if (user == "tmichele") "BorealCloud" else "LocalMachine"
@@ -46,6 +51,7 @@ isTest <- FALSE
 
 paths <- pathsSetup(whichComputer = whichComputer, isTest = isTest)
 if (length(paths$modulePath) == 1) paths$modulePath <- c(paths$modulePath, file.path(paths$modulePath, "scfm/modules"))
+paths$outputPath <- checkPath(file.path(paths$outputPath, whichRUN), create = TRUE)
 
 if (pemisc::user() %in% c("Tati", "tmichele")) {
   setTempFolder(paths = paths, setTmpFolder = TRUE, usr = user)
@@ -76,7 +82,7 @@ opts <- options(
   "reproducible.inputPaths" = if (pemisc::user("emcintir")) "~/data" else paths$inputPath,
   "reproducible.quick" = FALSE,
   "reproducible.overwrite" = TRUE,
-  "reproducible.useMemoise" = TRUE, # Brings cached stuff to memory during the second run
+  "reproducible.useMemoise" = FALSE, # Brings cached stuff to memory during the second run
   "reproducible.useNewDigestAlgorithm" = TRUE,  # use the new less strict hashing algo
   "reproducible.useCache" = TRUE,
   "reproducible.cachePath" = paths$cachePath,
@@ -126,9 +132,6 @@ rasterToMatch <- Cache(prepInputs, url = "https://drive.google.com/open?id=1fo08
                        filename2 = NULL,
                        userTags = "edeRTM",
                        omitArgs = c("destinationPath", "filename2"))
-# rasterToMatch2 <- rasterToMatch
-# res(rasterToMatch2) <- c(100, 100)
-# rasterToMatch <- Cache(raster::resample, rasterToMatch, rasterToMatch2, userTags = "rtmHD")
 
 studyAreaPSP <- prepInputs(targetFile = "BC_Alberta.shp",
                            archive = "studyAreaPSP.zip",
@@ -148,16 +151,11 @@ sppEquivCol <- "NWT"
 data("sppEquivalencies_CA", package = "LandR")
 
 # Make NWT spp equivalencies
-# Popu_Tri == Popu_Bal in NWT
-# Quer_mac in LandR needs to be Quer_Mac in NWT
-sppEquivalencies_CA[, NWT := c(Abie_Bal = "Abie_Bal", 
-                               Betu_Pap = "Betu_Pap", 
+sppEquivalencies_CA[, NWT := c(Betu_Pap = "Betu_Pap", 
                                Lari_Lar = "Lari_Lar", 
                                Pice_Gla = "Pice_Gla",
                                Pice_Mar = "Pice_Mar", 
                                Pinu_Ban = "Pinu_Ban", 
-                               # Pinu_Con = "Pinu_Con", 
-                               # Popu_Bal = "Popu_Bal", 
                                Popu_Tre = "Popu_Tre")[Boreal]]
 
 sppEquivalencies_CA <- sppEquivalencies_CA[!is.na(NWT)]
@@ -175,19 +173,16 @@ modules <- c(
   "Boreal_LBMRDataPrep",
   "Biomass_regeneration",
   "LBMR",
-  # fireSense
-  "climate_NWT_DataPrep",
-  "MDC_NWT_DataPrep",
-  "fireSense_NWT_DataPrep",
-  "fireSense_FrequencyPredict",
-  "fireSense_EscapePredict",
-  "LBMR2LCC_DataPrep",
-  "fireSense_NWT",
   #SCFM
   "scfmLandcoverInit",
   "scfmRegime",
   "scfmDriver",
+  "scfmIgnition", 
+  "scfmEscape",
   "scfmSpread",
+  #LandR.CS
+  "PSP_Clean",
+  "gmcsDataPrep",
   #Caribou
   "caribouPopGrowthModel"
 )
@@ -222,37 +217,16 @@ parameters <- list(
     "seedingAlgorithm" = "wardDispersal",
     ".useCache" = FALSE,
     "initialBiomassSource" = "cohortData",
-    "growthAndMortalityDrivers" = "LandR",
+    "growthAndMortalityDrivers" = "LandR.CS",
     ".useParallel" = 2),
   Boreal_LBMRDataPrep = list(
     "speciesUpdateFunction" = list(
       quote(LandR::speciesTableUpdate(sim$species, sim$speciesTable, sim$sppEquiv, P(sim)$sppEquivCol)),
-      quote(changeTraits(speciesTable = sim$species, 
-                         param = "seeddistance_max", 
-                         facMult = 0.4, 
-                         species = c("Betu_Pap", "Popu_Tre"))),
-      quote(changeTraits(speciesTable = sim$species, 
-                         param = "longevity", 
-                         facMult = 1.3, 
-                         species = "Pinu_Ban")),
-      quote(changeTraits(speciesTable = sim$species, 
-                         param = "longevity", 
-                         facMult = 1.3, 
-                         species = "Pinu_Ban")),
-      quote(changeTraits(speciesTable = sim$species, 
-                         param = "longevity", 
-                         facMult = 0.80, 
-                         species = "Pice_Gla")),
-      quote(changeTraits(speciesTable = sim$species, 
-                         param = "sexualmature", 
-                         facMult = 0.5, 
-                         species = "Pinu_Ban")),
-      quote(changeTraits(speciesTable = sim$species, 
-                         param = "seeddistance_eff", 
-                         facMult = 1.25, 
-                         species = "Pinu_Ban"))
+      quote(reviseSpeciesTraits(speciesTable = sim$species)),
+      quote(usefun::changeTraits(speciesTable = sim$species, param = "seeddistance_max",
+                                 facMult = 0.4, species = c("Betu_Pap", "Popu_Tre")))
     ),
-    "useCloudCacheForStats" = if (pemisc::user("tmichele")) TRUE else TRUE,
+    "useCloudCacheForStats" = TRUE,
     "sppEquivCol" = sppEquivCol,
     "successionTimestep" = 10,
     "pixelGroupAgeClass" = 10,
@@ -293,14 +267,21 @@ outputsLandR <- data.frame(
                      "MDC06"), each = length(succTS)),
   saveTime = c(rep(succTS, times = 9))
 )
-caribLambda <- data.frame(objectName = c("predictedCaribou", "fireRegimeRas", "speciesEcoregion", "species"),
-                          saveTime = times$end)
-rasBurn <- data.frame(objectName = rep("burnSummary", 
-                                       times = length(times$end-times$start)),
-                      saveTime = times$start:times$end
-)
-outputsLandR <- rbind(outputsLandR, rasBurn, caribLambda)
+lastYears <- data.frame(objectName = c("predictedCaribou", "plotCaribou", 
+                                       "fireRegimeRas", "speciesEcoregion", 
+                                       "species","burnSummary"),
+                        saveTime = times$end)
+if (length(grepMulti(x = modules, "LBMR")) != 0){
+  clim <- data.frame(objectName = rep(c("fireSense_FrequencyPredicted", 
+                                        "fireSense_EscapePredicted"), 
+                                      each = 3),
+                     saveTime = rep(c(2025, 2055, 2085), 
+                                    times = 1))
+} else {
+  clim <- NULL
+  }
 
+outputsLandR <- rbind(outputsLandR, lastYears, clim)
 
 .objects <- list(
   "studyAreaPSP" = studyAreaPSP,
@@ -313,23 +294,19 @@ outputsLandR <- rbind(outputsLandR, rasBurn, caribLambda)
   "cloudFolderID" = cloudFolderID,
   "studyArea" = studyArea,
   "waterRaster" = waterRaster,
-  "fireRegimePolys" = studyArea
+  "fireRegimePolys" = studyArea,
+  "t1" = t1
 )
 
-data.table::setDTthreads(10) # Data.table has all threads by default, which is inconveninent and unecessary. 
-# Will try setting it for only 10 cores.  
-# t1 <- Sys.time()
-paths
-
-NWT_noCS_fS <- simInitAndSpades(inputs = inputs, times = times,
-                              params = parameters,
-                              modules = modules,
-                              objects = .objects,
-                              paths = paths,
-                              loadOrder = unlist(modules),
-                              outputs = outputsLandR, debug = 1)
-
+data.table::setDTthreads(10) # Data.table has all threads by default, which is inconveninent and unecessary. Will try setting it for only 10 cores.  
+t1 <- Sys.time()
+NWT_CS_SCFM <- simInitAndSpades(times = times,
+                             params = parameters,
+                             modules = modules,
+                             objects = .objects, paths = paths,
+                             loadOrder = unlist(modules),
+                             outputs = outputsLandR, debug = 1)
 t2 <- Sys.time()
 
-saveRDS(object = NWT_noCS_fS,
-        file = file.path(paths$outputPath, paste0("NWT_noCS_fS", toupper(format(Sys.time(), "%d%b%y")))))
+saveRDS(object = NWT_CS_SCFM,
+        file = file.path(paths$outputPath, paste0("NWT_CS_SCFM", toupper(format(Sys.time(), "%d%b%y")))))

@@ -1,5 +1,5 @@
 setwd("/mnt/data/Micheletti/NWT")
-whichRUN <- "run5"
+if(!exists("whichRUN")) stop("Please define which run this is by setting: whichRUN <- 'runX' ")
 t1 <- Sys.time()
 updateCRAN <- FALSE
 updateGithubPackages <- FALSE
@@ -231,7 +231,7 @@ parameters <- list(
       quote(usefun::changeTraits(speciesTable = sim$species, param = "seeddistance_max",
                                  facMult = 0.4, species = c("Betu_Pap", "Popu_Tre")))
     ),
-    "useCloudCacheForStats" = if (pemisc::user("tmichele")) TRUE else TRUE,
+    "useCloudCacheForStats" = TRUE,
     "sppEquivCol" = sppEquivCol,
     "successionTimestep" = 10,
     "pixelGroupAgeClass" = 10,
@@ -276,7 +276,17 @@ lastYears <- data.frame(objectName = c("predictedCaribou", "plotCaribou",
                                        "fireRegimeRas", "speciesEcoregion", 
                                        "species","burnSummary"),
                         saveTime = times$end)
-outputsLandR <- rbind(outputsLandR, lastYears)
+if (length(grepMulti(x = modules, "LBMR")) != 0){
+  clim <- data.frame(objectName = rep(c("fireSense_FrequencyPredicted", 
+                                        "fireSense_EscapePredicted"), 
+                                      each = 3),
+                     saveTime = rep(c(2025, 2055, 2085), 
+                                    times = 1))
+} else {
+  clim <- NULL
+  }
+
+outputsLandR <- rbind(outputsLandR, lastYears, clim)
 
 .objects <- list(
   "studyAreaPSP" = studyAreaPSP,
@@ -294,19 +304,7 @@ outputsLandR <- rbind(outputsLandR, lastYears)
 )
 
 data.table::setDTthreads(10) # Data.table has all threads by default, which is inconveninent and unecessary. Will try setting it for only 10 cores.  
-# t1 <- Sys.time()
-paths
-# FOR EXPERIMENT
-# cl <- parallel::makeForkCluster(6, outfile = "/mnt/data/Micheletti/NWT/parallel")
-# paths$outputPath <- checkPath("/mnt/data/Micheletti/NWT/outputs/TEST", create = TRUE)
-# NWT_CS_fS <- simInitAndExperiment(inputs = inputs, times = times,
-#                 params = parameters,
-#                 modules = modules,
-#                 objects = .objects,
-#                 paths = paths,
-#                 loadOrder = unlist(modules),
-#                 outputs = outputsLandR, debug = 1,
-#                 replicates = 6, cl = cl) # NOT WORKING!
+
 NWT_CS_fS <- simInitAndSpades(inputs = inputs, times = times,
                               params = parameters,
                               modules = modules,

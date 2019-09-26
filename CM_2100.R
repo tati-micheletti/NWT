@@ -10,15 +10,15 @@ invisible(sapply(X = list.files(file.path(getwd(), "functions"), full.names = TR
 
 # Set a storage project folder
 setPaths(modulePath = file.path(getwd(), "modules"), cachePath = file.path(getwd(), "cache"),
-         inputPath = file.path(getwd(), "outputs/18JUN19_CS_SCFM/birdPredictions"), 
-         outputPath = file.path(getwd(), "outputs/18JUN19_CS_SCFM/comMetrics"))
+         inputPath = file.path(getwd(), "outputs/18JUL19/birdPredictionsV3_Fixed"), 
+         outputPath = file.path(getwd(), "outputs/30JUL19/comMetrics"))
 getPaths() # shows where the 4 relevant paths are
 
 times <- list(start = 2100, end = 2100)
 
 parameters <- list(
   commu_metricsNWT = list(
-    "frequency" = 10
+    "frequency" = 20
   )
   # .progress = list(type = "text", interval = 1), # for a progress bar
   ## If there are further modules, each can have its own set of parameters:
@@ -32,21 +32,23 @@ parameters <- list(
 )
 
 # birdPrediction is a named list
-birdPrediction <- bringObjectTS(path = getPaths()$inputPath, rastersNamePattern = c("predicted", times$start))
-nms <- unlist(lapply(birdPrediction, function(ras){
-  nm <- ras@data@names
-  substrRight <- function(x, n){
-    substr(x, nchar(x)-n+1, nchar(x))
-  }
-  nm <- substrRight(x = unlist(strsplit(x = nm, split = paste0("Year", times$start))), n = 4)
-})
-)
-tstep <- if (!is.null(parameters$commu_metricsNWT$predictionInterval)) parameters$commu_metricsNWT$predictionInterval else 1
-
 lastY <- if (times$end != times$start) times$end else NULL
-names(birdPrediction) <- nms
 succTS <- c(seq(times$start, times$end, 
-                by = tstep), lastY)
+                by = parameters$commu_metricsNWT$frequency), lastY)
+
+birdPrediction <- lapply(succTS, FUN = function(y){
+  birdPrediction <- bringObjectTS(path = getPaths()$inputPath, rastersNamePattern = c("predicted", y))
+  nms <- unlist(lapply(birdPrediction, function(ras){
+    nm <- ras@data@names
+    nm <- usefun::substrBoth(strng = strsplit(nm, split = "Year")[[1]][1], howManyCharacters = 4, fromEnd = TRUE)
+    return(nm)
+  })
+  )
+  names(birdPrediction) <- nms
+  return(birdPrediction)
+})
+names(birdPrediction) <- paste0("Year", seq(times$start, times$end, by = 20))
+
 outputsCommMet <- data.frame(objectName = rep(c("currentDiversityRasters","diversityByPolygon", 
                                                 "diversityStatistics"), 
                                               each = length(succTS)),

@@ -1,23 +1,20 @@
-# 1. Make Edehzhie Raster for prepInputs [ OK ]
-# 2. Make RSF ~ richness   [ OK  ] INSIDE AND OUT OF EDEHZHIE
-# 3. Make Sam's table -- how many bird species change? And by how much? [  ] INSIDE AND OUT OF EDEHZHIE
+# I have decided I will run 5 times each: 
+#  - SCFM+LandR [  ]
+#  - SCFM+LandR.CS [  ]
+#  - fireSense+LandR [  ]
+#  - fireSense+LandR.CS [  ]
+#  - run bird models: (terrain + ...) 
+#  - V4 (...vegetation) # NOT DOING IT FOR THE BIRDS MANUSCRIPT
+#  - V5 (...climate) # NOT DOING IT FOR THE BIRDS MANUSCRIPT
+#  - V6 (...vegetation + climate) # ==> This is the model to be used.
 
+# 2. Make all plots that relate 2 or more types of run (SCFM vs fS vs LandR vs LandR.CS) [ ]
+# 3. Make some stats on all replicates per type [ LATER ]
+# 4. Organize !runMe function defineRun: add birds, caribou + commMet + hotspots to it! (complete run) [ ]
 
-# 9. Re-run for now 1x LandR+SCFM, LandR.CS+SCFM, LandR+fS
-# 10. Make all plots that relate 2 or more types of run (SCFM vs fS vs LandR vs LandR.CS) [ ]
-# 11. Make some stats on all replicates per type [ LATER ] 
-# 12. Organize !runMe function defineRun: add birds, caribou + commMet + hotspots to it! (complete run) [  ]
- 
-# My e.mail: Concerns about the climate scenarios (more scenarios?) and fires (SCFM vs fireSense) birds
-# 2 climates (GCM) and fireSense/SCFM
-# I have decided I will run: 
-#  - 8x SCFM+LandR
-#  - 8x SCFM+LandR.CS
-#  - 8x fireSense+LandR
-#  - 8x fireSense+LandR.CS [ OK ]
 # VERSION3 folder: "1s4rtgI7N5iw5_WytZvhF2gi0Xbi9sNx8"
 # V3 RSF: "1U3WJuNDtPWygzDJdxBgvUBWzVwiJoBch"
-# V3 Birds: "1KHiBB-WgJeok_T4aEEar2aOtrjjz0FLY"  -- only CAWA BOCH BBWA OSFL ALFL BPWA [ OK ]
+# V3 Birds: "1KHiBB-WgJeok_T4aEEar2aOtrjjz0FLY"  -- only CAWA BOCH BBWA OSFL ALFL BPWA [ OK ] 
 # V3 CoOcc: "187B0wqjokdPB9PDPfF5icZ6SwF5cHZH2"
 # V3 LandR: "1TMPcrqE2b9prq2hRe8jcXdLPXMWv_Enh"
 # NoCC: "1MtRh2c55G1UOj8EZkaoFhPl7tJibc2Py"
@@ -25,7 +22,7 @@
 
 mainFold <- "/mnt/data/Micheletti/NWT/outputs/18JUL19/birdPredictionsV3_Fixed/"
 fl <- usefun::grepMulti(x = list.files(mainFold, recursive = TRUE,
-                                       full.names = TRUE), patterns = c("RUBL"))
+                                       full.names = TRUE), patterns = c("BOCH", "2001"))
 lapply(fl, function(ras){
   googledrive::drive_upload(ras,
                             path = googledrive::as_id("1KHiBB-WgJeok_T4aEEar2aOtrjjz0FLY"))

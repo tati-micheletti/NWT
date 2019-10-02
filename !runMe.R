@@ -1,10 +1,13 @@
+# Before running this script, read !sourceScript to know the 4 
+# parameters that needed to define the run 
+
 if (pemisc::user() %in% c("Tati", "tmichele"))
   setwd("/mnt/data/Micheletti/NWT")
 t1 <- Sys.time()
 updateCRAN <- FALSE
 updateGithubPackages <- FALSE
 updateSubmodules <- FALSE
-
+googledrive::drive_deauth()
 if (updateCRAN)
   update.packages(checkBuilt = TRUE)
 
@@ -40,7 +43,16 @@ source("/mnt/data/Micheletti/NWT/functions/not_included/pathsSetup.R")
 source("/mnt/data/Micheletti/NWT/functions/defineRun.R")
 source("/mnt/data/Micheletti/NWT/posthocFunctions/reviseSpeciesTraits.R") # TEMPORARY UNTIL IN LANDR!
 
-definedRun <- defineRun(replicate = replicate, vegetation = vegetation, fire = fire)
+if (!exists("vegetation")) vegetation <- "LandR" # Default if not provided
+if (!exists("fire")) fire <- "SCFM" # Default if not provided
+if (!exists("replicateNumber")) replicateNumber <- NULL # Default if not provided
+
+definedRun <- defineRun(replicateNumber = replicateNumber, 
+                        vegetation = vegetation, 
+                        fire = fire)
+# vegetation = "LandR" or "LandR.CS"
+# fire = "SCFM" or "fS"
+# replicateNumber = i.e. "run1" or NULL for no id on the run
 
 user <- pemisc::user()
 whichComputer <- if (user == "tmichele") "BorealCloud" else "LocalMachine"
@@ -267,7 +279,7 @@ if (length(grepMulti(x = modules, "LBMR")) != 0){
 
 outputsLandR <- rbind(outputsLandR, lastYears, clim)
 
-.objects <- list(
+objects <- list(
   "studyAreaPSP" = studyAreaPSP,
   "rasterToMatch" = rasterToMatch,
   "studyAreaLarge" = studyArea,
@@ -284,15 +296,89 @@ outputsLandR <- rbind(outputsLandR, lastYears, clim)
 
 data.table::setDTthreads(10) # Data.table has all threads by default, which is inconveninent and unecessary. Will try setting it for only 10 cores.  
 
+message(crayon::red(paste0("Starting simulations for ", definedRun$whichRUN)))
 assign(x = definedRun$whichRUN, simInitAndSpades(inputs = inputs, times = times,
                                                  params = parameters,
                                                  modules = definedRun$modules,
-                                                 objects = .objects,
+                                                 objects = objects,
                                                  paths = paths,
                                                  loadOrder = unlist(modules),
                                                  outputs = outputsLandR, debug = 1))
 t2 <- Sys.time()
-
+message(crayon::green(paste0("Finished simulations for ", definedRun$whichRUN, ". Elapsed time: ", t2-t1)))
 saveRDS(object = get(definedRun$whichRUN),
         file = file.path(paths$outputPath, paste0(definedRun$whichRUN,
                                                   toupper(format(Sys.time(), "%d%b%y_%Hh%Mm%Ss")))))
+message(crayon::magenta(paste0("Saved simulations for ", definedRun$whichRUN, ". Elapsed time: ", Sys.time()-t2)))
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ BIRDS
+
+if (!exists("runBirds")) runBirds <- FALSE # Default if not provided
+if (runBirds){
+  message(crayon::cyan(paste0("Starting simulations for BIRDS using ", definedRun$whichRUN)))
+  invisible(sapply(X = list.files(file.path("/mnt/data/Micheletti/NWT/modules/birdsNWT/R/"), full.names = TRUE), FUN = source))
+  birdOutPath <- checkPath(file.path(paths$outputPath, "birdPredictions"), create = TRUE)
+  setPaths(modulePath = paths$modulePath, 
+           cachePath = paths$cachePath,
+           inputPath = paths$outputPath, 
+           outputPath = birdOutPath)
+  
+  # Passing the uplandsRaster here makes sure that all computers can use it as the operations 
+  # to derive it from the DUCK's layer take up a lot of memory
+  uplandsRaster <- prepInputs(targetFile = "uplandsNWT250m.tif", studyArea = studyArea, rasterToMatch = rasterToMatch,
+                              url = "https://drive.google.com/open?id=1EF67NCH7HqN6QZ0KGlpntB_Zcquu6NJe", 
+                              destinationPath = getPaths()$inputPath, filename2 = NULL)
+  parameters <- list(
+    birdsNWT = list(
+      "useStaticPredictionsForNonForest" = TRUE,
+      "useOnlyUplandsForPrediction" = TRUE,
+      "baseLayer" = 2005,
+      "overwritePredictions" = FALSE,
+      "useTestSpeciesLayers" = FALSE, # Set it to false when you actually have results from LandR_Biomass simulations to run it with
+      "useParallel" = TRUE, # Using parallel in windows is currently not working.
+      "predictionInterval" = 20,
+      "quickLoad" = TRUE,
+      "version" = 6 # VERSION 6 of the modules has both climate and vegetation as covariates for the model
+    )
+  )
+  objects <- c(objects, list(
+    "birdsList" = birdSpecies,
+    "uplandsRaster" = uplandsRaster))
+  
+  assign(x = paste0(definedRun$whichRUN, "_birds"), simInitAndSpades(inputs = inputs, times = times,
+                                                   params = parameters,
+                                                   modules = list("birdsNWT", "comm_metricsNWT"),
+                                                   objects = objects,
+                                                   paths = paths,
+                                                   loadOrder = unlist(modules),
+                                                   outputs = outputsLandR, debug = 1))
+}
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ CARIBOU
+
+if (!exists("runCaribou")) runCaribou <- FALSE # Default if not provided
+if (runCaribou){
+  message(crayon::white(paste0("Starting simulations for CARIBOUS using ", definedRun$whichRUN)))
+  invisible(sapply(X = list.files(file.path("/mnt/data/Micheletti/NWT/modules/caribouRSF/R/"), full.names = TRUE), FUN = source))
+  caribouOutPath <- checkPath(file.path(paths$outputPath, "caribouPredictions"), create = TRUE)
+  setPaths(modulePath = paths$modulePath, 
+           cachePath = paths$cachePath,
+           inputPath = paths$outputPath, 
+           outputPath = caribouOutPath)
+  parameters <- list(
+    caribouRSF = list(
+      "decidousSp" = c("Betu_Pap", "Popu_Tre", "Popu_Bal"),
+      "predictionInterval" = 20
+    )
+  )
+  assign(x = paste0(definedRun$whichRUN, "_caribou"), simInitAndSpades(inputs = inputs, times = times,
+                                                                     params = parameters,
+                                                                     modules = list("caribouRSF"),
+                                                                     objects = list(),
+                                                                     paths = paths,
+                                                                     loadOrder = unlist(modules),
+                                                                     outputs = outputsLandR, debug = 1))
+}
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

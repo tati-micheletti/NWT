@@ -1,4 +1,4 @@
-defineRun <- function(replicate = NULL, vegetation = "LandR.CS", fire = "fS"){ # vegetation = "LandR"; fire = "SCFM"
+defineRun <- function(replicateNumber = NULL, vegetation = "LandR.CS", fire = "fS"){ # vegetation = "LandR"; fire = "SCFM"
   
  LandR <-c("Boreal_LBMRDataPrep",
            "Biomass_regeneration",
@@ -31,7 +31,7 @@ defineRun <- function(replicate = NULL, vegetation = "LandR.CS", fire = "fS"){ #
            "scfmEscape",
            "scfmSpread")
  
-  return(list(whichRUN = paste(vegetation, fire, replicate, sep = "_"), 
+  return(list(whichRUN = ifelse(!is.null(replicateNumber), paste(vegetation, fire, replicateNumber, sep = "_"), paste(vegetation, fire, sep = "_")), 
               growthAndMortalityDrivers = vegetation,  
               modules = c(get(vegetation), get(fire), "caribouPopGrowthModel")))
 }

@@ -12,6 +12,8 @@ output:
     latex_engine: xelatex
     df_print: paged
     number_sections: yes
+    fig_caption: TRUE
+    keep_tex: TRUE
   html_document:
     df_print: paged
 toc: yes
@@ -234,7 +236,7 @@ considered disturbed if the time since last disturbance is less than 21 years.
 
 \pagebreak
 
-![Table 1. Correspondence between the land cover classes used by `fireSense` and code from the Land Cover Map of Canada 2005]
+Table: Correspondence between the land cover classes used by `fireSense` and code from the Land Cover Map of Canada 2005
 ```{r T1, echo = FALSE}
 T1 <- structure(list(Land.cover.class = structure(1:9, .Label = c("Conifer medium-density", 
 "Herbs and shrubs", "Mixedwood conifer-dominated", 
@@ -252,7 +254,7 @@ T1 <- structure(list(Land.cover.class = structure(1:9, .Label = c("Conifer mediu
 knitr::kable(T1)
 ```
 
-![Table 2. Classifier accuracy per landcover class on the validation data set]
+Table: Classifier accuracy per landcover class on the validation data set
 ```{r T2, echo=FALSE}
 T2 <- structure(list(Land.cover.class = structure(1:7, .Label = c("Conifer medium-density", 
 "Herbs and shrubs", "Mixedwood conifer-dominated", 
@@ -425,16 +427,7 @@ recruitment and population growth rate.
 
 ### **boreal birds**  
 
-This module projects species abundance of bird species under forecast landscape and climate
-                            conditions. The module develops boosted regression tree (BRT) models from avian point-count data and
-                            associated covariates using the gbm.step function in the ‘dismo’ package (Hijmans et al. 2011) with a
-                            Poisson distribution and 10-fold cross-validation. BRT settings are as recommended by Elith et al. (2008)
-                            and are consistent with Stralberg et al. (2015). The module includes a ‘brtplot’ function
-                            that, for a given BRT model object, summarizes cross-validation statistics and variable importance (csv
-                            output), generates partial dependence plots (pdf output), generates spatial predictions from input data
-                            layers (geotiff format), and generates maps of spatial predictions (png format). The ‘cvsum’ function
-                            summarizes cross-validation statistics across species. Individual species results are posted here:
-                            (https://drive.google.com/drive/folders/1cpt-AKDbnlUEi6r70Oow2lEPrbzQfVpt?usp=sharing). The cross-validation statistics serve as the indicators of model performance required in the Statement of Work. We note that AUC and similar diagnostics were mentioned in the Statement of Work, but these are not appropriate to count data.
+This module projects species abundance of bird species under forecast landscape and climate conditions. The module develops boosted regression tree (BRT) models from avian point-count data and associated covariates using the gbm.step function in the ‘dismo’ package (Hijmans et al. 2011) with a Poisson distribution and 10-fold cross-validation. BRT settings are as recommended by Elith et al. (2008) and are consistent with Stralberg et al. (2015). The module includes a ‘brtplot’ function that, for a given BRT model object, summarizes cross-validation statistics and variable importance (csv output), generates partial dependence plots (pdf output), generates spatial predictions from input data layers (geotiff format), and generates maps of spatial predictions (png format). The ‘cvsum’ function summarizes cross-validation statistics across species. Individual species results are posted here: (https://drive.google.com/drive/folders/1cpt-AKDbnlUEi6r70Oow2lEPrbzQfVpt?usp=sharing). The cross-validation statistics serve as the indicators of model performance required in the Statement of Work. We note that AUC and similar diagnostics were mentioned in the Statement of Work, but these are not appropriate to count data.
 
 Avian data for Bird Conservation Region (BCR) 6 were extracted from the Boreal Avian Modelling project avian data set (Cumming et al.
 2010, Barker et al. 2015) and supplemented with data from automated recording units (ARU) collected by Environment and Climate Change
@@ -500,36 +493,103 @@ knitr::kable(sp)
 
 The predictions for the other 65 species can be found in a [Google Drive folder](https://drive.google.com/open?id=1ZAT58duMpetvoweR6yHBnXDDhbEuQAVP): [https://drive.google.com/open?id=1ZAT58duMpetvoweR6yHBnXDDhbEuQAVP]
 
-Alder Flycatcher (*Empidonax alnorum*), American Crow (*Corvus brachyrhynchos*), American Goldfinch (*Spinus tristis*), American Pipit
-(*Anthus rubescens), American Redstart (*Setophaga ruticilla*), American Robin (*Turdus migratorius*), American Tree Sparrow
-(*Spizella arborea*), Black-and-white Warbler (*Mniotilta varia*), Bay-breasted Warbler (*Setophaga castanea*), Black-backed Woodpecker
-(*Picoides arcticus*), Black-capped Chickadee (*Poecile atricapillus*), Brown-headed Cowbird (*Molothrus ater*), Blue-headed Vireo
-(*Vireo solitarius*), Blackburnian Warbler (*Setophaga fusca*), Blue Jay (*Cyanocitta cristata*), Blackpoll Warbler (*Setophaga
-striata*), Boreal Chickadee (*Poecile hudsonicus*), Brewer’s Blackbird (*Euphagus cyanocephalus*), Brown Creeper (*Certhia americana*),
-Brown Thrasher (*Toxostoma rufum*), Black throated Green Warbler (*Setophaga virens*), Canada Warbler (*Cardellina canadensis*), Clay
-colored Sparrow (*Spizella pallida*), Cedar Waxwing (*Bombycilla cedrorum*), Chipping Sparrow (*Spizella passerina*), Cape May Warbler
-(*Setophaga tigrina*), Common Grackle (*Quiscalus quiscula*), Connecticut Warbler (*Oporornis agilis*), Common Raven (*Corvus corax*),
-Common Redpoll (*Acanthis flammea*), Common Yellowthroat (*Geothlypis trichas*), Chestnut-sided Warbler (*Setophaga pensylvanica*),
-Dark-eyed Junco (*Junco hyemalis*), Eastern Kingbird (*Tyrannus tyrannus*), Eastern Phoebe (*Sayornis phoebe*), Evening Grosbeak
-(*Coccothraustes vespertinus*), Fox Sparrow (*Passerella iliaca*), Golden crowned Kinglet (*Regulus satrapa*), Gray-cheeked Thrush
-(*Catharus minimus*), Gray Jay (*Perisoreus canadensis*), Gray Catbird (*Dumetella carolinensis*), Hammond's Flycatcher (*Empidonax
-hammondii*), Hermit Thrush (*Catharus guttatus*), Horned Lark (*Eremophila alpestris*) , House Wren (*Troglodytes aedon*), Le Conte's
-Sparrow (*Ammodramus leconteii*), Least Flycatcher (*Empidonax minimus*), Lincoln's Sparrow (*Melospiza lincolnii*), Magnolia Warbler
-(*Setophaga magnolia*), Mourning Warbler (*Geothlypis philadelphia*), Nashville Warbler (*Oreothlypis ruficapilla*), Northern
-Waterthrush (*Parkesia noveboracensis*), Orange-crowned Warbler (*Oreothlypis celata*), Olive-sided Flycatcher (*Contopus cooperi*),
-Ovenbird (*Seiurus aurocapilla*), Palm Warbler (*Setophaga palmarum*), Philadelphia Vireo (*Vireo philadelphicus*), Pine Grosbeak
-(*Pinicola enucleator*), Pine Siskin (*Spinus pinus*), Pileated Woodpecker (*Dryocopus pileatus*), Purple Finch (*Haemorhous
-purpureus*), Rose-breasted Grosbeak (*Pheucticus ludovicianus*), Red-breasted Nuthatch (*Sitta canadensis*), Ruby-crowned Kinglet
-(*Regulus calendula*), Red-eyed Vireo (*Vireo olivaceus*), Ruffed Grouse (*Bonasa umbellus*), Rusty Blackbird (*Euphagus carolinus*),
-Red-winged Blackbird (*Agelaius phoeniceus*), Savannah Sparrow (*Passerculus sandwichensis*), Sedge Wren (*Cisthothorus platensis*),
-Song Sparrow (*Melospiza melodia*), Swamp Sparrow (*Melospiza georgiana*), Swainson's Thrush (*Catharus ustulatus*), Tennessee Warbler
-(*Oreothlypis peregrina*), Townsend's Warbler (*Setophaga townsendi*), Tree Swallow (*Tachycineta bicolor*), Varied Thrush (*Ixoreus
-naevius*), Veery (*Catharus fuscescens*), Vesper Sparrow (*Pooecetes gramineus*), Warbling Vireo (*Vireo gilvus*), White-breasted
-Nuthatch (*Sitta carolinensis*), White-crowned Sparrow (*Zonotrichia leucophrys*), Western Tanager (*Piranga ludoviciana*), Western
-Wood-Pewee (*Contopus sordidulus*), Wilson's Warbler (*Cardellina pusilla*), Winter Wren (*Troglodytes hiemalis*), White-throated
-Sparrow (*Zonotrichia albicollis*), White-winged Crossbill (*Loxia leucoptera*), Yellow-bellied Sapsucker (*Sphyrapicus varius*),
-Yellow-bellied Flycatcher (*Empidonax flaviventris*), Yellow-rumped Warbler (*Setophaga coronata*), Yellow Warbler (*Setophaga
-petechia*) 
+
+```{r otherbirdsp, echo=FALSE}
+library(data.table)
+othersp <- data.table("speciesCode" = c("AMCR","AMGO","AMPI", "AMRE", "AMRO", "ATSP", "BAWW", "BBWO", "BCCH", "BHCO", "BHVI", 
+                                              "BLJA", "BRBL", "BRTH", "BTNW", "CEDW", "CHSP", "CMWA", "COGR", "CONW", "CORA", "CORE",
+                                              "COYE", "CSWA", "DEJU", "EAKI", "EAPH", "EVGR", "FOSP", "GCKI", "GCTH", "CAJA", "GRCA","HAFL", 
+                                              "HETH", "HOLA", "HOWR", "LCSP", "LEFL", "LISP", "MAWA", "MOWA","NAWA", "NOWA", "OCWA", "OVEN", 
+                                              "PAWA", "PHVI", "PIGR", "PISI", "PIWO", "PUFI", "RBGR", "RBNU", "RCKI", "REVO", "RUGR", "RWBL",
+                                              "SAVS", "SEWR", "SOSP", "SWSP", "SWTH", "TEWA", "TOWA", "TRES", "VATH", "VEER", "VESP", "WAVI", 
+                                              "WBNU", "WCSP", "WETA", "WIWA", "WIWR", "WTSP", "WWCR", "YBSA", "YBFL", "YRWA", "YEWA"), 
+                        "Common.and.scientific.names" = c("American Crow (*Corvus brachyrhynchos*)", 
+                                                   "American Goldfinch (*Spinus tristis*)", 
+                                                   "American Pipit (*Anthus rubescens*)", 
+                                                   "American Redstart (*Setophaga ruticilla*)", 
+                                                   "American Robin (*Turdus migratorius*)", 
+                                                   "American Tree Sparrow (*Spizella arborea*)", 
+                                                   "Black-and-white Warbler (*Mniotilta varia*)", 
+                                                   "Black-backed Woodpecker (*Picoides arcticus*)", 
+                                                   "Black-capped Chickadee (*Poecile atricapillus*)", 
+                                                   "Brown-headed Cowbird (*Molothrus ater*)", 
+                                                   "Blue-headed Vireo(*Vireo solitarius*)", 
+                                                   
+                                                   "Blue Jay (*Cyanocitta cristata*)",
+                                                   
+                                                   "Brewer’s Blackbird (*Euphagus cyanocephalus*)",
+                                                   
+                                                   "Brown Thrasher (*Toxostoma rufum*)",
+                                                   "Black throated Green Warbler (*Setophaga virens*)",
+                                                   "Cedar Waxwing (*Bombycilla cedrorum*)",
+                                                   "Chipping Sparrow (*Spizella passerina*)",
+                                                   "Cape May Warbler (*Setophaga tigrina*)",
+                                                   "Common Grackle (*Quiscalus quiscula*)",
+                                                   "Connecticut Warbler (*Oporornis agilis*)",
+                                                   "Common Raven (*Corvus corax*)",
+                                                   "Common Redpoll (*Acanthis flammea*)",
+                                                   "Common Yellowthroat (*Geothlypis trichas*)",
+                                                   "Chestnut-sided Warbler (*Setophaga pensylvanica*)",
+                                                   "Dark-eyed Junco (*Junco hyemalis*)",
+                                                   "Eastern Kingbird (*Tyrannus tyrannus*)",  
+                                                   "Eastern Phoebe (*Sayornis phoebe*)",
+                                                   "Evening Grosbeak (*Coccothraustes vespertinus*)",
+                                                   "Fox Sparrow (*Passerella iliaca*)",
+                                                   "Golden crowned Kinglet (*Regulus satrapa*)",
+                                                   "Gray-cheeked Thrush (*Catharus minimus*)",
+                                                   "Gray Jay (*Perisoreus canadensis*)",
+                                                   "Gray Catbird (*Dumetella carolinensis*)",
+                                                   "Hammond's Flycatcher (*Empidonax hammondii*)",
+                                                   "Hermit Thrush (*Catharus guttatus*)",
+                                                   "Horned Lark (*Eremophila alpestris*)",
+                                                   "House Wren (*Troglodytes aedon*)",
+                                                   "Le Conte's Sparrow (*Ammodramus leconteii*)",
+                                                   "Least Flycatcher (*Empidonax minimus*)",
+                                                   "Lincoln's Sparrow (*Melospiza lincolnii*)",
+                                                   "Magnolia Warbler (*Setophaga magnolia*)",
+                                                   "Mourning Warbler (*Geothlypis philadelphia*)",
+                                                   "Nashville Warbler (*Oreothlypis ruficapilla*)",
+                                                   "Northern Waterthrush (*Parkesia noveboracensis*)",
+                                                   "Orange-crowned Warbler (*Oreothlypis celata*)",
+                                                   "Ovenbird (*Seiurus aurocapilla*)",
+                                                   "Palm Warbler (*Setophaga palmarum*)",
+                                                   "Philadelphia Vireo (*Vireo philadelphicus*)",
+                                                   "Pine Grosbeak (*Pinicola enucleator*)",
+                                                   "Pine Siskin (*Spinus pinus*)",
+                                                   "Pileated Woodpecker (*Dryocopus pileatus*)",
+                                                   "Purple Finch (*Haemorhous purpureus*)",
+                                                   "Rose-breasted Grosbeak (*Pheucticus ludovicianus*)",
+                                                   "Red-breasted Nuthatch (*Sitta canadensis*)",
+                                                   "Ruby-crowned Kinglet (*Regulus calendula*)",
+                                                   "Red-eyed Vireo (*Vireo olivaceus*)",
+                                                   "Ruffed Grouse (*Bonasa umbellus*)",
+                                                   "Red-winged Blackbird (*Agelaius phoeniceus*)",
+                                                   "Savannah Sparrow (*Passerculus sandwichensis*)",
+                                                   "Sedge Wren (*Cisthothorus platensis*)",
+                                                   "Song Sparrow (*Melospiza melodia*)",
+                                                   "Swamp Sparrow (*Melospiza georgiana*)",
+                                                   "Swainson's Thrush (*Catharus ustulatus*)",
+                                                   "Tennessee Warbler (*Oreothlypis peregrina*)",
+                                                   "Townsend's Warbler (*Setophaga townsendi*)",
+                                                   "Tree Swallow (*Tachycineta bicolor*)",
+                                                   "Varied Thrush (*Ixoreus naevius*)",
+                                                   "Veery (*Catharus fuscescens*)",
+                                                   "Vesper Sparrow (*Pooecetes gramineus*)",
+                                                   "Warbling Vireo (*Vireo gilvus*)",
+                                                   "White-breasted Nuthatch (*Sitta carolinensis*)",
+                                                   "White-crowned Sparrow (*Zonotrichia leucophrys*)",
+                                                   "Western Tanager (*Piranga ludoviciana*)",
+                                                   "Wilson's Warbler (*Cardellina pusilla*)",
+                                                   "Winter Wren (*Troglodytes hiemalis*)",
+                                                   "White-throated Sparrow (*Zonotrichia albicollis*)",
+                                                   "White-winged Crossbill (*Loxia leucoptera*)",
+                                                   "Yellow-bellied Sapsucker (*Sphyrapicus varius*)",
+                                                   "Yellow-bellied Flycatcher (*Empidonax flaviventris*)",
+                                                   "Yellow-rumped Warbler (*Setophaga coronata*)",
+                                                   "Yellow Warbler (*Setophaga petechia*)"))
+knitr::kable(othersp)
+```
+
 
 *Important assumptions of the `birdsNWT` module*  
 
@@ -733,58 +793,84 @@ the degree of difference between species. They do not account for differences in
 We have conducted a multi-species analysis over the whole study area. We calculated Bird species abundance (`birdsNWT`),
                             caribou population growth (`caribouPopGrowthModel`), and caribou and relative habitat selection
                             (`caribouRSFModel`).
+ 
                             
 ![Study area: BCR 6 within the NWT](figures/StudyAreaOverview.jpg)
 
 #### **Climate sensitive vegetation model results**
 
+
 ![Landscape biomass generated by LandR.CS in 2001](figures/Biomass2001.jpg)
+
+
 ![Landscape biomass generated by LandR.CS in 2100](figures/Biomass2100.jpg)
+
+
 ![Proportional change in biomass generated by LandR.CS for year 2001 in comparison to 2100](figures/deltaBiomass.jpg)
+
+
 ![Total biomass change per species through time](figures/biomassMapStack_CS.jpg)
 
+
 ![Leading species in biomass generated by LandR.CS in 2001](figures/LeadingSpecies2001.jpg)
+
+
 ![Leading species in biomass generated by LandR.CS in 2100](figures/LeadingSpecies2100.jpg)
+
 
 ![Forest age through time. Dashed line is median, while solid line is the mean. Red areas are the ages that most nevatively correlate to Caribou resource selections, followed by yellow, and green, this last being the most selected for.](figures/fireStats.jpg)
 
 As means of comparison we also simuleted vegetation without climate sensitivity:
 
+
 ![Leading species in biomass generated by LandR in 2100](figures/noCC_Biomass2100.jpg)
+
+
 ![Leading species in biomass generated by LandR in 2100](figures/LeadingSpecies2100_noCC.jpg)
 
 We believe that in the current predictions LandR.CS is probably overestimating biomass loss due to the poor data and simplicity of the models used to for the prediction. 
 
+
 #### **Climate sensitive fire results**
 
+
+
 ![Area burned and number of fires through time](figures/fireBurned.jpg)
+
+\pagebreak
 
 
 #### **Bird predictions' results**
 
-![Proportional change in CAWA abundance for year 2001 in comparison to year 2100](figures/dCAWA_noChange.jpg)
-\pagebreak
-![Proportional change in BLBW abundance for year 2001 in comparison to year 2100](figures/dBLBW_decrease.jpg)
-\pagebreak                           
+\newpage
 
+![Proportional change in CAWA abundance for year 2001 in comparison to year 2100](figures/dCAWA_noChange.jpg)
+
+\pagebreak
+
+
+![Proportional change in BLBW abundance for year 2001 in comparison to year 2100](figures/dBLBW_decrease.jpg)
+
+                     
 ![Proportional change in BRCR abundance for year 2001 in comparison to year 2100](figures/dBRCR_decrease.jpg)
-\pagebreak                           
+                        
+
 
 ![Proportional change in BBWA abundance for year 2001 in comparison to year 2100](figures/deltaBBWA.jpg)
-\pagebreak                           
+                     
 
 ![Proportional change in CCSP abundance for year 2001 in comparison to year 2100](figures/dCCSP_increase.jpg)
-\pagebreak                           
+                 
 
 ![Proportional change in BOCH abundance for year 2001 in comparison to year 2100](figures/deltaBOCH.jpg)
-\pagebreak                           
+                           
 
 ![Proportional change in OSFL abundance for year 2001 in comparison to year 2100](figures/dOSFL_noChange.jpg)
-\pagebreak                           
+                           
 
 ![Proportional change in RUBL abundance for year 2001 in comparison to year 2100](figures/dRUBL_noChange.jpg)
 
-\pagebreak                           
+
 ![Proportional change in WEWP abundance for year 2001 in comparison to year 2100](figures/dWEWP_increase.jpg)
 
 And here is presented the percentage of species decreasing, increasing and the percentage that did not presente change both within and outside of Edéhzhíe. 
@@ -793,15 +879,24 @@ And here is presented the percentage of species decreasing, increasing and the p
 
 These figures show forecast demographic parameters with standard errors for the `Boreal caribou NT1 range planning regions 2018`.
 
+
 ![Caribou RSF predicted from ECCC's 2011 Taiga Plains' RSF model](figures/dCaribouCC.jpg)
+
+
 ![Caribou RSF predicted from ECCC's 2011 Taiga Plains' RSF model without climate change](figures/dCaribou.jpg)
 
+\pagebreak                           
+
+
 ![Caribou demographic predicted from ECCC's 2011 national M3 model with climate change](figures/CC_CaribouPopGrowth.jpg)
+
+
 ![Caribou demographic predicted from ECCC's 2011 national M3 model with climate change](figures/caribouPopGrowth_noCC.jpg)
 
 #### **Caribou RSF and demographic model results**
 
 These figures show forecast demographic parameters with standard errors for the `Boreal caribou NT1 range planning regions 2018`.
+
 
 ![Caribou RSF predicted from ECCC's 2011 Taiga Plains' RSF model](figures/dCaribouCC.jpg)
 
@@ -812,7 +907,10 @@ The last deliverable was to conduct species co-occurrence analyses for bird rich
 caribou within the Edéhzhíe Indigenous Protected Conserved Area, to evaluate potential for multi-species conservation planning. 
 While caribou RSF presented a more resilient behavior through time within Edéhzhíe, outside this IPCA RSF reduced considerably through time. Bird richness, on the other hand, didn't presente considerable difference between the protected area and outside of it.
 
+
 ![Comparison between bird richness and caribou RSF through time, for Edéhzhíe and outside of it.](figures/comparisonrelative.jpg)
+
+
 ![Non-linear relationship between bird species diversity and caribou RSF.](figures/richnessRSF_Edehzhie.jpg)
 
 

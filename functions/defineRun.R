@@ -11,9 +11,7 @@ defineRun <- function(replicateNumber = NULL, vegetation = "LandR.CS", fire = "f
                "PSP_Clean",
                "gmcsDataPrep")
  
- fS <- c("climate_NWT_DataPrep",
-                "MDC_NWT_DataPrep",
-                "fireSense_NWT_DataPrep",
+ fS <- c("fireSense_NWT_DataPrep",
                 "fireSense_FrequencyPredict",
                 "fireSense_EscapePredict",
                 "LBMR2LCC_DataPrep",

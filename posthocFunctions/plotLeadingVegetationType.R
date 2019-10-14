@@ -42,7 +42,8 @@ plotLeadingVegetationType <- function(years = c(2001, 2100),
   names(leadingSpecies) <- paste0("LeadingType", names(cohorDataList))
   if (saveRAS){
     lapply(1:length(leadingSpecies), function(index){
-      writeRaster(x = leadingSpecies[[index]], filename = paste0(folderPath, "RAS", names(leadingSpecies)[index]), format = "GTiff")
+      writeRaster(x = leadingSpecies[[index]], filename = paste0(folderPath, "RAS", names(leadingSpecies)[index]), 
+                  format = "GTiff", overwrite = TRUE)
     })
   }
   # library("quickPlot")
@@ -50,7 +51,8 @@ plotLeadingVegetationType <- function(years = c(2001, 2100),
   # for (index in seq_along(leadingSpecies))
   #   quickPlot::Plot(leadingSpecies[[index]], title = names(leadingSpecies)[[index]])
   quickPlot::Plot(leadingSpecies[[1]], title = paste0(names(leadingSpecies)[[1]], " - ", typeSim))
-  quickPlot::Plot(leadingSpecies[[11]], title = paste0(names(leadingSpecies)[[11]], " - ", typeSim)) # Shortcut for the current vs. future landscapes. 
+  quickPlot::Plot(leadingSpecies[[length(leadingSpecies)]], 
+                  title = paste0(names(leadingSpecies)[[length(leadingSpecies)]], " - ", typeSim)) # Shortcut for the current vs. future landscapes. 
   # Couldn't get raster plot to work. Might be easier to make a ggplot 
   p <- recordPlot()
   return(p)

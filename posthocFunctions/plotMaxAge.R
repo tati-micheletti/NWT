@@ -40,7 +40,8 @@ plotMaxAge <- function(years = c(2001, 2100),
   names(maxAgePlot) <- paste0("maxAgeYear", years)
   if (saveRAS){
     lapply(1:length(maxAgePlot), function(index){
-      writeRaster(x = maxAgePlot[[index]], filename = paste0(folderPath, "RAS", names(maxAgePlot)[index]), format = "GTiff")
+      writeRaster(x = maxAgePlot[[index]], filename = paste0(folderPath, "RAS", names(maxAgePlot)[index]), 
+                  format = "GTiff", overwrite = TRUE)
     })
   }
   rng = range(c(raster::getValues(maxAgePlot[[1]]), raster::getValues(maxAgePlot[[2]])), na.rm = TRUE)

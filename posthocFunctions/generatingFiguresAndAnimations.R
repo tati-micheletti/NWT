@@ -30,8 +30,8 @@ invisible(lapply(paste0("/mnt/data/Micheletti/NWT/posthocFunctions/", c("plotMax
                                                               "plotBurnSummary.R",
                                                               "disturbancePlotCaribou.R")), source))
 # 
-CSfolder <- "11AUG19/LandR_SCFM_run1"
-typeSim <- "noCS"
+CSfolder <- "09OCT19/LandR.CS_fS"
+typeSim <- "CS"
 
 # biomassPerSpecies_1 <- totalBiomassPerSpecies(folderData = paste0(CSfolder, "1"), typeSim = paste0(typeSim, "1"))
 # biomassPerSpecies_2 <- totalBiomassPerSpecies(folderData = paste0(CSfolder, "2"), typeSim = paste0(typeSim, "2"))
@@ -49,8 +49,11 @@ biomassPerSpecies <- totalBiomassPerSpecies(folderData = CSfolder, years = c(seq
                                                 typeSim = typeSim)
 biomassPerSpeciesProp <- totalBiomassPerSpecies(folderData = CSfolder, years = c(seq(2001, 2091, by = 10), 2100),
                                                     typeSim = typeSim, proportional = TRUE)
-burnSumm <- plotBurnSummary(CSfolder, typeSim = typeSim)
+burnSumm <- plotBurnSummary(CSfolder, typeSim = typeSim, lastYear = 2100) # theObject = LandR.CS_fS$burnSummary # if we have the object
 disturbPlot <- disturbancePlotCaribou(CSfolder, typeSim = typeSim)
+
+# If burnsummary is not available, only if we have burnDT...
+# createBurnSummary(folderData = CSfolder, typeSim = typeSim)
 
 # source('/mnt/data/Micheletti/NWT/posthocFunctions/makeAllPlots.R') # NEVER RUN ALL REPETITIONS AT ONCE!
 # run7 <- makeAllPlots(CSfolder = "30JUL19/run7", typeSim = "CS_run7")

@@ -1,4 +1,4 @@
-plotBurnSummary <- function(folderData, typeSim){
+plotBurnSummary <- function(folderData, typeSim, lastYear, theObject = NULL){
   
 parSetup <- par()
 invisible(on.exit(par(parSetup)))
@@ -9,7 +9,11 @@ simul <- typeSim
 folderPath <- paste0("/mnt/data/Micheletti/NWT/outputs/", folder)
 
 # FIRE
-burnSumm <- readRDS(file.path(folderPath, "burnSummary_year2100.rds"))
+if (!is.null(theObject)){
+  burnSumm <- theObject
+} else {
+  burnSumm <- readRDS(file.path(folderPath, paste0("burnSummary_year", lastYear,".rds")))
+}
 areaB <- burnSumm[, sumAB := sum(areaBurned), by = year]
 areaB <- data.table(YEAR = areaB$year, AREABURNED = areaB$sumAB)
 areaB <- unique(areaB)

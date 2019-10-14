@@ -1,19 +1,25 @@
 # Before running this script, read !sourceScript to know the 4 
 # parameters that needed to define the run 
 
+# googledrive::drive_auth(use_oob = TRUE) # USE ONLY ONCE, the first time you are running the project 
+# USING RStudio Server.
+
+usrEmail <- if (pemisc::user() %in% c("tmichele", "Tati")) "tati.micheletti@gmail.com" else NULL
+googledrive::drive_auth(email = usrEmail)
+
 if (pemisc::user() %in% c("Tati", "tmichele"))
   setwd("/mnt/data/Micheletti/NWT")
 t1 <- Sys.time()
 updateCRAN <- FALSE
 updateGithubPackages <- FALSE
 updateSubmodules <- FALSE
-googledrive::drive_deauth()
+
 if (updateCRAN)
   update.packages(checkBuilt = TRUE)
 
 if (updateGithubPackages){
   devtools::install_github("PredictiveEcology/reproducible@development")
-  devtools::install_github("tati-micheletti/usefun")
+  devtools::install_github("tati-micheletti/usefun") # Updates LandR
   devtools::install_github("achubaty/amc@development")
   devtools::install_github("PredictiveEcology/pemisc@development")
   devtools::install_github("PredictiveEcology/map@development")
@@ -30,8 +36,10 @@ if (updateSubmodules){
 }
 
 library("usefun")
+# devtools::load_all("/mnt/data/Micheletti/usefun/") # <~~~~~~~~~~~~ When PR #1 is accepted, reinstall and load from library
 library("LandR")
 library("LandR.CS")
+# devtools::load_all("/mnt/data/Micheletti/LandR.CS/") # <~~~~~~~~~~~~ When PR #1 is accepted, reinstall and load from library
 library("SpaDES")
 library("raster")
 library("plyr"); library("dplyr")
@@ -101,7 +109,7 @@ opts <- options(
   "reproducible.useCache" = TRUE,
   "reproducible.cachePath" = paths$cachePath,
   "reproducible.showSimilar" = FALSE,
-  "reproducible.useCloud" = TRUE,
+  "reproducible.useCloud" = FALSE,
   "spades.moduleCodeChecks" = FALSE, # Turn off all module's code checking
   "spades.useRequire" = FALSE, # assuming all pkgs installed correctly
   "pemisc.useParallel" = TRUE
@@ -110,7 +118,10 @@ opts <- options(
 SpaDES.core::setPaths(modulePath = paths$modulePath, inputPath = paths$inputPath, 
                       outputPath = paths$outputPath, cachePath = paths$cachePath)
 
-if (quickPlot::isRstudioServer()) options(httr_oob_default = TRUE)
+# Check available memory
+if (checkMemory){
+  availableMem <- future::future(ongoingAvailableMemory(pathToSave = getPaths()$outputPath))
+}
 
 #################################################################################
 ################################## SIMULATION SET UP ############################
@@ -147,11 +158,11 @@ rasterToMatch <- Cache(prepInputs, url = "https://drive.google.com/open?id=1fo08
                        userTags = "edeRTM",
                        omitArgs = c("destinationPath", "filename2"))
 
-studyAreaPSP <- prepInputs(targetFile = "BC_Alberta.shp",
-                           archive = "studyAreaPSP.zip",
-                           url = "https://drive.google.com/open?id=19CkdAT0oaqHenyVK84-BjG0dT3JMarV0",
-                           alsoExtract = "similar",
-                           destinationPath = getPaths()$inputPath, userTags = "objectName:studyAreaPSP")
+studyAreaPSP <- prepInputs(targetFile = "BCR6.tif",
+                   archive = "BCR6.zip",
+                   url = "https://drive.google.com/open?id=18A_HjSx_8viGxz3k87kjra03K6MgsjzO",
+                   alsoExtract = "similar",
+                   destinationPath = getPaths()$inputPath, userTags = c("objectName:studyAreaPSP", "extansion:BCR6"))
 
 waterRaster <- prepInputs(url = "https://drive.google.com/open?id=1nPd03gaVXkkaHorirR4UhYrDi95ZgyJM", 
                           destinationPath = getPaths()$inputPath, 
@@ -182,7 +193,7 @@ mixed <- structure("#D0FB84", names = "Mixed")
 sppColorVect[length(sppColorVect)+1] <- mixed
 attributes(sppColorVect)$names[length(sppColorVect)] <- "Mixed"
 
-times <- list(start = 2001, end = 2100)
+times <- list(start = 2011, end = 2100)
 
 #SCFM
 defaultInterval <- 1.0
@@ -267,7 +278,7 @@ lastYears <- data.frame(objectName = c("predictedCaribou", "plotCaribou",
                                        "fireRegimeRas", "speciesEcoregion", 
                                        "species","burnSummary"),
                         saveTime = times$end)
-if (length(grepMulti(x = modules, "LBMR")) != 0){
+if (length(grepMulti(x = definedRun$modules, "LBMR")) != 0){
   clim <- data.frame(objectName = rep(c("fireSense_FrequencyPredicted", 
                                         "fireSense_EscapePredicted"), 
                                       each = 3),
@@ -302,7 +313,7 @@ assign(x = definedRun$whichRUN, simInitAndSpades(inputs = inputs, times = times,
                                                  modules = definedRun$modules,
                                                  objects = objects,
                                                  paths = paths,
-                                                 loadOrder = unlist(modules),
+                                                 loadOrder = unlist(definedRun$modules),
                                                  outputs = outputsLandR, debug = 1))
 t2 <- Sys.time()
 message(crayon::green(paste0("Finished simulations for ", definedRun$whichRUN, ". Elapsed time: ", t2-t1)))
@@ -315,41 +326,42 @@ message(crayon::magenta(paste0("Saved simulations for ", definedRun$whichRUN, ".
 
 if (!exists("runBirds")) runBirds <- FALSE # Default if not provided
 if (runBirds){
-  message(crayon::cyan(paste0("Starting simulations for BIRDS using ", definedRun$whichRUN)))
+  message(crayon::yellow(paste0("Starting simulations for BIRDS using ", definedRun$whichRUN)))
   invisible(sapply(X = list.files(file.path("/mnt/data/Micheletti/NWT/modules/birdsNWT/R/"), full.names = TRUE), FUN = source))
   birdOutPath <- checkPath(file.path(paths$outputPath, "birdPredictions"), create = TRUE)
-  setPaths(modulePath = paths$modulePath, 
+  setPaths(modulePath = paths$modulePath,
            cachePath = paths$cachePath,
-           inputPath = paths$outputPath, 
+           inputPath = paths$outputPath,
            outputPath = birdOutPath)
-  
+
   # Passing the uplandsRaster here makes sure that all computers can use it as the operations 
   # to derive it from the DUCK's layer take up a lot of memory
-  uplandsRaster <- prepInputs(targetFile = "uplandsNWT250m.tif", studyArea = studyArea, rasterToMatch = rasterToMatch,
+  uplandsRaster <- Cache(prepInputs, targetFile = "uplandsNWT250m.tif", studyArea = studyArea, rasterToMatch = rasterToMatch,
                               url = "https://drive.google.com/open?id=1EF67NCH7HqN6QZ0KGlpntB_Zcquu6NJe", 
-                              destinationPath = getPaths()$inputPath, filename2 = NULL)
+                              destinationPath = getPaths()$inputPath, filename2 = NULL, 
+                         userTags = c("objectName:uplandsRaster", "goal:modelBirds"), omitArgs = c("userTags", "destinationPath"))
   parameters <- list(
     birdsNWT = list(
+      "scenario" = paste(replicate, vegetation, fire, sep = "_"),
       "useStaticPredictionsForNonForest" = TRUE,
       "useOnlyUplandsForPrediction" = TRUE,
       "baseLayer" = 2005,
       "overwritePredictions" = FALSE,
       "useTestSpeciesLayers" = FALSE, # Set it to false when you actually have results from LandR_Biomass simulations to run it with
       "useParallel" = TRUE, # Using parallel in windows is currently not working.
-      "predictionInterval" = 20,
+      "predictionInterval" = 40,
       "quickLoad" = TRUE,
       "version" = 6 # VERSION 6 of the modules has both climate and vegetation as covariates for the model
     )
   )
   objects <- c(objects, list(
-    "birdsList" = birdSpecies,
     "uplandsRaster" = uplandsRaster))
-  
+  modules <- list("birdsNWT", "comm_metricsNWT")
   assign(x = paste0(definedRun$whichRUN, "_birds"), simInitAndSpades(inputs = inputs, times = times,
                                                    params = parameters,
-                                                   modules = list("birdsNWT", "comm_metricsNWT"),
+                                                   modules = modules,
                                                    objects = objects,
-                                                   paths = paths,
+                                                   paths = getPaths(),
                                                    loadOrder = unlist(modules),
                                                    outputs = outputsLandR, debug = 1))
 }
@@ -374,8 +386,8 @@ if (runCaribou){
   assign(x = paste0(definedRun$whichRUN, "_caribou"), simInitAndSpades(inputs = inputs, times = times,
                                                                      params = parameters,
                                                                      modules = list("caribouRSF"),
-                                                                     objects = list(),
-                                                                     paths = paths,
+                                                                     objects = objects,
+                                                                     paths = getPaths(),
                                                                      loadOrder = unlist(modules),
                                                                      outputs = outputsLandR, debug = 1))
 }

@@ -27,3 +27,18 @@ lapply(fl, function(ras){
   googledrive::drive_upload(ras,
                             path = googledrive::as_id("1KHiBB-WgJeok_T4aEEar2aOtrjjz0FLY"))
 })
+
+
+
+
+
+
+# fireSense:
+# The only things I need to run are:
+# 1. Include in fireSense_NWT_DataPrep the function to create sim$MDC06 these. This needs to be redone every year! LCC "too" but cached [ DONE ]
+# 2. Run every year: fireSense_NWT_DataPrep, "fireSense_FrequencyPredict", "fireSense_EscapePredict", "LBMR2LCC_DataPrep", "fireSense_NWT" [ REDEFINE definedRun, Push prepareClimateLayers to usefun]
+
+# For the RIA:
+# 1. We need to understand the fitting better i.e. `train`
+# 
+# 

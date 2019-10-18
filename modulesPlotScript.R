@@ -25,12 +25,12 @@ p <- ggplot(data = dt, mapping = aes(x = specificComponent, y = composedMileston
   coord_flip() +
   # scale_fill_manual(values = dt$plotColors) + 
   scale_fill_discrete(drop = FALSE) +
-  scale_y_discrete(drop=FALSE)
+  scale_y_discrete(drop = FALSE)
 
 # how is below diff from above?
 p <- ggplot(data = dt, mapping = aes(x = specificComponent, y = composedMilestone)) +
   geom_col(aes(fill = groupOrFamily), position = position_dodge2(reverse = TRUE)) +
   coord_flip() +
-  scale_fill_discrete(drop=FALSE) +
-  scale_y_discrete(drop=FALSE)
+  scale_fill_discrete(drop = FALSE) +
+  scale_y_discrete(drop = FALSE)
 p

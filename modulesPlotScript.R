@@ -28,8 +28,6 @@ p <- ggplot(data = dt, mapping = aes(x = specificComponent, y = composedMileston
   scale_y_discrete(drop = FALSE)
 
 p <- ggplot() + 
-  geom_rect(data = rects, mapping = aes(xmin = -Inf, xmax = Inf,
-                                        ymin = ystart, ymax = yend, fill = col), alpha = 0.3) +
   geom_col(data = dt,
            mapping = aes(x = specificComponent, y = composedMilestone, fill = groupOrFamily),
            position = position_dodge2(reverse = TRUE)) +

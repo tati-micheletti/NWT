@@ -3,7 +3,7 @@ vegetation dynamics - LandR,gmcsDataPrep,1,M,Data module to prepare climate laye
 vegetation dynamics - LandR,PSP_Clean,1,M,Data module to clean PSP data specifically for the climate sensitivity component of LandR,#3A8426
 vegetation dynamics - LandR,Boreal_LBMRDataPrep,1,R,"A data preparation module for parameterizing the forest succession (LBMR) from open data sources, within the Boreal forest of Canada",#3A8426
 vegetation dynamics - LandR,Biomass_regeneration,1,M,Transcription of the LANDIS-II regeneration model to R,#3A8426
-vegetation dynamics - LandR,LBMR,2,M,Transcription of the LANDIS-II regeneration model to R with modifications,#3A8426
+vegetation dynamics - LandR,LBMR,2,R,Transcription of the LANDIS-II regeneration model to R with modifications,#3A8426
 fire - fireSense,fireSense_EscapeFit,0,T,"Fit statistical models that can be used to parameterize (calibrate) 
                  the fire escape component of landscape fire models",#962A2A
 fire - fireSense,fireSense_FrequencyFit,0,T,"Fit statistical models that can be used to parameterize (calibrate) 

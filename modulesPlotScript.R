@@ -35,8 +35,8 @@ p <- ggplot() +
            position = position_dodge2(reverse = TRUE)) +
   coord_flip() +
   scale_fill_discrete(drop = FALSE) +
-  scale_y_discrete(drop = FALSE) #+
-  #geom_hline(yintercept = c(6.5, 12.5), lty = 3)
+  scale_y_discrete(drop = FALSE) +
+  geom_hline(yintercept = c(6.5, 12.5), lty = 3)
 p
 
 ## this version shades in the regions of the graph corresponding to "version"

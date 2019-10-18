@@ -32,5 +32,6 @@ p <- ggplot(data = dt, mapping = aes(x = specificComponent, y = composedMileston
   geom_col(aes(fill = groupOrFamily), position = position_dodge2(reverse = TRUE)) +
   coord_flip() +
   scale_fill_discrete(drop = FALSE) +
-  scale_y_discrete(drop = FALSE)
+  scale_y_discrete(drop = FALSE) +
+  geom_hline(yintercept = c(6, 12), lty = 3)
 p

@@ -27,11 +27,29 @@ p <- ggplot(data = dt, mapping = aes(x = specificComponent, y = composedMileston
   scale_fill_discrete(drop = FALSE) +
   scale_y_discrete(drop = FALSE)
 
-# how is below diff from above?
-p <- ggplot(data = dt, mapping = aes(x = specificComponent, y = composedMilestone)) +
-  geom_col(aes(fill = groupOrFamily), position = position_dodge2(reverse = TRUE)) +
+p <- ggplot() + 
+  geom_rect(data = rects, mapping = aes(xmin = -Inf, xmax = Inf,
+                                        ymin = ystart, ymax = yend, fill = col), alpha = 0.3) +
+  geom_col(data = dt,
+           mapping = aes(x = specificComponent, y = composedMilestone, fill = groupOrFamily),
+           position = position_dodge2(reverse = TRUE)) +
   coord_flip() +
   scale_fill_discrete(drop = FALSE) +
-  scale_y_discrete(drop = FALSE) +
-  geom_hline(yintercept = c(6.5, 12.5), lty = 3)
+  scale_y_discrete(drop = FALSE) #+
+  #geom_hline(yintercept = c(6.5, 12.5), lty = 3)
 p
+
+## this version shades in the regions of the graph corresponding to "version"
+rects <- data.frame(ystart = c(0, 6, 12), yend = c(6, 12, 18),
+                    col = c("alpha", "beta", "release")) ## TODO: better names
+q <- ggplot() + 
+  geom_rect(data = rects,
+            mapping = aes(xmin = -Inf, xmax = Inf, ymin = ystart, ymax = yend, fill = col),
+            alpha = 0.3) +
+  geom_col(data = dt,
+           mapping = aes(x = specificComponent, y = composedMilestone, fill = groupOrFamily),
+           position = position_dodge2(reverse = TRUE)) +
+  coord_flip() +
+  scale_fill_discrete(drop = FALSE) +
+  scale_y_discrete(drop = FALSE) ## TODO: split legend in two: shaded version region and moudle group
+q

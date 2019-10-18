@@ -33,5 +33,5 @@ p <- ggplot(data = dt, mapping = aes(x = specificComponent, y = composedMileston
   coord_flip() +
   scale_fill_discrete(drop = FALSE) +
   scale_y_discrete(drop = FALSE) +
-  geom_hline(yintercept = c(6, 12), lty = 3)
+  geom_hline(yintercept = c(6.5, 12.5), lty = 3)
 p

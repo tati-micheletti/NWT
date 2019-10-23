@@ -45,6 +45,8 @@ library("raster")
 library("plyr"); library("dplyr")
 library("amc")
 library("magrittr") # for piping
+library("future")
+future::plan(strategy = "multiprocess") 
 
 
 # Source all common functions
@@ -312,19 +314,19 @@ data.table::setDTthreads(10) # Data.table has all threads by default, which is i
 if (!exists("runLandR")) runLandR <- FALSE # Default if not provided
 if (runLandR){
   message(crayon::red(paste0("Starting simulations for ", definedRun$whichRUN)))
-  assign(x = definedRun$whichRUN, simInitAndSpades(inputs = inputs, times = times,
+  assign(x = definedRun$whichRUN, simInit(inputs = inputs, times = times, #simInitAndSpades
                                                    params = parameters,
                                                    modules = definedRun$modules,
                                                    objects = objects,
                                                    paths = paths,
                                                    loadOrder = unlist(definedRun$modules),
-                                                   outputs = outputsLandR, debug = 1))
-  t2 <- Sys.time()
-  message(crayon::green(paste0("Finished simulations for ", definedRun$whichRUN, ". Elapsed time: ", t2-t1)))
-  saveRDS(object = get(definedRun$whichRUN),
-          file = file.path(paths$outputPath, paste0(definedRun$whichRUN,
-                                                    toupper(format(Sys.time(), "%d%b%y_%Hh%Mm%Ss")))))
-  message(crayon::magenta(paste0("Saved simulations for ", definedRun$whichRUN, ". Elapsed time: ", Sys.time()-t2)))
+                                                   outputs = outputsLandR))#, debug = 1))
+  # t2 <- Sys.time()
+  # message(crayon::green(paste0("Finished simulations for ", definedRun$whichRUN, ". Elapsed time: ", t2-t1)))
+  # saveRDS(object = get(definedRun$whichRUN),
+  #         file = file.path(paths$outputPath, paste0(definedRun$whichRUN,
+  #                                                   toupper(format(Sys.time(), "%d%b%y_%Hh%Mm%Ss")))))
+  # message(crayon::magenta(paste0("Saved simulations for ", definedRun$whichRUN, ". Elapsed time: ", Sys.time()-t2)))
 }
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ BIRDS

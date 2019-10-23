@@ -1,13 +1,3 @@
-# sourceScript
-# How to start a simulation from the R command
-# OBS.: 
-# FINISHED RUNS:
-# The run1 from LandR.CS + fS is in the folder 09OCT19
-# There are 3 runs for the other combinarions (LandR + fS, LandR + SCFM, LandR.CS + SCFM) on the 23OCT19: only 2031-2071
-
-# 1. Define these variables. If not defined, the defaults will be ran ("SCFM" and "LandR", no caribou or birds)
-# Run each one of these manually in a different screen
-
 # LandR.CS + fireSense
 replicate <- "run1"
 vegetation <- "LandR.CS" # "LandR.CS" 
@@ -16,7 +6,7 @@ runLandR <- TRUE
 runBirds <- FALSE
 runCaribou <- FALSE
 checkMemory <- TRUE
-source("!runMe.R")
+# source("!runMeExp.R") # For now will not run this one, as I already ran: 09OCT19
 
 # LandR.CS + SCFM
 replicate <- "run1"
@@ -26,7 +16,7 @@ runLandR <- TRUE
 runBirds <- FALSE
 runCaribou <- FALSE
 checkMemory <- TRUE
-source("!runMe.R")
+source("!runMeExp.R")
 
 # LandR + SCFM 
 replicate <- "run1"
@@ -36,7 +26,7 @@ runLandR <- TRUE
 runBirds <- FALSE
 runCaribou <- FALSE
 checkMemory <- TRUE
-source("!runMe.R")
+source("!runMeExp.R")
 
 # LandR + fS
 replicate <- "run1"
@@ -46,4 +36,12 @@ runLandR <- TRUE
 runBirds <- FALSE
 runCaribou <- FALSE
 checkMemory <- TRUE
-source("!runMe.R")
+source("!runMeExp.R")
+
+factorialSimulations <- SpaDES.core::experiment2(#LandR.CS_fS = LandR.CS_fS,
+                                 sim1 = LandR.CS_SCFM, 
+                                 sim2 = LandR_SCFM,
+                                 sim3 = LandR_fS,
+                                 clearSimEnv = TRUE,
+                                 replicates = 1)
+

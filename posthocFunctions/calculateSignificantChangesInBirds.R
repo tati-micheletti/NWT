@@ -1,10 +1,13 @@
 calculateSignificantChangesInBirds <- function(folder, years, species = NULL, pixelBased = TRUE,
                                                sampleSize = "auto", redFactorTimes = 15, 
                                                studyArea = NULL, repetition = NULL){ # limited to 2 years!
-  
   if (is.null(species)){
-    spFiles <- usefun::grepMulti(x = list.files(folder), patterns = c(2001,".tif"))
-    splitted <- sapply(strsplit(x = spFiles, split = "CSpredicted"), '[[', 2)
+    spFiles <- usefun::grepMulti(x = list.files(folder), patterns = c(years[1],".tif"))
+    splittedAllNames <- strsplit(x = spFiles, split = "predicted") # including anything else i.e. diversity rasters
+    splitted <- unlist(lapply(splittedAllNames, function(birdFilename){
+      if (length(birdFilename)==1) return(NULL)
+      return(birdFilename[length(birdFilename)])
+    }))
     species <- usefun::substrBoth(strng = splitted, howManyCharacters = 4, fromEnd = FALSE)
   }
   if (length(years)>2) stop("Currently this function only compares 2 years")
@@ -21,6 +24,7 @@ calculateSignificantChangesInBirds <- function(folder, years, species = NULL, pi
       source('/mnt/data/Micheletti/NWT/modules/correlateRasters/R/prepStudyAreaForBirds.R') # [ FIX ] usefun
       # location <- reproducible::Cache(prepStudyAreaForBirds, studyArea = studyArea, folder = folder, RTMpath = rasPath[1],
       #                                 userTags = c("object:location", "purpose:Edehzhie"))
+browser() # see about only one study area
       dtForTest <- cbind(dtForTest, data.table::data.table(location = studyArea))
       uniqueLocations <- unique(dtForTest$location)[!is.na(unique(dtForTest$location))]
       byLocationModelList <- lapply(uniqueLocations, function(locality){

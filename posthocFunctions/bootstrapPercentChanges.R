@@ -14,11 +14,9 @@ bootstrapPercentChanges <- function(folder = "/mnt/data/Micheletti/NWT/outputs/1
   } else {
     studyArea <- shp
   }
-  
   fullTable <- lapply(1:n, function(repetition){
-    t <- Sys.time()
     message(crayon::yellow("Starting calculateSignificantChangesInBirds for repetition ", repetition, " TIME: ", Sys.time()))
-    t <- Sys.time()
+    t <- Sys.time
     changesTable <- calculateSignificantChangesInBirds(folder = folder, years = years, 
                                                        sampleSize = sampleSize, studyArea = studyArea, 
                                                        repetition = repetition)

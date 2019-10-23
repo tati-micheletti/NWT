@@ -30,7 +30,7 @@ invisible(lapply(paste0("/mnt/data/Micheletti/NWT/posthocFunctions/", c("plotMax
                                                               "plotBurnSummary.R",
                                                               "disturbancePlotCaribou.R")), source))
 # 
-CSfolder <- "09OCT19/LandR.CS_fS"
+CSfolder <- "outputs/09OCT19/LandR.CS_fS/run1"
 typeSim <- "CS"
 
 # biomassPerSpecies_1 <- totalBiomassPerSpecies(folderData = paste0(CSfolder, "1"), typeSim = paste0(typeSim, "1"))
@@ -76,13 +76,14 @@ googledrive::drive_upload(toUpload, path = googledrive::as_id("1EmkeRatJdMjwxvJB
 # ~~~~~~~~~~~~~~~~~BIRDS CHANGE TABLE
 
 # [ FIX ] Still need to test this function with shp == NULL!
+folderBirds <- "/mnt/data/Micheletti/NWT/outputs/09OCT19/LandR.CS_fS/run1/birdPredictions"
 source('/mnt/data/Micheletti/NWT/posthocFunctions/bootstrapPercentChanges.R') # INTERNAL FUNCTIONS TO BE PUT IN USEFUN!!! [ FIX ]
 shp <- "https://drive.google.com/open?id=1GA7hGslGEE1DGIMsD4Ou9duesS-eGbyZ"
 cacheFolder <- "/mnt/data/Micheletti/NWT/cache/"
 SpaDES.core::setPaths(cachePath = cacheFolder)
-boot <- bootstrapPercentChanges(folder = "/mnt/data/Micheletti/NWT/outputs/18JUL19/birdPredictionsV3_Fixed/", 
-                                    years = c(2001, 2100), sampleSize = 50, n = 2, shp = shp) # FIGURE OUT WHY IT TAKES SO LONG TO SIMULATE!
-saveRDS(object = boot, file = file.path("/mnt/data/Micheletti/NWT/outputs/18JUL19/birdPredictionsV3_Fixed/speciesChangeTables.rds"))
+boot <- bootstrapPercentChanges(folder = folderBirds, 
+                                    years = c(2011, 2091), sampleSize = 50, n = 2, shp = NULL) # FIGURE OUT WHY IT TAKES SO LONG TO SIMULATE!
+saveRDS(object = boot, file = file.path(folderBirds, "speciesChangeTables.rds"))
 # ~~~~~~~~~~~~~~~~~ CARIBOU POP GROWTH
 
 plotCaribou <- plotCaribou(startTime = 2011,
@@ -190,30 +191,32 @@ CS_2100 <- RSFplot(ras = predRS_CS$predictedPresenceProbability$Year2100$TaigaPl
 
 
 # ~~~~~~~~~~~~~~~~~ BIRDS
-
-birds2011 <- grepMulti(x = list.files("/mnt/data/Micheletti/NWT/outputs/18JUN19_CS_SCFM/birdPredictions/", 
+library("usefun")
+birdsFolder <- file.path(getwd(), CSfolder, 'birdPredictions/')
+birds2011 <- usefun::grepMulti(x = list.files(birdsFolder, 
                                       full.names = TRUE), patterns = c("predicted", "2011"))
-birds2100 <- grepMulti(x = list.files("/mnt/data/Micheletti/NWT/outputs/18JUN19_CS_SCFM/birdPredictions/", 
-                                      full.names = TRUE), patterns = c("predicted", "2100"))
-birds <- c(birds2011, birds2100)
+birds2091 <- usefun::grepMulti(x = list.files(birdsFolder, 
+                                      full.names = TRUE), patterns = c("predicted", "2091"))
+birds <- c(birds2011, birds2091)
+library("data.table")
 resultsBirdSpecies <- rbindlist(lapply(birds, function(ras){
   r <- raster::raster(ras)
-  dt <- data.table(species = substrBoth(substrBoth(x = names(r), n = 12), n = 8, fromEnd = FALSE),
-                   year = as.numeric(substrBoth(x = names(r), n = 4)),
+  dt <- data.table(species = substrBoth(strng = substrBoth(strng = names(r), howManyCharacters = 12), howManyCharacters = 4, fromEnd = FALSE),
+                   year = as.numeric(substrBoth(strng = names(r), howManyCharacters = 4)),
                    mean = mean(r[], na.rm = TRUE),
                    min = min(r[], na.rm = TRUE),
                    max = max(r[], na.rm = TRUE),
                    median = median(r[], na.rm = TRUE))
 })
 )
-
-write.csv(x = resultsBirdSpecies, file = "/mnt/data/Micheletti/NWT/outputs/18JUN19_CS_SCFM/summaryBirds.csv")
+write.csv(x = resultsBirdSpecies, file = file.path(birdsFolder, "summaryBirds.csv"))
+rm(resultsBirdSpecies)
 
 species <- c("RUBL", "OSFL", "CAWA")
 
 createBirdsGIFFromList(pathData = file.path("/mnt/data/Micheletti/NWT/outputs/18JUN19_CS_SCFM/birdPredictions/"), 
                        species = species, mainFileName = "CSpredicted", ysrName = c(seq(2011, 2100, by = 10), 2100),
-                       version = "V4", uploadFiles = TRUE, whereToReport = "BCR6_NWT")
+                       version = "V6", uploadFiles = TRUE, whereToReport = "BCR6_NWT")
 
 WhichToUp <- c("/mnt/data/Micheletti/NWT/outputs/PredictedAMREYear.0_30MAR19.png",
             "/mnt/data/Micheletti/NWT/outputs/PredictedAMREYear.50_30MAR19.png",

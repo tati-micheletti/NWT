@@ -36,15 +36,16 @@ if (updateSubmodules){
 }
 
 library("usefun")
-# devtools::load_all("/mnt/data/Micheletti/usefun/") # <~~~~~~~~~~~~ When PR #1 is accepted, reinstall and load from library
 library("LandR")
 library("LandR.CS")
-# devtools::load_all("/mnt/data/Micheletti/LandR.CS/") # <~~~~~~~~~~~~ When PR #1 is accepted, reinstall and load from library
 library("SpaDES")
 library("raster")
 library("plyr"); library("dplyr")
 library("amc")
 library("magrittr") # for piping
+library("future")
+library("future.apply")
+library("future.callr")
 
 
 # Source all common functions
@@ -331,6 +332,7 @@ if (runLandR){
 
 if (!exists("runBirds")) runBirds <- FALSE # Default if not provided
 if (runBirds){
+  predictionIntervals <- 30
   message(crayon::yellow(paste0("Starting simulations for BIRDS using ", definedRun$whichRUN)))
   invisible(sapply(X = list.files(file.path("/mnt/data/Micheletti/NWT/modules/birdsNWT/R/"), full.names = TRUE), FUN = source))
   birdOutPath <- checkPath(file.path(paths$outputPath, "birdPredictions"), create = TRUE)
@@ -361,16 +363,16 @@ newOutputPath <- gsub(x = birdOutPath, pattern = toupper(format(Sys.time(), "%d%
       "overwritePredictions" = FALSE,
       "useTestSpeciesLayers" = FALSE, # Set it to false when you actually have results from LandR_Biomass simulations to run it with
       "useParallel" = FALSE, # Using parallel in windows is currently not working.
-      "predictionInterval" = 40,
+      "predictionInterval" = predictionIntervals,
       "quickLoad" = TRUE,
       "version" = 6 # VERSION 6 of the modules has both climate and vegetation as covariates for the model
     ),
     comm_metricsNWT = list(
-    "frequency" = 40
+    "frequency" = predictionIntervals
     )
   )
   objects <- c(objects, list(
-    "birdsList" = c("BBWA", "OSFL"), # [ FIX ] <~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ remove. testing
+    "birdsList" = c("BBWA", "CAWA", "OSFL", "WEWP", "RUBL"), # [ FIX ] <~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ remove. testing
     "uplandsRaster" = uplandsRaster))
   modules <- list("birdsNWT", "comm_metricsNWT")
   

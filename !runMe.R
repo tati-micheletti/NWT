@@ -95,14 +95,14 @@ tilePath <- file.path(paths$outputPath, "tiles")
 .plotInitialTime <- NA
 opts <- options(
   "spades.recoveryMode" = 2,
-  "future.globals.maxSize" = 1000*1024^2,
   "LandR.assertions" = FALSE,
   "LandR.verbose" = 1,
   "map.dataPath" = paths$inputPath,
   "map.overwrite" = TRUE,
   "map.tilePath" = tilePath,
   "map.useParallel" = TRUE, #!identical("windows", .Platform$OS.type),
-  "reproducible.futurePlan" = FALSE,
+  "reproducible.futurePlan" = "callr",
+  "future.globals.maxSize" = if (pemisc::user("tmichele")) 6000*1024^2 else 1000*1024^2,
   "reproducible.inputPaths" = if (pemisc::user("emcintir")) "~/data" else paths$inputPath,
   "reproducible.quick" = FALSE,
   "reproducible.overwrite" = TRUE,

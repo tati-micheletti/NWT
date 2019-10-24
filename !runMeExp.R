@@ -36,10 +36,8 @@ if (updateSubmodules){
 }
 
 library("usefun")
-# devtools::load_all("/mnt/data/Micheletti/usefun/") # <~~~~~~~~~~~~ When PR #1 is accepted, reinstall and load from library
 library("LandR")
 library("LandR.CS")
-# devtools::load_all("/mnt/data/Micheletti/LandR.CS/") # <~~~~~~~~~~~~ When PR #1 is accepted, reinstall and load from library
 library("SpaDES")
 library("raster")
 library("plyr"); library("dplyr")
@@ -97,14 +95,14 @@ tilePath <- file.path(paths$outputPath, "tiles")
 .plotInitialTime <- NA
 opts <- options(
   "spades.recoveryMode" = 2,
-  "future.globals.maxSize" = 1000*1024^2,
   "LandR.assertions" = FALSE,
   "LandR.verbose" = 1,
   "map.dataPath" = paths$inputPath,
   "map.overwrite" = TRUE,
   "map.tilePath" = tilePath,
   "map.useParallel" = TRUE, #!identical("windows", .Platform$OS.type),
-  "reproducible.futurePlan" = FALSE,
+  "reproducible.futurePlan" = "callr",
+  "future.globals.maxSize" = if (pemisc::user() %in% c("Tati", "tmichele")) 6000*1024^2 else 1000*1024^2,
   "reproducible.inputPaths" = if (pemisc::user("emcintir")) "~/data" else paths$inputPath,
   "reproducible.quick" = FALSE,
   "reproducible.overwrite" = TRUE,
@@ -197,7 +195,7 @@ mixed <- structure("#D0FB84", names = "Mixed")
 sppColorVect[length(sppColorVect)+1] <- mixed
 attributes(sppColorVect)$names[length(sppColorVect)] <- "Mixed"
 
-times <- list(start = 2011, end = 2100)
+times <- list(start = 2011, end = 2015)
 
 #SCFM
 defaultInterval <- 1.0

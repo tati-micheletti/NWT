@@ -12,8 +12,8 @@
 replicate <- "run1"
 vegetation <- "LandR.CS" # "LandR.CS" 
 fire <- "fS" # fS
-runLandR <- TRUE 
-runBirds <- FALSE
+runLandR <- FALSE 
+runBirds <- TRUE
 runCaribou <- FALSE
 checkMemory <- TRUE
 source("!runMe.R")

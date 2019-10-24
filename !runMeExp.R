@@ -44,8 +44,6 @@ library("plyr"); library("dplyr")
 library("amc")
 library("magrittr") # for piping
 library("future")
-future::plan(strategy = "multiprocess") 
-
 
 # Source all common functions
 # invisible(sapply(X = list.files(file.path(getwd(), "functions"), full.names = TRUE), FUN = source))
@@ -73,9 +71,12 @@ if (whichComputer == "BorealCloud" & basename(getwd()) != "NWT"){
 
 isTest <- FALSE
 
-paths <- pathsSetup(whichComputer = whichComputer, isTest = isTest)
-if (length(paths$modulePath) == 1) paths$modulePath <- c(paths$modulePath, file.path(paths$modulePath, "scfm/modules"))
-paths$outputPath <- checkPath(file.path(paths$outputPath, definedRun$whichRUN, replicate), create = TRUE) # Redefine outputPath based on type of run
+if (user %in% c("tmichele", "Tati")) {
+  paths <- pathsSetup(whichComputer = whichComputer, isTest = isTest)
+  if (length(paths$modulePath) == 1) paths$modulePath <- c(paths$modulePath, file.path(paths$modulePath, "scfm/modules"))
+} else {
+  paths <- setPaths()
+}
 
 if (pemisc::user() %in% c("Tati", "tmichele")) {
   setTempFolder(paths = paths, setTmpFolder = TRUE, usr = user)

@@ -57,6 +57,6 @@
 [submodule "modules/comm_metricsNWT"]
 	path = modules/comm_metricsNWT
 	url = git@github.com:araymund83/comm_metricsNWT.git
-[submodule "modules/fireSense_IgnitionFit"]
-	path = modules/fireSense_IgnitionFit
-	url = git@github.com:tati-micheletti/fireSense_IgnitionFit.git
+[submodule "modules/fireSense_IgnitionPredict"]
+	path = modules/fireSense_IgnitionPredict
+	url = git@github.com:tati-micheletti/fireSense_IgnitionPredict.git

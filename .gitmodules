@@ -45,9 +45,6 @@
 [submodule "modules/MDC_NWT_DataPrep"]
 	path = modules/MDC_NWT_DataPrep
 	url = git@github.com:ygc2l/MDC_NWT_DataPrep.git
-[submodule "modules/fireSense_FrequencyPredict"]
-	path = modules/fireSense_FrequencyPredict
-	url = git@github.com:ygc2l/fireSense_FrequencyPredict.git
 [submodule "modules/fireSense_EscapePredict"]
 	path = modules/fireSense_EscapePredict
 	url = git@github.com:ygc2l/fireSense_EscapePredict.git
@@ -60,3 +57,6 @@
 [submodule "modules/comm_metricsNWT"]
 	path = modules/comm_metricsNWT
 	url = git@github.com:araymund83/comm_metricsNWT.git
+[submodule "modules/fireSense_IgnitionFit"]
+	path = modules/fireSense_IgnitionFit
+	url = git@github.com:tati-micheletti/fireSense_IgnitionFit.git

@@ -70,13 +70,13 @@ For help writing in R Markdown, see http://rmarkdown.rstudio.com/.
   )
   )
   
-  birdV3 <- simInit(times = times, params = parameters, modules = modules,
-                   objects = objectsV6, outputs = outputs)
-  
+birdV3 <- simInit(times = times, params = parameters, modules = modules,
+                   objects = objectsV3, outputs = outputs)
+ 
+birdV6 <- simInit(times = times, params = parameters, modules = modules,
+                  objects = objectsV6)
+                  
 birdResults <- spades(birdV3, debug = 1)
-# 
-# birdV3 <- simInit(times = times, params = parameters, modules = modules,
-#                  objects = objectsV3)
 
 # library(SpaDES.experiment)
 # birdResults <- experiment2(birdV6, birdV3)

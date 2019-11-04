@@ -1,0 +1,80 @@
+---
+title: "posthocLandR"
+author: "tmichele"
+date: "28 October 2019"
+output: pdf_document
+---
+
+# Overview
+Makes posthoc plots for diagnosis of LandR
+
+# Usage
+
+```{r module_usage}
+library("SpaDES")
+library("future")
+library("future.apply")
+plan("multicore")
+# library("usefun")
+devtools::load_all(file.path(dirname(getwd()), "usefun")) # Temporary until the simulations finish. Then I need to uncomment the package in the posthocLandR.R
+
+SpaDES.core::setPaths(modulePath = file.path(getwd(), "modules"),
+                      cachePath = file.path(getwd(), "cache"))
+times <- list(start = 1, end = 1)
+
+Run <- "run2"
+
+parameters <- list(
+  posthocLandR = list(
+    "years" = c(seq(2011, 2091, by = 10), 2100),
+    "saveRAS" = TRUE,
+    "addCaribousuitability" = TRUE,
+    "plotFireStats" = TRUE,
+    "overwriteBurnSumm" = TRUE
+    )
+)
+modules <- list("posthocLandR")
+objects <- list(
+  resultsFolders = list(
+        LandR.CS_fS = file.path(getwd(), "outputs/23OCT19/LandR.CS_fS", Run),
+        LandR.CS_SCFM = file.path(getwd(), "outputs/23OCT19/LandR.CS_SCFM", Run),
+        # LandR_fS = file.path(getwd(), "outputs/23OCT19/LandR_fS", Run),
+        LandR_SCFM = file.path(getwd(), "outputs/23OCT19/LandR_SCFM", Run)
+  )
+)
+inputs <- list()
+outputs <- list()
+
+posthocResultsLandR <- simInitAndSpades(times = times, params = parameters, 
+                                        modules = modules,
+                                        objects = objects, debug = 1)
+
+```
+
+# Events
+
+Describe what happens for each event type.
+
+## Plotting
+
+Write what is plotted.
+
+## Saving
+
+Write what is saved.
+
+# Data dependencies
+
+## Input data
+
+How to obtain input data, and a description of the data required by the module.
+If `sourceURL` is specified, `downloadData("posthocLandR", "path/to/modules/dir")` may be sufficient.
+
+## Output data
+
+Description of the module outputs.
+
+# Links to other modules
+
+Describe any anticipated linkages to other modules.
+

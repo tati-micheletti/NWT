@@ -20,21 +20,34 @@ dt[, specificComponent  := factor(specificComponent, unique(dt$specificComponent
 
 data.table::setkey(dt, groupOrFamily)
 
-p <- ggplot(data = dt, mapping = aes(x = specificComponent, y = composedMilestone)) +
-  geom_col(aes(fill = groupOrFamily), position = position_dodge2(reverse = TRUE)) +
-  coord_flip() +
-  # scale_fill_manual(values = dt$plotColors) + 
-  scale_fill_discrete(drop = FALSE) +
-  scale_y_discrete(drop = FALSE)
-
+## this version shades in the regions of the graph corresponding to "version" and has the correspondent colors to the hex stickers
 p <- ggplot() + 
   geom_col(data = dt,
            mapping = aes(x = specificComponent, y = composedMilestone, fill = groupOrFamily),
            position = position_dodge2(reverse = TRUE)) +
   coord_flip() +
-  scale_fill_discrete(drop = FALSE) +
-  scale_y_discrete(drop = FALSE) +
-  geom_hline(yintercept = c(6.5, 12.5), lty = 3)
+  # scale_fill_discrete(drop = FALSE) +
+  # scale_y_discrete(value = cols)) +
+  geom_hline(yintercept = c(6, 12), lty = 3) +
+  ylab(label = "Version and milestone") +
+  xlab(label = "Modules") +
+  # labs(fill = "Module's families") +
+  theme(legend.text = element_text(size = 11),
+        legend.title = element_text(size = 13),
+        legend.position = "right",#c(0.88, 0.7),
+        legend.background = element_blank()) +
+scale_fill_manual("Module's families", values = c("vegetation dynamics - LandR" = "#3A8426", 
+                                                  "fire - fireSense" = "#962A2A",
+                                                  "fire - SCFM" = "#CC3737", 
+                                                  "caribou" = "#E2C026", 
+                                                  "birds" = "#637DB5", 
+                                                  "biodiversity metrics" = "#3D3D3D", 
+                                                  "trends" = "#030077",
+                                                  "harvesting" = "#88C95C", 
+                                                  "hotspots" = "#5D5BA0", 
+                                                  "mountain pine beetle" = "#9B831A", 
+                                                  "carbon" = "#939393", 
+                                                  "anthropogenic disturbances" = "#07051E"))
 p
 
 ## this version shades in the regions of the graph corresponding to "version"

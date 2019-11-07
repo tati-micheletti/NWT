@@ -33,7 +33,7 @@ if (updateSubmodules){
   system(paste0("cd ", getwd(),
                 " && git pull"), wait = TRUE)
   system("git submodule", wait = TRUE) # checks if the branches and commits you are using are the correct ones
-}
+}  # HERE <<~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ADD NEW SUBMODULE FROM IgnitionFit!
 
 library("usefun")
 library("LandR")
@@ -52,7 +52,6 @@ library("future.callr")
 # invisible(sapply(X = list.files(file.path(getwd(), "functions"), full.names = TRUE), FUN = source))
 source("/mnt/data/Micheletti/NWT/functions/not_included/pathsSetup.R")
 source("/mnt/data/Micheletti/NWT/functions/defineRun.R")
-source("/mnt/data/Micheletti/NWT/posthocFunctions/reviseSpeciesTraits.R") # TEMPORARY UNTIL IN LANDR!
 
 if (!exists("vegetation")) vegetation <- "LandR" # Default if not provided
 if (!exists("fire")) fire <- "SCFM" # Default if not provided
@@ -78,7 +77,7 @@ paths <- pathsSetup(whichComputer = whichComputer, isTest = isTest)
 if (length(paths$modulePath) == 1) paths$modulePath <- c(paths$modulePath, file.path(paths$modulePath, "scfm/modules"))
 paths$outputPath <- checkPath(file.path(paths$outputPath, definedRun$whichRUN, replicate), create = TRUE) # Redefine outputPath based on type of run
 
-if (pemisc::user() %in% c("Tati", "tmichele")) {
+if (pemisc::user() %in% c("Tati", "tmichele", "emcintir")) {
   setTempFolder(paths = paths, setTmpFolder = TRUE, usr = user)
 }
 maxMemory <- 5e+12
@@ -102,7 +101,7 @@ opts <- options(
   "map.overwrite" = TRUE,
   "map.tilePath" = tilePath,
   "map.useParallel" = TRUE, #!identical("windows", .Platform$OS.type),
-  "reproducible.futurePlan" = "callr",
+  "reproducible.futurePlan" = "multicore",
   "future.globals.maxSize" = if (pemisc::user("tmichele")) 6000*1024^2 else 1000*1024^2,
   "reproducible.inputPaths" = if (pemisc::user("emcintir")) "~/data" else paths$inputPath,
   "reproducible.quick" = FALSE,
@@ -122,6 +121,7 @@ SpaDES.core::setPaths(modulePath = paths$modulePath, inputPath = paths$inputPath
                       outputPath = paths$outputPath, cachePath = paths$cachePath)
 
 # Check available memory
+if (!exists("checkMemory")) checkMemory <- FALSE # Default if not provided
 if (checkMemory){
   availableMem <- future::future(ongoingAvailableMemory(pathToSave = getPaths()$outputPath))
 }
@@ -232,7 +232,7 @@ parameters <- list(
   Boreal_LBMRDataPrep = list(
     "speciesUpdateFunction" = list(
       quote(LandR::speciesTableUpdate(sim$species, sim$speciesTable, sim$sppEquiv, P(sim)$sppEquivCol)),
-      quote(reviseSpeciesTraits(speciesTable = sim$species)),
+      quote(usefun::reviseSpeciesTraits(speciesTable = sim$species)),
       quote(usefun::changeTraits(speciesTable = sim$species, param = "seeddistance_max",
                                  facMult = 0.4, species = c("Betu_Pap", "Popu_Tre")))
     ),
@@ -249,8 +249,9 @@ parameters <- list(
   climate_NWT_DataPrep = list(
     "rcp" = 45, # 45 or 85
     "gcm" = "CanESM2"), # One of CanESM2, GFDL-CM3, HadGEM2-ES, MPI-ESM-LR
-  fireSense_FrequencyPredict = list(
-    "data" = c("MDC06", "LCC")),
+  fireSense_IgnitionPredict = list(
+    "data" = c("MDC06", "LCC"),
+    "modelObjName" = "fireSense_FrequencyFitted"),
   fireSense_EscapePredict = list(
     "data" = c("MDC06", "LCC")),
   fireSense_NWT_DataPrep = list(
@@ -334,18 +335,6 @@ if (!exists("runBirds")) runBirds <- FALSE # Default if not provided
 if (runBirds){
   predictionIntervals <- 30
   message(crayon::yellow(paste0("Starting simulations for BIRDS using ", definedRun$whichRUN)))
-  invisible(sapply(X = list.files(file.path("/mnt/data/Micheletti/NWT/modules/birdsNWT/R/"), full.names = TRUE), FUN = source))
-  birdOutPath <- checkPath(file.path(paths$outputPath, "birdPredictions"), create = TRUE)
-  setPaths(modulePath = paths$modulePath,
-           cachePath = paths$cachePath,
-           inputPath = paths$outputPath,
-           outputPath = birdOutPath)
-  
-  # [ FIX ] only because we already ran LandR previously. Needs to be commented out when doing the whole project at once
-newInputPath <- gsub(x = paths$outputPath, pattern = toupper(format(Sys.time(), "%d%b%y")), replacement = "09OCT19")
-newOutputPath <- gsub(x = birdOutPath, pattern = toupper(format(Sys.time(), "%d%b%y")), replacement = "09OCT19")
-  setPaths(inputPath = newInputPath,
-           outputPath = newOutputPath)
 
   # Passing the uplandsRaster here makes sure that all computers can use it as the operations 
   # to derive it from the DUCK's layer take up a lot of memory
@@ -365,21 +354,35 @@ newOutputPath <- gsub(x = birdOutPath, pattern = toupper(format(Sys.time(), "%d%
       "useParallel" = FALSE, # Using parallel in windows is currently not working.
       "predictionInterval" = predictionIntervals,
       "quickLoad" = TRUE,
-      "version" = 6 # VERSION 6 of the modules has both climate and vegetation as covariates for the model
+      "version" = 3 # VERSION 6 of the modules has both climate and vegetation as covariates for the model
     ),
     comm_metricsNWT = list(
     "frequency" = predictionIntervals
     )
   )
   objects <- c(objects, list(
-    "birdsList" = c("BBWA", "CAWA", "OSFL", "WEWP", "RUBL"), # [ FIX ] <~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ remove. testing
+    "birdsList" = c("BBWA", "CAWA", "OSFL", "WEWP", "RUBL"), # [ FIX ] <~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ For second paper, just remove this line!
     "uplandsRaster" = uplandsRaster))
   modules <- list("birdsNWT", "comm_metricsNWT")
   
+  invisible(sapply(X = list.files(file.path("/mnt/data/Micheletti/NWT/modules/birdsNWT/R/"), full.names = TRUE), FUN = source))
+  birdOutPath <- checkPath(file.path(paths$outputPath, paste0("birdPredictionsV", parameters[["birdsNWT"]][["version"]])), create = TRUE)
+  setPaths(modulePath = paths$modulePath,
+           cachePath = paths$cachePath,
+           inputPath = paths$outputPath,
+           outputPath = birdOutPath)
+  
+  # [ FIX ] only because we already ran LandR previously. Needs to be commented out when doing the whole project at once
+  newInputPath <- gsub(x = paths$outputPath, pattern = toupper(format(Sys.time(), "%d%b%y")), replacement = "23OCT19")
+  newOutputPath <- gsub(x = birdOutPath, pattern = toupper(format(Sys.time(), "%d%b%y")), replacement = "23OCT19")
+  setPaths(inputPath = newInputPath,
+           outputPath = newOutputPath)
+  
+  
   # For mem peak identification
   Require("future")
-  Require("future.callr")
-  options("spades.memoryUseInterval" = 0.5, "spades.futurePlan" = "callr")
+  # Require("future.callr")
+  options("spades.memoryUseInterval" = 0.5, "spades.futurePlan" = "multicore")
   
   mySim <- simInit(
     inputs = inputs,
@@ -407,20 +410,21 @@ if (runCaribou){
            outputPath = caribouOutPath)
   
   # [ FIX ] only because we already ran LandR previously. Needs to be commented out when doing the whole project at once
-  newInputPath <- gsub(x = paths$outputPath, pattern = toupper(format(Sys.time(), "%d%b%y")), replacement = "09OCT19")
-  newOutputPath <- gsub(x = birdOutPath, pattern = toupper(format(Sys.time(), "%d%b%y")), replacement = "09OCT19")
+  newInputPath <- gsub(x = paths$outputPath, pattern = toupper(format(Sys.time(), "%d%b%y")), replacement = "23OCT19")
+  newOutputPath <- gsub(x = caribouOutPath, pattern = toupper(format(Sys.time(), "%d%b%y")), replacement = "23OCT19")
   setPaths(inputPath = newInputPath,
            outputPath = newOutputPath)
   
   parameters <- list(
     caribouRSF = list(
       "decidousSp" = c("Betu_Pap", "Popu_Tre", "Popu_Bal"),
-      "predictionInterval" = 40
+      "predictionInterval" = 30
     )
   )
+  modules <- list("caribouRSF")
   assign(x = paste0(definedRun$whichRUN, "_caribou"), simInitAndSpades(inputs = inputs, times = times,
                                                                      params = parameters,
-                                                                     modules = list("caribouRSF"),
+                                                                     modules = modules,
                                                                      objects = objects,
                                                                      paths = getPaths(),
                                                                      loadOrder = unlist(modules),

@@ -73,10 +73,10 @@ isTest <- FALSE
 
 if (user %in% c("tmichele", "Tati")) {
   paths <- pathsSetup(whichComputer = whichComputer, isTest = isTest)
-  if (length(paths$modulePath) == 1) paths$modulePath <- c(paths$modulePath, file.path(paths$modulePath, "scfm/modules"))
 } else {
   paths <- setPaths()
 }
+if (length(paths$modulePath) == 1) paths$modulePath <- c(paths$modulePath, file.path(paths$modulePath, "scfm/modules"))
 
 if (pemisc::user() %in% c("Tati", "tmichele")) {
   setTempFolder(paths = paths, setTmpFolder = TRUE, usr = user)
@@ -410,7 +410,7 @@ if (runCaribou){
   newOutputPath <- gsub(x = birdOutPath, pattern = toupper(format(Sys.time(), "%d%b%y")), replacement = "09OCT19")
   setPaths(inputPath = newInputPath,
            outputPath = newOutputPath)
-  
+  modules <- list("caribouRSF")
   parameters <- list(
     caribouRSF = list(
       "decidousSp" = c("Betu_Pap", "Popu_Tre", "Popu_Bal"),
@@ -419,7 +419,7 @@ if (runCaribou){
   )
   assign(x = paste0(definedRun$whichRUN, "_caribou"), simInitAndSpades(inputs = inputs, times = times,
                                                                      params = parameters,
-                                                                     modules = list("caribouRSF"),
+                                                                     modules = modules,
                                                                      objects = objects,
                                                                      paths = getPaths(),
                                                                      loadOrder = unlist(modules),

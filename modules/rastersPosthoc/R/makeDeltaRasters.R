@@ -3,7 +3,7 @@ makeDeltaRasters <- function(listOfRasters,
                              years = c(2000, 2100), 
                              outputFolder, lightLoad = TRUE,
                              overwrite = FALSE){
-  rastersOrganized <- lapply(X = names(listOfRasters), function(eachSimulation){
+  rastersOrganized <- future_lapply(X = names(listOfRasters), function(eachSimulation){
     groupFiles <- lapply(X = names(listOfRasters[[eachSimulation]]), FUN = function(eachGroup){
       currentGroupsRas <- listOfRasters[[eachSimulation]][[eachGroup]]
       firstRas <- currentGroupsRas[[1]]

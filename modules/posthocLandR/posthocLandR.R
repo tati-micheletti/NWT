@@ -10,7 +10,7 @@ defineModule(sim, list(
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.txt", "posthocLandR.Rmd"),
-  reqdPkgs = list("raster","tati-micheletti/usefun"),
+  reqdPkgs = list("raster","tati-micheletti/usefun", "future", "future.apply"),
   parameters = rbind(
     defineParameter("plotFireStats", "logical", FALSE, NA, NA, paste0("If fire was ran on the landscape, set this parameter to TRUE to generate burn summaries")),
     defineParameter("addCaribousuitability", "logical", FALSE, NA, NA, paste0("If TRUE, adds to the forest age plot the colors indicating suitability for caribou:",
@@ -25,7 +25,8 @@ defineModule(sim, list(
     defineParameter("totalBiomassOverstory", "logical", FALSE, NA, NA, paste0("Should be overwritten?")),
     defineParameter("totalBiomassOverstoryProp", "logical", FALSE, NA, NA, paste0("Should be overwritten?")),
     defineParameter("overwriteForestAge", "logical", FALSE, NA, NA, paste0("Should be overwritten?")),
-    defineParameter("overwriteBurnSumm", "logical", FALSE, NA, NA, paste0("Should be overwritten?"))
+    defineParameter("overwriteBurnSumm", "logical", FALSE, NA, NA, paste0("Should be overwritten?")),
+    defineParameter("futurePlan", "character", "multiprocess", NA, NA, paste0("Which plan should be used for parallelize?"))
     ),
   inputObjects = bind_rows(
     expectsInput(objectName = "resultsFolders", objectClass = "list", 
@@ -66,7 +67,7 @@ doEvent.posthocLandR = function(sim, eventTime, eventType) {
       sim <- scheduleEvent(sim, start(sim), "posthocLandR", "createPlots")
     },
     createPlots = {
-      sim$allPlots <- lapply(names(sim$resultsFolders), function(typeSim){  # [ FIX ] still need to make use of the overwrite! # future.apply::future_lapply
+      sim$allPlots <- future_lapply(names(sim$resultsFolders), function(typeSim){  # [ FIX ] still need to make use of the overwrite! # future.apply::future_lapply
         sim$LeadingVegetationType[[typeSim]] <- plotLeadingVegetationType(dataPath = sim$resultsFolders[[typeSim]], typeSim = typeSim, saveRAS = P(sim)$saveRAS,
                                                                           overwrite = P(sim)$overwriteLeadingMap)
         sim$vegetationBiomassMap[[typeSim]] <- plotVegetationBiomass(dataPath = sim$resultsFolders[[typeSim]], typeSim = typeSim,

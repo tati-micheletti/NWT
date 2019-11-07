@@ -14,7 +14,7 @@ Makes posthoc plots for diagnosis of LandR
 library("SpaDES")
 library("future")
 library("future.apply")
-plan("multicore")
+plan("multiprocess")
 # library("usefun")
 devtools::load_all(file.path(dirname(getwd()), "usefun")) # Temporary until the simulations finish. Then I need to uncomment the package in the posthocLandR.R
 
@@ -22,15 +22,17 @@ SpaDES.core::setPaths(modulePath = file.path(getwd(), "modules"),
                       cachePath = file.path(getwd(), "cache"))
 times <- list(start = 1, end = 1)
 
-Run <- "run2"
+Run <- "run1"
 
 parameters <- list(
   posthocLandR = list(
     "years" = c(seq(2011, 2091, by = 10), 2100),
     "saveRAS" = TRUE,
+    "overwriteLeadingMap" = FALSE,
+    "overwriteBiomassMap" = TRUE,
     "addCaribousuitability" = TRUE,
-    "plotFireStats" = TRUE,
-    "overwriteBurnSumm" = TRUE
+    "plotFireStats" = FALSE,
+    "overwriteBurnSumm" = FALSE
     )
 )
 modules <- list("posthocLandR")
@@ -38,7 +40,7 @@ objects <- list(
   resultsFolders = list(
         LandR.CS_fS = file.path(getwd(), "outputs/23OCT19/LandR.CS_fS", Run),
         LandR.CS_SCFM = file.path(getwd(), "outputs/23OCT19/LandR.CS_SCFM", Run),
-        # LandR_fS = file.path(getwd(), "outputs/23OCT19/LandR_fS", Run),
+        LandR_fS = file.path(getwd(), "outputs/23OCT19/LandR_fS", Run),
         LandR_SCFM = file.path(getwd(), "outputs/23OCT19/LandR_SCFM", Run)
   )
 )

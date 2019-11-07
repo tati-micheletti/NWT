@@ -14,7 +14,7 @@ defineModule(sim, list(
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.txt", "rastersPosthoc.Rmd"),
-  reqdPkgs = list("raster", "data.table"),#, "tati-micheletti/usefun"),
+  reqdPkgs = list("raster", "data.table", "future", "future.apply"),#, "tati-micheletti/usefun"),
   parameters = rbind(
     defineParameter("species", "character", NULL, NA, NA, paste0("Which species to use? If NULL, it tries guessing which species are available. ",
                                                                  "However, this only works if all species were ran for all years")),
@@ -32,7 +32,17 @@ defineModule(sim, list(
                                                       "The higher the repetition number, the longer it will take to run")),
     defineParameter("makeRasterChangeGIF", "logical", FALSE, NA, NA, paste0("Should the gif be made? It takes a bit of time if TRUE", 
                                                                             " AS OF 30th OCT 19 IT IS STILL NOT IMPLEMENTED")), 
-    defineParameter("overwriteDelta", "logical", FALSE, NA, NA, paste0("Should the deltas maps be overwritten?"))
+    defineParameter("overwriteDelta", "logical", FALSE, NA, NA, paste0("Should the deltas maps be overwritten?")),
+    defineParameter("makeRSFLikePlot", "logical", FALSE, NA, NA, paste0("Should it make the plots like ECCC2011 RSF?")),
+    defineParameter("uploadPlots", "logical", FALSE, NA, NA, paste0("Should the plots be uploaded to ggdrive?")),
+    defineParameter("typeOfAnalysis", "character", "generic", NA, NA, paste0("Type of analysis for naming purposes")),
+    defineParameter("calculateSignificantChanges", "logical", TRUE, NA, NA, paste0("Should it calculate significant changes",
+                                                                                   " between the first and last rasters? ",
+                                                                                   "It might take a few minutes to hours depending ",
+                                                                                   " on your system")),
+    defineParameter("calculateSummary", "logical", TRUE, NA, NA, paste0("Should it calculate summary of changes?",
+                                                                                   "It might take a few minutes to hours depending ",
+                                                                                   " on your system"))
   ),
   inputObjects = bind_rows(
     expectsInput(objectName = "dataFolder", objectClass = "list", 
@@ -46,7 +56,9 @@ defineModule(sim, list(
                  desc = paste0("This is a named 3 level list of the 1) location or simulation type, 2) objects to lapply through (i.e. can be a list of bird species, which one ",
                                "containing the 3) time series of rasters to analyze). This list can also be of just one location/simulation, and/or one species (i.e. caribou)",
                                " or another 'object' (i.e. temperature)"),
-                 
+                 sourceURL = NA),
+    expectsInput(objectName = "googleFolders", objectClass = "list", 
+                 desc = paste0("This is a named folder to upload the results. There are no defaults, needs to be provided"),
                  sourceURL = NA)
   ),
   outputObjects = bind_rows(
@@ -63,13 +75,18 @@ doEvent.rastersPosthoc = function(sim, eventTime, eventType) {
   switch(
     eventType,
     init = {
-      
       # schedule future event(s)
       sim <- scheduleEvent(sim, start(sim), "rastersPosthoc", "makeDeltaRasters")
-      sim <- scheduleEvent(sim, start(sim), "rastersPosthoc", "calculatesSignificantChanges")
-      sim <- scheduleEvent(sim, start(sim), "rastersPosthoc", "makeSummary")
+      if (P(sim)$calculateSignificantChanges)
+        sim <- scheduleEvent(sim, start(sim), "rastersPosthoc", "calculatesSignificantChanges")
+      if (P(sim)$calculateSummary)
+        sim <- scheduleEvent(sim, start(sim), "rastersPosthoc", "makeSummary")
       sim <- scheduleEvent(sim, start(sim), "rastersPosthoc", "makeGIF")
-    },
+      if (P(sim)$makeRSFLikePlot)
+        sim <- scheduleEvent(sim, start(sim), "rastersPosthoc", "generateRSFbinned")
+      sim <- scheduleEvent(sim, start(sim), "rastersPosthoc", "averageThroughTime")
+      sim <- scheduleEvent(sim, start(sim), "rastersPosthoc", "averageThroughTimeComparison")
+      },
     makeDeltaRasters = {
       sim$deltaRasters <- makeDeltaRasters(listOfRasters = sim$listOfRasters, 
                                            relativeDelta = P(sim)$relativeDelta, 
@@ -78,11 +95,11 @@ doEvent.rastersPosthoc = function(sim, eventTime, eventType) {
                                            overwrite = P(sim)$overwriteDelta)
     },
     calculatesSignificantChanges = {
-
       sim$significantChanges <- bootstrapPercentChanges(dataPath = sim$dataFolder, #TODO MODIFY THIS TO ACCEPT A LIST OF LISTS OF RASTER INSTEAD OF DATA FOLDER?
                                                         years = P(sim)$years, 
                                                         sampleSize = P(sim)$sampleSize, 
-                                                        n = P(sim)$n, species = P(sim)$species)
+                                                        n = P(sim)$n, species = P(sim)$species,
+                                                        useFuture = TRUE)
       },
     makeSummary = {
       sim$pixelsSummaries <- makeRastersSummary(listOfRasters = sim$listOfRasters, 
@@ -90,6 +107,32 @@ doEvent.rastersPosthoc = function(sim, eventTime, eventType) {
     },
     makeGIF = {
       #TODO sim$gifFigure NOT YET IMPLEMENTED. DON'T HAVE A GENERIC FUNCTION TO GENERATE THE GIF FROM R
+    },
+    generateRSFbinned = {
+      browser()
+     sim$RSFlikePlot <- lapply(X = names(sim$listOfRasters), FUN = RSFplot, #future.apply::future_lapply
+                                                       ras = sim$listOfRasters[[X]],
+                                                       upload = FALSE,
+                                                       writeReclasRas = TRUE,
+                                                       outputFolder = getPaths(sim)$outputPath,
+                                                       rasName = paste0("caribouBinned", X),
+                                                    folderID = sim$googleFolders[[X]])
+    },
+    averageThroughTime = {
+      browser()
+      sim$averageInTime <- lapply(X = names(sim$listOfRasters), FUN = meanValuesTime,#future.apply::future_lapply
+                                                       ras = sim$listOfRasters[[X]],
+                                                       scenario = X,
+                                                       initialTime = P(sim)$years)
+    },
+    averageThroughTimeComparison = {
+      browser()
+      sim$averageComparison <- avrgTimeComparison(sim$averageInTime,
+                                            upload = FALSE,
+                                            outputFolder = getPaths(sim)$outputPath,
+                                            comparisonID = P(sim)$typeOfAnalysis,
+                                            folderID = sim$googleFolders[[1]])
+      message("averageComparison was saved in ", names(sim$googleFolders)[1], ": ", sim$googleFolders[[1]])
     },
     warning(paste("Undefined event type: '", current(sim)[1, "eventType", with = FALSE],
                   "' in module '", current(sim)[1, "moduleName", with = FALSE], "'", sep = ""))
@@ -117,6 +160,12 @@ doEvent.rastersPosthoc = function(sim, eventTime, eventType) {
                                          years = P(sim)$years, 
                                          patternsToRetrieveRasters = P(sim)$patternsToRetrieveRasters, 
                                          patternsUsedForGrouping = P(sim)$patternsUsedForGrouping) #TODO fun Warning for NULL patterns!
+    }
+  if (isTRUE(P(sim)$uploadPlots)){
+    if(!suppliedElsewhere("googleFolders", sim)){
+      stop("If you set upload to TRUE, you need to provide a named folder (i.e. scenarios) with the google ids for uploading")
+    }
   }
+  
   return(invisible(sim))
 }

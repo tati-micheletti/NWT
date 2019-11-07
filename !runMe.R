@@ -33,7 +33,7 @@ if (updateSubmodules){
   system(paste0("cd ", getwd(),
                 " && git pull"), wait = TRUE)
   system("git submodule", wait = TRUE) # checks if the branches and commits you are using are the correct ones
-}  # HERE <<~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ADD NEW SUBMODULE FROM IgnitionFit!
+} 
 
 library("usefun")
 library("LandR")

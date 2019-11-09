@@ -222,7 +222,7 @@ parameters <- list(
   # LandR_Biomass
   LBMR = list(
     "successionTimestep" = 10,
-    ".plotInitialTime" = NA,
+    ".plotInitialTime" = times$end,
     ".saveInitialTime" = NA,
     "seedingAlgorithm" = "wardDispersal",
     ".useCache" = FALSE,
@@ -280,11 +280,11 @@ outputsLandR <- data.frame(
 )
 lastYears <- data.frame(objectName = c("predictedCaribou", "plotCaribou", 
                                        "fireRegimeRas", "speciesEcoregion", 
-                                       "species","burnSummary", "gcsModel", "mcsModel"),
+                                       "species", "gcsModel", "mcsModel"),
                         saveTime = times$end)
 if (length(grepMulti(x = definedRun$modules, "LBMR")) != 0){
-  clim <- data.frame(objectName = rep(c("fireSense_FrequencyPredicted", 
-                                        "fireSense_EscapePredicted"), 
+  clim <- data.frame(objectName = rep(c("fireSense_IgnitionPredicted", 
+                                        "fireSense_EscapePredicted", "burnSummary"), 
                                       each = 3),
                      saveTime = rep(c(times$start, round((times$start + times$end)/2, 0), times$end), 
                                     times = 1))

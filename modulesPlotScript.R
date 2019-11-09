@@ -62,5 +62,5 @@ q <- ggplot() +
            position = position_dodge2(reverse = TRUE)) +
   coord_flip() +
   scale_fill_discrete(drop = FALSE) +
-  scale_y_discrete(drop = FALSE) ## TODO: split legend in two: shaded version region and moudle group
+  scale_y_discrete(drop = FALSE) ## TODO: split legend in two: shaded version region and module group
 q

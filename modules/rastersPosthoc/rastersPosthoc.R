@@ -106,30 +106,34 @@ doEvent.rastersPosthoc = function(sim, eventTime, eventType) {
                                                 years = P(sim)$years)
     },
     makeGIF = {
-      #TODO sim$gifFigure NOT YET IMPLEMENTED. DON'T HAVE A GENERIC FUNCTION TO GENERATE THE GIF FROM R
+      #TODO sim$gif Figure NOT YET IMPLEMENTED. DON'T HAVE A GENERIC FUNCTION TO GENERATE THE GIF FROM R
     },
     generateRSFbinned = {
-      browser()
-     sim$RSFlikePlot <- lapply(X = names(sim$listOfRasters), FUN = RSFplot, #future.apply::future_lapply
-                                                       ras = sim$listOfRasters[[X]],
-                                                       upload = FALSE,
-                                                       writeReclasRas = TRUE,
-                                                       outputFolder = getPaths(sim)$outputPath,
-                                                       rasName = paste0("caribouBinned", X),
-                                                    folderID = sim$googleFolders[[X]])
-    },
+      sim$RSFlikePlot <- future_lapply(X = names(sim$listOfRasters), FUN = function(scenarios){
+        RSFlikePlot <- future_lapply(X = sim$listOfRasters[[scenarios]], FUN = function(ras){
+                                      usefun::RSFplot(ras = ras,
+                                                        upload = FALSE,
+                                                        writeReclasRas = TRUE,
+                                                        outputFolder = getPaths(sim)$outputPath,
+                                                        rasName = paste0("caribouBinned", X),
+                                                        folderID = sim$googleFolders[[scenarios]])
+          })
+        })
+      },
     averageThroughTime = {
-      browser()
-      sim$averageInTime <- lapply(X = names(sim$listOfRasters), FUN = meanValuesTime,#future.apply::future_lapply
-                                                       ras = sim$listOfRasters[[X]],
-                                                       scenario = X,
-                                                       initialTime = P(sim)$years)
+      sim$averageInTime <- future_lapply(X = names(sim$listOfRasters), FUN = function(scenarios){
+       allRasInScenarios <- future_lapply(X = sim$listOfRasters[[scenarios]],
+               FUN = function(index){
+                 usefun::meanValuesTime(ras = index,
+                                scenario = scenarios,
+                                initialTime = P(sim)$years)
+               })
+      })
     },
     averageThroughTimeComparison = {
-      browser()
       sim$averageComparison <- avrgTimeComparison(sim$averageInTime,
                                             upload = FALSE,
-                                            outputFolder = getPaths(sim)$outputPath,
+                                            outputFolder = getPaths()$outputPath,
                                             comparisonID = P(sim)$typeOfAnalysis,
                                             folderID = sim$googleFolders[[1]])
       message("averageComparison was saved in ", names(sim$googleFolders)[1], ": ", sim$googleFolders[[1]])

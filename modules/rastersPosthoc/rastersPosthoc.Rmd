@@ -43,11 +43,14 @@ For help writing in R Markdown, see http://rmarkdown.rstudio.com/.
   outputs <- data.frame(
     objectName = c("deltaRasters",
                    "significantChanges",
-                   "pixelsSummaries"),
+                   "pixelsSummaries",
+                   "RSFlikePlot",
+                   "averageInTime",
+                   "averageComparison"),
     saveTime = times$end)
 
   doCaribou <- TRUE
-  doBirds <- FALSE
+  doBirds <- TRUE
   
   #  ~~~~~~~~~~~~~~~~~~~~~~~~# FOR BIRDS #~~~~~~~~~~~~~~~~~~~~~~~~
   
@@ -108,11 +111,11 @@ if (doCaribou){
                           species = typeOfRas, 
                           n = 50,
                           sampleSize = 45,
-                          comparisonID = "Caribou",
+                          typeOfAnalysis = "Caribou",
                           uploadPlots = TRUE,
                           calculateSignificantChanges = FALSE,
                           calculateSummary = FALSE,
-                          makeRSFLikePlot = TRUE)
+                          makeRSFLikePlot = FALSE)
     )
   modules <- list("rastersPosthoc")
   objectsCaribou <- list(dataFolder = list(

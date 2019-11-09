@@ -47,7 +47,7 @@
 	url = git@github.com:ygc2l/MDC_NWT_DataPrep.git
 [submodule "modules/fireSense_EscapePredict"]
 	path = modules/fireSense_EscapePredict
-	url = git@github.com:ygc2l/fireSense_EscapePredict.git
+	url = git@github.com:tati-micheletti/fireSense_EscapePredict.git
 [submodule "modules/LBMR2LCC_DataPrep"]
 	path = modules/LBMR2LCC_DataPrep
 	url = git@github.com:ygc2l/LBMR2LCC_DataPrep.git

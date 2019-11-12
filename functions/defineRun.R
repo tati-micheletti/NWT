@@ -29,7 +29,8 @@ defineRun <- function(replicateNumber = NULL, vegetation = "LandR.CS", fire = "f
            "scfmEscape",
            "scfmSpread")
  
-  return(list(whichRUN = ifelse(!is.null(replicateNumber), paste(vegetation, fire, replicateNumber, sep = "_"), paste(vegetation, fire, sep = "_")), 
+  return(list(whichRUN = paste(vegetation, fire, sep = "_"),
+              whichReplicate = replicateNumber,
               growthAndMortalityDrivers = vegetation,  
               modules = c(get(vegetation), get(fire), "caribouPopGrowthModel")))
 }

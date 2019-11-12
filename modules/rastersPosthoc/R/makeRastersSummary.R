@@ -9,7 +9,7 @@ makeRastersSummary <- function(listOfRasters,
         r <- stkVals[, ..y]
         dt <- data.table(scenario = simul,
                          species = species,
-                         year = as.numeric(substrBoth(strng = y, howManyCharacters = 4, fromEnd = TRUE)),
+                         year = as.numeric(usefun::substrBoth(strng = y, howManyCharacters = 4, fromEnd = TRUE)),
                          mean = mean(r[[1]], na.rm = TRUE),
                          min = min(r[[1]], na.rm = TRUE),
                          max = max(r[[1]], na.rm = TRUE),

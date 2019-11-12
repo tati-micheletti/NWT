@@ -2,7 +2,9 @@ makeDeltaRasters <- function(listOfRasters,
                              relativeDelta = TRUE, 
                              years = c(2000, 2100), 
                              outputFolder, lightLoad = TRUE,
-                             overwrite = FALSE){
+                             overwrite = FALSE,
+                             upload = FALSE,
+                             folderID = NULL){
   rastersOrganized <- future_lapply(X = names(listOfRasters), function(eachSimulation){
     groupFiles <- lapply(X = names(listOfRasters[[eachSimulation]]), FUN = function(eachGroup){
       currentGroupsRas <- listOfRasters[[eachSimulation]][[eachGroup]]
@@ -24,6 +26,14 @@ makeDeltaRasters <- function(listOfRasters,
         rm(deltaRas)
         gc()
       }
+      if(upload){
+        if (is.null(folderID)) stop("Please provide folderID when upload == TRUE")
+        # Need to find which name of the folderID is contained in the `eachSimulation` as simulations can 
+        # have bird model version, which is not identical to the folderID 
+        # ie. eachSimulation = "LandR.CS_SCFM_V6" while names(folderID)[2] = "LandR.CS_SCFM"
+        simulFolder <- names(folderID)[which(!is.na(pmatch(names(folderID), eachSimulation)))]
+        googledrive::drive_upload(rasName, path = googledrive::as_id(folderID[[simulFolder]]))
+      }
       if (lightLoad){
         return(rasName)
       } else{
@@ -31,7 +41,7 @@ makeDeltaRasters <- function(listOfRasters,
       }
       })
     names(groupFiles) <- names(listOfRasters[[eachSimulation]])
-      return(groupFiles)
+    return(groupFiles)
     })
 
     names(rastersOrganized) <- names(listOfRasters)

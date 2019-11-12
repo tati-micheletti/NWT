@@ -42,7 +42,10 @@ defineModule(sim, list(
                                                                                    " on your system")),
     defineParameter("calculateSummary", "logical", TRUE, NA, NA, paste0("Should it calculate summary of changes?",
                                                                                    "It might take a few minutes to hours depending ",
-                                                                                   " on your system"))
+                                                                                   " on your system")),
+    defineParameter("plotCI", "logical", FALSE, NA, NA, paste0("Should it plot the CI",
+                                                               " on the average through time plots? Remember there is a lot of spatial 
+                                                               variation"))
   ),
   inputObjects = bind_rows(
     expectsInput(objectName = "dataFolder", objectClass = "list", 
@@ -81,7 +84,7 @@ doEvent.rastersPosthoc = function(sim, eventTime, eventType) {
         sim <- scheduleEvent(sim, start(sim), "rastersPosthoc", "calculatesSignificantChanges")
       if (P(sim)$calculateSummary)
         sim <- scheduleEvent(sim, start(sim), "rastersPosthoc", "makeSummary")
-      sim <- scheduleEvent(sim, start(sim), "rastersPosthoc", "makeGIF")
+      sim <- scheduleEvent(sim, start(sim), "rastersPosthoc", "makeGIF") # Currently not implemented
       if (P(sim)$makeRSFLikePlot)
         sim <- scheduleEvent(sim, start(sim), "rastersPosthoc", "generateRSFbinned")
       sim <- scheduleEvent(sim, start(sim), "rastersPosthoc", "averageThroughTime")
@@ -92,6 +95,8 @@ doEvent.rastersPosthoc = function(sim, eventTime, eventType) {
                                            relativeDelta = P(sim)$relativeDelta, 
                                            years = P(sim)$years,
                                            outputFolder = getPaths()$outputPath,
+                                           upload = P(sim)$uploadPlots,
+                                           folderID = sim$googleFolders,
                                            overwrite = P(sim)$overwriteDelta)
     },
     calculatesSignificantChanges = {
@@ -109,15 +114,15 @@ doEvent.rastersPosthoc = function(sim, eventTime, eventType) {
       #TODO sim$gif Figure NOT YET IMPLEMENTED. DON'T HAVE A GENERIC FUNCTION TO GENERATE THE GIF FROM R
     },
     generateRSFbinned = {
-      sim$RSFlikePlot <- future_lapply(X = names(sim$listOfRasters), FUN = function(scenarios){
-        RSFlikePlot <- future_lapply(X = sim$listOfRasters[[scenarios]], FUN = function(ras){
-                                      usefun::RSFplot(ras = ras,
-                                                        upload = FALSE,
-                                                        writeReclasRas = TRUE,
-                                                        outputFolder = getPaths(sim)$outputPath,
-                                                        rasName = paste0("caribouBinned", X),
-                                                        folderID = sim$googleFolders[[scenarios]])
-          })
+      sim$RSFlikePlot <- lapply(X = names(sim$listOfRasters), FUN = function(scenarios){ # [FIX] future_lapply
+        ras <- tryCatch(sim$listOfRasters[[scenarios]][[usefun::grepMulti(x = names(sim$listOfRasters[[scenarios]]), patterns = "SelectionTaiga")]], 
+                        error = function(e){stop("This event can only be ran for Caribou, which has to have the 'SelectionTaiga' in its raster name")})
+        RSFlikePlot <- usefun::RSFplot(ras = ras,
+                                       upload = P(sim)$uploadPlots,
+                                       writeReclasRas = TRUE,
+                                       outputFolder = getPaths()$outputPath,
+                                       rasName = paste0("caribouBinned", scenarios),
+                                       folderID = sim$googleFolders[[scenarios]])
         })
       },
     averageThroughTime = {
@@ -131,13 +136,14 @@ doEvent.rastersPosthoc = function(sim, eventTime, eventType) {
       })
     },
     averageThroughTimeComparison = {
+      if (is.null(sim$averageInTime)) stop("Average through time comparison can only be run if sim$averageInTime is not NULL")
       sim$averageComparison <- avrgTimeComparison(sim$averageInTime,
-                                            upload = FALSE,
+                                            upload = P(sim)$uploadPlots,
                                             outputFolder = getPaths()$outputPath,
                                             comparisonID = P(sim)$typeOfAnalysis,
-                                            folderID = sim$googleFolders[[1]])
-      message("averageComparison was saved in ", names(sim$googleFolders)[1], ": ", sim$googleFolders[[1]])
-    },
+                                            folderID = sim$googleFolders[[1]],
+                                            plotCI = P(sim)$plotCI)
+      },
     warning(paste("Undefined event type: '", current(sim)[1, "eventType", with = FALSE],
                   "' in module '", current(sim)[1, "moduleName", with = FALSE], "'", sep = ""))
   )

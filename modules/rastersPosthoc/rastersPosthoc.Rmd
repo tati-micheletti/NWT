@@ -12,29 +12,50 @@ Provide an overview of what the module does / how to use the module.
 Module documentation should be written so that others can use your module.
 This is a template for module documentation, and should be changed to reflect your module.
 
-## R Markdown
-
-R Markdown syntax allows R code, outputs, and figures to be rendered in the documentation.
-
-For help writing in R Markdown, see http://rmarkdown.rstudio.com/.
+```{r}
+typeOfSimulation <- "climateStatic" #"vegetationStatic", "dynamic"
+modelVersion <- "V6"# "V3" #For birds only
+```
 
 # Usage
+
+## Saving/Uploading
+
+```{r}
+googleFoldersList <- list(
+# vegetation static
+vegetationStatic = list(
+  LandR.CS_fS = "1VD2DLb9Pxpah06jtmIJOMBCLot8QjgvF",
+  LandR.CS_SCFM = "1rKIBroCNPl1JmFp9qcPNf5tlxrvx0IJu",
+  LandR_fS = "1AqmRjPoueWm_H7j2iOlSgPm_lgOraL7c",
+  LandR_SCFM = "1_O-ZIJEyaOCSv2VfLMFPPHSgY4Rqp8y3"),
+# climate static
+climateStatic = list(
+  LandR.CS_fS = "171UdUyx_-0zZXh_mHNl-uIFGHs1mzdqT",
+  LandR.CS_SCFM = "1BZkOops0CQ3rnBBY_2g38KshI5tcX5XS",
+  LandR_fS = "1SjNwvkCOd42LFTmVGLvz_G3xQyUc9NxM",
+  LandR_SCFM = "19XIS2R2XBEqCoYAEpKdILr4U6uCpdbso"),
+# dynamic simulation
+dynamic = list(
+  LandR.CS_fS = "1ooFQ4IbkVtVL3topEvz_3vAMu-6h-hyB",
+  LandR.CS_SCFM = "1Nuo091FmyFnrfLKVvQXjGoTN8fRUfXIJ",
+  LandR_fS = "1PmQR0SkNOrfi5fq_a16PTmsYoLw8zSJJ",
+  LandR_SCFM = "1A6BslpcPi4D_9bZ_2DC7sgEXz447cuRv")
+)
+```
+
 
 ```{r module_usage}
   library("SpaDES")
   library("future")
   library("future.apply")
-  plan("multiprocess")
-  library("usefun")
+  plan("sequential")
+  googledrive::drive_auth("tati.micheletti@gmail.com")
+  # library("usefun")
+devtools::load_all("/mnt/data/Micheletti/usefun/")
   
   if (pemisc::user() %in% c("Tati", "tmichele"))
     setwd("/mnt/data/Micheletti/NWT")
-  
-  setPaths(modulePath = file.path(getwd(), "modules"),
-           inputPath = file.path(getwd(), "outputs/23OCT19/"),
-           outputPath = checkPath(file.path(getwd(), "outputs/23OCT19/birdResults"), create = TRUE)
-  )
-  getPaths() # shows where the 4 relevant paths are
   
   times <- list(start = 1, end = 1)
   Run <- "run1"
@@ -49,12 +70,18 @@ For help writing in R Markdown, see http://rmarkdown.rstudio.com/.
                    "averageComparison"),
     saveTime = times$end)
 
-  doCaribou <- TRUE
+  doCaribou <- FALSE
   doBirds <- TRUE
   
   #  ~~~~~~~~~~~~~~~~~~~~~~~~# FOR BIRDS #~~~~~~~~~~~~~~~~~~~~~~~~
   
   if (doBirds){
+      setPaths(modulePath = file.path(getwd(), "modules"),
+           inputPath = file.path(getwd(), "outputs/23OCT19/"),
+           outputPath = checkPath(file.path(getwd(), "outputs/23OCT19/birdResults", typeOfSimulation), create = TRUE)
+  )
+  getPaths() # shows where the 4 relevant paths are
+
      species <- c("RUBL", "CAWA", "OSFL", "BBWA", "WEWP")
   parameters <- list(
     rastersPosthoc = list(patternsToRetrieveRasters = c("predicted", "Year", "tif"),
@@ -63,46 +90,35 @@ For help writing in R Markdown, see http://rmarkdown.rstudio.com/.
                           species = species, 
                           n = 50,
                           sampleSize = 45,
-                          comparisonID = "Birds",
-                          uploadPlots = TRUE)
+                          typeOfAnalysis = paste0("birds_", typeOfSimulation),
+                          uploadPlots = TRUE,
+                          calculateSignificantChanges = TRUE,
+                          calculateSummary = TRUE)
     )
   modules <- list("rastersPosthoc")
-  objectsV6 <- list(dataFolder = list(
-                  LandR.CS_fS_V6 = file.path(getPaths()$inputPath, "LandR.CS_fS", Run, "birdPredictions"),
-                  LandR_fS_V6 = file.path(getPaths()$inputPath, "LandR_fS", Run, "birdPredictions"),
-                  LandR.CS_SCFM_V6 = file.path(getPaths()$inputPath, "LandR.CS_SCFM", Run, "birdPredictions"),
-                  LandR_SCFM_V6 = file.path(getPaths()$inputPath, "LandR_SCFM", Run, "birdPredictions")),
-                  googleFolders = list(
-                    LandR.CS_fS <- "1ooFQ4IbkVtVL3topEvz_3vAMu-6h-hyB",
-                    LandR.CS_SCFM <- "1Nuo091FmyFnrfLKVvQXjGoTN8fRUfXIJ",
-                    LandR_fS <- "1PmQR0SkNOrfi5fq_a16PTmsYoLw8zSJJ",
-                    LandR_SCFM <- "1A6BslpcPi4D_9bZ_2DC7sgEXz447cuRv"
-                    )
-                  )
-  objectsV3 <- list(dataFolder = list(
-                  LandR.CS_fS_V3 = file.path(getPaths()$inputPath, "LandR.CS_fS", Run, "birdPredictionsV3"),
-                  LandR_fS_V3 = file.path(getPaths()$inputPath, "LandR_fS", Run, "birdPredictionsV3"),
-                  LandR.CS_SCFM_V3 = file.path(getPaths()$inputPath, "LandR.CS_SCFM", Run, "birdPredictionsV3"),
-                  LandR_SCFM_V3 = file.path(getPaths()$inputPath, "LandR_SCFM", Run, "birdPredictionsV3")),
-                  googleFolders = list(
-                    LandR.CS_fS <- "1ooFQ4IbkVtVL3topEvz_3vAMu-6h-hyB",
-                    LandR.CS_SCFM <- "1Nuo091FmyFnrfLKVvQXjGoTN8fRUfXIJ",
-                    LandR_fS <- "1PmQR0SkNOrfi5fq_a16PTmsYoLw8zSJJ",
-                    LandR_SCFM <- "1A6BslpcPi4D_9bZ_2DC7sgEXz447cuRv"
-                    )
-                  )
+  objects <- list(dataFolder = list(
+                  LandR.CS_fS_V6 = file.path(getPaths()$inputPath, "LandR.CS_fS", 
+                                             Run, paste0("birdPredictions", modelVersion, typeOfSimulation)),
+                  LandR_fS_V6 = file.path(getPaths()$inputPath, "LandR_fS", 
+                                          Run, paste0("birdPredictions", modelVersion, typeOfSimulation)),
+                  LandR.CS_SCFM_V6 = file.path(getPaths()$inputPath, "LandR.CS_SCFM", 
+                                               Run, paste0("birdPredictions", modelVersion, typeOfSimulation)),
+                  LandR_SCFM_V6 = file.path(getPaths()$inputPath, "LandR_SCFM", 
+                                            Run, paste0("birdPredictions", modelVersion, typeOfSimulation))),
+                  googleFolders = googleFoldersList[[typeOfSimulation]])
   
-birdV3 <- simInit(times = times, params = parameters, modules = modules,
-                   objects = objectsV3, outputs = outputs)
- 
-birdV6 <- simInit(times = times, params = parameters, modules = modules,
-                  objects = objectsV6)
-                  
-birdResults <- spades(birdV3, debug = 1)
+birdResults <- simInitAndSpades(times = times, params = parameters, modules = modules,
+                  objects = objects, debug = 1)
   }
   
   #  ~~~~~~~~~~~~~~~~~~~~~~~~# FOR CARIBOUS #~~~~~~~~~~~~~~~~~~~~~~~~
 if (doCaribou){
+    setPaths(modulePath = file.path(getwd(), "modules"),
+           inputPath = file.path(getwd(), "outputs/23OCT19/"),
+           outputPath = checkPath(file.path(getwd(), "outputs/23OCT19/caribouResults"), create = TRUE)
+  )
+  getPaths() # shows where the 4 relevant paths are
+
   typeOfRas <- c("SelectionTaiga", "SelectionUncertainTaiga")
   parameters <- list(
     rastersPosthoc = list(patternsToRetrieveRasters = c("relativeSelection", "Year", "tif"),
@@ -114,8 +130,8 @@ if (doCaribou){
                           typeOfAnalysis = "Caribou",
                           uploadPlots = TRUE,
                           calculateSignificantChanges = FALSE,
-                          calculateSummary = FALSE,
-                          makeRSFLikePlot = FALSE)
+                          calculateSummary = TRUE,
+                          makeRSFLikePlot = TRUE)
     )
   modules <- list("rastersPosthoc")
   objectsCaribou <- list(dataFolder = list(
@@ -124,10 +140,10 @@ if (doCaribou){
                   LandR.CS_SCFM = file.path(getPaths()$inputPath, "LandR.CS_SCFM", Run, "caribouPredictions"),
                   LandR_SCFM = file.path(getPaths()$inputPath, "LandR_SCFM", Run, "caribouPredictions")),
                   googleFolders = list(
-                    LandR.CS_fS <- "1ooFQ4IbkVtVL3topEvz_3vAMu-6h-hyB",
-                    LandR.CS_SCFM <- "1Nuo091FmyFnrfLKVvQXjGoTN8fRUfXIJ",
-                    LandR_fS <- "1PmQR0SkNOrfi5fq_a16PTmsYoLw8zSJJ",
-                    LandR_SCFM <- "1A6BslpcPi4D_9bZ_2DC7sgEXz447cuRv"
+                    LandR.CS_fS = "1ooFQ4IbkVtVL3topEvz_3vAMu-6h-hyB",
+                    LandR.CS_SCFM = "1Nuo091FmyFnrfLKVvQXjGoTN8fRUfXIJ",
+                    LandR_fS = "1PmQR0SkNOrfi5fq_a16PTmsYoLw8zSJJ",
+                    LandR_SCFM = "1A6BslpcPi4D_9bZ_2DC7sgEXz447cuRv"
                     )
                   )
 
@@ -135,36 +151,6 @@ boo <- simInitAndSpades(times = times, params = parameters, modules = modules,
                    objects = objectsCaribou, outputs = outputs)
 }
 
-  # Testing experiment -- currently (5th nov not working as I can't install it)
-
-#   objectsCaribou_CSfS <- list(dataFolder = list(
-#                   LandR.CS_fS = file.path(getPaths()$inputPath, "LandR.CS_fS", Run, "caribouPredictions"))
-#                   )
-#   objectsCaribou_fS <- list(dataFolder = list(
-#                   LandR_fS = file.path(getPaths()$inputPath, "LandR_fS", Run, "caribouPredictions"))
-#                   )
-#     objectsCaribou_CSSCFM <- list(dataFolder = list(
-#                   LandR.CS_SCFM = file.path(getPaths()$inputPath, "LandR.CS_SCFM", Run, "caribouPredictions"))
-#                   )
-#   objectsCaribou_SCFM <- list(dataFolder = list(
-#                   LandR_SCFM = file.path(getPaths()$inputPath, "LandR_SCFM", Run, "caribouPredictions"))
-#                   )
-# 
-# CS_fS <- simInit(times = times, params = parameters, modules = modules,
-#                    objects = objectsCaribou_CSfS, outputs = outputs)
-# fS <- simInit(times = times, params = parameters, modules = modules,
-#                    objects = objectsCaribou_fS, outputs = outputs)
-# CS_SCFM <- simInit(times = times, params = parameters, modules = modules,
-#                    objects = objectsCaribou_CSSCFM, outputs = outputs)
-# SCFM <- simInit(times = times, params = parameters, modules = modules,
-#                    objects = objectsCaribou_SCFM, outputs = outputs)
-# 
-# BooResults <- experiment2(CS_fS, fS, CS_SCFM, SCFM, debug = 1)
-# 
-# library(SpaDES.experiment)
-# birdResults <- experiment2(birdV6, birdV3)
-
-# devtools::install_github("PredictiveEcology/SpaDES.experiment@development")
 ```
 
 # Events
@@ -174,10 +160,6 @@ Describe what happens for each event type.
 ## Plotting
 
 Write what is plotted.
-
-## Saving
-
-Write what is saved.
 
 # Data dependencies
 

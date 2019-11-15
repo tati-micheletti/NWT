@@ -12,59 +12,61 @@
 # 1. Define these variables. If not defined, the defaults will be ran ("SCFM" and "LandR", no caribou or birds)
 # Run each one of these manually in a different screen
 
-runOnlySimInit <- TRUE # TRUE to run experiment, FALSE to run simulations individually
+runOnlySimInit <- FALSE # TRUE to run experiment, FALSE to run simulations individually
 
 # LandR.CS + fireSense
-replicateNumber <- "run1"
-vegetation <- "LandR.CS" 
+replicateNumber <- "run2"
+vegetation <- "LandR.CS"
 fire <- "fS"
-runLandR <- TRUE 
-runBirds <- FALSE
+runLandR <- FALSE
+runBirds <- TRUE
 runCaribou <- FALSE
 runDynamic <- FALSE
-runClimateStatic <- FALSE 
+runClimateStatic <- TRUE
 runVegStatic <- FALSE
 source("!runMe.R") # PURPLE
 
 # LandR.CS + SCFM
-replicateNumber <- "run1"
-vegetation <- "LandR.CS" 
+replicateNumber <- "run2"
+vegetation <- "LandR.CS"
 fire <- "SCFM"
-runLandR <- TRUE 
-runBirds <- FALSE
+runLandR <- FALSE
+runBirds <- TRUE
 runCaribou <- FALSE
 runDynamic <- FALSE
-runClimateStatic <- FALSE 
+runClimateStatic <- TRUE
 runVegStatic <- FALSE
 source("!runMe.R") # BLUE
 
-# LandR + SCFM 
-replicateNumber <- "run1"
+# LandR + SCFM
+replicateNumber <- "run2"
 vegetation <- "LandR"
 fire <- "SCFM"
-runLandR <- TRUE 
-runBirds <- FALSE
+runLandR <- FALSE
+runBirds <- TRUE
 runCaribou <- FALSE
 runDynamic <- FALSE
-runClimateStatic <- FALSE 
+runClimateStatic <- TRUE
 runVegStatic <- FALSE
 source("!runMe.R") # GREEN
 
 # LandR + fS
-replicateNumber <- "run1"
+replicateNumber <- "run2"
 vegetation <- "LandR"
 fire <- "fS"
-runLandR <- TRUE 
-runBirds <- FALSE
+runLandR <- FALSE
+runBirds <- TRUE
 runCaribou <- FALSE
 runDynamic <- FALSE
-runClimateStatic <- FALSE 
+runClimateStatic <- TRUE
 runVegStatic <- FALSE
 source("!runMe.R") # YELLOW
 
 if (runOnlySimInit){
   factorialSimulations <- SpaDES.experiment::experiment2(
-    LandR.CS_SCFM = LandR.CS_SCFM,
+    # LandR.CS_fS = LandR.CS_fS,
+    LandR_SCFM = LandR_SCFM,
+    # LandR.CS_SCFM = LandR.CS_SCFM,
     LandR_fS = LandR_fS,
     clearSimEnv = TRUE,
     replicates = 1, debug = 1,

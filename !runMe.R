@@ -10,8 +10,8 @@ googledrive::drive_auth(email = usrEmail)
 if (pemisc::user() %in% c("Tati", "tmichele"))
   setwd("/mnt/data/Micheletti/NWT")
 t1 <- Sys.time()
-updateCRAN <- TRUE
-updateGithubPackages <- TRUE
+updateCRAN <- FALSE
+updateGithubPackages <- FALSE
 updateSubmodules <- FALSE
 
 if (updateCRAN)
@@ -23,6 +23,8 @@ if (updateGithubPackages){
   devtools::install_github("achubaty/amc@development")
   devtools::install_github("PredictiveEcology/pemisc@development")
   devtools::install_github("PredictiveEcology/map@development")
+  devtools::install_github("PredictiveEcology/SpaDES.core@development") # Updates SpaDES.tools and SpaDES.core quickPlot
+  devtools::install_github("PredictiveEcology/SpaDES.tools@development") # Updates SpaDES.tools and SpaDES.core quickPlot
   devtools::install_github("PredictiveEcology/LandR@development") # Updates SpaDES.tools and SpaDES.core quickPlot
   devtools::install_github("ianmseddy/LandR.CS@master") # Climate sensitivity in LandR
 }
@@ -45,8 +47,7 @@ library("amc")
 library("magrittr") # for piping
 library("future")
 library("future.apply")
-library("future.callr")
-
+plan("multiprocess")
 
 # Source all common functions
 # invisible(sapply(X = list.files(file.path(getwd(), "functions"), full.names = TRUE), FUN = source))
@@ -56,6 +57,8 @@ source("/mnt/data/Micheletti/NWT/functions/defineRun.R")
 if (!exists("vegetation")) vegetation <- "LandR" # Default if not provided
 if (!exists("fire")) fire <- "SCFM" # Default if not provided
 if (!exists("replicateNumber")) replicateNumber <- NULL # Default if not provided
+if (!exists("runOnlySimInit")) runOnlySimInit <- FALSE # Default if not provided
+
 
 definedRun <- defineRun(replicateNumber = replicateNumber, 
                         vegetation = vegetation, 
@@ -106,7 +109,7 @@ opts <- options(
   "map.overwrite" = TRUE,
   "map.tilePath" = tilePath,
   "map.useParallel" = TRUE, #!identical("windows", .Platform$OS.type),
-  "reproducible.futurePlan" = "multicore",
+  "reproducible.futurePlan" = FALSE,
   "future.globals.maxSize" = if (pemisc::user("tmichele")) 6000*1024^2 else 1000*1024^2,
   "reproducible.inputPaths" = if (pemisc::user("emcintir")) "~/data" else paths$inputPath,
   "reproducible.quick" = FALSE,
@@ -227,7 +230,7 @@ parameters <- list(
   # LandR_Biomass
   LBMR = list(
     "successionTimestep" = 10,
-    ".plotInitialTime" = times$end,
+    ".plotInitialTime" = NA,
     ".saveInitialTime" = NA,
     "seedingAlgorithm" = "wardDispersal",
     ".useCache" = FALSE,
@@ -317,8 +320,6 @@ objects <- list(
 
 data.table::setDTthreads(10) # Data.table has all threads by default, which is inconveninent and unecessary. Will try setting it for only 10 cores.  
 
-if (!exists("runOnlySimInit")) runOnlySimInit <- FALSE # Default if not provided
-
 if (runOnlySimInit){
   spadesFun <- "simInit"
 } else {
@@ -377,18 +378,12 @@ if (runBirds){
     )
   )
   objects <- c(objects, list(
-    "birdsList" = c("BBWA", "CAWA", "OSFL", "WEWP", "RUBL"), # [ FIX ] <~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ For second paper, just remove this line!
+    "birdsList" = c("CAWA", "OSFL", "RUBL"), # [ FIX ] <~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ For second paper, just remove this line!"BBWA", "WEWP", 
     "uplandsRaster" = uplandsRaster))
   modules <- list("birdsNWT", "comm_metricsNWT")
   
   invisible(sapply(X = list.files(file.path("/mnt/data/Micheletti/NWT/modules/birdsNWT/R/"), full.names = TRUE), FUN = source))
 
-  # For mem peak identification
-  Require("future")
-  # Require("future.callr")
-  options("spades.futurePlan" = "multiprocess")
-  plan("multiprocess")
-  
   # [ FIX ] only because we already ran LandR previously. Needs to be commented out when doing the whole project at once
   newInputPath <- gsub(x = paths$outputPath, pattern = toupper(format(Sys.time(), "%d%b%y")), replacement = "23OCT19")
   newOutputPath <- gsub(x = paths$outputPath, pattern = toupper(format(Sys.time(), "%d%b%y")), replacement = "23OCT19")
@@ -396,8 +391,7 @@ if (runBirds){
            outputPath = newOutputPath)
   
   if (runDynamic){
-    typeOfRun <- ifelse(parameters[["birdsNWT"]]$climateStatic, "climateStatic", 
-                        ifelse(parameters[["birdsNWT"]]$vegetationStatic, "vegetationStatic", "dynamic"))
+    typeOfRun <- "dynamic"    
     birdOutPath <- checkPath(file.path(paths$outputPath, 
                                        paste0("birdPredictionsV", 
                                               parameters[["birdsNWT"]][["version"]], typeOfRun)), create = TRUE)
@@ -415,8 +409,7 @@ if (runBirds){
   
   if (runClimateStatic){
     parameters[["birdsNWT"]]$climateStatic <- TRUE
-    typeOfRun <- ifelse(parameters[["birdsNWT"]]$climateStatic, "climateStatic", 
-                        ifelse(parameters[["birdsNWT"]]$vegetationStatic, "vegetationStatic", "dynamic"))
+    typeOfRun <- "climateStatic"
     birdOutPath <- checkPath(file.path(paths$outputPath, 
                                        paste0("birdPredictionsV", 
                                               parameters[["birdsNWT"]][["version"]], typeOfRun)), create = TRUE)
@@ -436,8 +429,7 @@ if (runVegStatic){
   parameters[["birdsNWT"]]$vegetationStatic <- TRUE
   parameters[["birdsNWT"]]$climateStatic <- FALSE
 
-  typeOfRun <- ifelse(parameters[["birdsNWT"]]$climateStatic, "climateStatic",
-                      ifelse(parameters[["birdsNWT"]]$vegetationStatic, "vegetationStatic", "dynamic"))
+  typeOfRun <- "vegetationStatic"
   birdOutPath <- checkPath(file.path(paths$outputPath,
                                      paste0("birdPredictionsV",
                                             parameters[["birdsNWT"]][["version"]], typeOfRun)), create = TRUE)

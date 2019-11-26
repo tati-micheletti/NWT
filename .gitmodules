@@ -60,3 +60,6 @@
 [submodule "modules/fireSense_IgnitionPredict"]
 	path = modules/fireSense_IgnitionPredict
 	url = git@github.com:tati-micheletti/fireSense_IgnitionPredict.git
+[submodule "fireSense_IgnitionFit"]
+	path = fireSense_IgnitionFit
+	url = git@github.com:tati-micheletti/fireSense_IgnitionFit.git

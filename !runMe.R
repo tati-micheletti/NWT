@@ -181,6 +181,34 @@ waterRaster <- prepInputs(url = "https://drive.google.com/open?id=1nPd03gaVXkkaH
                           rasterToMatch = rasterToMatch,
                           filename2 = NULL)
 
+cmi.url <- "https://drive.google.com/open?id=1MwhK3eD1W6u0AgFbRgVg7j-qqyk0-3yA"
+cmi.tf <- "Canada3ArcMinute_CCSM_85_CMI2011-2100.grd"
+cmi.arc <- "Canada3ArcMinute_CCSM_85_CMI2011-2100.zip"
+
+CMIstack <- prepInputs(targetFile = cmi.tf,
+                           archive = cmi.arc,
+                           alsoExtract = "similar",
+                           url = cmi.url,
+                           destinationPath = dPath,
+                           fun = "raster::stack",
+                           overwrite = TRUE,
+                           useCache = TRUE
+)
+
+ata.url <- "https://drive.google.com/open?id=1OcVsAQXKO4N4ZIESNmIZAI9IZcutctHX"
+ata.tf <- "Canada3ArcMinute_CCSM_85_ATA2011-2100.grd"
+ata.arc <- "Canada3ArcMinute_CCSM_85_ATA2011-2100.zip"
+
+ATAstack <- prepInputs(targetFile = ata.tf,
+                           archive = ata.arc,
+                           alsoExtract = "similar",
+                           url = ata.url,
+                           destinationPath = dPath,
+                           fun = "raster::stack",
+                           overwrite = TRUE,
+                           useCache = TRUE) #if a pixel is 10 degrees above average, needs 4S
+
+
 sppEquivCol <- "NWT"
 
 # Equivalency table for tree species
@@ -255,8 +283,8 @@ parameters <- list(
     "fireInitialTime" = times$start
   ),
   climate_NWT_DataPrep = list(
-    "rcp" = 45, # 45 or 85
-    "gcm" = "CanESM2"), # One of CanESM2, GFDL-CM3, HadGEM2-ES, MPI-ESM-LR
+    "rcp" = 85, # 45 or 85
+    "gcm" = "CCSM"), # One of CanESM2, GFDL-CM3, HadGEM2-ES, MPI-ESM-LR
   fireSense_IgnitionPredict = list(
     "data" = c("MDC06", "LCC"),
     "modelObjName" = "fireSense_FrequencyFitted"),
@@ -293,7 +321,7 @@ lastYears <- data.frame(objectName = c("predictedCaribou", "plotCaribou",
 if (length(grepMulti(x = definedRun$modules, "LBMR")) != 0){
   clim <- data.frame(objectName = rep(c("fireSense_IgnitionPredicted", 
                                         "fireSense_EscapePredicted", "burnSummary", 
-                                        "successionLayers"), 
+                                        "successionLayers", "activePixelIndex"), 
                                       each = 3),
                      saveTime = rep(c(times$start, round((times$start + times$end)/2, 0), times$end), 
                                     times = 1))
@@ -315,7 +343,9 @@ objects <- list(
   "studyArea" = studyArea,
   "waterRaster" = waterRaster,
   "fireRegimePolys" = studyArea,
-  "t1" = t1
+  "t1" = t1,
+"CMIstack" = CMIstack,
+"ATAstack" = ATAstack
 )
 
 data.table::setDTthreads(10) # Data.table has all threads by default, which is inconveninent and unecessary. Will try setting it for only 10 cores.  
@@ -371,7 +401,7 @@ if (runBirds){
       "useParallel" = FALSE, # Using parallel in windows is currently not working.
       "predictionInterval" = predictionIntervals,
       "quickLoad" = TRUE,
-      "version" = 6 # VERSION 6 of the modules has both climate and vegetation as covariates for the model
+      "version" = 4 # VERSION 6 of the modules has both climate and vegetation as covariates for the model
     ),
     comm_metricsNWT = list(
     "frequency" = predictionIntervals
@@ -379,7 +409,14 @@ if (runBirds){
   )
   objects <- c(objects, list(
     "birdsList" = c("CAWA", "OSFL", "RUBL"), # [ FIX ] <~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ For second paper, just remove this line!"BBWA", "WEWP", 
-    "uplandsRaster" = uplandsRaster))
+    "uplandsRaster" = uplandsRaster,
+    "pixelsWithDataAtInitialization" = tryCatch(readRDS(file.path(paths$inputPath, "pixelsWithDataAtInitialization.rds")), 
+                                                error = function(e){
+                                                  warning(paste0("The pixelsWithDataAtInitialization.rds object was not found. Returning NULL.",
+"This will affect bird predictions for the NWT (i.e. density will not be predicted",
+"for pixels were total biomas = 0). To fix this, save the object named 'sim$activePixelIndex' in the end of LBMR's init i.e. add to LBMR's Line 661-662 ",
+"saveRDS(sim$activePixelIndex, file = file.path(outputPath(sim), 'pixelsWithDataAtInitialization.rds'))"))
+                                                  })))
   modules <- list("birdsNWT", "comm_metricsNWT")
   
   invisible(sapply(X = list.files(file.path("/mnt/data/Micheletti/NWT/modules/birdsNWT/R/"), full.names = TRUE), FUN = source))

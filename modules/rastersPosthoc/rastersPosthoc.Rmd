@@ -58,7 +58,7 @@ devtools::load_all("/mnt/data/Micheletti/usefun/")
     setwd("/mnt/data/Micheletti/NWT")
   
   times <- list(start = 1, end = 1)
-  Run <- "run1"
+  Run <- "run2"
   
     inputs <- list()
   outputs <- data.frame(
@@ -78,7 +78,7 @@ devtools::load_all("/mnt/data/Micheletti/usefun/")
   if (doBirds){
       setPaths(modulePath = file.path(getwd(), "modules"),
            inputPath = file.path(getwd(), "outputs/23OCT19/"),
-           outputPath = checkPath(file.path(getwd(), "outputs/23OCT19/birdResults", typeOfSimulation), create = TRUE)
+           outputPath = checkPath(file.path(getwd(), "outputs/23OCT19/birdResults", typeOfSimulation, Run), create = TRUE)
   )
   getPaths() # shows where the 4 relevant paths are
 

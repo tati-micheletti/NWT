@@ -66,4 +66,6 @@ birdsNWTnoCS.rds
 gadm36_CAN_1_sp.rds
 ./inputs/*.*
 ./*.asc
-
+CCSM*
+./CCS*
+/inputs/CCSM*

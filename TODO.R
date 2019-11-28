@@ -1,17 +1,11 @@
-# I have decided I will run 5 times each: 
-#  - SCFM+LandR [  ]
-#  - SCFM+LandR.CS [  ]
-#  - fireSense+LandR [  ]
-#  - fireSense+LandR.CS [  ]
-#  - run bird models: (terrain + ...) 
-#  - V4 (...vegetation) # NOT DOING IT FOR THE BIRDS MANUSCRIPT
-#  - V5 (...climate) # NOT DOING IT FOR THE BIRDS MANUSCRIPT
-#  - V6 (...vegetation + climate) # ==> This is the model to be used.
 
-# 2. Make all plots that relate 2 or more types of run (SCFM vs fS vs LandR vs LandR.CS) [ ]
-# 3. Make some stats on all replicates per type [ LATER ]
-# 4. Organize !runMe function defineRun: add birds, caribou + commMet + hotspots to it! (complete run) [ ]
-
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~> ATTENTION: <~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# 
+# Once the layers problem is solved needs updating the layers in google drive: "https://drive.google.com/open?id=1wcgytGJmfZGaapZZ9M9blfGa-45eLVWE"
+# Needs to re-run fireSense_NWT_DataPrep and check MDC (it should NOT be above @200)
+# Needs to re-run birdsNWT
+# The overwritten arguments are already in place. Need to be taken out after the successful run!
+# 
 # VERSION3 folder: "1s4rtgI7N5iw5_WytZvhF2gi0Xbi9sNx8"
 # V3 RSF: "1U3WJuNDtPWygzDJdxBgvUBWzVwiJoBch"
 # V3 Birds: "1KHiBB-WgJeok_T4aEEar2aOtrjjz0FLY"  -- only CAWA BOCH BBWA OSFL ALFL BPWA [ OK ] 
@@ -66,8 +60,19 @@ lapply(X = fl, FUN = function(eachRas){
                             path = googledrive::as_id("16IT3t0Gaokh-kCwhSjcGWRz9EQ9cFMUD"))
 })
 
+ras <- grepMulti(list.files("/mnt/data/Micheletti/NWT/outputs/23OCT19/effectsRasters", full.names = TRUE),
+                 patterns = c("rds"))
+lapply(ras, function(r){
+  googledrive::drive_upload(r, googledrive::as_id("1jgGqwGcOpxSjUwxJw8_bee-iQtcHSRTG"))
+})
+
+
 # fireSense:
 # The only things I need to run are:
 # 1. Include in fireSense_NWT_DataPrep the function to create sim$MDC06 these. This needs to be redone every year! LCC "too" but cached [ DONE ]
 # 2. Run every year: fireSense_NWT_DataPrep, "fireSense_FrequencyPredict", "fireSense_EscapePredict", "LBMR2LCC_DataPrep", "fireSense_NWT" [ REDEFINE definedRun, Push prepareClimateLayers to usefun]
 
+# line 661
+if (saveInitialConditions){
+  saveRDS(sim$activePixelIndex, file = file.path(outputPath(sim), "pixelsWithDataAtInitialization.rds"))
+}

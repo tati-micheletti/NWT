@@ -181,33 +181,45 @@ waterRaster <- prepInputs(url = "https://drive.google.com/open?id=1nPd03gaVXkkaH
                           rasterToMatch = rasterToMatch,
                           filename2 = NULL)
 
-cmi.url <- "https://drive.google.com/open?id=1MwhK3eD1W6u0AgFbRgVg7j-qqyk0-3yA"
-cmi.tf <- "Canada3ArcMinute_CCSM_85_CMI2011-2100.grd"
-cmi.arc <- "Canada3ArcMinute_CCSM_85_CMI2011-2100.zip"
+if (!exists("climateModel")) climateModel <- "CCSM4_85" # Default if not provided
+if (!climateModel %in% c("CCSM4_85", "CCSM4_45")) stop("Other climate scenarios are still not implemented.")
 
-CMIstack <- prepInputs(targetFile = cmi.tf,
+cmi.url <- ifelse(climateModel == "CCSM4_85", "https://drive.google.com/open?id=1OcVsAQXKO4N4ZIESNmIZAI9IZcutctHX", 
+                  "https://drive.google.com/open?id=1ERoQmCuQp3_iffQ0kXN7SCQr07M7dawv")
+cmi.tf <- ifelse(climateModel == "CCSM4_85", "Canada3ArcMinute_CCSM4_85_CMI2011-2100.grd", "Canada3ArcMinute_CCSM4_45_CMI2011-2100.grd")
+cmi.arc <- ifelse(climateModel == "CCSM4_85", "Canada3ArcMinute_CCSM4_85_CMI2011-2100.zip", "Canada3ArcMinute_CCSM4_45_CMI2011-2100.zip")
+alsoExt <- ifelse(climateModel == "CCSM4_85", "Canada3ArcMinute_CCSM4_85_CMI2011-2100.gri", "Canada3ArcMinute_CCSM4_45_CMI2011-2100.gri")
+
+CMIstack <- Cache(prepInputs, targetFile = cmi.tf,
                            archive = cmi.arc,
-                           alsoExtract = "similar",
+                           alsoExtract = alsoExt,
                            url = cmi.url,
-                           destinationPath = dPath,
-                           fun = "raster::stack",
-                           overwrite = TRUE,
-                           useCache = TRUE
-)
+                           destinationPath = file.path(getwd(), "modules/gmcsDataPrep/data"),
+                           fun = "raster::stack", useCache = TRUE, 
+                           userTags = c(paste0("climateModel:", climateModel), "CMI"),
+                           omitArgs = c("destinationPath"))
 
-ata.url <- "https://drive.google.com/open?id=1OcVsAQXKO4N4ZIESNmIZAI9IZcutctHX"
-ata.tf <- "Canada3ArcMinute_CCSM_85_ATA2011-2100.grd"
-ata.arc <- "Canada3ArcMinute_CCSM_85_ATA2011-2100.zip"
+ata.url <- ifelse(climateModel == "CCSM4_85", "https://drive.google.com/open?id=1jyfq-7wG4a7EoyNhirgMlq4mYnAvoOeY", 
+                  "https://drive.google.com/open?id=1OA67hJDJunQbfeG0nvCnwd3iDutI_EKf")
+ata.tf <- ifelse(climateModel == "CCSM4_85", "Canada3ArcMinute_CCSM4_85_ATA2011-2100.grd", "Canada3ArcMinute_CCSM4_45_ATA2011-2100.grd")
+ata.arc <- ifelse(climateModel == "CCSM4_85", "Canada3ArcMinute_CCSM4_85_ATA2011-2100.zip", "Canada3ArcMinute_CCSM4_45_ATA2011-2100.zip")
+alsoExt <- ifelse(climateModel == "CCSM4_85", "Canada3ArcMinute_CCSM4_85_ATA2011-2100.gri", "Canada3ArcMinute_CCSM4_45_ATA2011-2100.gri")
 
-ATAstack <- prepInputs(targetFile = ata.tf,
+ATAstack <- Cache(prepInputs, targetFile = ata.tf,
                            archive = ata.arc,
-                           alsoExtract = "similar",
+                           alsoExtract = alsoExt,
                            url = ata.url,
-                           destinationPath = dPath,
-                           fun = "raster::stack",
-                           overwrite = TRUE,
-                           useCache = TRUE) #if a pixel is 10 degrees above average, needs 4S
+                           destinationPath = file.path(getwd(), "modules/gmcsDataPrep/data"),
+                           fun = "raster::stack", useCache = TRUE, 
+                           userTags = c(paste0("climateModel:", climateModel),"ATA"),
+                           omitArgs = c("destinationPath")) #if a pixel is 10 degrees above average, needs 4S
 
+RCP <- ifelse(climateModel == "CCSM4_85", "85", "45") # 45
+climateModelType = ifelse(climateModel == "CCSM4_85", "CCSM4", "CanESM2")# CanESM2 is NOT implemented yet. Here just figurative
+ensemble <- ifelse(climateModel == "CCSM4_85", "", "r11i1p1")
+climateResolution <- "3ArcMin" # Only available for now, matches the created layers for all modules
+climateFilePath <- ifelse(climateModel == "CCSM4_85", "https://drive.google.com/open?id=17idhQ_g43vGUQfT-n2gLVvlp0X9vo-R8", 
+                          "https://drive.google.com/open?id=1U0TuYNMC75sQCkZs7c4EcBRLcjqeVO6N")
 
 sppEquivCol <- "NWT"
 
@@ -282,16 +294,21 @@ parameters <- list(
     "fireTimestep" = 1,
     "fireInitialTime" = times$start
   ),
-  climate_NWT_DataPrep = list(
-    "rcp" = 85, # 45 or 85
-    "gcm" = "CCSM"), # One of CanESM2, GFDL-CM3, HadGEM2-ES, MPI-ESM-LR
+  # climate_NWT_DataPrep = list( # I think this was removed...?
+  #   "rcp" = as.numeric(RCP), # 45 or 85
+  #   "gcm" = climateModelType), # One of CanESM2, GFDL-CM3, HadGEM2-ES, MPI-ESM-LR
   fireSense_IgnitionPredict = list(
     "data" = c("MDC06", "LCC"),
     "modelObjName" = "fireSense_FrequencyFitted"),
   fireSense_EscapePredict = list(
     "data" = c("MDC06", "LCC")),
   fireSense_NWT_DataPrep = list(
-    "train" = FALSE),
+    "train" = FALSE,
+    "RCP" = RCP,
+    "climateModel" = climateModelType,
+    "ensemble" = ensemble,
+    "climateResolution" = climateResolution,
+    "climateFilePath" = climateFilePath),
   # Caribou Population Growth
   caribouPopGrowthModel = list(
     ".plotInitialTime" = NULL,
@@ -380,6 +397,7 @@ if (runLandR){
 
 if (!exists("runBirds")) runBirds <- FALSE # Default if not provided
 if (runBirds){
+  if (!exists("birdModelVersion")) birdModelVersion <- 6 # Default if not provided
   predictionIntervals <- 30
   message(crayon::yellow(paste0("Starting simulations for BIRDS using ", definedRun$whichRUN, " ", definedRun$whichReplicate)))
 
@@ -401,8 +419,12 @@ if (runBirds){
       "useParallel" = FALSE, # Using parallel in windows is currently not working.
       "predictionInterval" = predictionIntervals,
       "quickLoad" = TRUE,
-      "version" = 4 # VERSION 6 of the modules has both climate and vegetation as covariates for the model
-    ),
+      "version" = birdModelVersion, # VERSION 6 of the modules has both climate and vegetation as covariates for the model
+      "RCP" = RCP,
+      "climateModel" = climateModelType,
+      "ensemble" = ensemble,
+      "climateResolution" = climateResolution,
+      "climateFilePath" = climateFilePath),
     comm_metricsNWT = list(
     "frequency" = predictionIntervals
     )

@@ -15,19 +15,20 @@
 runOnlySimInit <- FALSE # TRUE to run experiment, FALSE to run simulations individually
 
 # LandR.CS + fireSense
-replicateNumber <- "run2"
+replicateNumber <- "run1"
 vegetation <- "LandR.CS"
 fire <- "fS"
-runLandR <- FALSE
-runBirds <- TRUE
+runLandR <- TRUE
+runBirds <- FALSE
 runCaribou <- FALSE
 runDynamic <- FALSE
-runClimateStatic <- TRUE
+runClimateStatic <- FALSE
 runVegStatic <- FALSE
+birdModelVersion <- 4 #6
 source("!runMe.R") # PURPLE
 
 # LandR.CS + SCFM
-replicateNumber <- "run2"
+replicateNumber <- "run3"
 vegetation <- "LandR.CS"
 fire <- "SCFM"
 runLandR <- FALSE
@@ -36,10 +37,11 @@ runCaribou <- FALSE
 runDynamic <- FALSE
 runClimateStatic <- TRUE
 runVegStatic <- FALSE
+birdModelVersion <- 4 #6
 source("!runMe.R") # BLUE
 
 # LandR + SCFM
-replicateNumber <- "run2"
+replicateNumber <- "run3"
 vegetation <- "LandR"
 fire <- "SCFM"
 runLandR <- FALSE
@@ -48,10 +50,11 @@ runCaribou <- FALSE
 runDynamic <- FALSE
 runClimateStatic <- TRUE
 runVegStatic <- FALSE
+birdModelVersion <- 4 #6
 source("!runMe.R") # GREEN
 
 # LandR + fS
-replicateNumber <- "run2"
+replicateNumber <- "run3"
 vegetation <- "LandR"
 fire <- "fS"
 runLandR <- FALSE
@@ -60,6 +63,7 @@ runCaribou <- FALSE
 runDynamic <- FALSE
 runClimateStatic <- TRUE
 runVegStatic <- FALSE
+birdModelVersion <- 4 #6
 source("!runMe.R") # YELLOW
 
 if (runOnlySimInit){

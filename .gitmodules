@@ -63,3 +63,6 @@
 [submodule "fireSense_IgnitionFit"]
 	path = fireSense_IgnitionFit
 	url = git@github.com:tati-micheletti/fireSense_IgnitionFit.git
+[submodule "modules/LandR_speciesParameters"]
+	path = modules/LandR_speciesParameters
+	url = git@github.com:ianmseddy/LandR_speciesParameters.git

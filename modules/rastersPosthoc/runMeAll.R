@@ -3,10 +3,10 @@ modelVersion <- "V6"# "V4" #For birds only
 googleFoldersList <- list(
   # dynamic simulation
   dynamic = list(
-    LandR.CS_fS = "1My_5RIOMBVyuQ7RhyiZP2Q1sHp4dlLN3",
-    LandR.CS_SCFM = "1aJ_jjeaWJx6rhbw3C6z7xknqXuA9emSe",
-    LandR_fS = "14yu782g8uR0fJl2sfbAhkUsORliAxgKl",
-    LandR_SCFM = "1DlooFy1hYu9yOHiOOiS4uA2RrbnfxRZV")
+    LandR.CS_fS = "12u3mig3wC5D4yNqBg605z_pxkS6SnqR3",
+    LandR.CS_SCFM = "1JV1G6zaZH43caZ6XLAKK6eSmTyKM5RQ-",
+    LandR_fS = "1-ex6MhMp2EWRhRwCAJjhSwO533Y_WN67",
+    LandR_SCFM = "1J_yoQk751E5jRi1QJRikGnFIsZL7UMxT")
 )
 library("SpaDES")
 library("future")
@@ -132,10 +132,10 @@ if (doCaribou){
     LandR.CS_SCFM = file.path(getPaths()$inputPath, "LandR.CS_SCFM", Run, "caribouPredictions"),
     LandR_SCFM = file.path(getPaths()$inputPath, "LandR_SCFM", Run, "caribouPredictions")),
     googleFolders = list(
-      LandR.CS_fS = "1ooFQ4IbkVtVL3topEvz_3vAMu-6h-hyB",
-      LandR.CS_SCFM = "1Nuo091FmyFnrfLKVvQXjGoTN8fRUfXIJ",
-      LandR_fS = "1PmQR0SkNOrfi5fq_a16PTmsYoLw8zSJJ",
-      LandR_SCFM = "1A6BslpcPi4D_9bZ_2DC7sgEXz447cuRv"
+      LandR.CS_fS = "12u3mig3wC5D4yNqBg605z_pxkS6SnqR3",
+    LandR.CS_SCFM = "1JV1G6zaZH43caZ6XLAKK6eSmTyKM5RQ-",
+    LandR_fS = "1-ex6MhMp2EWRhRwCAJjhSwO533Y_WN67",
+    LandR_SCFM = "1J_yoQk751E5jRi1QJRikGnFIsZL7UMxT")
     )
   )
   boo <- simInitAndSpades(times = times, params = parameters, modules = modules,

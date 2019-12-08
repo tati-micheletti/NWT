@@ -13,8 +13,8 @@ Module documentation should be written so that others can use your module.
 This is a template for module documentation, and should be changed to reflect your module.
 
 ```{r}
-typeOfSimulation <- "climateStatic" #"vegetationStatic", "dynamic"
-modelVersion <- "V6"# "V3" #For birds only
+typeOfSimulation <- "dynamic" #"vegetationStatic", "dynamic"
+modelVersion <- "V4"# "V6" #For birds only
 ```
 
 # Usage
@@ -23,24 +23,26 @@ modelVersion <- "V6"# "V3" #For birds only
 
 ```{r}
 googleFoldersList <- list(
-# vegetation static
+# vegetation static # Only important for birds, and we are not doing this anymore...  
 vegetationStatic = list(
-  LandR.CS_fS = "1VD2DLb9Pxpah06jtmIJOMBCLot8QjgvF",
-  LandR.CS_SCFM = "1rKIBroCNPl1JmFp9qcPNf5tlxrvx0IJu",
-  LandR_fS = "1AqmRjPoueWm_H7j2iOlSgPm_lgOraL7c",
-  LandR_SCFM = "1_O-ZIJEyaOCSv2VfLMFPPHSgY4Rqp8y3"),
+#   LandR.CS_fS = "1VD2DLb9Pxpah06jtmIJOMBCLot8QjgvF",
+#   LandR.CS_SCFM = "1rKIBroCNPl1JmFp9qcPNf5tlxrvx0IJu",
+#   LandR_fS = "1AqmRjPoueWm_H7j2iOlSgPm_lgOraL7c",
+#   LandR_SCFM = "1_O-ZIJEyaOCSv2VfLMFPPHSgY4Rqp8y3"
+  ),
 # climate static
 climateStatic = list(
-  LandR.CS_fS = "171UdUyx_-0zZXh_mHNl-uIFGHs1mzdqT",
-  LandR.CS_SCFM = "1BZkOops0CQ3rnBBY_2g38KshI5tcX5XS",
-  LandR_fS = "1SjNwvkCOd42LFTmVGLvz_G3xQyUc9NxM",
-  LandR_SCFM = "19XIS2R2XBEqCoYAEpKdILr4U6uCpdbso"),
+  # LandR.CS_fS = "171UdUyx_-0zZXh_mHNl-uIFGHs1mzdqT",
+  # LandR.CS_SCFM = "1BZkOops0CQ3rnBBY_2g38KshI5tcX5XS",
+  # LandR_fS = "1SjNwvkCOd42LFTmVGLvz_G3xQyUc9NxM",
+  # LandR_SCFM = "19XIS2R2XBEqCoYAEpKdILr4U6uCpdbso"
+  ),
 # dynamic simulation
 dynamic = list(
-  LandR.CS_fS = "1ooFQ4IbkVtVL3topEvz_3vAMu-6h-hyB",
-  LandR.CS_SCFM = "1Nuo091FmyFnrfLKVvQXjGoTN8fRUfXIJ",
-  LandR_fS = "1PmQR0SkNOrfi5fq_a16PTmsYoLw8zSJJ",
-  LandR_SCFM = "1A6BslpcPi4D_9bZ_2DC7sgEXz447cuRv")
+  LandR.CS_fS = "1My_5RIOMBVyuQ7RhyiZP2Q1sHp4dlLN3",
+  # LandR.CS_SCFM = "1Nuo091FmyFnrfLKVvQXjGoTN8fRUfXIJ",
+  # LandR_fS = "1PmQR0SkNOrfi5fq_a16PTmsYoLw8zSJJ",
+  LandR_SCFM = "1DlooFy1hYu9yOHiOOiS4uA2RrbnfxRZV")
 )
 ```
 
@@ -51,14 +53,14 @@ dynamic = list(
   library("future.apply")
   plan("sequential")
   googledrive::drive_auth("tati.micheletti@gmail.com")
-  # library("usefun")
-devtools::load_all("/mnt/data/Micheletti/usefun/")
+  library("usefun")
+# devtools::load_all("/mnt/data/Micheletti/usefun/")
   
   if (pemisc::user() %in% c("Tati", "tmichele"))
     setwd("/mnt/data/Micheletti/NWT")
   
   times <- list(start = 1, end = 1)
-  Run <- "run2"
+  Run <- "run1"
   
     inputs <- list()
   outputs <- data.frame(
@@ -71,18 +73,18 @@ devtools::load_all("/mnt/data/Micheletti/usefun/")
     saveTime = times$end)
 
   doCaribou <- FALSE
-  doBirds <- TRUE
+  doBirds <- FALSE
   
   #  ~~~~~~~~~~~~~~~~~~~~~~~~# FOR BIRDS #~~~~~~~~~~~~~~~~~~~~~~~~
   
   if (doBirds){
       setPaths(modulePath = file.path(getwd(), "modules"),
-           inputPath = file.path(getwd(), "outputs/23OCT19/"),
-           outputPath = checkPath(file.path(getwd(), "outputs/23OCT19/birdResults", typeOfSimulation, Run), create = TRUE)
+           inputPath = file.path(getwd(), "outputs/05DEC19/"),
+           outputPath = checkPath(file.path(getwd(), "outputs/05DEC19/birdResults", typeOfSimulation, Run), create = TRUE)
   )
   getPaths() # shows where the 4 relevant paths are
 
-     species <- c("RUBL", "CAWA", "OSFL", "BBWA", "WEWP")
+     species <- c("RUBL", "CAWA", "OSFL") #c("RUBL", "CAWA", "OSFL", "BBWA", "WEWP")
   parameters <- list(
     rastersPosthoc = list(patternsToRetrieveRasters = c("predicted", "Year", "tif"),
                           patternsUsedForGrouping = species,
@@ -97,13 +99,13 @@ devtools::load_all("/mnt/data/Micheletti/usefun/")
     )
   modules <- list("rastersPosthoc")
   objects <- list(dataFolder = list(
-                  LandR.CS_fS_V6 = file.path(getPaths()$inputPath, "LandR.CS_fS", 
-                                             Run, paste0("birdPredictions", modelVersion, typeOfSimulation)),
-                  LandR_fS_V6 = file.path(getPaths()$inputPath, "LandR_fS", 
-                                          Run, paste0("birdPredictions", modelVersion, typeOfSimulation)),
-                  LandR.CS_SCFM_V6 = file.path(getPaths()$inputPath, "LandR.CS_SCFM", 
-                                               Run, paste0("birdPredictions", modelVersion, typeOfSimulation)),
-                  LandR_SCFM_V6 = file.path(getPaths()$inputPath, "LandR_SCFM", 
+                  LandR.CS_fS_V6 = file.path(getPaths()$inputPath, "LandR.CS_fS",
+                                             Run, paste0("birdPredictions", "V6", typeOfSimulation)), # REPLACE V6 with modelVersion
+                  # LandR_fS_V4 = file.path(getPaths()$inputPath, "LandR_fS", 
+                                          # Run, paste0("birdPredictions", modelVersion, typeOfSimulation)),
+                  # LandR.CS_SCFM_V4 = file.path(getPaths()$inputPath, "LandR.CS_SCFM", 
+                                               # Run, paste0("birdPredictions", modelVersion, typeOfSimulation)),
+                  LandR_SCFM_V4 = file.path(getPaths()$inputPath, "LandR_SCFM", 
                                             Run, paste0("birdPredictions", modelVersion, typeOfSimulation))),
                   googleFolders = googleFoldersList[[typeOfSimulation]])
   
@@ -114,8 +116,8 @@ birdResults <- simInitAndSpades(times = times, params = parameters, modules = mo
   #  ~~~~~~~~~~~~~~~~~~~~~~~~# FOR CARIBOUS #~~~~~~~~~~~~~~~~~~~~~~~~
 if (doCaribou){
     setPaths(modulePath = file.path(getwd(), "modules"),
-           inputPath = file.path(getwd(), "outputs/23OCT19/"),
-           outputPath = checkPath(file.path(getwd(), "outputs/23OCT19/caribouResults"), create = TRUE)
+           inputPath = file.path(getwd(), "outputs/05DEC19/"),
+           outputPath = checkPath(file.path(getwd(), "outputs/05DEC19/caribouResults"), create = TRUE)
   )
   getPaths() # shows where the 4 relevant paths are
 
@@ -136,15 +138,10 @@ if (doCaribou){
   modules <- list("rastersPosthoc")
   objectsCaribou <- list(dataFolder = list(
                   LandR.CS_fS = file.path(getPaths()$inputPath, "LandR.CS_fS", Run, "caribouPredictions"),
-                  LandR_fS = file.path(getPaths()$inputPath, "LandR_fS", Run, "caribouPredictions"),
-                  LandR.CS_SCFM = file.path(getPaths()$inputPath, "LandR.CS_SCFM", Run, "caribouPredictions"),
+                  # LandR_fS = file.path(getPaths()$inputPath, "LandR_fS", Run, "caribouPredictions"),
+                  # LandR.CS_SCFM = file.path(getPaths()$inputPath, "LandR.CS_SCFM", Run, "caribouPredictions"),
                   LandR_SCFM = file.path(getPaths()$inputPath, "LandR_SCFM", Run, "caribouPredictions")),
-                  googleFolders = list(
-                    LandR.CS_fS = "1ooFQ4IbkVtVL3topEvz_3vAMu-6h-hyB",
-                    LandR.CS_SCFM = "1Nuo091FmyFnrfLKVvQXjGoTN8fRUfXIJ",
-                    LandR_fS = "1PmQR0SkNOrfi5fq_a16PTmsYoLw8zSJJ",
-                    LandR_SCFM = "1A6BslpcPi4D_9bZ_2DC7sgEXz447cuRv"
-                    )
+                  googleFolders = googleFoldersList[[typeOfSimulation]]
                   )
 
 boo <- simInitAndSpades(times = times, params = parameters, modules = modules,

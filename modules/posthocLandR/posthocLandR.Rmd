@@ -15,8 +15,7 @@ library("SpaDES")
 library("future")
 library("future.apply")
 plan("multiprocess")
-# library("usefun")
-devtools::load_all(file.path(dirname(getwd()), "usefun")) # Temporary until the simulations finish. Then I need to uncomment the package in the posthocLandR.R
+library("usefun")
 
 SpaDES.core::setPaths(modulePath = file.path(getwd(), "modules"),
                       cachePath = file.path(getwd(), "cache"))
@@ -38,10 +37,10 @@ parameters <- list(
 modules <- list("posthocLandR")
 objects <- list(
   resultsFolders = list(
-        LandR.CS_fS = file.path(getwd(), "outputs/23OCT19/LandR.CS_fS", Run),
-        LandR.CS_SCFM = file.path(getwd(), "outputs/23OCT19/LandR.CS_SCFM", Run),
-        LandR_fS = file.path(getwd(), "outputs/23OCT19/LandR_fS", Run),
-        LandR_SCFM = file.path(getwd(), "outputs/23OCT19/LandR_SCFM", Run)
+        LandR.CS_fS = file.path(getwd(), "outputs/06DEC19/LandR.CS_fS", Run),
+        LandR.CS_SCFM = file.path(getwd(), "outputs/06DEC19/LandR.CS_SCFM", Run),
+        LandR_fS = file.path(getwd(), "outputs/06DEC19/LandR_fS", Run),
+        LandR_SCFM = file.path(getwd(), "outputs/06DEC19/LandR_SCFM", Run)
   )
 )
 inputs <- list()

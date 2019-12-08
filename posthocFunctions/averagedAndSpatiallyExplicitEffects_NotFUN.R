@@ -18,7 +18,7 @@
                            # scenarios = scenarios)
 
 
-
+library(SpaDES)
 source('/mnt/data/Micheletti/NWT/modules/rastersPosthoc/R/makeDeltaRasters.R')
 pth <- checkPath(file.path(getwd(), "outputs/06DEC19/effectsRasters/"), create = TRUE)
 library(raster)

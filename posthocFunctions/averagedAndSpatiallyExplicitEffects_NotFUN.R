@@ -20,28 +20,28 @@
 
 
 source('/mnt/data/Micheletti/NWT/modules/rastersPosthoc/R/makeDeltaRasters.R')
-pth <- file.path(getwd(), "outputs/23OCT19/effectsRasters/")
+pth <- checkPath(file.path(getwd(), "outputs/06DEC19/effectsRasters/"), create = TRUE)
 library(raster)
-listOfRasters <- list(cumulativeEffect_abs = list(CAWA = stack(raster("/mnt/data/Micheletti/NWT/outputs/23OCT19/LandR_SCFM/run2/birdPredictionsV6climateStatic/run2_LandR_SCFMpredictedCAWAYear2100.tif"),
-                                                           raster("/mnt/data/Micheletti/NWT/outputs/23OCT19/LandR.CS_fS/run2/birdPredictionsV6dynamic/run2_LandR.CS_fSpredictedCAWAYear2100.tif")),
-                                              OSFL = stack(raster("/mnt/data/Micheletti/NWT/outputs/23OCT19/LandR_SCFM/run2/birdPredictionsV6climateStatic/run2_LandR_SCFMpredictedOSFLYear2100.tif"),
-                                                           raster("/mnt/data/Micheletti/NWT/outputs/23OCT19/LandR.CS_fS/run2/birdPredictionsV6dynamic/run2_LandR.CS_fSpredictedOSFLYear2100.tif")),
-                                              RUBL = stack(raster("/mnt/data/Micheletti/NWT/outputs/23OCT19/LandR_SCFM/run2/birdPredictionsV6climateStatic/run2_LandR_SCFMpredictedRUBLYear2100.tif"),
-                                                           raster("/mnt/data/Micheletti/NWT/outputs/23OCT19/LandR.CS_fS/run2/birdPredictionsV6dynamic/run2_LandR.CS_fSpredictedRUBLYear2100.tif"))))
+#listOfRasters <- list(cumulativeEffect_abs = list(CAWA = stack(raster("/mnt/data/Micheletti/NWT/outputs/06DEC19/LandR_SCFM/run2/birdPredictionsV4dynamic/run2_LandR_SCFMpredictedCAWAYear2100.tif"),
+#                                                           raster("/mnt/data/Micheletti/NWT/outputs/06DEC19/LandR.CS_fS/run2/birdPredictionsV6dynamic/run2_LandR.CS_fSpredictedCAWAYear2100.tif")),
+#                                              OSFL = stack(raster("/mnt/data/Micheletti/NWT/outputs/06DEC19/LandR_SCFM/run2/birdPredictionsV4dynamic/run2_LandR_SCFMpredictedOSFLYear2100.tif"),
+#                                                           raster("/mnt/data/Micheletti/NWT/outputs/06DEC19/LandR.CS_fS/run2/birdPredictionsV6dynamic/run2_LandR.CS_fSpredictedOSFLYear2100.tif")),
+#                                              RUBL = stack(raster("/mnt/data/Micheletti/NWT/outputs/06DEC19/LandR_SCFM/run2/birdPredictionsV4dynamic/run2_LandR_SCFMpredictedRUBLYear2100.tif"),
+#                                                           raster("/mnt/data/Micheletti/NWT/outputs/06DEC19/LandR.CS_fS/run2/birdPredictionsV6dynamic/run2_LandR.CS_fSpredictedRUBLYear2100.tif"))))
 
-dRas <- makeDeltaRasters(listOfRasters = listOfRasters, 
-                        relativeDelta = FALSE,
-                        outputFolder = pth, 
-                        lightLoad = TRUE,
-                        overwrite = FALSE,
-                        upload = TRUE,
-                        folderID = list(cumulativeEffect_abs = "1jgGqwGcOpxSjUwxJw8_bee-iQtcHSRTG"))
+#dRas <- makeDeltaRasters(listOfRasters = listOfRasters, 
+#                        relativeDelta = FALSE,
+#                        outputFolder = pth, 
+#                        lightLoad = TRUE,
+#                        overwrite = FALSE,
+#                        upload = TRUE,
+#                        folderID = list(cumulativeEffect_abs = "1lnM3Va3UklcGy_Swlc7AY1Ww7nImPYLM"))
 
-listOfRasters <- list(cumulativeEffect1_abs = list(CAWA = stack(raster("/mnt/data/Micheletti/NWT/outputs/23OCT19/LandR_SCFM/run1/birdPredictionsV6climateStatic/run1_LandR_SCFMpredictedCAWAYear2100.tif"),
+listOfRasters <- list(cumulativeEffect1_abs = list(CAWA = stack(raster("/mnt/data/Micheletti/NWT/outputs/23OCT19/LandR_SCFM/run1/birdPredictionsV4dynamic/run1_LandR_SCFMpredictedCAWAYear2100.tif"),
                                                            raster("/mnt/data/Micheletti/NWT/outputs/23OCT19/LandR.CS_fS/run1/birdPredictionsV6dynamic/run1_LandR.CS_fSpredictedCAWAYear2100.tif")),
-                                              OSFL = stack(raster("/mnt/data/Micheletti/NWT/outputs/23OCT19/LandR_SCFM/run1/birdPredictionsV6climateStatic/run1_LandR_SCFMpredictedOSFLYear2100.tif"),
+                                              OSFL = stack(raster("/mnt/data/Micheletti/NWT/outputs/23OCT19/LandR_SCFM/run1/birdPredictionsV4dynamic/run1_LandR_SCFMpredictedOSFLYear2100.tif"),
                                                            raster("/mnt/data/Micheletti/NWT/outputs/23OCT19/LandR.CS_fS/run1/birdPredictionsV6dynamic/run1_LandR.CS_fSpredictedOSFLYear2100.tif")),
-                                              RUBL = stack(raster("/mnt/data/Micheletti/NWT/outputs/23OCT19/LandR_SCFM/run1/birdPredictionsV6climateStatic/run1_LandR_SCFMpredictedRUBLYear2100.tif"),
+                                              RUBL = stack(raster("/mnt/data/Micheletti/NWT/outputs/23OCT19/LandR_SCFM/run1/birdPredictionsV4dynamic/run1_LandR_SCFMpredictedRUBLYear2100.tif"),
                                                            raster("/mnt/data/Micheletti/NWT/outputs/23OCT19/LandR.CS_fS/run1/birdPredictionsV6dynamic/run1_LandR.CS_fSpredictedRUBLYear2100.tif"))))
 
 dRas <- makeDeltaRasters(listOfRasters = listOfRasters, 
@@ -50,10 +50,10 @@ dRas <- makeDeltaRasters(listOfRasters = listOfRasters,
                          lightLoad = TRUE,
                          overwrite = FALSE,
                          upload = TRUE,
-                         folderID = list(cumulativeEffect1_abs = "1jgGqwGcOpxSjUwxJw8_bee-iQtcHSRTG"))
+                         folderID = list(cumulativeEffect1_abs = "1lnM3Va3UklcGy_Swlc7AY1Ww7nImPYLM"))
 
 
-rasFolder <- "/mnt/data/Micheletti/NWT/outputs/23OCT19/effectsRasters"
+rasFolder <- "/mnt/data/Micheletti/NWT/outputs/06DEC19/effectsRasters"
 
 library(raster)
 library(googledrive)
@@ -73,7 +73,7 @@ future_lapply(c("CAWA", "OSFL", "RUBL"), function(BIRD){
   writeRaster(averageBIRD, filename = aveName, format = "GTiff")
   writeRaster(sdBIRD, filename = sdName, format = "GTiff")
   lapply(c(aveName, sdName), function(ras){
-    drive_upload(ras, as_id("1jgGqwGcOpxSjUwxJw8_bee-iQtcHSRTG"))
+    drive_upload(ras, as_id("1lnM3Va3UklcGy_Swlc7AY1Ww7nImPYLM"))
   })
 })
 

@@ -6,7 +6,8 @@ googleFoldersList <- list(
     LandR.CS_fS = "12u3mig3wC5D4yNqBg605z_pxkS6SnqR3",
     LandR.CS_SCFM = "1JV1G6zaZH43caZ6XLAKK6eSmTyKM5RQ-",
     LandR_fS = "1-ex6MhMp2EWRhRwCAJjhSwO533Y_WN67",
-    LandR_SCFM = "1J_yoQk751E5jRi1QJRikGnFIsZL7UMxT")
+    LandR_SCFM = "1J_yoQk751E5jRi1QJRikGnFIsZL7UMxT"
+  )
 )
 library("SpaDES")
 library("future")
@@ -62,8 +63,10 @@ if (doBirds){
     LandR.CS_SCFM_V6 = file.path(getPaths()$inputPath, "LandR.CS_SCFM", 
                                  Run, paste0("birdPredictions", modelVersion, typeOfSimulation)),
     LandR_SCFM_V6 = file.path(getPaths()$inputPath, "LandR_SCFM", 
-                              Run, paste0("birdPredictions", modelVersion, typeOfSimulation))),
-    googleFolders = googleFoldersList[[typeOfSimulation]])
+                              Run, paste0("birdPredictions", modelVersion, typeOfSimulation))
+  ),
+    googleFolders = googleFoldersList[[typeOfSimulation]]
+                 )
   
   birdResultsV6 <- simInitAndSpades(times = times, params = parameters, modules = modules,
                                     objects = objects, debug = 1)
@@ -123,19 +126,21 @@ if (doCaribou){
                           uploadPlots = TRUE,
                           calculateSignificantChanges = FALSE,
                           calculateSummary = TRUE,
-                          makeRSFLikePlot = TRUE)
+                          makeRSFLikePlot = TRUE
+                         )
   )
   modules <- list("rastersPosthoc")
   objectsCaribou <- list(dataFolder = list(
     LandR.CS_fS = file.path(getPaths()$inputPath, "LandR.CS_fS", Run, "caribouPredictions"),
     LandR_fS = file.path(getPaths()$inputPath, "LandR_fS", Run, "caribouPredictions"),
     LandR.CS_SCFM = file.path(getPaths()$inputPath, "LandR.CS_SCFM", Run, "caribouPredictions"),
-    LandR_SCFM = file.path(getPaths()$inputPath, "LandR_SCFM", Run, "caribouPredictions")),
+    LandR_SCFM = file.path(getPaths()$inputPath, "LandR_SCFM", Run, "caribouPredictions")
+  ),
     googleFolders = list(
       LandR.CS_fS = "12u3mig3wC5D4yNqBg605z_pxkS6SnqR3",
     LandR.CS_SCFM = "1JV1G6zaZH43caZ6XLAKK6eSmTyKM5RQ-",
     LandR_fS = "1-ex6MhMp2EWRhRwCAJjhSwO533Y_WN67",
-    LandR_SCFM = "1J_yoQk751E5jRi1QJRikGnFIsZL7UMxT")
+    LandR_SCFM = "1J_yoQk751E5jRi1QJRikGnFIsZL7UMxT"
     )
   )
   boo <- simInitAndSpades(times = times, params = parameters, modules = modules,

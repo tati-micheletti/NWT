@@ -1,6 +1,6 @@
 
 # DONE
-# comparisons <- list(climate = c("4dynamic", "6dynamic"),
+# comparisons <- list(climate = c("V4dynamic", "V6dynamic"),
 #                     vegetation = c("LandR_", "LandR.CS_"),
 #                     fire = c("fS", "SCFM"))
 # source('/mnt/data/Micheletti/NWT/posthocFunctions/makeDiffAnalysis.R')

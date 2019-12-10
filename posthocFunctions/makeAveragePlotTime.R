@@ -1,6 +1,7 @@
 makeAveragePlotTime <- function(dataFolder, 
                                 birds, 
-                                scenarios){
+                                scenarios,
+                                shp = NULL){
   library("usefun")
   library("raster")
   library("quickPlot")
@@ -27,8 +28,10 @@ makeAveragePlotTime <- function(dataFolder,
       names(birdRasList) <- lapply(birdRasList, names)
       # Plot(birdRasList)
       dt <- rbindlist(lapply(birdRasList, function(ras){
-        browser() # Need to implement the shapefile to extract the averages and sd of specific areas here...
-        # Something like: extract(r.stack, poly, fun=mean, df=TRUE) https://gis.stackexchange.com/questions/237133/function-sample-code-to-extract-raster-value-per-polygon-in-r
+        if (!is.null(shp)){
+          browser() # Need to implement the shapefile to extract the averages and sd of specific areas here...
+          # Something like: extract(r.stack, poly, fun=mean, df=TRUE) https://gis.stackexchange.com/questions/237133/function-sample-code-to-extract-raster-value-per-polygon-in-r
+        }
         dt <- data.table(species = usefun::substrBoth(strng = names(ras), 
                                                       howManyCharacters = 4, fromEnd = FALSE), 
                          scenarios = scen,

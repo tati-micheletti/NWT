@@ -115,8 +115,11 @@ birdResults <- simInitAndSpades(times = times, params = parameters, modules = mo
   
   #  ~~~~~~~~~~~~~~~~~~~~~~~~# FOR CARIBOUS #~~~~~~~~~~~~~~~~~~~~~~~~
 if (doCaribou){
+  CSfolder <- "C:/Users/Tati/Google Drive/Postdoc PFC-UBC/Northwestern Territories Project/ResultsDEC2019/LandR.CS_fS/"
+noCSfolder <- "C:/Users/Tati/Google Drive/Postdoc PFC-UBC/Northwestern Territories Project/ResultsDEC2019/LandR_SCFM/"
+Run <- ""
     setPaths(modulePath = file.path(getwd(), "modules"),
-           inputPath = file.path(getwd(), "outputs/05DEC19/"),
+           inputPath = dirname(CSfolder),#file.path(getwd(), "outputs/05DEC19/"),
            outputPath = checkPath(file.path(getwd(), "outputs/05DEC19/caribouResults"), create = TRUE)
   )
   getPaths() # shows where the 4 relevant paths are

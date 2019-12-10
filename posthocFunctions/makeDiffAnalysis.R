@@ -9,8 +9,8 @@ makeDiffAnalysis <- function(resultsFolder = file.path(getwd(), "outputs/23OCT19
                              Bird = c("CAWA", "OSFL", "RUBL"),
                                Year = c(2011, 2041, 2071, 2100),
                                Scenario = c("LandR_fS", "LandR_SCFM", "LandR.CS_fS", "LandR.CS_SCFM"),
-                               BirdScenario = c("climateStatic", "dynamic"),
-                               Run = c("run1", "run2"),
+                               BirdScenario = c("V4dynamic", "V6dynamic"),
+                               Run = c("run1", "run2", "run3"),
                                comparisons, writeRas = FALSE, 
                              returnAllRasters = FALSE){
   library(reproducible)
@@ -34,7 +34,7 @@ makeDiffAnalysis <- function(resultsFolder = file.path(getwd(), "outputs/23OCT19
       birdYearRasters <- lapply(Scenario, function(scenario){
         birdYearScenario <- lapply(BirdScenario, function(birdScenario){
           birdYearScenarioBirdScen <- lapply(Run, function(run){
-            ras <- file.path(resultsFolder, scenario, run, paste0("birdPredictionsV6", birdScenario), 
+            ras <- file.path(resultsFolder, scenario, run, paste0("birdPredictions", birdScenario), 
                              paste0(run, "_", scenario, "predicted", bird, "Year", year, ".tif"))
             if (file.exists(ras)){
               message(paste("Raster for", bird, year, scenario, birdScenario, run, "exists. Returning...", collapse = " "))
@@ -51,7 +51,7 @@ makeDiffAnalysis <- function(resultsFolder = file.path(getwd(), "outputs/23OCT19
     })
   }))
   
-  # 3 birds x 4 years x 2 runs x 8 scenarios = 192 rasters
+  # 3 birds x 4 years x 3 runs x 8 scenarios = 288 rasters
   # Name the raster list
   allRastersNames <- unlist(lapply(allRasters, FUN = names))
   names(allRasters) <- allRastersNames

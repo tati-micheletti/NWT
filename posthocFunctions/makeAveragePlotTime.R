@@ -1,6 +1,7 @@
 makeAveragePlotTime <- function(dataFolder, 
                                 birds, 
-                                scenarios){
+                                scenarios,
+                                shp = NULL){
   library("usefun")
   library("raster")
   library("quickPlot")
@@ -8,7 +9,7 @@ makeAveragePlotTime <- function(dataFolder,
   library("data.table")
   plotMaps <- rbindlist(lapply(scenarios, FUN = function(scen){
     plotMaps <- rbindlist(lapply(birds, FUN = function(sp){
-      birdFiles <- grepMulti(x = list.files(pth, full.names = T), 
+      birdFiles <- grepMulti(x = list.files(dataFolder, full.names = T), 
                              patterns = c(sp, scen, "_mean.tif"))
       if (length(birdFiles) == 0) return(NULL)
       birdRasList <- stack(lapply(birdFiles, raster))
@@ -27,6 +28,10 @@ makeAveragePlotTime <- function(dataFolder,
       names(birdRasList) <- lapply(birdRasList, names)
       # Plot(birdRasList)
       dt <- rbindlist(lapply(birdRasList, function(ras){
+        if (!is.null(shp)){
+          browser() # Need to implement the shapefile to extract the averages and sd of specific areas here...
+          # Something like: extract(r.stack, poly, fun=mean, df=TRUE) https://gis.stackexchange.com/questions/237133/function-sample-code-to-extract-raster-value-per-polygon-in-r
+        }
         dt <- data.table(species = usefun::substrBoth(strng = names(ras), 
                                                       howManyCharacters = 4, fromEnd = FALSE), 
                          scenarios = scen,
@@ -47,7 +52,7 @@ makeAveragePlotTime <- function(dataFolder,
   
   cols <- c("steelblue3", "red4", "forestgreen")
   p <-  ggplot(data = plotMaps, aes(x = as.numeric(year), y = average,
-                              group = scenarios)) +  
+                                    group = scenarios)) +  
     geom_ribbon(aes(fill = scenarios, ymin = (average - std),
                     ymax = (average + std)), alpha = 0.5) +
     scale_fill_manual(values = cols) +
@@ -59,12 +64,12 @@ makeAveragePlotTime <- function(dataFolder,
     theme_bw() +
     facet_grid(species ~ scenarios) +
     theme(legend.position = "none")
-    
+  
   ggsave(filename = file.path(dataFolder, "averageTimePlot.png"), 
          plot = p, device = "png")
   
   # ~~~~~~~~~~~~~~~~~~~ CUMULATIVE EFFECT
-
+  
   plotMaps[, cumulativeEffect := sum(average), by = c("species", "year")]
   plotMaps[, cumulativeEffectSD := max(std), by = c("species", "year")]
   cols <- c("goldenrod2", "grey40", "darkorchid2")

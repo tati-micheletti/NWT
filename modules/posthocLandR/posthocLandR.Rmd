@@ -30,17 +30,17 @@ parameters <- list(
     "overwriteLeadingMap" = FALSE,
     "overwriteBiomassMap" = TRUE,
     "addCaribousuitability" = TRUE,
-    "plotFireStats" = FALSE,
+    "plotFireStats" = TRUE,
     "overwriteBurnSumm" = FALSE
     )
 )
 modules <- list("posthocLandR")
 objects <- list(
   resultsFolders = list(
-        LandR.CS_fS = file.path(getwd(), "outputs/06DEC19/LandR.CS_fS", Run),
-        LandR.CS_SCFM = file.path(getwd(), "outputs/06DEC19/LandR.CS_SCFM", Run),
-        LandR_fS = file.path(getwd(), "outputs/06DEC19/LandR_fS", Run),
-        LandR_SCFM = file.path(getwd(), "outputs/06DEC19/LandR_SCFM", Run)
+        LandR.CS_fS = CSfolder,
+        # LandR.CS_SCFM = file.path(getwd(), "outputs/06DEC19/LandR.CS_SCFM", Run),
+        # LandR_fS = file.path(getwd(), "outputs/06DEC19/LandR_fS", Run),
+        LandR_SCFM = noCSfolder
   )
 )
 inputs <- list()

@@ -114,11 +114,11 @@ opts <- options(
   "reproducible.inputPaths" = if (pemisc::user("emcintir")) "~/data" else paths$inputPath,
   "reproducible.quick" = FALSE,
   "reproducible.overwrite" = TRUE,
-  "reproducible.useMemoise" = FALSE, # Brings cached stuff to memory during the second run
+  "reproducible.useMemoise" = TRUE, # Brings cached stuff to memory during the second run
   "reproducible.useNewDigestAlgorithm" = TRUE,  # use the new less strict hashing algo
   "reproducible.useCache" = TRUE,
   "reproducible.cachePath" = paths$cachePath,
-  "reproducible.showSimilar" = FALSE,
+  "reproducible.showSimilar" = TRUE,
   "reproducible.useCloud" = FALSE,
   "spades.moduleCodeChecks" = FALSE, # Turn off all module's code checking
   "spades.useRequire" = FALSE, # assuming all pkgs installed correctly
@@ -161,7 +161,7 @@ studyArea <- Cache(prepInputs,
                    destinationPath = getPaths()$inputPath[[1]],
                    userTags = "edeSA",
                    omitArgs = c("destinationPath"))
-
+		
 rasterToMatch <- Cache(prepInputs, url = "https://drive.google.com/open?id=1fo08FMACr_aTV03lteQ7KsaoN9xGx1Df",
                        studyArea = studyArea,
                        targetFile = "RTM.tif", destinationPath = getPaths()$inputPath[[1]],
@@ -190,14 +190,14 @@ cmi.tf <- ifelse(climateModel == "CCSM4_85", "Canada3ArcMinute_CCSM4_85_CMI2011-
 cmi.arc <- ifelse(climateModel == "CCSM4_85", "Canada3ArcMinute_CCSM4_85_CMI2011-2100.zip", "Canada3ArcMinute_CCSM4_45_CMI2011-2100.zip")
 alsoExt <- ifelse(climateModel == "CCSM4_85", "Canada3ArcMinute_CCSM4_85_CMI2011-2100.gri", "Canada3ArcMinute_CCSM4_45_CMI2011-2100.gri")
 
-CMIstack <- Cache(prepInputs, targetFile = cmi.tf,
-                           archive = cmi.arc,
-                           alsoExtract = alsoExt,
-                           url = cmi.url,
-                           destinationPath = file.path(getwd(), "modules/gmcsDataPrep/data"),
-                           fun = "raster::stack", useCache = TRUE, 
-                           userTags = c(paste0("climateModel:", climateModel), "CMI"),
-                           omitArgs = c("destinationPath"))
+#CMIstack <- Cache(prepInputs, targetFile = cmi.tf,
+#                           archive = cmi.arc,
+#                           alsoExtract = alsoExt,
+#                           url = cmi.url,
+#                           destinationPath = file.path(getwd(), "modules/gmcsDataPrep/data"),
+ #                          fun = "raster::stack", useCache = TRUE, 
+  #                        userTags = c(paste0("climateModel:", climateModel), "CMI"),
+   #                        omitArgs = c("destinationPath"))
 
 ata.url <- ifelse(climateModel == "CCSM4_85", "https://drive.google.com/open?id=1jyfq-7wG4a7EoyNhirgMlq4mYnAvoOeY", 
                   "https://drive.google.com/open?id=1OA67hJDJunQbfeG0nvCnwd3iDutI_EKf")
@@ -205,14 +205,14 @@ ata.tf <- ifelse(climateModel == "CCSM4_85", "Canada3ArcMinute_CCSM4_85_ATA2011-
 ata.arc <- ifelse(climateModel == "CCSM4_85", "Canada3ArcMinute_CCSM4_85_ATA2011-2100.zip", "Canada3ArcMinute_CCSM4_45_ATA2011-2100.zip")
 alsoExt <- ifelse(climateModel == "CCSM4_85", "Canada3ArcMinute_CCSM4_85_ATA2011-2100.gri", "Canada3ArcMinute_CCSM4_45_ATA2011-2100.gri")
 
-ATAstack <- Cache(prepInputs, targetFile = ata.tf,
-                           archive = ata.arc,
-                           alsoExtract = alsoExt,
-                           url = ata.url,
-                           destinationPath = file.path(getwd(), "modules/gmcsDataPrep/data"),
-                           fun = "raster::stack", useCache = TRUE, 
-                           userTags = c(paste0("climateModel:", climateModel),"ATA"),
-                           omitArgs = c("destinationPath")) #if a pixel is 10 degrees above average, needs 4S
+#ATAstack <- Cache(prepInputs, targetFile = ata.tf,
+#                           archive = ata.arc,
+#                           alsoExtract = alsoExt,
+#                           url = ata.url,
+#                           destinationPath = file.path(getwd(), "modules/gmcsDataPrep/data"),
+#                           fun = "raster::stack", useCache = TRUE, 
+#                           userTags = c(paste0("climateModel:", climateModel),"ATA"),
+#                           omitArgs = c("destinationPath")) #if a pixel is 10 degrees above average, needs 4S
 
 RCP <- ifelse(climateModel == "CCSM4_85", "85", "45") # 45
 climateModelType = ifelse(climateModel == "CCSM4_85", "CCSM4", "CanESM2")# CanESM2 is NOT implemented yet. Here just figurative
@@ -266,7 +266,8 @@ parameters <- list(
     ".saveInitialTime" = defaultInitialSaveTime,
     ".saveInterval" = defaultInterval),
   scfmRegime = list(fireCause = "L"), #c("L", "H")
-  scfmDriver = list(targetN = 1000), # 1500
+  scfmDriver = list(
+    targetN = 1000), # 1500 # don't .useCache = "init" # too long
   # LandR_Biomass
   LBMR = list(
     "successionTimestep" = 10,
@@ -294,9 +295,8 @@ parameters <- list(
     "fireTimestep" = 1,
     "fireInitialTime" = times$start
   ),
-  # climate_NWT_DataPrep = list( # I think this was removed...?
-  #   "rcp" = as.numeric(RCP), # 45 or 85
-  #   "gcm" = climateModelType), # One of CanESM2, GFDL-CM3, HadGEM2-ES, MPI-ESM-LR
+  gmcsDataPrep = list(
+     "GCM" = "CCSM4_RCP8.5"),
   fireSense_IgnitionPredict = list(
     "data" = c("MDC06", "LCC"),
     "modelObjName" = "fireSense_FrequencyFitted"),
@@ -305,6 +305,7 @@ parameters <- list(
   fireSense_NWT_DataPrep = list(
     "train" = FALSE,
     "RCP" = RCP,
+    ".useCache" = c(".inputObjects"),
     "climateModel" = climateModelType,
     "ensemble" = ensemble,
     "climateResolution" = climateResolution,
@@ -313,6 +314,7 @@ parameters <- list(
   caribouPopGrowthModel = list(
     ".plotInitialTime" = NULL,
     "recoveryTime" = 40,
+    ".useCache" = c(".inputObjects"),
     ".useDummyData" = FALSE,
     ".growthInterval" = 5)
 )
@@ -360,9 +362,7 @@ objects <- list(
   "studyArea" = studyArea,
   "waterRaster" = waterRaster,
   "fireRegimePolys" = studyArea,
-  "t1" = t1,
-"CMIstack" = CMIstack,
-"ATAstack" = ATAstack
+  "t1" = t1
 )
 
 data.table::setDTthreads(10) # Data.table has all threads by default, which is inconveninent and unecessary. Will try setting it for only 10 cores.  
@@ -444,8 +444,8 @@ if (runBirds){
   invisible(sapply(X = list.files(file.path("/mnt/data/Micheletti/NWT/modules/birdsNWT/R/"), full.names = TRUE), FUN = source))
 
   # [ FIX ] only because we already ran LandR previously. Needs to be commented out when doing the whole project at once
-  newInputPath <- gsub(x = paths$outputPath, pattern = toupper(format(Sys.time(), "%d%b%y")), replacement = "23OCT19")
-  newOutputPath <- gsub(x = paths$outputPath, pattern = toupper(format(Sys.time(), "%d%b%y")), replacement = "23OCT19")
+  newInputPath <- gsub(x = paths$outputPath, pattern = toupper(format(Sys.time(), "%d%b%y")), replacement = "06DEC19")
+  newOutputPath <- gsub(x = paths$outputPath, pattern = toupper(format(Sys.time(), "%d%b%y")), replacement = "06DEC19")
   setPaths(inputPath = newInputPath,
            outputPath = newOutputPath)
   
@@ -517,8 +517,8 @@ if (runCaribou){
            outputPath = caribouOutPath)
   
   # [ FIX ] only because we already ran LandR previously. Needs to be commented out when doing the whole project at once
-  newInputPath <- gsub(x = paths$outputPath, pattern = toupper(format(Sys.time(), "%d%b%y")), replacement = "23OCT19")
-  newOutputPath <- gsub(x = caribouOutPath, pattern = toupper(format(Sys.time(), "%d%b%y")), replacement = "23OCT19")
+  newInputPath <- gsub(x = paths$outputPath, pattern = toupper(format(Sys.time(), "%d%b%y")), replacement = "06DEC19")
+  newOutputPath <- gsub(x = caribouOutPath, pattern = toupper(format(Sys.time(), "%d%b%y")), replacement = "06DEC19")
   setPaths(inputPath = newInputPath,
            outputPath = newOutputPath)
   

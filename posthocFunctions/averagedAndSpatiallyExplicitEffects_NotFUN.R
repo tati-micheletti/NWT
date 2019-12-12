@@ -9,7 +9,7 @@ comparisons <- list(climate = c("V4dynamic", "V6dynamic"),
                     fire = c("fS", "SCFM"))
 source('/mnt/data/Micheletti/NWT/posthocFunctions/makeDiffAnalysis.R')
 # 
-plts <- lapply(seq_along(comparisons), function(index){ #future_
+plts <- future_lapply(seq_along(comparisons), function(index){ #future_
   pl <- makeDiffAnalysis(comparisons = comparisons[index], writeRas = TRUE)
 })
 

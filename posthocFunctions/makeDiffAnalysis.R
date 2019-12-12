@@ -29,8 +29,8 @@ makeDiffAnalysis <- function(resultsFolder = file.path(getwd(), "outputs/06DEC19
   if (length(comparisons[[names(comparisons)]])>2)
     stop("Comparisons can only be made for 2 groups for now")
   browser()
-  allRasters <- unlist(future_lapply(Bird, function(bird){ #future_lapply
-    birdRasters <- future_lapply(Year, function(year){ #future_lapply
+  allRasters <- unlist(lapply(Bird, function(bird){ #future_lapply
+    birdRasters <- lapply(Year, function(year){ #future_lapply
       birdYearRasters <- lapply(Scenario, function(scenario){
         birdYearScenario <- lapply(BirdScenario, function(birdScenario){
           birdYearScenarioBirdScen <- lapply(Run, function(run){

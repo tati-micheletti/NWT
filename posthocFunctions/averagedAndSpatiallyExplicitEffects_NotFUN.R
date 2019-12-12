@@ -1,4 +1,9 @@
-
+library(SpaDES)
+library(reproducible)
+library(data.table)
+library(usefun)
+library(future)
+library(future.apply)
 comparisons <- list(climate = c("V4dynamic", "V6dynamic"),
                     vegetation = c("LandR_", "LandR.CS_"),
                     fire = c("fS", "SCFM"))

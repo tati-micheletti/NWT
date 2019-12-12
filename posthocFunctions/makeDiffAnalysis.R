@@ -10,7 +10,7 @@ makeDiffAnalysis <- function(resultsFolder = file.path(getwd(), "outputs/06DEC19
                                Year = c(2011, 2041, 2071, 2100),
                                Scenario = c("LandR_fS", "LandR_SCFM", "LandR.CS_fS", "LandR.CS_SCFM"),
                                BirdScenario = c("V4dynamic", "V6dynamic"),
-                               Run = c("run1", "run2", "run3"),
+                               Run = c("run1", "run2"),#, "run3"
                                comparisons, writeRas = FALSE, 
                              returnAllRasters = FALSE){
   library(reproducible)

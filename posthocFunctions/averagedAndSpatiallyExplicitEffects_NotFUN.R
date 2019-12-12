@@ -8,11 +8,13 @@ plts <- future_lapply(seq_along(comparisons), function(index){
   pl <- makeDiffAnalysis(comparisons = comparisons[index], writeRas = TRUE)
 })
 
-source('/mnt/data/Micheletti/NWT/modules/rastersPosthoc/R/makeDeltaRasters.R')
-pth <- file.path(getwd(), "outputs/23OCT19/effectsRasters/")
+source(file.path(getwd(), '/posthocFunctions/makeAveragePlotTime.R'))
+pth <- file.path(getwd(), "TMP")
 birds <- c("CAWA", "OSFL", "RUBL")
 scenarios <- c("climate", "fire", "vegetation")
-shp <- prepInputs() # NEED TO USE THE SAME CARIBOU SHAPEFILE!
+shp <- prepInputs(url = "https://drive.google.com/open?id=1Vqny_ZMoksAjji4upnr3OiJl2laGeBGV", 
+                           destinationPath = pth, 
+                           filename2 = "caribouArea2")
 plt <- makeAveragePlotTime(dataFolder = pth,
                            birds = c("CAWA", "OSFL", 'RUBL'),
                            scenarios = scenarios, shp = shp)
@@ -67,29 +69,5 @@ dRas <- makeDeltaRasters(listOfRasters = listOfRasters,
 #                          upload = TRUE,
 #                          folderID = list(cumulativeEffect1_abs = "1lnM3Va3UklcGy_Swlc7AY1Ww7nImPYLM"))
 
-
-rasFolder <- "/mnt/data/Micheletti/NWT/outputs/06DEC19/effectsRasters"
-
-library(raster)
-library(googledrive)
-library(future)
-library(future.apply)
-plan("multicore")
-
-future_lapply(c("CAWA", "OSFL", "RUBL"), function(BIRD){
-  browser() # Change the lines below to a grep of cumulative Effect and make a stack, and do calc on it below
-  BIRD1 <- raster(file.path(rasFolder, paste0("cumulativeEffect1_abs_", BIRD, "delta.tif")))
-  BIRD2 <- raster(file.path(rasFolder, paste0("cumulativeEffect_abs_", BIRD, "delta.tif")))
-  BIRD1[]<-BIRD1[]
-  BIRD2[]<-BIRD2[]
-  averageBIRD <- calc(stack(BIRD1, BIRD2), fun = mean)
-  sdBIRD <- calc(stack(BIRD1, BIRD2), fun = sd)
-  aveName <- file.path(rasFolder, paste0("averageDelta_abs_", BIRD, ".tif"))
-  sdName <- file.path(rasFolder, paste0("sdDelta_abs_", BIRD, ".tif"))
-  writeRaster(averageBIRD, filename = aveName, format = "GTiff")
-  writeRaster(sdBIRD, filename = sdName, format = "GTiff")
-  lapply(c(aveName, sdName), function(ras){
-    drive_upload(ras, as_id("1lnM3Va3UklcGy_Swlc7AY1Ww7nImPYLM"))
-  })
-})
-
+source('~/GitHub/NWT/posthocFunctions/createCumEffRasters.R')
+createCumEffRasters()

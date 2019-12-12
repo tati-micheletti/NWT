@@ -29,16 +29,30 @@ makeAveragePlotTime <- function(dataFolder,
       # Plot(birdRasList)
       dt <- rbindlist(lapply(birdRasList, function(ras){
         if (!is.null(shp)){
-          browser() # Need to implement the shapefile to extract the averages and sd of specific areas here...
-          # Something like: extract(r.stack, poly, fun=mean, df=TRUE) https://gis.stackexchange.com/questions/237133/function-sample-code-to-extract-raster-value-per-polygon-in-r
+          shp2 <- projectInputs(x = shp, targetCRS = crs(ras))
+          library(sf)
+          shpSf <- st_as_sf(shp2)
+          shpSf$poly <- as.numeric(shpSf$OBJECTID)
+          rasPoly <- fasterize::fasterize(shpSf, raster = ras, field = "poly")
+          tb1 <- data.table(pixelID = 1:ncell(ras), val = getValues(ras), polyID = getValues(rasPoly))
+          dt <- data.table(species = usefun::substrBoth(strng = names(ras), 
+                                                        howManyCharacters = 4, fromEnd = FALSE), 
+                           scenarios = scen,
+                           polyID = setkey(na.omit(tb1[, mean(val, na.rm = TRUE), by = "polyID"]), "polyID")[["polyID"]],
+                           average = setkey(na.omit(tb1[, mean(val, na.rm = TRUE), by = "polyID"]), "polyID")[["V1"]], 
+                           std = setkey(na.omit(tb1[, sd(val, na.rm = TRUE), by = "polyID"]), "polyID")[["V1"]], 
+                           year = usefun::substrBoth(strng = names(ras), 
+                                                     howManyCharacters = 4, fromEnd = TRUE))
+      } else {
+          dt <- data.table(species = usefun::substrBoth(strng = names(ras), 
+                                                        howManyCharacters = 4, fromEnd = FALSE), 
+                           scenarios = scen,
+                           average = mean(ras[], na.rm = TRUE), 
+                           std = sd(ras[], na.rm = TRUE), 
+                           year = usefun::substrBoth(strng = names(ras), 
+                                                     howManyCharacters = 4, fromEnd = TRUE))
+          
         }
-        dt <- data.table(species = usefun::substrBoth(strng = names(ras), 
-                                                      howManyCharacters = 4, fromEnd = FALSE), 
-                         scenarios = scen,
-                         average = mean(ras[], na.rm = TRUE), 
-                         std = sd(ras[], na.rm = TRUE), 
-                         year = usefun::substrBoth(strng = names(ras), 
-                                                   howManyCharacters = 4, fromEnd = TRUE))
         return(dt)
       }))
       return(dt)

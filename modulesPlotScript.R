@@ -3,7 +3,7 @@ library("data.table")
 library("ggplot2")
 library("reproducible")
 
-urlTable <- "https://drive.google.com/open?id=1D2Ivr7vJ_u8C_RambOiG8elRb29IjCE9"
+urlTable <- "https://drive.google.com/open?id=15YIT0gf6UIpxVgeHGpvxcg2CPTcQjmsw"
 
 maxVersion <- 2
 dt <- reproducible::preProcess(url = urlTable, targetFile = "moduleStatusTable.csv", 
@@ -45,7 +45,7 @@ scale_fill_manual("Module's families", values = c("vegetation dynamics - LandR" 
                                                   "trends" = "#030077",
                                                   "harvesting" = "#88C95C", 
                                                   "hotspots" = "#5D5BA0", 
-                                                  "mountain pine beetle" = "#9B831A", 
+                                                  "insects" = "#9B831A", 
                                                   "carbon" = "#939393", 
                                                   "anthropogenic disturbances" = "#07051E"))
 p

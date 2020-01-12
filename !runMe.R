@@ -84,6 +84,7 @@ if (user %in% c("tmichele", "Tati")) {
 
 if (length(paths$modulePath) == 1) paths$modulePath <- c(paths$modulePath, file.path(paths$modulePath, "scfm/modules"))
 paths$outputPath <- checkPath(file.path(paths$outputPath, definedRun$whichRUN, replicateNumber), create = TRUE) # Redefine outputPath based on type of run
+originalOutputPath <- paths$outputPath
 
 if (pemisc::user() %in% c("Tati", "tmichele", "emcintir")) {
   setTempFolder(paths = paths, setTmpFolder = TRUE, usr = user)
@@ -254,6 +255,34 @@ defaultInitialSaveTime <- NA
 parameters <- list(
   #SCFM
   # ".progress" = list(type = "text", interval = 1),
+  LandR_speciesParameters = 
+    list("sppEquivCol"  = sppEquivCol,
+         "GAMMiterations" = 2, 
+         "GAMMknots" = list(
+           "Betu_Pap" = 3,
+           "Lari_Lar" = 4,
+           "Pice_Gla" = 3,
+           "Pice_Mar" = 4,
+           "Pinu_Ban" = 3,
+           "Popu_Tre" = 4),
+         "minimumPlotsPerGamm" = 40,
+         "constrainMortalityShape" = list(
+           "Betu_Pap" = c(15,25),
+           "Lari_Lar" = c(20,25),
+           "Pice_Gla" = c(15,25),
+           "Pice_Mar" = c(15,25),
+           "Pinu_Ban" = c(15,25),
+           "Popu_Tre" = c(15,25)
+         ),
+         "quantileAgeSubset" = list(
+           "Betu_Pap" = 95,
+           "Lari_Lar" = 95,
+           "Pice_Gla" = 95,
+           "Pice_Mar" = 95,
+           "Pinu_Ban" = 95,
+           "Popu_Tre" = 99
+         )
+    ),
   scfmLandcoverInit = list(
     ".plotInitialTime" = NA
   ),
@@ -281,7 +310,6 @@ parameters <- list(
   Boreal_LBMRDataPrep = list(
     "speciesUpdateFunction" = list(
       quote(LandR::speciesTableUpdate(sim$species, sim$speciesTable, sim$sppEquiv, P(sim)$sppEquivCol)),
-      quote(usefun::reviseSpeciesTraits(speciesTable = sim$species)),
       quote(usefun::changeTraits(speciesTable = sim$species, param = "seeddistance_max",
                                  facMult = 0.4, species = c("Betu_Pap", "Popu_Tre")))
     ),
@@ -390,18 +418,21 @@ if (runLandR){
             file = file.path(paths$outputPath, paste0(definedRun$whichRUN,
                                                       toupper(format(Sys.time(), "%d%b%y_%Hh%Mm%Ss")))))
     message(crayon::magenta(paste0("Saved simulations for ", definedRun$whichRUN, ". Elapsed time: ", Sys.time()-t2)))
-  }
-}
+rm(list = definedRun$whichRUN)
+gc()
+  } # End !runOnlySimInit
+} # End runLandR
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ BIRDS
 
 if (!exists("runBirds")) runBirds <- FALSE # Default if not provided
 if (runBirds){
   if (!exists("birdModelVersion")) birdModelVersion <- 6 # Default if not provided
-  predictionIntervals <- 30
+modRun <- future_lapply(birdModelVersion, function(bMod){ # [ FIX ] <~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ This won't work for more species!!!
+  predictionIntervals <- 20
   message(crayon::yellow(paste0("Starting simulations for BIRDS using ", definedRun$whichRUN, " ", definedRun$whichReplicate)))
 
-  # Passing the uplandsRaster here makes sure that all computers can use it as the operations 
+  # Passing the uplandsRaster here makes sure that all computers can use it as the operations
   # to derive it from the DUCK's layer take up a lot of memory
   uplandsRaster <- Cache(prepInputs, targetFile = "uplandsNWT250m.tif", studyArea = studyArea, rasterToMatch = rasterToMatch,
                               url = "https://drive.google.com/open?id=1EF67NCH7HqN6QZ0KGlpntB_Zcquu6NJe", 
@@ -419,7 +450,7 @@ if (runBirds){
       "useParallel" = FALSE, # Using parallel in windows is currently not working.
       "predictionInterval" = predictionIntervals,
       "quickLoad" = TRUE,
-      "version" = birdModelVersion, # VERSION 6 of the modules has both climate and vegetation as covariates for the model
+      "version" = bMod, # VERSION 6 of the modules has both climate and vegetation as covariates for the model
       "RCP" = RCP,
       "climateModel" = climateModelType,
       "ensemble" = ensemble,
@@ -439,24 +470,20 @@ if (runBirds){
 "for pixels were total biomas = 0). To fix this, save the object named 'sim$activePixelIndex' in the end of LBMR's init i.e. add to LBMR's Line 661-662 ",
 "saveRDS(sim$activePixelIndex, file = file.path(outputPath(sim), 'pixelsWithDataAtInitialization.rds'))"))
                                                   })))
-  modules <- list("birdsNWT", "comm_metricsNWT")
+  modules <- list("birdsNWT") # [ FIX ] <~~~~~~~~~~~~~~~~~ For second paper, add community metrics!
   
   invisible(sapply(X = list.files(file.path("/mnt/data/Micheletti/NWT/modules/birdsNWT/R/"), full.names = TRUE), FUN = source))
 
-  # [ FIX ] only because we already ran LandR previously. Needs to be commented out when doing the whole project at once
-  newInputPath <- gsub(x = paths$outputPath, pattern = toupper(format(Sys.time(), "%d%b%y")), replacement = "06DEC19")
-  newOutputPath <- gsub(x = paths$outputPath, pattern = toupper(format(Sys.time(), "%d%b%y")), replacement = "06DEC19")
-  setPaths(inputPath = newInputPath,
-           outputPath = newOutputPath)
+# [ FIX ] only because we already ran LandR previously. Needs to be commented out when doing the whole project at once
+#  newInputPath <- gsub(x = paths$outputPath, pattern = toupper(format(Sys.time(), "%d%b%y")), replacement = originalOutputPath)
+#  newOutputPath <- gsub(x = paths$outputPath, pattern = toupper(format(Sys.time(), "%d%b%y")), replacement = )
+  setPaths(inputPath = originalOutputPath)
   
-  if (runDynamic){
-    typeOfRun <- "dynamic"    
-    birdOutPath <- checkPath(file.path(paths$outputPath, 
+   birdOutPath <- checkPath(file.path(originalOutputPath, 
                                        paste0("birdPredictionsV", 
-                                              parameters[["birdsNWT"]][["version"]], typeOfRun)), create = TRUE)
+                                              parameters[["birdsNWT"]][["version"]])), create = TRUE)
     setPaths(outputPath = birdOutPath)
-    
-    assign(x = paste0(definedRun$whichRUN, "_birds_", typeOfRun), do.call(get(spadesFun), args = list(inputs = inputs,
+    assign(x = paste0(definedRun$whichRUN, "_birdsV", parameters[["birdsNWT"]][["version"]]), do.call(get(spadesFun), args = list(inputs = inputs,
                                                                                                       times = times,
                                                                                                       params = parameters,
                                                                                                       modules = modules,
@@ -464,45 +491,10 @@ if (runBirds){
                                                                                                       paths = getPaths(),
                                                                                                       loadOrder = unlist(modules),
                                                                                                       outputs = outputsLandR)))
-  }
-  
-  if (runClimateStatic){
-    parameters[["birdsNWT"]]$climateStatic <- TRUE
-    typeOfRun <- "climateStatic"
-    birdOutPath <- checkPath(file.path(paths$outputPath, 
-                                       paste0("birdPredictionsV", 
-                                              parameters[["birdsNWT"]][["version"]], typeOfRun)), create = TRUE)
-    setPaths(outputPath = birdOutPath)
-    
-    assign(x = paste0(definedRun$whichRUN, "_birds_", typeOfRun), do.call(get(spadesFun), args = list(inputs = inputs,
-                                                                                                    times = times,
-                                                                                                    params = parameters,
-                                                                                                    modules = modules,
-                                                                                                    objects = objects,
-                                                                                                    paths = getPaths(),
-                                                                                                    loadOrder = unlist(modules),
-                                                                                                    outputs = outputsLandR)))
-  }
-  
-if (runVegStatic){
-  parameters[["birdsNWT"]]$vegetationStatic <- TRUE
-  parameters[["birdsNWT"]]$climateStatic <- FALSE
+return(paste0("bird Model V", bMod))
 
-  typeOfRun <- "vegetationStatic"
-  birdOutPath <- checkPath(file.path(paths$outputPath,
-                                     paste0("birdPredictionsV",
-                                            parameters[["birdsNWT"]][["version"]], typeOfRun)), create = TRUE)
-  setPaths(outputPath = birdOutPath)
-  assign(x = paste0(definedRun$whichRUN, "_birds_", typeOfRun), do.call(get(spadesFun), args = list(inputs = inputs,
-                                                                                                    times = times,
-                                                                                                    params = parameters,
-                                                                                                    modules = modules,
-                                                                                                    objects = objects,
-                                                                                                    paths = getPaths(),
-                                                                                                    loadOrder = unlist(modules),
-                                                                                                    outputs = outputsLandR)))
-}
-}
+}) # End of lapply through bird models  
+} # End of run birds
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ CARIBOU
 
@@ -510,22 +502,23 @@ if (!exists("runCaribou")) runCaribou <- FALSE # Default if not provided
 if (runCaribou){
   message(crayon::white(paste0("Starting simulations for CARIBOUS using ", definedRun$whichRUN, " ", definedRun$whichReplicate)))
   invisible(sapply(X = list.files(file.path("/mnt/data/Micheletti/NWT/modules/caribouRSF/R/"), full.names = TRUE), FUN = source))
-  caribouOutPath <- checkPath(file.path(paths$outputPath, "caribouPredictions"), create = TRUE)
+  caribouOutPath <- checkPath(file.path(originalOutputPath, "caribouPredictions"), create = TRUE)
+
   setPaths(modulePath = paths$modulePath, 
            cachePath = paths$cachePath,
-           inputPath = paths$outputPath, 
+           inputPath = originalOutputPath, 
            outputPath = caribouOutPath)
   
-  # [ FIX ] only because we already ran LandR previously. Needs to be commented out when doing the whole project at once
-  newInputPath <- gsub(x = paths$outputPath, pattern = toupper(format(Sys.time(), "%d%b%y")), replacement = "06DEC19")
-  newOutputPath <- gsub(x = caribouOutPath, pattern = toupper(format(Sys.time(), "%d%b%y")), replacement = "06DEC19")
-  setPaths(inputPath = newInputPath,
-           outputPath = newOutputPath)
+# [ FIX ] only because we already ran LandR previously. Needs to be commented out when doing the whole project at once
+#  newInputPath <- gsub(x = paths$outputPath, pattern = toupper(format(Sys.time(), "%d%b%y")), replacement = "06DEC19")
+#  newOutputPath <- gsub(x = caribouOutPath, pattern = toupper(format(Sys.time(), "%d%b%y")), replacement = "06DEC19")
+#  setPaths(inputPath = newInputPath,
+#           outputPath = newOutputPath)
   
   parameters <- list(
     caribouRSF = list(
       "decidousSp" = c("Betu_Pap", "Popu_Tre", "Popu_Bal"),
-      "predictionInterval" = 30
+      "predictionInterval" = 20
     )
   )
   modules <- list("caribouRSF")

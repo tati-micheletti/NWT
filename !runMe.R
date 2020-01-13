@@ -84,7 +84,6 @@ if (user %in% c("tmichele", "Tati")) {
 
 if (length(paths$modulePath) == 1) paths$modulePath <- c(paths$modulePath, file.path(paths$modulePath, "scfm/modules"))
 paths$outputPath <- checkPath(file.path(paths$outputPath, definedRun$whichRUN, replicateNumber), create = TRUE) # Redefine outputPath based on type of run
-originalOutputPath <- paths$outputPath
 
 if (pemisc::user() %in% c("Tati", "tmichele", "emcintir")) {
   setTempFolder(paths = paths, setTmpFolder = TRUE, usr = user)
@@ -408,14 +407,14 @@ if (runLandR){
                                                    params = parameters,
                                                    modules = definedRun$modules,
                                                    objects = objects,
-                                                   paths = paths,
+                                                   paths = getPaths(),
                                                    loadOrder = unlist(definedRun$modules),
                                                    outputs = outputsLandR)))
   t2 <- Sys.time()
   message(crayon::green(paste0("Finished ", ifelse(runOnlySimInit, "simInit", "simulations")," for ", definedRun$whichRUN, ". Elapsed time: ", t2-t1)))
   if (!runOnlySimInit){
     saveRDS(object = get(definedRun$whichRUN),
-            file = file.path(paths$outputPath, paste0(definedRun$whichRUN,
+            file = file.path(getPaths()$outputPath, paste0(definedRun$whichRUN,
                                                       toupper(format(Sys.time(), "%d%b%y_%Hh%Mm%Ss")))))
     message(crayon::magenta(paste0("Saved simulations for ", definedRun$whichRUN, ". Elapsed time: ", Sys.time()-t2)))
 rm(list = definedRun$whichRUN)
@@ -423,12 +422,11 @@ gc()
   } # End !runOnlySimInit
 } # End runLandR
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ BIRDS
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ BIRDS MODEL 1
 
 if (!exists("runBirds")) runBirds <- FALSE # Default if not provided
 if (runBirds){
   if (!exists("birdModelVersion")) birdModelVersion <- 6 # Default if not provided
-modRun <- future_lapply(birdModelVersion, function(bMod){ # [ FIX ] <~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ This won't work for more species!!!
   predictionIntervals <- 20
   message(crayon::yellow(paste0("Starting simulations for BIRDS using ", definedRun$whichRUN, " ", definedRun$whichReplicate)))
 
@@ -438,6 +436,7 @@ modRun <- future_lapply(birdModelVersion, function(bMod){ # [ FIX ] <~~~~~~~~~~~
                               url = "https://drive.google.com/open?id=1EF67NCH7HqN6QZ0KGlpntB_Zcquu6NJe", 
                               destinationPath = getPaths()$inputPath, filename2 = NULL, 
                          userTags = c("objectName:uplandsRaster", "goal:modelBirds"), omitArgs = c("userTags", "destinationPath"))
+  bMod <- ifelse(length(birdModelVersion) == 1, birdModelVersion, birdModelVersion[1])
   parameters <- list(
     birdsNWT = list(
       "lowMem" = TRUE,
@@ -463,7 +462,7 @@ modRun <- future_lapply(birdModelVersion, function(bMod){ # [ FIX ] <~~~~~~~~~~~
   objects <- c(objects, list(
     "birdsList" = c("CAWA", "OSFL", "RUBL"), # [ FIX ] <~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ For second paper, just remove this line!"BBWA", "WEWP", 
     "uplandsRaster" = uplandsRaster,
-    "pixelsWithDataAtInitialization" = tryCatch(readRDS(file.path(paths$inputPath, "pixelsWithDataAtInitialization.rds")), 
+    "pixelsWithDataAtInitialization" = tryCatch(readRDS(file.path(getPaths()$inputPath, "pixelsWithDataAtInitialization.rds")), 
                                                 error = function(e){
                                                   warning(paste0("The pixelsWithDataAtInitialization.rds object was not found. Returning NULL.",
 "This will affect bird predictions for the NWT (i.e. density will not be predicted",
@@ -474,15 +473,25 @@ modRun <- future_lapply(birdModelVersion, function(bMod){ # [ FIX ] <~~~~~~~~~~~
   
   invisible(sapply(X = list.files(file.path("/mnt/data/Micheletti/NWT/modules/birdsNWT/R/"), full.names = TRUE), FUN = source))
 
-# [ FIX ] only because we already ran LandR previously. Needs to be commented out when doing the whole project at once
-#  newInputPath <- gsub(x = paths$outputPath, pattern = toupper(format(Sys.time(), "%d%b%y")), replacement = originalOutputPath)
-#  newOutputPath <- gsub(x = paths$outputPath, pattern = toupper(format(Sys.time(), "%d%b%y")), replacement = )
-  setPaths(inputPath = originalOutputPath)
-  
-   birdOutPath <- checkPath(file.path(originalOutputPath, 
+#[ FIX ] only because we already ran LandR previously. Needs to be commented out when doing the whole project at once
+  if (all(runLandR == FALSE)){
+    if (is.null(originalDateAnalysis)) stop("If runLandR == FALSE you need to pass the date for the analysis (i.e. where LandR results are)")
+    newInputPath <- gsub(x = getPaths()$outputPath, pattern = toupper(format(Sys.time(), "%d%b%y")), replacement = originalDateAnalysis)
+    newOutputPath <- gsub(x = getPaths()$outputPath, pattern = toupper(format(Sys.time(), "%d%b%y")), replacement = originalDateAnalysis)
+    setPaths(inputPath = newInputPath,
+             outputPath = newOutputPath)
+    birdOutPath <- checkPath(file.path(newOutputPath, 
                                        paste0("birdPredictionsV", 
                                               parameters[["birdsNWT"]][["version"]])), create = TRUE)
     setPaths(outputPath = birdOutPath)
+  } else {
+    birdOutPath <- checkPath(file.path(getPaths()$outputPath, 
+                                       paste0("birdPredictionsV", 
+                                              parameters[["birdsNWT"]][["version"]])), create = TRUE)
+    setPaths(inputPath = getPaths()$outputPath,
+             outputPath = birdOutPath)
+  }
+  
     assign(x = paste0(definedRun$whichRUN, "_birdsV", parameters[["birdsNWT"]][["version"]]), do.call(get(spadesFun), args = list(inputs = inputs,
                                                                                                       times = times,
                                                                                                       params = parameters,
@@ -491,9 +500,35 @@ modRun <- future_lapply(birdModelVersion, function(bMod){ # [ FIX ] <~~~~~~~~~~~
                                                                                                       paths = getPaths(),
                                                                                                       loadOrder = unlist(modules),
                                                                                                       outputs = outputsLandR)))
-return(paste0("bird Model V", bMod))
-
-}) # End of lapply through bird models  
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ BIRDS MODEL 2
+    
+    if (length(birdModelVersion) > 1){ # Run a second bird model
+      bMod <- birdModelVersion[2]
+      parameters <- list(
+        birdsNWT = list(
+          "version" = bMod
+        )
+      )
+      birdOutPath <- checkPath(file.path(dirname(getPaths()$outputPath), 
+                                         paste0("birdPredictionsV", 
+                                                parameters[["birdsNWT"]][["version"]])), create = TRUE)
+      setPaths(outputPath = birdOutPath)
+      assign(x = paste0(definedRun$whichRUN, "_birdsV",
+                        parameters[["birdsNWT"]][["version"]]),
+             do.call(
+               get(spadesFun),
+               args = list(
+                 inputs = inputs,
+                 times = times,
+                 params = parameters,
+                 modules = modules,
+                 objects = objects,
+                 paths = getPaths(),
+                 loadOrder = unlist(modules),
+                 outputs = outputsLandR
+               )
+             ))
+    } # End of second bird model
 } # End of run birds
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ CARIBOU
@@ -501,20 +536,25 @@ return(paste0("bird Model V", bMod))
 if (!exists("runCaribou")) runCaribou <- FALSE # Default if not provided
 if (runCaribou){
   message(crayon::white(paste0("Starting simulations for CARIBOUS using ", definedRun$whichRUN, " ", definedRun$whichReplicate)))
+  if (all(runLandR == FALSE, runBirds == FALSE)){
+    if (is.null(originalDateAnalysis)) stop("If runLandR == FALSE you need to pass the date for the analysis (i.e. where LandR results are)")
+    newInputPath <- gsub(x = paths$outputPath, pattern = toupper(format(Sys.time(), "%d%b%y")), replacement = originalDateAnalysis)
+    newOutputPath <- gsub(x = paths$outputPath, pattern = toupper(format(Sys.time(), "%d%b%y")), replacement = originalDateAnalysis)
+    setPaths(inputPath = newInputPath,
+             outputPath = newOutputPath)
+  } else {
+    if (runBirds == TRUE){ # input path is correct, independently if I ran LandR before birds
+      caribouOutPath <- checkPath(file.path(dirname(getPaths()$outputPath), "caribouPredictions", create = TRUE))
+      setPaths(outputPath = caribouOutPath)
+    } else { # only if I didn't run birds, only LandR
+      caribouOutPath <- checkPath(file.path(dirname(getPaths()$outputPath), "caribouPredictions", create = TRUE))
+      setPaths(inputPath = getPaths()$outputPath,
+               outputPath = birdOutPath)
+    }
+  }
+    
   invisible(sapply(X = list.files(file.path("/mnt/data/Micheletti/NWT/modules/caribouRSF/R/"), full.names = TRUE), FUN = source))
-  caribouOutPath <- checkPath(file.path(originalOutputPath, "caribouPredictions"), create = TRUE)
 
-  setPaths(modulePath = paths$modulePath, 
-           cachePath = paths$cachePath,
-           inputPath = originalOutputPath, 
-           outputPath = caribouOutPath)
-  
-# [ FIX ] only because we already ran LandR previously. Needs to be commented out when doing the whole project at once
-#  newInputPath <- gsub(x = paths$outputPath, pattern = toupper(format(Sys.time(), "%d%b%y")), replacement = "06DEC19")
-#  newOutputPath <- gsub(x = caribouOutPath, pattern = toupper(format(Sys.time(), "%d%b%y")), replacement = "06DEC19")
-#  setPaths(inputPath = newInputPath,
-#           outputPath = newOutputPath)
-  
   parameters <- list(
     caribouRSF = list(
       "decidousSp" = c("Betu_Pap", "Popu_Tre", "Popu_Bal"),

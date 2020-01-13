@@ -462,6 +462,7 @@ if (runBirds){
   objects <- c(objects, list(
     "birdsList" = c("CAWA", "OSFL", "RUBL"), # [ FIX ] <~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ For second paper, just remove this line!"BBWA", "WEWP", 
     "uplandsRaster" = uplandsRaster,
+    "climateDataFolder" = getPaths()$inputPath,
     "pixelsWithDataAtInitialization" = tryCatch(readRDS(file.path(getPaths()$inputPath, "pixelsWithDataAtInitialization.rds")), 
                                                 error = function(e){
                                                   warning(paste0("The pixelsWithDataAtInitialization.rds object was not found. Returning NULL.",

@@ -30,8 +30,8 @@ invisible(lapply(paste0("/mnt/data/Micheletti/NWT/posthocFunctions/", c("plotMax
                                                               "plotBurnSummary.R",
                                                               "disturbancePlotCaribou.R")), source))
 
-CSfolder <- "outputs/23OCT19/LandR.CS_fS/run1"
-typeSim <- "CS"
+CSfolder <- "outputs/10JAN20/LandR_SCFM/run1"
+typeSim <- "noCS"
 
 # biomassPerSpecies_1 <- totalBiomassPerSpecies(folderData = paste0(CSfolder, "1"), typeSim = paste0(typeSim, "1"))
 # biomassPerSpecies_2 <- totalBiomassPerSpecies(folderData = paste0(CSfolder, "2"), typeSim = paste0(typeSim, "2"))
@@ -42,11 +42,14 @@ typeSim <- "CS"
 # biomassPerSpecies_7 <- totalBiomassPerSpecies(folderData = paste0(CSfolder, "7"), typeSim = paste0(typeSim, "7"))
 # biomassPerSpecies_8 <- totalBiomassPerSpecies(folderData = paste0(CSfolder, "8"), typeSim = paste0(typeSim, "8"))
 
-leadVegType <- plotLeadingVegetationType(folderData = CSfolder, typeSim = typeSim, years = c(seq(2001, 2091, by = 10), 2100))
+leadVegType <- plotLeadingVegetationType(CSfolder, typeSim = typeSim)
 maxAge <- plotMaxAge(folderData = CSfolder, typeSim = typeSim, years = c(seq(2001, 2091, by = 10), 2100))
-maxBiomass <- plotVegetationBiomass(folderData = CSfolder, typeSim = typeSim, years = c(seq(2001, 2091, by = 10), 2100))
-biomassPerSpecies <- totalBiomassPerSpecies(folderData = CSfolder, years = c(seq(2001, 2091, by = 10), 2100),
-                                                typeSim = typeSim)
+# maxBiomass <- plotVegetationBiomass(dataPath = CSfolder, typeSim = typeSim, years = c(seq(2001, 2091, by = 10), 2100))
+biomassPerSpecies <- totalBiomassPerSpecies(dataPath =  CSfolder, typeSim = typeSim, proportional = FALSE, overstory = TRUE)
+biomassPerSpeciesProp <- totalBiomassPerSpecies(dataPath =  CSfolder, typeSim = typeSim, proportional = TRUE, overstory = TRUE)
+biomassPerSpeciesAll <- totalBiomassPerSpecies(dataPath =  CSfolder, typeSim = typeSim, proportional = FALSE, overstory = FALSE, overwrite = TRUE)
+biomassPerSpeciesPropAll <- totalBiomassPerSpecies(dataPath =  CSfolder, typeSim = typeSim, proportional = TRUE, overstory = FALSE)
+
 biomassPerSpeciesProp <- totalBiomassPerSpecies(folderData = CSfolder, years = c(seq(2001, 2091, by = 10), 2100),
                                                     typeSim = typeSim, proportional = TRUE)
 burnSumm <- plotBurnSummary(CSfolder, typeSim = typeSim, lastYear = 2100) # theObject = LandR.CS_fS$burnSummary # if we have the object

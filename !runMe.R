@@ -505,11 +505,7 @@ if (runBirds){
     
     if (length(birdModelVersion) > 1){ # Run a second bird model
       bMod <- birdModelVersion[2]
-      parameters <- list(
-        birdsNWT = list(
-          "version" = bMod
-        )
-      )
+      parameters[["birdsNWT"]][["version"]] <- bMod
       birdOutPath <- checkPath(file.path(dirname(getPaths()$outputPath), 
                                          paste0("birdPredictionsV", 
                                                 parameters[["birdsNWT"]][["version"]])), create = TRUE)

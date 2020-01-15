@@ -541,10 +541,10 @@ if (runCaribou){
              outputPath = newOutputPath)
   } else {
     if (runBirds == TRUE){ # input path is correct, independently if I ran LandR before birds
-      caribouOutPath <- checkPath(file.path(dirname(getPaths()$outputPath), "caribouPredictions", create = TRUE))
+      caribouOutPath <- checkPath(file.path(dirname(getPaths()$outputPath), "caribouPredictions"), create = TRUE)
       setPaths(outputPath = caribouOutPath)
     } else { # only if I didn't run birds, only LandR
-      caribouOutPath <- checkPath(file.path(dirname(getPaths()$outputPath), "caribouPredictions", create = TRUE))
+      caribouOutPath <- checkPath(file.path(dirname(getPaths()$outputPath), "caribouPredictions"), create = TRUE)
       setPaths(inputPath = getPaths()$outputPath,
                outputPath = birdOutPath)
     }

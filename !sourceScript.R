@@ -8,7 +8,7 @@
 runOnlySimInit <- FALSE # TRUE to run experiment, FALSE to run simulations individually
 
 # LandR.CS + fireSense
-replicateNumber <- "run2"
+replicateNumber <- "run6"
 vegetation <- "LandR.CS"
 fire <- "fS"
 runLandR <- TRUE
@@ -18,7 +18,7 @@ birdModelVersion <- c(4, 6)
 source("!runMe.R") # PURPLE
 
 # LandR.CS + SCFM
-replicateNumber <- "run3"
+replicateNumber <- "run6"
 vegetation <- "LandR.CS"
 fire <- "SCFM"
 runLandR <- TRUE
@@ -28,7 +28,7 @@ birdModelVersion <- c(4, 6)
 source("!runMe.R") # BLUE
 
 # LandR + SCFM
-replicateNumber <- "run2"
+replicateNumber <- "run6"
 vegetation <- "LandR"
 fire <- "SCFM"
 runLandR <- TRUE
@@ -38,7 +38,7 @@ birdModelVersion <- c(4, 6)
 source("!runMe.R") # GREEN
 
 # LandR + fS
-replicateNumber <- "run2"
+replicateNumber <- "run6"
 vegetation <- "LandR"
 fire <- "fS"
 runLandR <- TRUE

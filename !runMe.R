@@ -84,6 +84,7 @@ if (user %in% c("tmichele", "Tati")) {
 
 if (length(paths$modulePath) == 1) paths$modulePath <- c(paths$modulePath, file.path(paths$modulePath, "scfm/modules"))
 paths$outputPath <- checkPath(file.path(paths$outputPath, definedRun$whichRUN, replicateNumber), create = TRUE) # Redefine outputPath based on type of run
+paths$outputPath <- gsub(x = paths$outputPath, pattern = toupper(format(Sys.time(), "%d%b%y")), replacement = "PAPER") # Added on 16th Jan after checking all went well.
 
 if (pemisc::user() %in% c("Tati", "tmichele", "emcintir")) {
   setTempFolder(paths = paths, setTmpFolder = TRUE, usr = user)
@@ -293,9 +294,9 @@ parameters <- list(
     ".plotInterval" = defaultPlotInterval,
     ".saveInitialTime" = defaultInitialSaveTime,
     ".saveInterval" = defaultInterval),
-  scfmRegime = list(fireCause = "L"), #c("L", "H")
+  scfmRegime = list(fireCause = "L"),
   scfmDriver = list(
-    targetN = 1000), # 1500 # don't .useCache = "init" # too long
+    targetN = 1000),
   # LandR_Biomass
   LBMR = list(
     "successionTimestep" = 10,

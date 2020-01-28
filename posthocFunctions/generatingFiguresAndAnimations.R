@@ -1,57 +1,45 @@
 # Generating plots for NWT project
 
+# FOLDERS: PAPER
+LandR.CS_fS <- "1EJ7ym5TQp5JPmyWyYupjc9QXHNRUBQji"
+LandR_SCFM <- "1H9Cs1L5mW186SxbRKqXiD_T1mL0jUM_j"
+
+caribou <- "1Oz_DFqhOeIOl-nXEVGfYAssE68iCg40R"
+birds <- "1ymCZq7cPfXB2hA6rDpRd6J3lYkioQJxZ"
+
 # GOOGLE FOLDER SAM_RESULTS_JUNE
-fl <- usefun::grepMulti(x = list.files("/mnt/data/Micheletti/NWT/outputs/18JUL19/birdPredictionsV3_Fixed", 
-                                       full.names = TRUE), patterns = c("predicted"))
+fl <- grepMulti(x = list.files("/mnt/data/Micheletti/NWT/outputs/PAPER/LandR_SCFM/run1", 
+                                       full.names = TRUE), patterns = paste("RAS_", "Climate", sep = "|"),
+                unwanted = ".aux")
+
+
 lapply(fl, function(ras){
-  googledrive::drive_upload("/mnt/data/Micheletti/NWT/outputs/30JUL19//comparisonrelative.png",
-                            path = googledrive::as_id("1ZAT58duMpetvoweR6yHBnXDDhbEuQAVP"))
+  googledrive::drive_upload(ras, path = googledrive::as_id(LandR_SCFM))
 })
-# 1rLON4rDbvjbq-hHnAqFVXvehPQ-AcOkj
-# googledrive::drive_upload(file.path(folderPath, paste0("biomassMapStack_", simul, ".png")),
-#                           path = googledrive::as_id("1zDHy3JzN3BpNE0mm_iMOSrQqlI87tqTL"))
 
 # ~~~~~~~~~~~~~~~~~ BIOMASS
-# NWT_CS <- readRDS("/mnt/data/Micheletti/NWT/outputs/14JUL19/NWT_CS_fS_14JUL19")
-# NWT_noCS <- readRDS("/mnt/data/Micheletti/NWT/outputs/12JUL19/NWT_noCS_fS13JUL19")
-
-# noCS <- "12JUL19"
-# CS <- "14JUL19", "18JUL19/run1", "18JUL19/run2", "10JUL19"?
 
 library("usefun")
 library("LandR")
 library("reproducible")
 library("data.table")
 library("raster")
-invisible(lapply(paste0("/mnt/data/Micheletti/NWT/posthocFunctions/", c("plotMaxAge.R",
-                                                              "plotVegetationBiomass.R",
-                                                              "plotLeadingVegetationType.R",
-                                                              "totalBiomassPerSpecies.R",
-                                                              "plotBurnSummary.R",
-                                                              "disturbancePlotCaribou.R")), source))
+# invisible(source("/mnt/data/Micheletti/NWT/posthocFunctions/disturbancePlotCaribou.R"))
 
-CSfolder <- "outputs/10JAN20/LandR_SCFM/run1"
-typeSim <- "noCS"
+CSfolder <- "outputs/PAPER/LandR_SCFM/run1"
+typeSim <- "NonClimateSensitive"
 
-# biomassPerSpecies_1 <- totalBiomassPerSpecies(folderData = paste0(CSfolder, "1"), typeSim = paste0(typeSim, "1"))
-# biomassPerSpecies_2 <- totalBiomassPerSpecies(folderData = paste0(CSfolder, "2"), typeSim = paste0(typeSim, "2"))
-# biomassPerSpecies_3 <- totalBiomassPerSpecies(folderData = paste0(CSfolder, "3"), typeSim = paste0(typeSim, "3"))
-# biomassPerSpecies_4 <- totalBiomassPerSpecies(folderData = paste0(CSfolder, "4"), typeSim = paste0(typeSim, "4"))
-# biomassPerSpecies_5 <- totalBiomassPerSpecies(folderData = paste0(CSfolder, "5"), typeSim = paste0(typeSim, "5"))
-# biomassPerSpecies_6 <- totalBiomassPerSpecies(folderData = paste0(CSfolder, "6"), typeSim = paste0(typeSim, "6"))
-# biomassPerSpecies_7 <- totalBiomassPerSpecies(folderData = paste0(CSfolder, "7"), typeSim = paste0(typeSim, "7"))
-# biomassPerSpecies_8 <- totalBiomassPerSpecies(folderData = paste0(CSfolder, "8"), typeSim = paste0(typeSim, "8"))
-
-leadVegType <- plotLeadingVegetationType(CSfolder, typeSim = typeSim)
-maxAge <- plotMaxAge(folderData = CSfolder, typeSim = typeSim, years = c(seq(2001, 2091, by = 10), 2100))
-# maxBiomass <- plotVegetationBiomass(dataPath = CSfolder, typeSim = typeSim, years = c(seq(2001, 2091, by = 10), 2100))
-biomassPerSpecies <- totalBiomassPerSpecies(dataPath =  CSfolder, typeSim = typeSim, proportional = FALSE, overstory = TRUE)
-biomassPerSpeciesProp <- totalBiomassPerSpecies(dataPath =  CSfolder, typeSim = typeSim, proportional = TRUE, overstory = TRUE)
-biomassPerSpeciesAll <- totalBiomassPerSpecies(dataPath =  CSfolder, typeSim = typeSim, proportional = FALSE, overstory = FALSE, overwrite = TRUE)
-biomassPerSpeciesPropAll <- totalBiomassPerSpecies(dataPath =  CSfolder, typeSim = typeSim, proportional = TRUE, overstory = FALSE)
-
-biomassPerSpeciesProp <- totalBiomassPerSpecies(folderData = CSfolder, years = c(seq(2001, 2091, by = 10), 2100),
-                                                    typeSim = typeSim, proportional = TRUE)
+leadVegType <- usefun::plotLeadingVegetationType(dataPath = CSfolder, typeSim = typeSim, saveRAS = TRUE)
+maxBiomass <- usefun::plotVegetationBiomass(dataPath = CSfolder, typeSim = typeSim,
+                                            saveRAS = TRUE, colNA = "white")
+biomassPerSpecies <- totalBiomassPerSpecies(dataPath =  CSfolder, typeSim = typeSim, 
+                                            proportional = FALSE, overstory = TRUE)
+biomassPerSpeciesProp <- totalBiomassPerSpecies(dataPath =  CSfolder, typeSim = typeSim, 
+                                                proportional = TRUE, overstory = TRUE)
+biomassPerSpeciesAll <- totalBiomassPerSpecies(dataPath =  CSfolder, typeSim = typeSim, 
+                                               proportional = FALSE, overstory = FALSE)
+biomassPerSpeciesPropAll <- totalBiomassPerSpecies(dataPath =  CSfolder, typeSim = typeSim, 
+                                                   proportional = TRUE, overstory = FALSE)
 burnSumm <- plotBurnSummary(CSfolder, typeSim = typeSim, lastYear = 2100) # theObject = LandR.CS_fS$burnSummary # if we have the object
 disturbPlot <- forestAgePlot(CSfolder, typeSim = typeSim)
 
@@ -59,7 +47,7 @@ disturbPlot <- forestAgePlot(CSfolder, typeSim = typeSim)
 # createBurnSummary(folderData = CSfolder, typeSim = typeSim)
 
 # source('/mnt/data/Micheletti/NWT/posthocFunctions/makeAllPlots.R') # NEVER RUN ALL REPETITIONS AT ONCE!
-# run7 <- makeAllPlots(CSfolder = "30JUL19/run7", typeSim = "CS_run7")
+# run1 <- makeAllPlots(CSfolder = "", typeSim = "CS_run1") # OUTDATED!
 
 # ~~~~~~~~~~~~~~~~~~~~ COMPARISON EDEhzhie # 
 # TODO: This one will be done for paper2 

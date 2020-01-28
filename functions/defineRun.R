@@ -1,14 +1,17 @@
 defineRun <- function(replicateNumber = NULL, vegetation = "LandR.CS", fire = "fS"){ # vegetation = "LandR"; fire = "SCFM"
   
  LandR <-c("Boreal_LBMRDataPrep",
+           "PSP_Clean", # New parameters
+           "LandR_speciesParameters", # New parameters
            "Biomass_regeneration",
            "LBMR")
  
  LandR.CS <- c("Boreal_LBMRDataPrep",
+               "PSP_Clean", # New parameters
+               "LandR_speciesParameters", # New parameters
                "Biomass_regeneration",
                "LBMR",
                # CS
-               "PSP_Clean",
                "gmcsDataPrep")
  
  fS <- c("fireSense_NWT_DataPrep",

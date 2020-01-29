@@ -9,7 +9,7 @@ createCumEffRasters <- function(species = c("CAWA", "OSFL", "RUBL"),
   library(usefun)
   plan("multicore")
   
-  future_lapply(species, function(SP){
+  lapply(species, function(SP){ #future_
     birdsPaths <- grepMulti(list.files(rasFolder, full.names = TRUE),
                             patterns = c("cumulativeEffect", SP, "delta.tif"))
     SP <- stack(lapply(birdsPaths, function(pths){
@@ -19,6 +19,7 @@ createCumEffRasters <- function(species = c("CAWA", "OSFL", "RUBL"),
     })
     )
     message("Calculating averaged cummulative effects...")
+    browser()
     averageSP <- calc(SP, fun = mean)
     names(averageSP) <- paste0("averageDelta", SP, ".tif")
     message("Calculating deviation cummulative effects...")

@@ -67,20 +67,16 @@ title("Polygons in the BCR6 NWT")
 
 # <---- HERE (for the workshop), but first, re-run everything here with ALL 5 runs for all of them! Still need to fix below... Need to lapply to create these!
 library(SpaDES)
-source('/mnt/data/Micheletti/NWT/modules/rastersPosthoc/R/makeDeltaRasters.R')
+# source('/mnt/data/Micheletti/NWT/modules/rastersPosthoc/R/makeDeltaRasters.R')
 pth <- checkPath(file.path(getwd(), "outputs/PAPER/"))
 runs <- paste0("run", seq(1, 5))
-# species <- "bird"
-# filename <- ""
 CC <- c("LandR.CS_fS", "V6")
 noCC <- c("LandR_SCFM", "V4")
 yearToCompare <- 2100
-# individualSpecies <- c("CAWA", "OSFL", "RUBL")
 
 library(raster)
 
-lapply(runs, function(RUN){
-  
+listOfRasters <- lapply(runs, function(RUN){
   listOfRasterPaths <- list(CAWA = stack(raster(file.path(pth, paste0(noCC[1], "/", RUN, "/birdPredictions", noCC[2], "/", #Path
                                                  paste0(RUN, "_", noCC[1],"predictedCAWAYear", yearToCompare,".tif")))), #filename
                     raster(file.path(pth, paste0(CC[1], "/", RUN, "/birdPredictions", CC[2], "/", #Path
@@ -94,10 +90,16 @@ lapply(runs, function(RUN){
                     raster(file.path(pth, paste0(CC[1], "/", RUN, "/birdPredictions", CC[2], "/", #Path
                                                  paste0(RUN, "_", CC[1],"predictedRUBLYear", yearToCompare,".tif"))))))
   
-  names(listOfRasterPaths) <- paste0("cumulativeEffect_", RUN)
-  foldID <- list("1lnM3Va3UklcGy_Swlc7AY1Ww7nImPYLM")
-  names(foldID) <- paste0("cumulativeEffect_", RUN)  
-  
+  names(listOfRasterPaths) <- c("CAWA", "OSFL", "RUBL")
+  return(listOfRasterPaths)
+# browser()
+})
+names(listOfRasters) <- paste0("cumulativeEffect_", runs)
+
+foldID <- list(rep("1ymCZq7cPfXB2hA6rDpRd6J3lYkioQJxZ", times = length(runs)))
+names(foldID) <- paste0("cumulativeEffect_", runs)
+
+
   dRas <- makeDeltaRasters(listOfRasters = listOfRasters,
                            relativeDelta = FALSE,
                            outputFolder = file.path(pth, "effectsRasters"),
@@ -105,37 +107,6 @@ lapply(runs, function(RUN){
                            overwrite = FALSE,
                            upload = TRUE,
                            folderID = foldID)
-})
-
-listOfRasters <- list(cumulativeEffect2_abs = list(CAWA = stack(raster("/mnt/data/Micheletti/NWT/outputs/06DEC19/LandR_SCFM/run3/birdPredictionsV4dynamic/run2_LandR_SCFMpredictedCAWAYear2100.tif"),
-                                                               raster("/mnt/data/Micheletti/NWT/outputs/06DEC19/LandR.CS_fS/run3/birdPredictionsV6dynamic/run2_LandR.CS_fSpredictedCAWAYear2100.tif")),
-                                                  OSFL = stack(raster("/mnt/data/Micheletti/NWT/outputs/06DEC19/LandR_SCFM/run3/birdPredictionsV4dynamic/run2_LandR_SCFMpredictedOSFLYear2100.tif"),
-                                                               raster("/mnt/data/Micheletti/NWT/outputs/06DEC19/LandR.CS_fS/run3/birdPredictionsV6dynamic/run2_LandR.CS_fSpredictedOSFLYear2100.tif")),
-                                                  RUBL = stack(raster("/mnt/data/Micheletti/NWT/outputs/06DEC19/LandR_SCFM/run3/birdPredictionsV4dynamic/run2_LandR_SCFMpredictedRUBLYear2100.tif"),
-                                                               raster("/mnt/data/Micheletti/NWT/outputs/06DEC19/LandR.CS_fS/run3/birdPredictionsV6dynamic/run2_LandR.CS_fSpredictedRUBLYear2100.tif"))))
-
-dRas <- makeDeltaRasters(listOfRasters = listOfRasters,
-                         relativeDelta = FALSE,
-                         outputFolder = pth,
-                         lightLoad = TRUE,
-                         overwrite = FALSE,
-                         upload = TRUE,
-                         folderID = list(cumulativeEffect2_abs = "1lnM3Va3UklcGy_Swlc7AY1Ww7nImPYLM"))
-
-assign(listOfRasters, list(cumulativeEffect_, RUN,_abs = list(CAWA = stack(raster("/mnt/data/Micheletti/NWT/outputs/06DEC19/LandR_SCFM/run1/birdPredictionsV4dynamic/run1_LandR_SCFMpredictedCAWAYear2100.tif"),
-                                                                raster("/mnt/data/Micheletti/NWT/outputs/06DEC19/LandR.CS_fS/run1/birdPredictionsV6dynamic/run1_LandR.CS_fSpredictedCAWAYear2100.tif")),
-                                                   OSFL = stack(raster("/mnt/data/Micheletti/NWT/outputs/06DEC19/LandR_SCFM/run1/birdPredictionsV4dynamic/run1_LandR_SCFMpredictedOSFLYear2100.tif"),
-                                                                raster("/mnt/data/Micheletti/NWT/outputs/06DEC19/LandR.CS_fS/run1/birdPredictionsV6dynamic/run1_LandR.CS_fSpredictedOSFLYear2100.tif")),
-                                                   RUBL = stack(raster("/mnt/data/Micheletti/NWT/outputs/06DEC19/LandR_SCFM/run1/birdPredictionsV4dynamic/run1_LandR_SCFMpredictedRUBLYear2100.tif"),
-                                                                raster("/mnt/data/Micheletti/NWT/outputs/06DEC19/LandR.CS_fS/run1/birdPredictionsV6dynamic/run1_LandR.CS_fSpredictedRUBLYear2100.tif"))))
-
-dRas <- makeDeltaRasters(listOfRasters = listOfRasters,
-                         relativeDelta = FALSE,
-                         outputFolder = pth,
-                         lightLoad = TRUE,
-                         overwrite = FALSE,
-                         upload = TRUE,
-                         folderID = list(cumulativeEffect1_abs = "1lnM3Va3UklcGy_Swlc7AY1Ww7nImPYLM"))
 
 source('~/GitHub/NWT/posthocFunctions/createCumEffRasters.R')
 createCumEffRasters()

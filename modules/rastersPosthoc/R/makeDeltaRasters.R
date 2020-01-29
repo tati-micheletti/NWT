@@ -4,10 +4,11 @@ makeDeltaRasters <- function(listOfRasters,
                              outputFolder, lightLoad = TRUE,
                              overwrite = FALSE,
                              upload = FALSE,
-                             folderID = NULL){
+                             folderID = NULL,
+                             email = NULL){
   library(future)
   library(future.apply)
-  rastersOrganized <- future_lapply(X = names(listOfRasters), function(eachSimulation){ #
+  rastersOrganized <- future_lapply(X = names(listOfRasters), function(eachSimulation){ 
     groupFiles <- lapply(X = names(listOfRasters[[eachSimulation]]), FUN = function(eachGroup){
       currentGroupsRas <- listOfRasters[[eachSimulation]][[eachGroup]]
       firstRas <- currentGroupsRas[[1]]
@@ -34,6 +35,7 @@ makeDeltaRasters <- function(listOfRasters,
         # have bird model version, which is not identical to the folderID 
         # ie. eachSimulation = "LandR.CS_SCFM_V6" while names(folderID)[2] = "LandR.CS_SCFM"
         simulFolder <- names(folderID)[which(!is.na(pmatch(names(folderID), eachSimulation)))]
+        googledrive::drive_auth(email)
         googledrive::drive_upload(rasName, path = googledrive::as_id(folderID[[simulFolder]]))
       }
       if (lightLoad){

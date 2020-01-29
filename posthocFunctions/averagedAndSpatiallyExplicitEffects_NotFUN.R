@@ -64,10 +64,7 @@ legend("right",   # location of legend
       fill = pal) # color palette to use to fill objects in legend.
 title("Polygons in the BCR6 NWT")
 
-
-# <---- HERE (for the workshop), but first, re-run everything here with ALL 5 runs for all of them! Still need to fix below... Need to lapply to create these!
 library(SpaDES)
-# source('/mnt/data/Micheletti/NWT/modules/rastersPosthoc/R/makeDeltaRasters.R')
 pth <- checkPath(file.path(getwd(), "outputs/PAPER/"))
 runs <- paste0("run", seq(1, 5))
 CC <- c("LandR.CS_fS", "V6")
@@ -76,6 +73,7 @@ yearToCompare <- 2100
 
 library(raster)
 
+# BIRDS!!
 listOfRasters <- lapply(runs, function(RUN){
   listOfRasterPaths <- list(CAWA = stack(raster(file.path(pth, paste0(noCC[1], "/", RUN, "/birdPredictions", noCC[2], "/", #Path
                                                  paste0(RUN, "_", noCC[1],"predictedCAWAYear", yearToCompare,".tif")))), #filename
@@ -92,21 +90,60 @@ listOfRasters <- lapply(runs, function(RUN){
   
   names(listOfRasterPaths) <- c("CAWA", "OSFL", "RUBL")
   return(listOfRasterPaths)
-# browser()
 })
 names(listOfRasters) <- paste0("cumulativeEffect_", runs)
 
-foldID <- list(rep("1ymCZq7cPfXB2hA6rDpRd6J3lYkioQJxZ", times = length(runs)))
+foldID <- as.list(c(rep("1ymCZq7cPfXB2hA6rDpRd6J3lYkioQJxZ", times = 5)))
 names(foldID) <- paste0("cumulativeEffect_", runs)
 
-
+source('/mnt/data/Micheletti/NWT/modules/rastersPosthoc/R/makeDeltaRasters.R')
   dRas <- makeDeltaRasters(listOfRasters = listOfRasters,
                            relativeDelta = FALSE,
                            outputFolder = file.path(pth, "effectsRasters"),
                            lightLoad = TRUE,
                            overwrite = FALSE,
                            upload = TRUE,
-                           folderID = foldID)
+                           folderID = foldID,
+                           email = "tati.micheletti@gmail.com")
 
-source('~/GitHub/NWT/posthocFunctions/createCumEffRasters.R')
-createCumEffRasters()
+  source('/mnt/data/Micheletti/NWT/posthocFunctions/createCumEffRasters.R')
+  createCumEffRasters(species = c("CAWA", "OSFL", "RUBL"),
+                      rasFolder = "/mnt/data/Micheletti/NWT/outputs/PAPER/effectsRasters",
+                      googlefolderID = "1ymCZq7cPfXB2hA6rDpRd6J3lYkioQJxZ")
+  
+# CARIBOU!!
+  CC <- c("LandR.CS_fS")
+  noCC <- c("LandR_SCFM")
+  
+  listOfRasters <- lapply(runs, function(RUN){
+    listOfRasterPaths <- list(caribou = stack(raster(file.path(pth, paste0(noCC, "/", RUN, "/caribouPredictions"), #Path
+                                                               paste0("relativeSelectionTaigaPlains_Year", yearToCompare,".tif"))), #filename
+                                              raster(file.path(pth, paste0(CC, "/", RUN, "/caribouPredictions"), #Path
+                                                               paste0("relativeSelectionTaigaPlains_Year", yearToCompare,".tif")))))
+    listOfRasterPaths <- lapply(listOfRasterPaths, function(ras){
+      names(ras) <- c(paste0("caribou_", noCC), paste0("caribou_", CC))
+      return(ras)
+    })
+    names(listOfRasterPaths) <- c("caribou")
+    return(listOfRasterPaths)
+  })
+  names(listOfRasters) <- paste0("cumulativeEffect_", runs)
+  
+  foldID <- as.list(c(rep("1Oz_DFqhOeIOl-nXEVGfYAssE68iCg40R", times = 5)))
+  names(foldID) <- paste0("cumulativeEffect_", runs)
+  
+  source('/mnt/data/Micheletti/NWT/modules/rastersPosthoc/R/makeDeltaRasters.R')
+  dRas <- makeDeltaRasters(listOfRasters = listOfRasters,
+                           relativeDelta = FALSE,
+                           outputFolder = file.path(pth, "effectsRasters"),
+                           lightLoad = TRUE,
+                           overwrite = FALSE,
+                           upload = TRUE,
+                           folderID = foldID,
+                           email = "tati.micheletti@gmail.com")
+  
+  source('/mnt/data/Micheletti/NWT/posthocFunctions/createCumEffRasters.R')
+  createCumEffRasters(species = c("caribou"),
+                      rasFolder = "/mnt/data/Micheletti/NWT/outputs/PAPER/effectsRasters",
+                      googlefolderID = "1Oz_DFqhOeIOl-nXEVGfYAssE68iCg40R")
+  

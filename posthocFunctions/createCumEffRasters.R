@@ -1,6 +1,7 @@
 createCumEffRasters <- function(species = c("CAWA", "OSFL", "RUBL"),
                                 rasFolder = "/mnt/data/Micheletti/NWT/outputs/PAPER/effectsRasters",
-                                googlefolderID = NULL){
+                                googlefolderID = NULL,
+                                overwrite = FALSE){
   library(raster)
   library(googledrive)
   library(future)
@@ -17,12 +18,16 @@ createCumEffRasters <- function(species = c("CAWA", "OSFL", "RUBL"),
       return(B)
     })
     )
+    message("Calculating averaged cummulative effects...")
     averageSP <- calc(SP, fun = mean)
+    names(averageSP) <- paste0("averageDelta", SP, ".tif")
+    message("Calculating deviation cummulative effects...")
     sdSP <- calc(SP, fun = sd)
-    aveName <- file.path(rasFolder, paste0("averageDelta_abs_", SP, ".tif"))
-    sdName <- file.path(rasFolder, paste0("sdDelta_abs_", SP, ".tif"))
-    writeRaster(averageSP, filename = aveName, format = "GTiff")
-    writeRaster(sdSP, filename = sdName, format = "GTiff")
+    names(sdSP) <- paste0("sdDelta", SP, ".tif")
+    aveName <- file.path(rasFolder, paste0("averageDelta", SP, ".tif"))
+    sdName <- file.path(rasFolder, paste0("sdDelta", SP, ".tif"))
+    writeRaster(averageSP, filename = aveName, format = "GTiff", overwrite = overwrite)
+    writeRaster(sdSP, filename = sdName, format = "GTiff", overwrite = overwrite)
     if (!is.null(googlefolderID)){
       lapply(c(aveName, sdName), function(ras){
         drive_upload(ras, as_id(googlefolderID))

@@ -76,3 +76,50 @@ lapply(ras, function(r){
 if (saveInitialConditions){
   saveRDS(sim$activePixelIndex, file = file.path(outputPath(sim), "pixelsWithDataAtInitialization.rds"))
 }
+
+
+# FEB 13th 2020: This is the latest working version of the modules
+
+#tmichele@ubuntu1tb:/mnt/data/Micheletti/NWT$ git submodule
+# d248111e8dbf75495be431c0e8f0726ddba88e07 modules/Biomass_regeneration (heads/development)
+# 7cc032c13c82abb731dbb67d91749a99c39ee6d3 modules/Boreal_LBMRDataPrep (heads/development)
+# cd0e267cf87b5729d84fd980b111f7be189906bd modules/LBMR (v1.3.2-3-gcd0e267)
+# d2533f11b45886dba7540131d3c6311ea02845ea modules/LBMR2LCC_DataPrep (heads/master)
+# 0d674d3a264e59148aa03fa4f3d004a007d115d2 modules/LandR_BiomassGMOrig (heads/development)
+# 9f351b9dc18ba76e1a94abaf479686c12b872a89 modules/LandR_speciesParameters (heads/master)
+# 881957951841d667734556b84e39789622518343 modules/MDC_NWT_DataPrep (heads/master)
+# 1517fae323ab5f3b2259cb92a7082586812cbfbf modules/PSP_Clean (heads/master)
+# 196d8d06103a674cb2dd97400865381ccb4562ff modules/birdsNWT (heads/master)
+# 1274a19a2850ae53c89f22c422bb57f151bcda31 modules/caribouPopGrowthModel (heads/master)
+# 31c69d99bcfe22cc7e34c6537dd19a2a19559619 modules/caribouRSF (heads/master)
+# deb602530b6244adc231cfa59cccac9d3d26319c modules/climate_NWT_DataPrep (heads/master)
+# d05bdb786fc39ace130ca0f663e92168958367ca modules/comm_metricsNWT (heads/master)
+# c83efa780fa5b3aa92fa7d23853269f4ef36cc8c modules/fireSense_EscapePredict (heads/master)
+# 16df9d4283d9800c3eaacc59fce44a0d90ae2a8b modules/fireSense_IgnitionPredict (heads/master)
+# 267c35529bdad97a7f373706d7bf8282fc4be5e2 modules/fireSense_NWT (heads/master)
+# 99b21c4883e520eefb7f091a41c12828fc9bc9f0 modules/fireSense_NWT_DataPrep (heads/master)
+#+c42700c09423d2289558bda353a2dfc8f8e35013 modules/gmcsDataPrep (heads/development)
+# 98f04b4ae6779dfcee89f3f19058302d8ed499ca modules/scfm (heads/development)
+
+# And this is the version of the packages
+#> remotes:::local_sha("reproducible")
+#[1] "b177d646e2438681d1b7cf9da1a5a596f01296c6"
+#> remotes:::local_sha("SpaDES.core")
+#[1] "e500e1c5473ac28ff2110d4e45667bbc67a032c8"
+#> remotes:::local_sha("SpaDES.tools")
+#[1] "6f22c2c3d5b521d2771e5349a2da4fdbeb3faeaa"
+#> remotes:::local_sha("quickPlot")
+#[1] "464de9dc22467a3c071bf257f83cc14e566829e1"
+#> remotes:::local_sha("amc")
+#[1] "153a67b69d5e26ffa18530f5b028b5cda0afeb6f"
+#> remotes:::local_sha("usefun")
+#[1] "417892e74d5aaba074cd7261a4359b1352e05362"
+#> remotes:::local_sha("pemisc")
+#[1] "54ea365a885889215e05072084df1a17b0cbbe56"
+#> remotes:::local_sha("data.table")
+#[1] "1.12.6"
+#> remotes:::local_sha("LandR")
+#[1] "dce51666b4539919c51491735747697f6eb31954"
+#> remotes:::local_sha("LandR.CS")
+#[1] "0.0.0.9001"
+

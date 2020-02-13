@@ -245,7 +245,7 @@ mixed <- structure("#D0FB84", names = "Mixed")
 sppColorVect[length(sppColorVect)+1] <- mixed
 attributes(sppColorVect)$names[length(sppColorVect)] <- "Mixed"
 
-times <- list(start = 2011, end = 2100)
+times <- list(start = 2011, end = 2022)
 
 #SCFM
 defaultInterval <- 1.0

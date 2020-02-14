@@ -1,0 +1,3 @@
+"file" "checksum" "filesize" "algorithm"
+"LandCoverOfCanada2005_V1_4.zip" "e100c037a257e377" "47185238" "xxhash64"
+"LCC2005_V1_4a.tif" "b50567fc83bcc5de" "437916202" "xxhash64"

@@ -1,0 +1,130 @@
+---
+title: "fireSense_EscapePredict"
+author: "Jean Marchal (jean.d.marchal@gmail.com)"
+date: "`r format(Sys.time(), '%B %Y')`"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+# Overview
+Predicts fire escape probabilities using a model fitted with the fireSense_EscapeFit module. Use them to feed the fire escape component of a landscape fire model (e.g fireSense).
+
+# Download the module
+```{r download module, eval = FALSE, echo = TRUE}
+library(SpaDES)
+
+moduleName <- "fireSense_EscapePredict"
+
+spadesModulesDirectory <- tempdir() # Location where the module will be downloaded
+
+downloadModule(moduleName, path = spadesModulesDirectory)
+```
+
+# Usage
+## Module parameters
+Name|Default|Description
+----|:-------|---------------------------------------------------------------------
+`modelObjName`|`"fireSense_EscapeFitted"`|name of the object of class fireSense_EscapeFit describing the statistical model used for predictions.
+`data`|`"dataFireSense_EscapePredict"`|a character vector indicating the names of objects in the `simList` environment in which to look for variables present in the model formula. `data` objects can be data.frames, RasterLayers, RasterStacks or RasterBricks. However, data.frames cannot be mixed with objects of other classes.
+`mapping`|`NULL`|optional named vector or list of character strings mapping one or more variables in the model formula to those in `data` objects.
+`.runInitialTime`|`start(simList)`|when to start this module? By default, the start time of the simulation.
+`.runInterval`|`1`|optional. Interval between two runs of this module, expressed in units of simulation time. By default, 1 year.
+`.saveInitialTime`|`NA`|optional. When to start saving output to a file.
+`.saveInterval`|`NA`|optional. Interval between save events.
+|||
+
+```{r module usage example, eval = FALSE}
+library(magrittr)
+library(raster)
+library(SpaDES)
+
+set.seed(123)
+
+spadesModulesDirectory <- ".."
+
+# Define simulation parameters
+times <- list(start = 1, end = 1, timeunit = "year")
+modules <- list("fireSense_EscapePredict")
+paths <- list(
+  modulePath = spadesModulesDirectory
+)
+
+# Create random weather and fire escape data
+  # data.frame
+  dataFireSense_EscapePredict <- data.frame(
+    weather = rnorm(1000, 150, 30),
+    escapeProb = rbinom(1000, 1, .5)
+  )
+  
+  nx <- ny <- 100L
+  
+  # raster
+  dataFireSense_EscapePredict <-
+    raster(nrows = ny, ncols = nx, xmn = -nx/2, xmx = nx/2, ymn = -ny/2, ymx = ny/2) %>%
+      gaussMap(scale = 300, var = 0.03, speedup = nx/5e2, inMemory = TRUE) %>%
+      stack %>% setNames("weather")
+
+# Create a typical output of fireSense_EscapeFit
+fireSense_EscapeFitted <- glm(
+  formula = escapeProb ~ weather2,
+  family = binomial(),
+  data = data.frame(
+    weather2 = rnorm(1000, 150, 30),
+    escapeProb = rbinom(1000, 1, .5)
+  )
+)
+class(fireSense_EscapeFitted) <- c("fireSense_EscapeFit", class(fireSense_EscapeFitted))
+
+# Define module parameters
+parameters <- list(
+  fireSense_EscapePredict = list(
+    modelObjName = "fireSense_EscapeFitted",
+    data = "dataFireSense_EscapePredict",
+    mapping = list(weather2 = "weather") # One can use mapping to map variables
+                                         # in the formula of the fitted object
+                                         # to those in data. Here weather2
+                                         # (formula) is mapped to weather (data).
+  )
+)
+
+# Objects to pass from the global environment to the simList environment
+objects <- c("dataFireSense_EscapePredict", "fireSense_EscapeFitted")
+
+# Create the simList
+sim <- simInit(
+  times = times, 
+  params = parameters, 
+  modules = modules, 
+  objects = objects, 
+  paths = paths
+)
+
+sim <- spades(sim)
+sim$fireSense_EscapePredicted
+```
+
+# Events
+Events are scheduled as follows:
+
+- Module initialisation
+- Make predictions
+
+# Data dependencies
+## Input data
+- **fireSense_EscapeFitted**: an object of class `fireSense_EscapeFit` created with the fireSense_EscapeFit module.
+- **dataFireSense_EscapePredict**: one or more data.frames, RasterLayers, RasterStacks or RasterBricks in which to look for variables with which to predict.
+
+## Output data
+- **fireSense_EscapePredicted**: an object whose class depends on those in input:
+
+Input object class | Output object class
+:-:|:-:
+`data.frame` | `Numeric vector`
+`RasterLayer`<br>`RasterStack`<br>`RasterBrick` | `RasterLayer`
+||
+
+
+# Links to other modules
+Predictions made with this module can be used to feed the fire escape component of a landscape fire model (e.g fireSense).
+

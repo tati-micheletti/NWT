@@ -1,0 +1,92 @@
+---
+title: "fireSense"
+author: "Jean Marchal"
+date: "`r format(Sys.time(), '%B %Y')`"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+# Overview
+A landscape fire model sensitive to environmental changes (e.g. weather and land-cover).
+
+# Download the module
+```{r download module, eval = FALSE, echo = TRUE}
+library(SpaDES)
+
+moduleName <- "fireSense"
+
+workingDirectory <- tempdir() # Location where the module will be downloaded
+
+downloadModule(moduleName, path = workingDirectory)
+```
+
+# Usage
+## Module parameters
+Name|Default|Description
+----|:-------|---------------------------------------------------------------------
+`mapping`|`NULL`|optional named vector or list of character strings mapping one or more inputs required by the module to objects loaded in the simList environment.
+`.runInitialTime`|`start(simList)`|when to start this module? By default, the start time of the simulation.
+`.runInterval`|`NA`|optional. Interval between two runs of this module, expressed in units of simulation time.
+`.saveInitialTime`|`NA`|optional. When to start saving output to a file.
+`.saveInterval`|`NA`|optional. Interval between save events.
+`.plotInitialTime`|`NA`|optional. When to start plotting.
+`.plotInterval`|`NA`|optional. Interval between plot events.
+|||
+
+## Usage example
+```{r module usage example, eval = FALSE}
+library(SpaDES)
+library(magrittr)
+
+# Packages required by the module
+library(data.table)
+library(raster)
+
+set.seed(1)
+
+nx <- ny <- 100L
+n <- nx * ny
+r <- raster(nrows = ny, ncols = nx, xmn = -nx/2, xmx = nx/2, ymn = -ny/2, ymx = ny/2)
+
+# Create a map ignition probabilities
+ignitionProb <- gaussMap(r, scale = 10, var = .0001, speedup = nx/5e2, inMemory = TRUE)
+
+# Create a map of escape probabilities
+escapeProbabilities <- gaussMap(r, scale = 50, var = .01, speedup = nx/5e2, inMemory = TRUE)
+
+#outputDir <- file.path(tempdir(), "outputs")
+times <- list(start = 1, end = 100, timeunit = "year")
+parameters <- list(
+  fireSense_NWT = list(mapping = list(escapeProb = "escapeProbabilities") # One can use mapping to map data objects in the
+                                                                      # simList environment to data required by the module.
+                                                                      # Here random_ageMap is mapped to ageMap.  
+  )
+)
+
+modules <- list("fireSense_NWT")
+objects <- c("ignitionProb",
+             "escapeProbabilities")
+paths <- list(
+  # cachePath = file.path(outputDir, "cache"),
+  modulePath = ".."
+  # inputPath = inputDir,
+  # outputPath = outputDir
+)
+
+mySim <- simInit(times = times, params = parameters, modules = modules, objects = objects, paths = paths)
+
+mySimOut <- spades(mySim)
+```
+
+# Events
+- ignite fires
+- determine which fires escape
+
+# Data dependencies
+## Input data
+- **ignitProb**: a RasterLayer or RasterStack (time series) describing spatial variations in ignition probabilities.
+- **escapeProb**: a RasterLayer or RasterStack (time series) describing spatial variations in escape probabilities.
+
+## Output data
+A umeric vector describing pixels where to start fires.

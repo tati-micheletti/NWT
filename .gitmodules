@@ -1,26 +1,10 @@
-[submodule "modules/LandR_BiomassGMOrig"]
-	path = modules/LandR_BiomassGMOrig
-	url = git@github.com:eliotmcintire/LandR_BiomassGMOrig.git
-        branch = development
 [submodule "modules/Biomass_regeneration"]
 	path = modules/Biomass_regeneration
-	url = git@github.com:eliotmcintire/Biomass_regeneration.git
-        branch = development
-[submodule "modules/LBMR"]
-	path = modules/LBMR
-	url = git@github.com:eliotmcintire/LBMR.git
-        branch = development
-[submodule "modules/fireSense_NWT_DataPrep"]
-	path = modules/fireSense_NWT_DataPrep
-	url = git@github.com:ygc2l/fireSense_NWT_DataPrep.git
-        branch = master
-[submodule "modules/Boreal_LBMRDataPrep"]
-	path = modules/Boreal_LBMRDataPrep
-	url = git@github.com:eliotmcintire/Boreal_LBMRDataPrep.git
+	url = git@github.com:PredictiveEcology/Biomass_regeneration.git
         branch = development
 [submodule "modules/scfm"]
 	path = modules/scfm
-	url = git@github.com:eliotmcintire/scfm.git
+	url = git@github.com:PredictiveEcology/scfm.git
         branch = development
 [submodule "modules/caribouPopGrowthModel"]
 	path = modules/caribouPopGrowthModel
@@ -39,27 +23,8 @@
 [submodule "modules/PSP_Clean"]
 	path = modules/PSP_Clean
 	url = git@github.com:ianmseddy/PSP_Clean.git
-[submodule "modules/climate_NWT_DataPrep"]
-	path = modules/climate_NWT_DataPrep
-	url = git@github.com:ygc2l/climate_NWT_DataPrep.git
-[submodule "modules/MDC_NWT_DataPrep"]
-	path = modules/MDC_NWT_DataPrep
-	url = git@github.com:ygc2l/MDC_NWT_DataPrep.git
-[submodule "modules/fireSense_EscapePredict"]
-	path = modules/fireSense_EscapePredict
-	url = git@github.com:tati-micheletti/fireSense_EscapePredict.git
-[submodule "modules/LBMR2LCC_DataPrep"]
-	path = modules/LBMR2LCC_DataPrep
-	url = git@github.com:ygc2l/LBMR2LCC_DataPrep.git
-[submodule "modules/fireSense_NWT"]
-	path = modules/fireSense_NWT
-	url = git@github.com:ygc2l/fireSense_NWT.git
-[submodule "modules/comm_metricsNWT"]
 	path = modules/comm_metricsNWT
 	url = git@github.com:araymund83/comm_metricsNWT.git
-[submodule "modules/fireSense_IgnitionPredict"]
-	path = modules/fireSense_IgnitionPredict
-	url = git@github.com:tati-micheletti/fireSense_IgnitionPredict.git
 [submodule "modules/LandR_speciesParameters"]
 	path = modules/LandR_speciesParameters
 	url = git@github.com:ianmseddy/LandR_speciesParameters.git

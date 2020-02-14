@@ -1,16 +1,16 @@
 defineRun <- function(replicateNumber = NULL, vegetation = "LandR.CS", fire = "fS"){ # vegetation = "LandR"; fire = "SCFM"
   
- LandR <-c("Boreal_LBMRDataPrep",
+ LandR <-c("Biomass_borealDataPrep",
            "PSP_Clean", # New parameters
            "LandR_speciesParameters", # New parameters
            "Biomass_regeneration",
-           "LBMR")
+           "Biomass_core")
  
- LandR.CS <- c("Boreal_LBMRDataPrep",
+ LandR.CS <- c("Biomass_borealDataPrep",
                "PSP_Clean", # New parameters
                "LandR_speciesParameters", # New parameters
                "Biomass_regeneration",
-               "LBMR",
+               "Biomass_core",
                # CS
                "gmcsDataPrep")
  
@@ -18,7 +18,7 @@ defineRun <- function(replicateNumber = NULL, vegetation = "LandR.CS", fire = "f
                 "fireSense_IgnitionPredict",
                 "fireSense_EscapePredict",
                 "LBMR2LCC_DataPrep",
-                "fireSense_NWT",
+                "fireSense",
                 #SCFM
                 "scfmLandcoverInit",
                 "scfmRegime",

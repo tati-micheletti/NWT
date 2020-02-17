@@ -23,6 +23,7 @@
 [submodule "modules/PSP_Clean"]
 	path = modules/PSP_Clean
 	url = git@github.com:ianmseddy/PSP_Clean.git
+[submodule "modules/comm_metricsNWT"]
 	path = modules/comm_metricsNWT
 	url = git@github.com:araymund83/comm_metricsNWT.git
 [submodule "modules/LandR_speciesParameters"]

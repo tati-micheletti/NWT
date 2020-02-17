@@ -119,7 +119,7 @@ opts <- options(
   "reproducible.useNewDigestAlgorithm" = TRUE,  # use the new less strict hashing algo
   "reproducible.useCache" = TRUE,
   "reproducible.cachePath" = paths$cachePath,
-  "reproducible.showSimilar" = TRUE,
+  "reproducible.showSimilar" = FALSE,
   "reproducible.useCloud" = FALSE,
   "spades.moduleCodeChecks" = FALSE, # Turn off all module's code checking
   "spades.useRequire" = FALSE, # assuming all pkgs installed correctly
@@ -298,7 +298,7 @@ parameters <- list(
   scfmDriver = list(
     targetN = 1000),
   # LandR_Biomass
-  LBMR = list(
+  Biomass_core = list(
     "successionTimestep" = 10,
     ".plotInitialTime" = NA,
     ".saveInitialTime" = NA,
@@ -307,7 +307,7 @@ parameters <- list(
     "initialBiomassSource" = "cohortData",
     "growthAndMortalityDrivers" = definedRun$growthAndMortalityDrivers,
     ".useParallel" = 2),
-  Boreal_LBMRDataPrep = list(
+  Biomass_borealDataPrep = list(
     "speciesUpdateFunction" = list(
       quote(LandR::speciesTableUpdate(sim$species, sim$speciesTable, sim$sppEquiv, P(sim)$sppEquivCol)),
       quote(usefun::changeTraits(speciesTable = sim$species, param = "seeddistance_max",
@@ -348,7 +348,7 @@ parameters <- list(
 )
 
 succTS <- c(seq(times$start, times$end, 
-                by = parameters$LBMR$successionTimestep), times$end)
+                by = parameters$Biomass_core$successionTimestep), times$end)
 outputsLandR <- data.frame(
   objectName = rep(c("burnMap",
                      "cohortData",
@@ -365,7 +365,7 @@ lastYears <- data.frame(objectName = c("predictedCaribou", "plotCaribou",
                                        "fireRegimeRas", "speciesEcoregion", 
                                        "species", "gcsModel", "mcsModel"),
                         saveTime = times$end)
-if (length(grepMulti(x = definedRun$modules, "LBMR")) != 0){
+if (length(grepMulti(x = definedRun$modules, "Biomass_core")) != 0){
   clim <- data.frame(objectName = rep(c("fireSense_IgnitionPredicted", 
                                         "fireSense_EscapePredicted", "burnSummary", 
                                         "successionLayers", "activePixelIndex"), 
@@ -468,7 +468,7 @@ if (runBirds){
                                                 error = function(e){
                                                   warning(paste0("The pixelsWithDataAtInitialization.rds object was not found. Returning NULL.",
 "This will affect bird predictions for the NWT (i.e. density will not be predicted",
-"for pixels were total biomas = 0). To fix this, save the object named 'sim$activePixelIndex' in the end of LBMR's init i.e. add to LBMR's Line 661-662 ",
+"for pixels were total biomas = 0). To fix this, save the object named 'sim$activePixelIndex' in the end of Biomass_core's init i.e. add to Biomass_core's Line 661-662 ",
 "saveRDS(sim$activePixelIndex, file = file.path(outputPath(sim), 'pixelsWithDataAtInitialization.rds'))"))
                                                   })))
   modules <- list("birdsNWT") # [ FIX ] <~~~~~~~~~~~~~~~~~ For second paper, add community metrics!

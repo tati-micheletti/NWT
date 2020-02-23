@@ -15,7 +15,7 @@ updateGithubPackages <- FALSE
 updateSubmodules <- FALSE
 
 if (updateCRAN)
-  update.packages(checkBuilt = TRUE)
+  update.packages(checkBuilt = TRUE, ask = FALSE)
 
 if (updateGithubPackages){
   devtools::install_github("PredictiveEcology/reproducible@development")
@@ -56,9 +56,8 @@ source("/mnt/data/Micheletti/NWT/functions/defineRun.R")
 
 if (!exists("vegetation")) vegetation <- "LandR" # Default if not provided
 if (!exists("fire")) fire <- "SCFM" # Default if not provided
-if (!exists("replicateNumber")) replicateNumber <- NULL # Default if not provided
+if (!exists("replicateNumber")) replicateNumber <- NULL # Default if not provided #TOCHANGE
 if (!exists("runOnlySimInit")) runOnlySimInit <- FALSE # Default if not provided
-
 
 definedRun <- defineRun(replicateNumber = replicateNumber, 
                         vegetation = vegetation, 
@@ -84,7 +83,7 @@ if (user %in% c("tmichele", "Tati")) {
 
 if (length(paths$modulePath) == 1) paths$modulePath <- c(paths$modulePath, file.path(paths$modulePath, "scfm/modules"))
 paths$outputPath <- checkPath(file.path(paths$outputPath, definedRun$whichRUN, replicateNumber), create = TRUE) # Redefine outputPath based on type of run
-paths$outputPath <- gsub(x = paths$outputPath, pattern = toupper(format(Sys.time(), "%d%b%y")), replacement = "TESTS") # Added on 16th Jan after checking all went well.
+paths$outputPath <- gsub(x = paths$outputPath, pattern = toupper(format(Sys.time(), "%d%b%y")), replacement = "fireSenseTESTS") # Added on 16th Jan after checking all went well.
 
 if (pemisc::user() %in% c("Tati", "tmichele", "emcintir")) {
   setTempFolder(paths = paths, setTmpFolder = TRUE, usr = user)
@@ -182,7 +181,46 @@ waterRaster <- prepInputs(url = "https://drive.google.com/open?id=1nPd03gaVXkkaH
                           rasterToMatch = rasterToMatch,
                           filename2 = NULL)
 
-if (!exists("climateModel")) climateModel <- "CCSM4_85" # Default if not provided
+# Original script for making the ecoRegion raster. After making it, uploaded a NWT version of it and using prepInputs
+# ecoDistrict <- Cache(prepInputs,
+#                      targetFile = "ecoregions.shp",
+#                      archive = "ecoregion_shp.zip",
+#                      url = "http://sis.agr.gc.ca/cansis/nsdb/ecostrat/region/ecoregion_shp.zip",
+#                      alsoExtract = "similar",
+#                      destinationPath = Paths$inputPath,
+#                      studyArea = studyArea,   ## Ceres: makePixel table needs same no. pixels for this, RTM rawBiomassMap, LCC.. etc
+#                      useSAcrs = TRUE, # this is required to make ecoZone be in CRS of studyArea
+#                      fun = "raster::shapefile",
+#                      # filename2 = TRUE,
+#                      userTags = c("prepInputsEcoRegion_SA", "where:fromGlobal"), # use at least 1 unique userTag
+#                      omitArgs = c("destinationPath", "targetFile", "overwrite", "alsoExtract", "userTags"))
+# library(fasterize)
+# library(sf)
+# ecoDistrictSF <- st_as_sf(ecoDistrict)
+# ecoDistrictRAS <- fasterize::fasterize(sf = ecoDistrictSF, raster = rasterToMatch, field = "ECOREGION")
+# ecoRegionRAS <- postProcess(ecoDistrictRAS, studyArea = studyArea, 
+#                             rasterToMatch = rasterToMatch,
+#                             destinationPath = Paths$inputPath,
+#                             userTags = c("prepInputsEcoRegion_RAS", "where:fromGlobal"), # use at least 1 unique userTag
+#                             omitArgs = c("destinationPath", "overwrite"))
+# ecoRegionRAS[ecoRegionRAS == 0] <- NA
+# saveRDS(ecoRegionRAS, file.path(Paths$inputPath, "ecoRegionRAS.rds"))
+# drive_upload(file.path(Paths$inputPath, "ecoRegionRAS.rds"), as_id("1pYtRYDwQQi41rmx11sw0LxR1QBT3mYTv"))
+
+ecoRegionRAS <- Cache(prepInputs,
+                      targetFile = "ecoRegionRAS.rds",
+                      url = "https://drive.google.com/open?id=1AT2yWbFjAKbY8nPhnwNJ6oviK94_92Pk",
+                      alsoExtract = "similar",
+                      destinationPath = Paths$inputPath,
+                      studyArea = studyArea,   ## Ceres: makePixel table needs same no. pixels for this, RTM rawBiomassMap, LCC.. etc
+                      fun = "readRDS",
+                      userTags = c("prepInputsEcoRegion_RAS", "where:fromGlobal"), # use at least 1 unique userTag
+                      omitArgs = c("destinationPath",
+                                   "targetFile",
+                                   "overwrite",
+                                   "userTags"))
+
+  if (!exists("climateModel")) climateModel <- "CCSM4_85" # Default if not provided
 if (!climateModel %in% c("CCSM4_85", "CCSM4_45")) stop("Other climate scenarios are still not implemented.")
 
 cmi.url <- ifelse(climateModel == "CCSM4_85", "https://drive.google.com/open?id=1OcVsAQXKO4N4ZIESNmIZAI9IZcutctHX", 
@@ -318,7 +356,9 @@ parameters <- list(
     "successionTimestep" = 10,
     "pixelGroupAgeClass" = 10,
     ".useCache" = c(".inputObjects", "init"),
-    "subsetDataBiomassModel" = 50),
+    "subsetDataBiomassModel" = 50,
+    "coverModel" = quote(lme4::glmer(scale(cbind(coverPres, coverNum)) ~ speciesCode + (1 | ecoregionGroup),
+                                     family = binomial))),
   Biomass_regeneration = list(
     "fireTimestep" = 1,
     "fireInitialTime" = times$start
@@ -380,8 +420,10 @@ outputsLandR <- unique(rbind(outputsLandR, lastYears, clim))
 
 objects <- list(
   "studyAreaPSP" = studyAreaPSP,
+  "rasterToMatchLarge" = rasterToMatch,
   "rasterToMatch" = rasterToMatch,
   "studyAreaLarge" = studyArea,
+  "studyArea" = studyArea,
   "sppEquiv" = sppEquivalencies_CA,
   "sppEquivCol" = sppEquivCol,
   "sppColorVect" = sppColorVect,
@@ -390,6 +432,7 @@ objects <- list(
   "studyArea" = studyArea,
   "waterRaster" = waterRaster,
   "fireRegimePolys" = studyArea,
+  "ecoregionRst" = ecoRegionRAS,
   "t1" = t1
 )
 
@@ -400,6 +443,65 @@ if (runOnlySimInit){
 } else {
   spadesFun <- "simInitAndSpades"
 }
+
+#########################################################
+##                   PREAMBLE                          ##
+#########################################################
+originalOutputPath  <- Paths$outputPath
+Paths$outputPath <- Paths$inputPath
+outputsPreamble <- data.frame(objectName = c("cohortData", "pixelGroupMap"),
+                              saveTime = 2001,
+                              file = c("cohortData2001_fireSense", "pixelGroupMap2001_fireSense"))
+
+# 1. Run borealBiomassDataPrep ALONE and save: cohortData + pixelGroupMap: will be used 
+# in fireSense_SizeFit and fireSense_SpreadFit (later on, will be also used in Ignition and Escape fits)
+
+biomassMaps2001 <- Cache(simInitAndSpades, 
+                         times = list(start = 2001, end = 2001),
+                         params = parameters,
+                         modules = list("Biomass_borealDataPrep"),
+                         objects = objects,
+                         paths = getPaths(),
+                         loadOrder = "Biomass_corealDataPrep",
+                         outputs = outputsPreamble,
+                         userTags = c("objective:preambleBiomassDataPrep", "time:year2001"))
+
+# 2. Load these:
+speciesLayers2011 <- Cache(loadkNNSpeciesLayersValidation,
+                           dPath = Paths$inputPath,
+                           rasterToMatch = rasterToMatch,
+                           studyArea = studyArea,   ## Ceres: makePixel table needs same no. pixels for this, RTM rawBiomassMap, LCC.. etc
+                           sppEquiv = sppEquiv,
+                           knnNamesCol = "KNN",
+                           sppEquivCol = sppEquivCol,
+                           thresh = 10,
+                           url = "http://ftp.maps.canada.ca/pub/nrcan_rncan/Forests_Foret/canada-forests-attributes_attributs-forests-canada/2011-attributes_attributs-2011/",
+                           userTags = c("preamble", "speciesLayers2011"))
+
+outputsPreamble <- data.frame(objectName = c("cohortData", "pixelGroupMap"),
+                              saveTime = 2011,
+                              file = c("cohortData2011_fireSense", "pixelGroupMap2011_fireSense"))
+
+objectsPre <- objects
+objectsPre$speciesLayers <- speciesLayers2011
+
+# and pass as object to a second call of Biomass_borealDataPrep. Save cohortData + pixelGroupMap.
+biomassMaps2001 <- Cache(simInitAndSpades,
+                         times = list(start = 2011, end = 2011),
+                         params = parameters,
+                         modules = list("Biomass_corealDataPrep"),
+                         objects = objectsPre,
+                         paths = getPaths(),
+                         loadOrder = "Biomass_borealDataPrep",
+                         outputs = outputsPreamble,
+                         userTags = c("objective:preambleBiomassDataPrep", "time:year2011"))
+
+Paths$outputPath <- originalOutputPath # return original path
+
+#########################################################
+##                      RUNS                           ##
+#########################################################
+
 
 if (!exists("runLandR")) runLandR <- FALSE # Default if not provided
 if (runLandR){

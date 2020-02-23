@@ -1,18 +1,12 @@
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~> ATTENTION: <~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # 
-# Once the layers problem is solved needs updating the layers in google drive: "https://drive.google.com/open?id=1wcgytGJmfZGaapZZ9M9blfGa-45eLVWE"
-# Needs to re-run fireSense_NWT_DataPrep and check MDC (it should NOT be above @200)
-# Needs to re-run birdsNWT
-# The overwritten arguments are already in place. Need to be taken out after the successful run!
-# 
-# VERSION3 folder: "1s4rtgI7N5iw5_WytZvhF2gi0Xbi9sNx8"
-# V3 RSF: "1U3WJuNDtPWygzDJdxBgvUBWzVwiJoBch"
-# V3 Birds: "1KHiBB-WgJeok_T4aEEar2aOtrjjz0FLY"  -- only CAWA BOCH BBWA OSFL ALFL BPWA [ OK ] 
-# V3 CoOcc: "187B0wqjokdPB9PDPfF5icZ6SwF5cHZH2"
-# V3 LandR: "1TMPcrqE2b9prq2hRe8jcXdLPXMWv_Enh"
-# NoCC: "1MtRh2c55G1UOj8EZkaoFhPl7tJibc2Py"
-# HERE --> Still need to manually save each plot in LandR folder! Then upload
+# NEED TO FIX THE biomassModel in Boreal_DataPrep. Ideas for that:
+# 1. Not subsetting by 50 (a parameter) to 100
+# 2. Use Ecoregion map instead of Ecodistrict
+# 3. Create a way of merging LCC classes (c/o Ceres: merge levels of some covariates so that tehre are more points for each combination of factor levels
+# ie. use `sub('_.*', '', ecoregion)` as a variable in the model -- not sure it would work) 
+# 4. Use a mergeSliver type of function from @Ian to merge small ecodistricts.
 
 mainFold <- "/mnt/data/Micheletti/NWT/outputs/09OCT19/LandR.CS_fS/run1"
 filesToUpload <- c("CAWA", "OSFL", "RUBL", "BBWA", "WEWP")

@@ -8,12 +8,12 @@
 runOnlySimInit <- FALSE # TRUE to run experiment, FALSE to run simulations individually
 
 # LandR.CS + fireSense
-replicateNumber <- "run6"
+replicateNumber <- "TEST"
 vegetation <- "LandR.CS"
 fire <- "fS"
 runLandR <- TRUE
-runBirds <- TRUE
-runCaribou <- TRUE
+runBirds <- FALSE
+runCaribou <- FALSE
 birdModelVersion <- c(4, 6)
 source("!runMe.R") # PURPLE
 

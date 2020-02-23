@@ -62,3 +62,9 @@
 [submodule "modules/fireSense_NWT_DataPrep"]
 	path = modules/fireSense_NWT_DataPrep
 	url = git@github.com:tati-micheletti/fireSense_NWT_DataPrep.git
+[submodule "modules/fireSense_SizeFit"]
+	path = modules/fireSense_SizeFit
+	url = git@github.com:PredictiveEcology/fireSense_SizeFit.git
+[submodule "modules/fireSense_SizePredict"]
+	path = modules/fireSense_SizePredict
+	url = git@github.com:PredictiveEcology/fireSense_SizePredict.git

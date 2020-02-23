@@ -356,7 +356,9 @@ parameters <- list(
     "successionTimestep" = 10,
     "pixelGroupAgeClass" = 10,
     ".useCache" = c(".inputObjects", "init"),
-    "subsetDataBiomassModel" = 50),
+    "subsetDataBiomassModel" = 50,
+    "coverModel" = quote(lme4::glmer(scale(cbind(coverPres, coverNum)) ~ speciesCode + (1 | ecoregionGroup),
+                                     family = binomial))),
   Biomass_regeneration = list(
     "fireTimestep" = 1,
     "fireInitialTime" = times$start
@@ -418,8 +420,10 @@ outputsLandR <- unique(rbind(outputsLandR, lastYears, clim))
 
 objects <- list(
   "studyAreaPSP" = studyAreaPSP,
+  "rasterToMatchLarge" = rasterToMatch,
   "rasterToMatch" = rasterToMatch,
   "studyAreaLarge" = studyArea,
+  "studyArea" = studyArea,
   "sppEquiv" = sppEquivalencies_CA,
   "sppEquivCol" = sppEquivCol,
   "sppColorVect" = sppColorVect,

@@ -169,17 +169,19 @@ rasterToMatch <- Cache(prepInputs, url = "https://drive.google.com/open?id=1fo08
                        userTags = "edeRTM",
                        omitArgs = c("destinationPath", "filename2"))
 
-studyAreaPSP <- prepInputs(targetFile = "BCR6.tif",
-                   archive = "BCR6.zip",
-                   url = "https://drive.google.com/open?id=18A_HjSx_8viGxz3k87kjra03K6MgsjzO",
-                   alsoExtract = "similar",
-                   destinationPath = getPaths()$inputPath, userTags = c("objectName:studyAreaPSP", "extansion:BCR6"))
+studyAreaPSP <- Cache(prepInputs, targetFile = "BCR6.tif",
+                      archive = "BCR6.zip",
+                      url = "https://drive.google.com/open?id=18A_HjSx_8viGxz3k87kjra03K6MgsjzO",
+                      alsoExtract = "similar",
+                      destinationPath = getPaths()$inputPath,
+                      userTags = c("objectName:studyAreaPSP", "extansion:BCR6"))
 
-waterRaster <- prepInputs(url = "https://drive.google.com/open?id=1nPd03gaVXkkaHorirR4UhYrDi95ZgyJM", 
-                          destinationPath = getPaths()$inputPath, 
-                          targetFile = "waterRasterNWT.tif",studyArea = studyArea,
-                          rasterToMatch = rasterToMatch,
-                          filename2 = NULL)
+waterRaster <- Cache(prepInputs,
+                     url = "https://drive.google.com/open?id=1nPd03gaVXkkaHorirR4UhYrDi95ZgyJM",
+                     destinationPath = getPaths()$inputPath,
+                     targetFile = "waterRasterNWT.tif", studyArea = studyArea,
+                     rasterToMatch = rasterToMatch,
+                     filename2 = NULL)
 
 # Original script for making the ecoRegion raster. After making it, uploaded a NWT version of it and using prepInputs
 # ecoDistrict <- Cache(prepInputs,
@@ -266,7 +268,7 @@ sppEquivCol <- "NWT"
 data("sppEquivalencies_CA", package = "LandR")
 
 # Make NWT spp equivalencies
-sppEquivalencies_CA[, NWT := c(Betu_Pap = "Betu_Pap", 
+sppEquivalencies_CA[, NWT := c(#Betu_Pap = "Betu_Pap", 
                                Lari_Lar = "Lari_Lar", 
                                Pice_Gla = "Pice_Gla",
                                Pice_Mar = "Pice_Mar", 
@@ -297,7 +299,7 @@ parameters <- list(
     list("sppEquivCol"  = sppEquivCol,
          "GAMMiterations" = 2, 
          "GAMMknots" = list(
-           "Betu_Pap" = 3,
+           # "Betu_Pap" = 3,
            "Lari_Lar" = 4,
            "Pice_Gla" = 3,
            "Pice_Mar" = 4,
@@ -305,7 +307,7 @@ parameters <- list(
            "Popu_Tre" = 4),
          "minimumPlotsPerGamm" = 40,
          "constrainMortalityShape" = list(
-           "Betu_Pap" = c(15,25),
+           # "Betu_Pap" = c(15,25),
            "Lari_Lar" = c(20,25),
            "Pice_Gla" = c(15,25),
            "Pice_Mar" = c(15,25),
@@ -313,7 +315,7 @@ parameters <- list(
            "Popu_Tre" = c(15,25)
          ),
          "quantileAgeSubset" = list(
-           "Betu_Pap" = 95,
+           # "Betu_Pap" = 95,
            "Lari_Lar" = 95,
            "Pice_Gla" = 95,
            "Pice_Mar" = 95,
@@ -351,13 +353,13 @@ parameters <- list(
       quote(usefun::changeTraits(speciesTable = sim$species, param = "seeddistance_max",
                                  facMult = 0.4, species = c("Betu_Pap", "Popu_Tre")))
     ),
-    "useCloudCacheForStats" = FALSE,
+    "useCloudCacheForStats" = TRUE,
     "sppEquivCol" = sppEquivCol,
     "successionTimestep" = 10,
     "pixelGroupAgeClass" = 10,
     ".useCache" = c(".inputObjects", "init"),
     "subsetDataBiomassModel" = 50,
-    "coverModel" = quote(lme4::glmer(scale(cbind(coverPres, coverNum)) ~ speciesCode + (1 | ecoregionGroup),
+    "coverModel" = quote(lme4::glmer(cbind(scale(coverPres), scale(coverNum)) ~ speciesCode + (1 | ecoregionGroup),
                                      family = binomial))),
   Biomass_regeneration = list(
     "fireTimestep" = 1,

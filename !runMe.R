@@ -353,7 +353,7 @@ parameters <- list(
       quote(usefun::changeTraits(speciesTable = sim$species, param = "seeddistance_max",
                                  facMult = 0.4, species = c("Betu_Pap", "Popu_Tre")))
     ),
-    "useCloudCacheForStats" = FALSE,
+    "useCloudCacheForStats" = TRUE,
     "sppEquivCol" = sppEquivCol,
     "successionTimestep" = 10,
     "pixelGroupAgeClass" = 10,
@@ -434,7 +434,7 @@ objects <- list(
   "studyArea" = studyArea,
   "waterRaster" = waterRaster,
   "fireRegimePolys" = studyArea,
-  # "ecoregionRst" = ecoRegionRAS,
+  "ecoregionRst" = ecoRegionRAS,
   "t1" = t1
 )
 

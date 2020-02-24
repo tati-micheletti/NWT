@@ -51,12 +51,12 @@ plan("multiprocess")
 
 # Source all common functions
 # invisible(sapply(X = list.files(file.path(getwd(), "functions"), full.names = TRUE), FUN = source))
-source("/mnt/data/Micheletti/NWT/functions/not_included/pathsSetup.R")
-source("/mnt/data/Micheletti/NWT/functions/defineRun.R")
+source("functions/not_included/pathsSetup.R")
+source("functions/defineRun.R")
 
 if (!exists("vegetation")) vegetation <- "LandR" # Default if not provided
 if (!exists("fire")) fire <- "SCFM" # Default if not provided
-if (!exists("replicateNumber")) replicateNumber <- NULL # Default if not provided #TOCHANGE
+if (!exists("replicateNumber")) replicateNumber <- "run1" # Default if not provided #TOCHANGE
 if (!exists("runOnlySimInit")) runOnlySimInit <- FALSE # Default if not provided
 
 definedRun <- defineRun(replicateNumber = replicateNumber, 
@@ -78,7 +78,10 @@ isTest <- FALSE
 if (user %in% c("tmichele", "Tati")) {
   paths <- pathsSetup(whichComputer = whichComputer, isTest = isTest)
 } else {
-  paths <- setPaths()
+  paths <- setPaths(modulePath = file.path(getwd(), "modules"),
+                    outputPath = file.path(getwd(), "outputs"),
+                    cachePath = file.path(getwd(), "cache"))
+  paths <- getPaths()
 }
 
 if (length(paths$modulePath) == 1) paths$modulePath <- c(paths$modulePath, file.path(paths$modulePath, "scfm/modules"))
@@ -359,7 +362,7 @@ parameters <- list(
     "pixelGroupAgeClass" = 10,
     ".useCache" = c(".inputObjects", "init"),
     "subsetDataBiomassModel" = 50,
-    "coverModel" = quote(lme4::glmer(cbind(scale(coverPres), scale(coverNum)) ~ speciesCode + (1 | ecoregionGroup),
+    "coverModel" = quote(glm(cbind(coverPres, coverNum - coverPres) ~ speciesCode * ecoregionGroup,
                                      family = binomial))),
   Biomass_regeneration = list(
     "fireTimestep" = 1,

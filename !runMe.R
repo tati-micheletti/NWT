@@ -271,7 +271,7 @@ sppEquivCol <- "NWT"
 data("sppEquivalencies_CA", package = "LandR")
 
 # Make NWT spp equivalencies
-sppEquivalencies_CA[, NWT := c(#Betu_Pap = "Betu_Pap", 
+sppEquivalencies_CA[, NWT := c(Betu_Pap = "Betu_Pap", 
                                Lari_Lar = "Lari_Lar", 
                                Pice_Gla = "Pice_Gla",
                                Pice_Mar = "Pice_Mar", 
@@ -302,7 +302,7 @@ parameters <- list(
     list("sppEquivCol"  = sppEquivCol,
          "GAMMiterations" = 2, 
          "GAMMknots" = list(
-           # "Betu_Pap" = 3,
+           "Betu_Pap" = 3,
            "Lari_Lar" = 4,
            "Pice_Gla" = 3,
            "Pice_Mar" = 4,
@@ -310,7 +310,7 @@ parameters <- list(
            "Popu_Tre" = 4),
          "minimumPlotsPerGamm" = 40,
          "constrainMortalityShape" = list(
-           # "Betu_Pap" = c(15,25),
+           "Betu_Pap" = c(15,25),
            "Lari_Lar" = c(20,25),
            "Pice_Gla" = c(15,25),
            "Pice_Mar" = c(15,25),
@@ -318,7 +318,7 @@ parameters <- list(
            "Popu_Tre" = c(15,25)
          ),
          "quantileAgeSubset" = list(
-           # "Betu_Pap" = 95,
+           "Betu_Pap" = 95,
            "Lari_Lar" = 95,
            "Pice_Gla" = 95,
            "Pice_Mar" = 95,
@@ -361,9 +361,10 @@ parameters <- list(
     "successionTimestep" = 10,
     "pixelGroupAgeClass" = 10,
     ".useCache" = c(".inputObjects", "init"),
-    "subsetDataBiomassModel" = 50,
-    "coverModel" = quote(glm(cbind(coverPres, coverNum - coverPres) ~ speciesCode * ecoregionGroup,
-                                     family = binomial))),
+    "subsetDataBiomassModel" = 100,
+    "biomassModel" = quote(lme4::lmer(B ~ logAge * speciesCode + cover * speciesCode +
+                       (1 | ecoregionGroup)))
+    ),
   Biomass_regeneration = list(
     "fireTimestep" = 1,
     "fireInitialTime" = times$start
@@ -437,7 +438,7 @@ objects <- list(
   "studyArea" = studyArea,
   "waterRaster" = waterRaster,
   "fireRegimePolys" = studyArea,
-  "ecoregionRst" = ecoRegionRAS,
+  # "ecoregionRst" = ecoRegionRAS,
   "t1" = t1
 )
 
@@ -460,9 +461,11 @@ outputsPreamble <- data.frame(objectName = c("cohortData", "pixelGroupMap"),
 
 # 1. Run borealBiomassDataPrep ALONE and save: cohortData + pixelGroupMap: will be used 
 # in fireSense_SizeFit and fireSense_SpreadFit (later on, will be also used in Ignition and Escape fits)
+# 271 unique using ecoregion
+# 973 unique using ecodistrict
 
 biomassMaps2001 <- Cache(simInitAndSpades, 
-                         times = list(start = 2001, end = 2001),
+                         times = list(start = 1, end = 1),
                          params = parameters,
                          modules = list("Biomass_borealDataPrep"),
                          objects = objects,
@@ -476,7 +479,7 @@ speciesLayers2011 <- Cache(loadkNNSpeciesLayersValidation,
                            dPath = Paths$inputPath,
                            rasterToMatch = rasterToMatch,
                            studyArea = studyArea,   ## Ceres: makePixel table needs same no. pixels for this, RTM rawBiomassMap, LCC.. etc
-                           sppEquiv = sppEquiv,
+                           sppEquiv = sppEquivalencies_CA,
                            knnNamesCol = "KNN",
                            sppEquivCol = sppEquivCol,
                            thresh = 10,
@@ -491,10 +494,10 @@ objectsPre <- objects
 objectsPre$speciesLayers <- speciesLayers2011
 
 # and pass as object to a second call of Biomass_borealDataPrep. Save cohortData + pixelGroupMap.
-biomassMaps2001 <- Cache(simInitAndSpades,
+biomassMaps2011 <- Cache(simInitAndSpades,
                          times = list(start = 2011, end = 2011),
                          params = parameters,
-                         modules = list("Biomass_corealDataPrep"),
+                         modules = list("Biomass_borealDataPrep"),
                          objects = objectsPre,
                          paths = getPaths(),
                          loadOrder = "Biomass_borealDataPrep",

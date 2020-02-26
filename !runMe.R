@@ -438,7 +438,7 @@ objects <- list(
   "studyArea" = studyArea,
   "waterRaster" = waterRaster,
   "fireRegimePolys" = studyArea,
-  # "ecoregionRst" = ecoRegionRAS,
+  "ecoregionRst" = ecoRegionRAS,
   "t1" = t1
 )
 

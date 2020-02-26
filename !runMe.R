@@ -361,10 +361,10 @@ parameters <- list(
     "successionTimestep" = 10,
     "pixelGroupAgeClass" = 10,
     ".useCache" = c(".inputObjects", "init"),
-    "subsetDataBiomassModel" = 100,
+    "subsetDataBiomassModel" = 50,
     "biomassModel" = quote(lme4::lmer(B ~ logAge * speciesCode + cover * speciesCode +
-                       (1 | ecoregionGroup)))
-    ),
+                                        (logAge + cover | ecoregionGroup)))
+  ),
   Biomass_regeneration = list(
     "fireTimestep" = 1,
     "fireInitialTime" = times$start

@@ -506,6 +506,77 @@ biomassMaps2011 <- Cache(simInitAndSpades,
 
 Paths$outputPath <- originalOutputPath # return original path
 
+# Now I have to generate the data to fit the Size module -- This was modified from the fireSense_Tutorial
+# to accommodate real data
+
+# Calculate mean landcover and weather conditions around the locations of escaped fires
+# fireLocations <- getFirePoints_NFDB(url = "http://cwfis.cfs.nrcan.gc.ca/downloads/nfdb/fire_pnt/current_version/NFDB_point.zip", 
+#                                     studyArea = studyArea, rasterToMatch = rasterToMatch, 
+#                                     NFDB_pointPath = file.path(Paths$inputPath, "NFDB_point"))
+# Subset fires from 1991 - 2017
+# fireLocations1991_2017 <- 
+
+# Convert fire size from ha to m2 by multiplying by 10000, then divide by pi and take the Sqrt 
+# of the result to go from points to radiuss
+# fireLocations$radius <- sqrt(10000*fireLocations$SIZE_HA/pi)
+# 
+# 
+# buf_around_loc_escaped <- buffer(fireLocations, byid = TRUE, dissolve = FALSE, 
+#                                  width = fireLocations$radius) # THIS width is coming from the total area burned.
+
+# Or we use the real polygons
+# fireLocations <- reproducible::prepInputs(url = "https://cwfis.cfs.nrcan.gc.ca/downloads/nbac/nbac_1986_to_2018_20191129.zip",
+#                                           studyArea = studyArea, rasterToMatch = rasterToMatch,
+#                                           destinationPath = Paths$inputPath, 
+#                                           userTags = c("typeOfFile:fireComposite", "objectName:fireLocations", "goal:fireSenseFit"))
+#                                           # ABOVE FAILING BECAUSE OF SOME INTERSECTION PROBLEM... WILL TRY YEARLY
+
+
+
+
+# HERE <~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+landtypeTypeOneBufMn <- extract(landTypeOne, buf_around_loc_escaped) %>% 
+  lapply(mean) %>% 
+  unlist
+
+landtypeTypeTwoBufMn <- extract(landTypeTwo, buf_around_loc_escaped) %>% 
+  lapply(mean) %>% 
+  unlist
+
+weatherBufMn <- extract(weather, buf_around_loc_escaped) %>%
+  lapply(mean) %>%
+  unlist
+
+dataFireSense_SizeFit <- data.table(
+  landtype_1_pp = landtypeTypeOneBufMn,
+  landtype_2_pp = landtypeTypeTwoBufMn,
+  weather = weatherBufMn
+)
+
+b1_l <- -.03
+b2_l <- 4
+b3_l <- -2
+
+lambda <- with(dataFireSense_SizeFit, exp(weather * b1_l + landtype_1_pp * b2_l + landtype_2_pp * b3_l))
+
+b1_t <- .02
+b2_t <- 4
+b3_t <- 2
+
+theta <- with(dataFireSense_SizeFit, exp(weather * b1_t + landtype_1_pp * b2_t + landtype_2_pp * b3_t))
+
+fireSize <- round(rtappareto(n = length(lambda), lambda = lambda, theta = theta, a = 1))
+
+dataFireSense_SizeFit[, fire_size := fireSize]
+# dataFireSense_SizeFit <- mutate(dataFireSense_SizeFit, fire_size = fireSize)
+
+# Create the fire attribute dataset that describes the starting locations 
+# and the size of the fires to be spread. This is needed to fit the statistical model of spread probabilities
+fireAttributesFireSense_SpreadFit <- SpatialPointsDataFrame(fireLocations[as.logical(escaped)], data = data.frame(size = fireSize))
+
+
+
 #########################################################
 ##                      RUNS                           ##
 #########################################################

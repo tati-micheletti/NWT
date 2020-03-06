@@ -68,3 +68,9 @@
 [submodule "modules/fireSense_SizePredict"]
 	path = modules/fireSense_SizePredict
 	url = git@github.com:PredictiveEcology/fireSense_SizePredict.git
+[submodule "modules/priorityPlaces"]
+	path = modules/priorityPlaces
+	url = git@github.com:tati-micheletti/priorityPlaces.git
+[submodule "modules/priorityPlaces_DataPrep"]
+	path = modules/priorityPlaces_DataPrep
+	url = git@github.com:tati-micheletti/priorityPlaces_DataPrep.git

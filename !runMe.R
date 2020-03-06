@@ -13,6 +13,8 @@ t1 <- Sys.time()
 updateCRAN <- FALSE
 updateGithubPackages <- FALSE
 updateSubmodules <- FALSE
+prepCohortData <- FALSE # Preamble. If already ran (i.e. objs cohortData2011 and cohortData2001 
+                        # exist in inputs folder) this should NOT be run i.e. FALSE)
 
 if (updateCRAN)
   update.packages(checkBuilt = TRUE, ask = FALSE)
@@ -453,58 +455,61 @@ if (runOnlySimInit){
 #########################################################
 ##                   PREAMBLE                          ##
 #########################################################
-originalOutputPath  <- Paths$outputPath
-Paths$outputPath <- Paths$inputPath
-outputsPreamble <- data.frame(objectName = c("cohortData", "pixelGroupMap"),
-                              saveTime = 2001,
-                              file = c("cohortData2001_fireSense", "pixelGroupMap2001_fireSense"))
-
-# 1. Run borealBiomassDataPrep ALONE and save: cohortData + pixelGroupMap: will be used 
-# in fireSense_SizeFit and fireSense_SpreadFit (later on, will be also used in Ignition and Escape fits)
-# 271 unique using ecoregion
-# 973 unique using ecodistrict
-
-biomassMaps2001 <- Cache(simInitAndSpades, 
-                         times = list(start = 1, end = 1),
-                         params = parameters,
-                         modules = list("Biomass_borealDataPrep"),
-                         objects = objects,
-                         paths = getPaths(),
-                         loadOrder = "Biomass_corealDataPrep",
-                         outputs = outputsPreamble,
-                         userTags = c("objective:preambleBiomassDataPrep", "time:year2001"))
-
-# 2. Load these:
-speciesLayers2011 <- Cache(loadkNNSpeciesLayersValidation,
-                           dPath = Paths$inputPath,
-                           rasterToMatch = rasterToMatch,
-                           studyArea = studyArea,   ## Ceres: makePixel table needs same no. pixels for this, RTM rawBiomassMap, LCC.. etc
-                           sppEquiv = sppEquivalencies_CA,
-                           knnNamesCol = "KNN",
-                           sppEquivCol = sppEquivCol,
-                           thresh = 10,
-                           url = "http://ftp.maps.canada.ca/pub/nrcan_rncan/Forests_Foret/canada-forests-attributes_attributs-forests-canada/2011-attributes_attributs-2011/",
-                           userTags = c("preamble", "speciesLayers2011"))
-
-outputsPreamble <- data.frame(objectName = c("cohortData", "pixelGroupMap"),
-                              saveTime = 2011,
-                              file = c("cohortData2011_fireSense", "pixelGroupMap2011_fireSense"))
-
-objectsPre <- objects
-objectsPre$speciesLayers <- speciesLayers2011
-
-# and pass as object to a second call of Biomass_borealDataPrep. Save cohortData + pixelGroupMap.
-biomassMaps2011 <- Cache(simInitAndSpades,
-                         times = list(start = 2011, end = 2011),
-                         params = parameters,
-                         modules = list("Biomass_borealDataPrep"),
-                         objects = objectsPre,
-                         paths = getPaths(),
-                         loadOrder = "Biomass_borealDataPrep",
-                         outputs = outputsPreamble,
-                         userTags = c("objective:preambleBiomassDataPrep", "time:year2011"))
-
-Paths$outputPath <- originalOutputPath # return original path
+if (prepCohortData){
+  originalOutputPath  <- Paths$outputPath
+  Paths$outputPath <- Paths$inputPath
+  outputsPreamble <- data.frame(objectName = c("cohortData", "pixelGroupMap"),
+                                saveTime = 2001,
+                                file = c("cohortData2001_fireSense", "pixelGroupMap2001_fireSense"))
+  
+  # 1. Run borealBiomassDataPrep ALONE and save: cohortData + pixelGroupMap: will be used 
+  # in fireSense_SizeFit and fireSense_SpreadFit (later on, will be also used in Ignition and Escape fits)
+  # 271 unique using ecoregion
+  # 973 unique using ecodistrict
+  
+  biomassMaps2001 <- Cache(simInitAndSpades, 
+                           times = list(start = 1, end = 1),
+                           params = parameters,
+                           modules = list("Biomass_borealDataPrep"),
+                           objects = objects,
+                           paths = getPaths(),
+                           loadOrder = "Biomass_corealDataPrep",
+                           outputs = outputsPreamble,
+                           userTags = c("objective:preambleBiomassDataPrep", "time:year2001"))
+  
+  # 2. Load these:
+  speciesLayers2011 <- Cache(loadkNNSpeciesLayersValidation,
+                             dPath = Paths$inputPath,
+                             rasterToMatch = rasterToMatch,
+                             studyArea = studyArea,   ## Ceres: makePixel table needs same no. pixels for this, RTM rawBiomassMap, LCC.. etc
+                             sppEquiv = sppEquivalencies_CA,
+                             knnNamesCol = "KNN",
+                             sppEquivCol = sppEquivCol,
+                             thresh = 10,
+                             url = "http://ftp.maps.canada.ca/pub/nrcan_rncan/Forests_Foret/canada-forests-attributes_attributs-forests-canada/2011-attributes_attributs-2011/",
+                             userTags = c("preamble", "speciesLayers2011"))
+  
+  outputsPreamble <- data.frame(objectName = c("cohortData", "pixelGroupMap"),
+                                saveTime = 2011,
+                                file = c("cohortData2011_fireSense", "pixelGroupMap2011_fireSense"))
+  
+  objectsPre <- objects
+  objectsPre$speciesLayers <- speciesLayers2011
+  
+  # and pass as object to a second call of Biomass_borealDataPrep. Save cohortData + pixelGroupMap.
+  biomassMaps2011 <- Cache(simInitAndSpades,
+                           times = list(start = 2011, end = 2011),
+                           params = parameters,
+                           modules = list("Biomass_borealDataPrep"),
+                           objects = objectsPre,
+                           paths = getPaths(),
+                           loadOrder = "Biomass_borealDataPrep",
+                           outputs = outputsPreamble,
+                           userTags = c("objective:preambleBiomassDataPrep", "time:year2011"))
+  
+  Paths$outputPath <- originalOutputPath # return original path
+  
+}
 
 # Now I have to generate the data to fit the Size module -- This was modified from the fireSense_Tutorial
 # to accommodate real data
@@ -531,10 +536,28 @@ Paths$outputPath <- originalOutputPath # return original path
 #                                           userTags = c("typeOfFile:fireComposite", "objectName:fireLocations", "goal:fireSenseFit"))
 #                                           # ABOVE FAILING BECAUSE OF SOME INTERSECTION PROBLEM... WILL TRY YEARLY
 
+# So, with the above failing, I manually downloaded the fire data for each year. Deviding into pre 2006 and post 2006 because the 2006 layer has problems
+# fireLocations1991_2005 <- Cache(getFirePolygons, years = 1991:2005, studyArea = studyArea, 
+#                                  pathInputs = Paths$inputPath, userTags = c("years:1991_2005"))
+# 
+# fireLocations2007_2017 <- Cache(getFirePolygons, years = 2007:2017, studyArea = studyArea, 
+#                                  pathInputs = Paths$inputPath, userTags = c("years:1991_2005"))
+# 
+# fireLocations <- c(fireLocations1991_2005, fireLocations2007_2017)
+ 
+fireLocations <- Cache(getFirePolygons, years = 1991:2017, studyArea = studyArea, 
+                                pathInputs = Paths$inputPath, userTags = c("years:1991_2017"))
+
+# After getting the fire, I should get the weather (MDC)
+# I downloaded the data manually using climateNA and placed in the /inputs folder
+MDC <- calculateMDC(pathInputs = file.path(Paths$inputPath, "NWT_3ArcMinuteM"), 
+                    years = c(1991:2017), doughtMonths = 4:9, rasterToMatch = rasterToMatch)
+# "/mnt/data/Micheletti/NWT/inputs/NWT_3ArcMinuteM"
+
+# Extract the fire polygons from the landscape
+# Here I am going to do conifers and deciduous and the two landscape types
 
 
-
-# HERE <~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 landtypeTypeOneBufMn <- extract(landTypeOne, buf_around_loc_escaped) %>% 
   lapply(mean) %>% 
@@ -547,6 +570,7 @@ landtypeTypeTwoBufMn <- extract(landTypeTwo, buf_around_loc_escaped) %>%
 weatherBufMn <- extract(weather, buf_around_loc_escaped) %>%
   lapply(mean) %>%
   unlist
+
 
 dataFireSense_SizeFit <- data.table(
   landtype_1_pp = landtypeTypeOneBufMn,

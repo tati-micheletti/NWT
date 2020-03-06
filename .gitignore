@@ -32,6 +32,9 @@ tmp/
 ./inputs/
 ./outputs/
 ./inputs/*.*
+inputs/*.zip
+/inputs/*.zip
+./inputs/*.zip
 ./outputs/*.*
 !/inputs/BCR6.*
 !/inputs/bcr6.*

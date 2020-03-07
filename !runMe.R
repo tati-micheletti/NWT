@@ -544,19 +544,27 @@ if (prepCohortData){
 #                                  pathInputs = Paths$inputPath, userTags = c("years:1991_2005"))
 # 
 # fireLocations <- c(fireLocations1991_2005, fireLocations2007_2017)
- 
+source("functions/getFirePolygons.R") 
 fireLocations <- Cache(getFirePolygons, years = 1991:2017, studyArea = studyArea, 
                                 pathInputs = Paths$inputPath, userTags = c("years:1991_2017"))
 
 # After getting the fire, I should get the weather (MDC)
 # I downloaded the data manually using climateNA and placed in the /inputs folder
-MDC <- calculateMDC(pathInputs = file.path(Paths$inputPath, "NWT_3ArcMinuteM"), 
-                    years = c(1991:2017), doughtMonths = 4:9, rasterToMatch = rasterToMatch)
-# "/mnt/data/Micheletti/NWT/inputs/NWT_3ArcMinuteM"
+MDC <- Cache(calculateMDC, pathInputs = file.path(Paths$inputPath, "NWT_3ArcMinuteM"), 
+                    years = c(1991:2017), doughtMonths = 4:9, rasterToMatch = rasterToMatch, 
+             userTags = c("MDC_1991_2017", "normals_MDC"))
 
-# Extract the fire polygons from the landscape
-# Here I am going to do conifers and deciduous and the two landscape types
-
+# Next steps: 
+# 1. Extract MDC from fire polygons for each year with location!
+# 2. Make 2 maps: one with total conifer biomass, one with total deciduous biomass, 
+#    for 2001 and 2011 using cohortData and pixelGroupMap, with rasterizeReduce()?
+# 4. Check if MDC raster and pixelGroupMap match! if not, use pixelGroupMap to postProcess MDC
+# 5. Extract biomass of 2001 conifer, 2001 deciduous, 2011 conifer and 2011 deciduous using 
+# fire polygons with location!
+# 6. For 1991-2003 MDC, merge 2001 conifer and 2001 deciduous
+# 7. For 2004-2017 MDC, merge 2011 conifer and 2011 deciduous
+# This table should be dataFireSense_SizeFit. Year doesn't really matter anymore.
+#        All these are points, unless we are going to use year as random effect!
 
 
 landtypeTypeOneBufMn <- extract(landTypeOne, buf_around_loc_escaped) %>% 

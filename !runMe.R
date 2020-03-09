@@ -550,14 +550,41 @@ fireLocations <- Cache(getFirePolygons, years = 1991:2017, studyArea = studyArea
 
 # After getting the fire, I should get the weather (MDC)
 # I downloaded the data manually using climateNA and placed in the /inputs folder
+source("functions/calculateMDC.R") 
 MDC <- Cache(calculateMDC, pathInputs = file.path(Paths$inputPath, "NWT_3ArcMinuteM"), 
                     years = c(1991:2017), doughtMonths = 4:9, rasterToMatch = rasterToMatch, 
              userTags = c("MDC_1991_2017", "normals_MDC"))
 
-# Next steps: 
 # 1. Extract MDC from fire polygons for each year with location!
+extractRasFromPolys <- function(year, rasList, polyList){
+  library(data.table)
+  if (raster::nlayers(rasList) == 1)
+    rasList <- rasList[[1]]
+  extracted <- data.table(Cache(raster::extract, x = rasList, y = polyList, cellnumbers = TRUE, df = TRUE,
+                     userTags = c("fun:extractRasFromPolys", paste0("year:", year))))
+  names(extracted)[names(extracted) == "cell"] <- "pixelID"
+  extracted$year <- usefun::substrBoth(strng = year, howManyCharacters = 4, fromEnd = TRUE)
+  return(extracted) # Returns now a data.table of pixelID, rasterValue and year (i.e. biomass or MDC)
+}
+MDCextracted <- future_lapply(X = names(MDC), FUN = function(ys){
+  extractedMDC <- extractRasFromPolys(year = ys, rasList = MDC[[ys]], 
+                                      polyList = fireLocations[[ys]])
+  return(extractedMDC)
+  })
+
+MDCextracted <- rbindlist(MDCextracted, use.names = FALSE)
+names(MDCextracted) <- c("ID", "pixelID", "MDC", "year")
+
 # 2. Make 2 maps: one with total conifer biomass, one with total deciduous biomass, 
 #    for 2001 and 2011 using cohortData and pixelGroupMap, with rasterizeReduce()?
+# NOTE: MDC is the raster template for the extraction of locations! Use the same CRS for This
+
+# 2001
+cohortData2001 <- readRDS(file.path(Paths$inputPath, "cohortData_year2001.rds"))
+pixelGroupMap2001 <- readRDS(file.path(Paths$inputPath, "pixelGroupMap_year2001.rds"))
+tryCatch(stack(MDC[[1]], pixelGroupMap2001))
+
+
 # 4. Check if MDC raster and pixelGroupMap match! if not, use pixelGroupMap to postProcess MDC
 # 5. Extract biomass of 2001 conifer, 2001 deciduous, 2011 conifer and 2011 deciduous using 
 # fire polygons with location!

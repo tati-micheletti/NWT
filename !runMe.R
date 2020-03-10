@@ -544,6 +544,16 @@ if (prepCohortData){
 #                                  pathInputs = Paths$inputPath, userTags = c("years:1991_2005"))
 # 
 # fireLocations <- c(fireLocations1991_2005, fireLocations2007_2017)
+
+# Load these so I can use as rasterToMatch
+# 2001
+cohortData2001 <- readRDS(file.path(Paths$inputPath, "cohortData_year2001.rds"))
+pixelGroupMap2001 <- readRDS(file.path(Paths$inputPath, "pixelGroupMap_year2001.rds"))
+
+# 2011
+cohortData2011 <- readRDS(file.path(Paths$inputPath, "cohortData_year2011.rds"))
+pixelGroupMap2011 <- readRDS(file.path(Paths$inputPath, "pixelGroupMap_year2011.rds"))
+
 source("functions/getFirePolygons.R") 
 fireLocations <- Cache(getFirePolygons, years = 1991:2017, studyArea = studyArea, 
                                 pathInputs = Paths$inputPath, userTags = c("years:1991_2017"))
@@ -552,23 +562,15 @@ fireLocations <- Cache(getFirePolygons, years = 1991:2017, studyArea = studyArea
 # I downloaded the data manually using climateNA and placed in the /inputs folder
 source("functions/calculateMDC.R") 
 MDC <- Cache(calculateMDC, pathInputs = file.path(Paths$inputPath, "NWT_3ArcMinuteM"), 
-                    years = c(1991:2017), doughtMonths = 4:9, rasterToMatch = rasterToMatch, 
+                    years = c(1991:2017), doughtMonths = 4:9, rasterToMatch = pixelGroupMap2001, # rasterToMatch is DIFFERENT from pixelGroupMap by 1 row... 
              userTags = c("MDC_1991_2017", "normals_MDC"))
 
 # 1. Extract MDC from fire polygons for each year with location!
-extractRasFromPolys <- function(year, rasList, polyList){
-  library(data.table)
-  if (raster::nlayers(rasList) == 1)
-    rasList <- rasList[[1]]
-  extracted <- data.table(Cache(raster::extract, x = rasList, y = polyList, cellnumbers = TRUE, df = TRUE,
-                     userTags = c("fun:extractRasFromPolys", paste0("year:", year))))
-  names(extracted)[names(extracted) == "cell"] <- "pixelID"
-  extracted$year <- usefun::substrBoth(strng = year, howManyCharacters = 4, fromEnd = TRUE)
-  return(extracted) # Returns now a data.table of pixelID, rasterValue and year (i.e. biomass or MDC)
-}
+source('/mnt/data/Micheletti/NWT/functions/not_included/extractRasFromPolys.R')
 MDCextracted <- future_lapply(X = names(MDC), FUN = function(ys){
-  extractedMDC <- extractRasFromPolys(year = ys, rasList = MDC[[ys]], 
-                                      polyList = fireLocations[[ys]])
+  extractedMDC <- Cache(extractRasFromPolys, year = ys, rasList = MDC[[ys]], 
+                                      polyList = fireLocations[[ys]],
+                        userTags = c(paste0("year:", ys), "MDC"))
   return(extractedMDC)
   })
 
@@ -577,13 +579,50 @@ names(MDCextracted) <- c("ID", "pixelID", "MDC", "year")
 
 # 2. Make 2 maps: one with total conifer biomass, one with total deciduous biomass, 
 #    for 2001 and 2011 using cohortData and pixelGroupMap, with rasterizeReduce()?
-# NOTE: MDC is the raster template for the extraction of locations! Use the same CRS for This
+# here I need a raster of:
+# Proportion of deciduous biomass per pixel (Popu_Trem, Lari_Lar, Betu_Pap)
+# Proportion of Black Spruce biomass per pixel (Pice_Mar)
+# Proportion of ConifersNotBlackSpruce biomass per pixel (Pice_Mar + Pinu_Ban)
+# Proportion of Pine biomass per pixel (Pinu_Ban)
+# Proportion of the pixels that has age < 15
+# We will build a model with: 
+# fireSize ~ (proportion(Popu_Trem+Lari_Lar+Betu_Pap) + proportion(Pice_Mar) + proportion(Pice_Mar + Pinu_Ban) + proportion(Pinu_Ban) + proportion(<15years))*MDC
 
-# 2001
-cohortData2001 <- readRDS(file.path(Paths$inputPath, "cohortData_year2001.rds"))
-pixelGroupMap2001 <- readRDS(file.path(Paths$inputPath, "pixelGroupMap_year2001.rds"))
-tryCatch(stack(MDC[[1]], pixelGroupMap2001))
+classes <- data.table(classes = paste0("class", 1:4), 
+                      rule = c("age < 15", 
+                               "speciesCode %in% c('Betu_Pap', 'Popu_Tre')", 
+                               "speciesCode %in% c('Pice_Mar', 'Pice_Gla', 'Lari_Lar')", 
+                               "speciesCode == 'Pinu_Ban"))
 
+classifyBurnability <- function(cohortData, pixelGroupMap = NULL, returnRasters = FALSE, classes){
+  
+  if (all(isTRUE(returnRasters), is.null(pixelGroupMap)))
+    stop("If returnRasters == TRUE, pixelGroupMap needs to be provided")
+
+  browser()
+  
+  
+  
+  cohortData[, (classes[, classes]) := list(do.call(eval, text = classes[, rule]))]
+
+  if (returnRasters){
+    vegetationCovariates <- SpaDES.tools::rasterizeReduced(reduced = cohortData, 
+                                                           fullRaster = pixelGroupMap, 
+                                                           newRasterCols = "burnability", 
+                                                           mapcode = "pixelGroup")
+    return(vegetationCovariates)
+  } else {
+    return(cohortData)
+  }
+}
+
+vegetationCovariates <- classifyBurnability(cohortData = cohortData2001, pixelGroupMap = pixelGroupMap2001,
+                                            classes = classes, returnRasters = TRUE)
+
+
+
+cohortData2001
+pixelGroupMap2001
 
 # 4. Check if MDC raster and pixelGroupMap match! if not, use pixelGroupMap to postProcess MDC
 # 5. Extract biomass of 2001 conifer, 2001 deciduous, 2011 conifer and 2011 deciduous using 

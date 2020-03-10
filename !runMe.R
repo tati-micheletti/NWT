@@ -567,68 +567,47 @@ MDC <- Cache(calculateMDC, pathInputs = file.path(Paths$inputPath, "NWT_3ArcMinu
 
 # 1. Extract MDC from fire polygons for each year with location!
 source('/mnt/data/Micheletti/NWT/functions/not_included/extractRasFromPolys.R')
-MDCextracted <- future_lapply(X = names(MDC), FUN = function(ys){
+MDCextracted <- lapply(X = names(MDC), FUN = function(ys){
   extractedMDC <- Cache(extractRasFromPolys, year = ys, rasList = MDC[[ys]], 
+                       # destinationPath = Paths$inputPath,
                                       polyList = fireLocations[[ys]],
                         userTags = c(paste0("year:", ys), "MDC"))
   return(extractedMDC)
   })
-
 MDCextracted <- rbindlist(MDCextracted, use.names = FALSE)
 names(MDCextracted) <- c("ID", "pixelID", "MDC", "year")
 
 # 2. Make 2 maps: one with total conifer biomass, one with total deciduous biomass, 
 #    for 2001 and 2011 using cohortData and pixelGroupMap, with rasterizeReduce()?
 # here I need a raster of:
-# Proportion of deciduous biomass per pixel (Popu_Trem, Lari_Lar, Betu_Pap)
-# Proportion of Black Spruce biomass per pixel (Pice_Mar)
-# Proportion of ConifersNotBlackSpruce biomass per pixel (Pice_Mar + Pinu_Ban)
-# Proportion of Pine biomass per pixel (Pinu_Ban)
-# Proportion of the pixels that has age < 15
+
+# Class1: Proportion of the pixels that has age < 15
+# Class2: Proportion of deciduous biomass per pixel (Popu_Trem, Lari_Lar, Betu_Pap)
+# Class3: Proportion of conifer + Larix biomass per pixel (Pice_Mar + Pice_Gla + Lari_Lar)
+# Class4: Proportion of Pine biomass per pixel (Pinu_Ban)
+# Class5: Proportion of other covers
+
 # We will build a model with: 
-# fireSize ~ (proportion(Popu_Trem+Lari_Lar+Betu_Pap) + proportion(Pice_Mar) + proportion(Pice_Mar + Pinu_Ban) + proportion(Pinu_Ban) + proportion(<15years))*MDC
+# fireSize ~ (class1 + class2 + class3 + class4 + class5) * MDC
 
-classes <- data.table(classes = paste0("class", 1:4), 
-                      rule = c("age < 15", 
-                               "speciesCode %in% c('Betu_Pap', 'Popu_Tre')", 
-                               "speciesCode %in% c('Pice_Mar', 'Pice_Gla', 'Lari_Lar')", 
-                               "speciesCode == 'Pinu_Ban"))
+# classify burnable classes. Here is still pixel based
+cohortData2001 <- classifyBurnability(cohortData = cohortData2001, 
+                                      pixelGroupMap = pixelGroupMap2001, 
+                                      pixelsToSubset = MDCextracted$pixelID)
 
-classifyBurnability <- function(cohortData, pixelGroupMap = NULL, returnRasters = FALSE, classes){
-  
-  if (all(isTRUE(returnRasters), is.null(pixelGroupMap)))
-    stop("If returnRasters == TRUE, pixelGroupMap needs to be provided")
+cohortData2011 <- classifyBurnability(cohortData = cohortData2011, 
+                                      pixelGroupMap = pixelGroupMap2011, 
+                                      pixelsToSubset = MDCextracted$pixelID)
+# Get the pixels I need to merge the MDC table (has both MDC and polygon info ~ fire size)
+pixelID_pixelGroup2001 <- data.table(pixelID = MDCextracted$pixelID, pixelGroup = pixelGroupMap2001[MDCextracted$pixelID])
+pixelID_pixelGroup2011 <- data.table(pixelID = MDCextracted$pixelID, pixelGroup = pixelGroupMap2011[MDCextracted$pixelID])
 
-  browser()
-  
-  
-  
-  cohortData[, (classes[, classes]) := list(do.call(eval, text = classes[, rule]))]
-
-  if (returnRasters){
-    vegetationCovariates <- SpaDES.tools::rasterizeReduced(reduced = cohortData, 
-                                                           fullRaster = pixelGroupMap, 
-                                                           newRasterCols = "burnability", 
-                                                           mapcode = "pixelGroup")
-    return(vegetationCovariates)
-  } else {
-    return(cohortData)
-  }
-}
-
-vegetationCovariates <- classifyBurnability(cohortData = cohortData2001, pixelGroupMap = pixelGroupMap2001,
-                                            classes = classes, returnRasters = TRUE)
+# Merge MDC and cohortData using pixelID_pixelGroup Tables
+#~~~~~~~~~~~~~~~~~~> HERE!!! Can't merge both tables.... sigh
+join(cohortData2001, pixelID_pixelGroup2001, by=.EACHI)  
+cohortData2001_A <- pixelID_pixelGroup2001[cohortData2001, on = "pixelGroup"]
 
 
-
-cohortData2001
-pixelGroupMap2001
-
-# 4. Check if MDC raster and pixelGroupMap match! if not, use pixelGroupMap to postProcess MDC
-# 5. Extract biomass of 2001 conifer, 2001 deciduous, 2011 conifer and 2011 deciduous using 
-# fire polygons with location!
-# 6. For 1991-2003 MDC, merge 2001 conifer and 2001 deciduous
-# 7. For 2004-2017 MDC, merge 2011 conifer and 2011 deciduous
 # This table should be dataFireSense_SizeFit. Year doesn't really matter anymore.
 #        All these are points, unless we are going to use year as random effect!
 

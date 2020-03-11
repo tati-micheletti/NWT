@@ -27,7 +27,7 @@ if (updateGithubPackages){
   devtools::install_github("PredictiveEcology/map@development")
   devtools::install_github("PredictiveEcology/SpaDES.core@development") # Updates SpaDES.tools and SpaDES.core quickPlot
   devtools::install_github("PredictiveEcology/SpaDES.tools@development") # Updates SpaDES.tools and SpaDES.core quickPlot
-  devtools::install_github("PredictiveEcology/LandR@development") # Updates SpaDES.tools and SpaDES.core quickPlot
+  devtools::install_github("PredictiveEcology/LandR@ecoregion") # Updates SpaDES.tools and SpaDES.core quickPlot
   devtools::install_github("ianmseddy/LandR.CS@master") # Climate sensitivity in LandR
 }
 
@@ -49,7 +49,7 @@ library("amc")
 library("magrittr") # for piping
 library("future")
 library("future.apply")
-plan("multiprocess")
+plan("multiprocess", workers = 2)
 
 # Source all common functions
 # invisible(sapply(X = list.files(file.path(getwd(), "functions"), full.names = TRUE), FUN = source))
@@ -468,12 +468,12 @@ if (prepCohortData){
   # 973 unique using ecodistrict
   
   biomassMaps2001 <- Cache(simInitAndSpades, 
-                           times = list(start = 1, end = 1),
+                           times = list(start = 2001, end = 2001),
                            params = parameters,
                            modules = list("Biomass_borealDataPrep"),
                            objects = objects,
                            paths = getPaths(),
-                           loadOrder = "Biomass_corealDataPrep",
+                           loadOrder = "Biomass_borealDataPrep",
                            outputs = outputsPreamble,
                            userTags = c("objective:preambleBiomassDataPrep", "time:year2001"))
   
@@ -508,7 +508,6 @@ if (prepCohortData){
                            userTags = c("objective:preambleBiomassDataPrep", "time:year2011"))
   
   Paths$outputPath <- originalOutputPath # return original path
-  
 }
 
 # Now I have to generate the data to fit the Size module -- This was modified from the fireSense_Tutorial
@@ -534,7 +533,8 @@ if (prepCohortData){
 #                                           studyArea = studyArea, rasterToMatch = rasterToMatch,
 #                                           destinationPath = Paths$inputPath, 
 #                                           userTags = c("typeOfFile:fireComposite", "objectName:fireLocations", "goal:fireSenseFit"))
-#                                           # ABOVE FAILING BECAUSE OF SOME INTERSECTION PROBLEM... WILL TRY YEARLY
+#                                           # ABOVE FAILING BECAUSE OF SOME INTERSECTION PROBLEM... WILL TRY YEARLY # UPDATE [This might have been 
+#                                           resolved in the latest post call (reproducible development 89e652ef111af7de91a17a613c66312c1b848847)]
 
 # So, with the above failing, I manually downloaded the fire data for each year. Deviding into pre 2006 and post 2006 because the 2006 layer has problems
 # fireLocations1991_2005 <- Cache(getFirePolygons, years = 1991:2005, studyArea = studyArea, 
@@ -600,6 +600,7 @@ pixelGroupMap2011 <- readRDS(file.path(Paths$inputPath, "pixelGroupMap_year2011.
 
 #}
 
+source('/mnt/data/Micheletti/NWT/functions/not_included/classifyBurnability.R')
 # classify burnable classes. Here is still pixel based
 cohortData2001 <- classifyBurnability(cohortData = cohortData2001, 
                                       pixelGroupMap = pixelGroupMap2001, 
@@ -621,8 +622,14 @@ pixelID_pixelGroup2011 <- data.table(pixelID = MDCextracted[year > 2004, pixelID
                                      pixelGroup = pixelGroupMap2011[MDCextracted[year > 2004, pixelID]])
 
 # Merge MDC and cohortData using pixelID_pixelGroup Tables
-fullCD2001 <- merge(cohortData2001, pixelID_pixelGroup2001, all.y = TRUE)
-fullCD2011 <- merge(cohortData2011, pixelID_pixelGroup2011, all.y = TRUE, allow.cartesian = TRUE) # WHY?
+setkey(cohortData2001, pixelGroup)
+setkey(cohortData2011, pixelGroup)
+setkey(pixelID_pixelGroup2001, pixelGroup)
+setkey(pixelID_pixelGroup2011, pixelGroup)
+
+# We allow.cartesian because each pixel group might have more than one pixel in BOTH tables (i.e. pixelGroup cmposed of several pixels, and several cohorts)
+fullCD2001 <- merge(cohortData2001, pixelID_pixelGroup2001, all.y = TRUE, allow.cartesian = TRUE)
+fullCD2011 <- merge(cohortData2011, pixelID_pixelGroup2011, all.y = TRUE, allow.cartesian = TRUE)
 
 # Give class5 to pixels that are NOT forest, but burned (i.e. pixels that did not exist in 
 # cohortData, and are therefore NA after the merge)
@@ -637,7 +644,7 @@ fullCD2001[is.na(propBurnClass),  propBurnClass := 1L]
 fullCD2011[is.na(propBurnClass),  propBurnClass := 1L]
 
 # Simplify the tables: I only need: burnClass, propBurnClass and pixelID
-colsToKeep <- c("burnClass", "propBurnClass", "pixelID")
+colsToKeep <- c("burnClass", "propBurnClass", "pixelID", "age")
 fullCD2001 <- fullCD2001[, ..colsToKeep]
 fullCD2011 <- fullCD2011[, ..colsToKeep]
 
@@ -658,17 +665,36 @@ if (any(!isTRUE(all(fullCD2001$pixelGroup %in% pixelGroupMap2001[MDCextracted[ye
 # total fire area (fireSize), and % of each class (as columns)
 names(MDCextracted)[names(MDCextracted) == "ID"] <- "fireID"
 modelTable2001 <- merge(fullCD2001, MDCextracted[year < 2005], all = TRUE)
+modelTable2011 <- merge(fullCD2001, MDCextracted[year > 2004], all = TRUE)
 
 #Unique ID for each fire
 modelTable2001[, fireID_year := paste0(fireID, "_", year)]
+modelTable2011[, fireID_year := paste0(fireID, "_", year)]
+
 modelTable2001[, fireSize := .N, by = "fireID_year"]
+modelTable2011[, fireSize := .N, by = "fireID_year"]
+
 # Average MDC based on fire ID
 modelTable2001[, averageMDC := mean(MDC), by = "fireID_year"]
+modelTable2011[, averageMDC := mean(MDC), by = "fireID_year"]
+
 # Reduce the table to what matters and remove duplicated values
 modelTable2001[, pixelID := NULL]
+modelTable2011[, pixelID := NULL]
+
 modelTable2001 <- unique(modelTable2001)
-colsToKeep <- c("burnClass", "propBurnClass", "fireSize", "averageMDC")
+modelTable2011 <- unique(modelTable2011)
+
+colsToKeep <- c("burnClass", "propBurnClass", "fireSize", "averageMDC", "age", "year")
 modelTable2001 <- modelTable2001[, ..colsToKeep]
+modelTable2011 <- modelTable2011[, ..colsToKeep]
+
+# Fix age based on fires:
+modelTable2001$year <- as.numeric(modelTable2001$year)
+modelTable2001[year < 2002, ageFromFire := 2001 - year]
+
+
+# modelTable2001[year < 2002, ageFromFire := 2001 - year]
 
 # dcast so each burnClass is a column with the propBurnClass as value:
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~> HERE. Not yet working correctly... 

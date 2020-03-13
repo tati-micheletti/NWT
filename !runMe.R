@@ -27,7 +27,8 @@ if (updateGithubPackages){
   devtools::install_github("PredictiveEcology/map@development")
   devtools::install_github("PredictiveEcology/SpaDES.core@development") # Updates SpaDES.tools and SpaDES.core quickPlot
   devtools::install_github("PredictiveEcology/SpaDES.tools@development") # Updates SpaDES.tools and SpaDES.core quickPlot
-  devtools::install_github("PredictiveEcology/LandR@ecoregion") # Updates SpaDES.tools and SpaDES.core quickPlot
+  # devtools::install_github("PredictiveEcology/LandR@ecoregion") # Updates SpaDES.tools and SpaDES.core quickPlot
+  devtools::install_github("PredictiveEcology/LandR@moveRounding") # Updates SpaDES.tools and SpaDES.core quickPlot
   devtools::install_github("ianmseddy/LandR.CS@master") # Climate sensitivity in LandR
 }
 
@@ -361,11 +362,10 @@ parameters <- list(
     "useCloudCacheForStats" = TRUE,
     "sppEquivCol" = sppEquivCol,
     "successionTimestep" = 10,
-    "pixelGroupAgeClass" = 10,
-    ".useCache" = c(".inputObjects", "init"),
+    "pixelGroupAgeClass" = 20,
+    ".useCache" = FALSE,#c(".inputObjects", "init"),
     "subsetDataBiomassModel" = 50,
-    "biomassModel" = quote(lme4::lmer(B ~ logAge * speciesCode + cover * speciesCode +
-                                        (logAge + cover | ecoregionGroup)))
+    "biomassModel" = quote(glm(B ~ logAge * speciesCode * cover))
   ),
   Biomass_regeneration = list(
     "fireTimestep" = 1,
@@ -467,15 +467,14 @@ if (prepCohortData){
   # 271 unique using ecoregion
   # 973 unique using ecodistrict
   
-  biomassMaps2001 <- Cache(simInitAndSpades, 
-                           times = list(start = 2001, end = 2001),
+  biomassMaps2001 <- Cache(simInitAndSpades, times = list(start = 2001, end = 2001),
                            params = parameters,
                            modules = list("Biomass_borealDataPrep"),
                            objects = objects,
                            paths = getPaths(),
                            loadOrder = "Biomass_borealDataPrep",
                            outputs = outputsPreamble,
-                           userTags = c("objective:preambleBiomassDataPrep", "time:year2001"))
+                           userTags = c("objective:preambleBiomassDataPrep", "time:year2001", "version:fixedZeros"))
   
   # 2. Load these:
   speciesLayers2011 <- Cache(loadkNNSpeciesLayersValidation,
@@ -497,8 +496,7 @@ if (prepCohortData){
   objectsPre$speciesLayers <- speciesLayers2011
   
   # and pass as object to a second call of Biomass_borealDataPrep. Save cohortData + pixelGroupMap.
-  biomassMaps2011 <- Cache(simInitAndSpades,
-                           times = list(start = 2011, end = 2011),
+  biomassMaps2011 <- simInitAndSpades(times = list(start = 2011, end = 2011),
                            params = parameters,
                            modules = list("Biomass_borealDataPrep"),
                            objects = objectsPre,

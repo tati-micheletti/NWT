@@ -11,7 +11,7 @@ if (pemisc::user() %in% c("Tati", "tmichele"))
   setwd("/mnt/data/Micheletti/NWT")
 t1 <- Sys.time()
 updateCRAN <- FALSE
-updateGithubPackages <- FALSE
+updateGithubPackages <- TRUE
 updateSubmodules <- FALSE
 prepCohortData <- FALSE # Preamble. If already ran (i.e. objs cohortData2011 and cohortData2001 
                         # exist in inputs folder) this should NOT be run i.e. FALSE)
@@ -27,8 +27,7 @@ if (updateGithubPackages){
   devtools::install_github("PredictiveEcology/map@development")
   devtools::install_github("PredictiveEcology/SpaDES.core@development") # Updates SpaDES.tools and SpaDES.core quickPlot
   devtools::install_github("PredictiveEcology/SpaDES.tools@development") # Updates SpaDES.tools and SpaDES.core quickPlot
-  # devtools::install_github("PredictiveEcology/LandR@ecoregion") # Updates SpaDES.tools and SpaDES.core quickPlot
-  devtools::install_github("PredictiveEcology/LandR@moveRounding") # Updates SpaDES.tools and SpaDES.core quickPlot
+  devtools::install_github("PredictiveEcology/LandR@ecoregion") # Updates SpaDES.tools and SpaDES.core quickPlot
   devtools::install_github("ianmseddy/LandR.CS@master") # Climate sensitivity in LandR
 }
 
@@ -50,7 +49,6 @@ library("amc")
 library("magrittr") # for piping
 library("future")
 library("future.apply")
-plan("multiprocess", workers = 2)
 
 # Source all common functions
 # invisible(sapply(X = list.files(file.path(getwd(), "functions"), full.names = TRUE), FUN = source))
@@ -117,6 +115,8 @@ opts <- options(
   "map.useParallel" = TRUE, #!identical("windows", .Platform$OS.type),
   "reproducible.futurePlan" = FALSE,
   "future.globals.maxSize" = if (pemisc::user("tmichele")) 6000*1024^2 else 1000*1024^2,
+  "reproducible.cacheSaveFormat" = "qs",
+  "reproducible.qsPreset" = "fast",
   "reproducible.inputPaths" = if (pemisc::user("emcintir")) "~/data" else paths$inputPath,
   "reproducible.quick" = FALSE,
   "reproducible.overwrite" = TRUE,
@@ -349,7 +349,7 @@ parameters <- list(
     ".plotInitialTime" = NA,
     ".saveInitialTime" = NA,
     "seedingAlgorithm" = "wardDispersal",
-    ".useCache" = FALSE,
+    ".useCache" = TRUE,
     "initialBiomassSource" = "cohortData",
     "growthAndMortalityDrivers" = definedRun$growthAndMortalityDrivers,
     ".useParallel" = 2),
@@ -363,7 +363,7 @@ parameters <- list(
     "sppEquivCol" = sppEquivCol,
     "successionTimestep" = 10,
     "pixelGroupAgeClass" = 20,
-    ".useCache" = FALSE,#c(".inputObjects", "init"),
+    ".useCache" = c(".inputObjects", "init"),
     "subsetDataBiomassModel" = 50,
     "biomassModel" = quote(glm(B ~ logAge * speciesCode * cover))
   ),
@@ -456,11 +456,11 @@ if (runOnlySimInit){
 ##                   PREAMBLE                          ##
 #########################################################
 if (prepCohortData){
-  originalOutputPath  <- Paths$outputPath
-  Paths$outputPath <- Paths$inputPath
+  tempPaths <- getPaths()
+  tempPaths$outputPath <- tempPaths$inputPath
   outputsPreamble <- data.frame(objectName = c("cohortData", "pixelGroupMap"),
                                 saveTime = 2001,
-                                file = c("cohortData2001_fireSense", "pixelGroupMap2001_fireSense"))
+                                file = c("cohortData2001_fireSense.rds", "pixelGroupMap2001_fireSense.rds"))
   
   # 1. Run borealBiomassDataPrep ALONE and save: cohortData + pixelGroupMap: will be used 
   # in fireSense_SizeFit and fireSense_SpreadFit (later on, will be also used in Ignition and Escape fits)
@@ -471,7 +471,7 @@ if (prepCohortData){
                            params = parameters,
                            modules = list("Biomass_borealDataPrep"),
                            objects = objects,
-                           paths = getPaths(),
+                           paths = tempPaths,
                            loadOrder = "Biomass_borealDataPrep",
                            outputs = outputsPreamble,
                            userTags = c("objective:preambleBiomassDataPrep", "time:year2001", "version:fixedZeros"))
@@ -490,22 +490,21 @@ if (prepCohortData){
   
   outputsPreamble <- data.frame(objectName = c("cohortData", "pixelGroupMap"),
                                 saveTime = 2011,
-                                file = c("cohortData2011_fireSense", "pixelGroupMap2011_fireSense"))
+                                file = c("cohortData2011_fireSense.rds", "pixelGroupMap2011_fireSense.rds"))
   
   objectsPre <- objects
   objectsPre$speciesLayers <- speciesLayers2011
   
   # and pass as object to a second call of Biomass_borealDataPrep. Save cohortData + pixelGroupMap.
-  biomassMaps2011 <- simInitAndSpades(times = list(start = 2011, end = 2011),
+  biomassMaps2011 <- Cache(simInitAndSpades, times = list(start = 2011, end = 2011),
                            params = parameters,
                            modules = list("Biomass_borealDataPrep"),
                            objects = objectsPre,
-                           paths = getPaths(),
+                           paths = tempPaths,
                            loadOrder = "Biomass_borealDataPrep",
                            outputs = outputsPreamble,
                            userTags = c("objective:preambleBiomassDataPrep", "time:year2011"))
   
-  Paths$outputPath <- originalOutputPath # return original path
 }
 
 # Now I have to generate the data to fit the Size module -- This was modified from the fireSense_Tutorial
@@ -545,12 +544,12 @@ if (prepCohortData){
 
 # Load these so I can use as rasterToMatch
 # 2001
-cohortData2001 <- readRDS(file.path(Paths$inputPath, "cohortData_year2001.rds"))
-pixelGroupMap2001 <- readRDS(file.path(Paths$inputPath, "pixelGroupMap_year2001.rds"))
+cohortData2001 <- readRDS(file.path(Paths$inputPath, "cohortData2001_fireSense_year2001.rds"))
+pixelGroupMap2001 <- readRDS(file.path(Paths$inputPath, "pixelGroupMap2001_fireSense_year2001.rds"))
 
 # 2011
-cohortData2011 <- readRDS(file.path(Paths$inputPath, "cohortData_year2011.rds"))
-pixelGroupMap2011 <- readRDS(file.path(Paths$inputPath, "pixelGroupMap_year2011.rds"))
+cohortData2011 <- readRDS(file.path(Paths$inputPath, "cohortData2011_fireSense_year2011.rds"))
+pixelGroupMap2011 <- readRDS(file.path(Paths$inputPath, "pixelGroupMap2011_fireSense_year2011.rds"))
 
 source("functions/getFirePolygons.R") 
 fireLocations <- Cache(getFirePolygons, years = 1991:2017, studyArea = studyArea, 
@@ -559,9 +558,8 @@ fireLocations <- Cache(getFirePolygons, years = 1991:2017, studyArea = studyArea
 # After getting the fire, I should get the weather (MDC)
 # I downloaded the data manually using climateNA and placed in the /inputs folder
 source("functions/calculateMDC.R") 
-MDC <- Cache(calculateMDC, pathInputs = file.path(Paths$inputPath, "NWT_3ArcMinuteM"), 
-                    years = c(1991:2017), doughtMonths = 4:9, rasterToMatch = pixelGroupMap2001, # rasterToMatch is DIFFERENT from pixelGroupMap by 1 row... 
-             userTags = c("MDC_1991_2017", "normals_MDC"))
+# plan("multiprocess", workers = length(1991:2017))
+MDC <- Cache(calculateMDC, pathInputs = file.path(Paths$inputPath, "NWT_3ArcMinuteM"), years = c(1991:2017), doughtMonths = 4:9, rasterToMatch = pixelGroupMap2001, userTags = c("MDC_1991_2017", "normals_MDC"))
 
 # 1. Extract MDC from fire polygons for each year with location! Double checked, no NA's
 # > any(is.na(MDCextracted$pixelID))

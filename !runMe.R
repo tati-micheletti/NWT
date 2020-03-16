@@ -364,8 +364,8 @@ parameters <- list(
     "successionTimestep" = 10,
     "pixelGroupAgeClass" = 20,
     ".useCache" = c(".inputObjects", "init"),
-    "subsetDataBiomassModel" = 50,
-    "biomassModel" = quote(glm(B ~ logAge * speciesCode * cover))
+    "subsetDataBiomassModel" = 50#,
+    #"biomassModel" = quote(glm(B ~ logAge * speciesCode * cover * ecoregionGroup))
   ),
   Biomass_regeneration = list(
     "fireTimestep" = 1,

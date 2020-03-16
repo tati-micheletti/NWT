@@ -11,7 +11,7 @@ if (pemisc::user() %in% c("Tati", "tmichele"))
   setwd("/mnt/data/Micheletti/NWT")
 t1 <- Sys.time()
 updateCRAN <- FALSE
-updateGithubPackages <- TRUE
+updateGithubPackages <- FALSE
 updateSubmodules <- FALSE
 prepCohortData <- FALSE # Preamble. If already ran (i.e. objs cohortData2011 and cohortData2001 
                         # exist in inputs folder) this should NOT be run i.e. FALSE)
@@ -551,7 +551,7 @@ pixelGroupMap2001 <- readRDS(file.path(Paths$inputPath, "pixelGroupMap2001_fireS
 cohortData2011 <- readRDS(file.path(Paths$inputPath, "cohortData2011_fireSense_year2011.rds"))
 pixelGroupMap2011 <- readRDS(file.path(Paths$inputPath, "pixelGroupMap2011_fireSense_year2011.rds"))
 
-source("functions/getFirePolygons.R") 
+source("functions/getFirePolygons.R")
 fireLocations <- Cache(getFirePolygons, years = 1991:2017, studyArea = studyArea, 
                                 pathInputs = Paths$inputPath, userTags = c("years:1991_2017"))
 
@@ -585,17 +585,6 @@ names(MDCextracted) <- c("ID", "pixelID", "MDC", "year")
 # We will build a model with: 
 # fireSize ~ (class1 + class2 + class3 + class4 + class5) * MDC
 
-#REMOVE AFTER TESTING {
-# 2001
-cohortData2001 <- readRDS(file.path(Paths$inputPath, "cohortData_year2001.rds"))
-pixelGroupMap2001 <- readRDS(file.path(Paths$inputPath, "pixelGroupMap_year2001.rds"))
-
-# 2011
-cohortData2011 <- readRDS(file.path(Paths$inputPath, "cohortData_year2011.rds"))
-pixelGroupMap2011 <- readRDS(file.path(Paths$inputPath, "pixelGroupMap_year2011.rds"))
-
-#}
-
 source('/mnt/data/Micheletti/NWT/functions/not_included/classifyBurnability.R')
 # classify burnable classes. Here is still pixel based
 cohortData2001 <- classifyBurnability(cohortData = cohortData2001, 
@@ -605,6 +594,18 @@ cohortData2001 <- classifyBurnability(cohortData = cohortData2001,
 cohortData2011 <- classifyBurnability(cohortData = cohortData2011, 
                                       pixelGroupMap = pixelGroupMap2011, 
                                       pixelsToSubset = MDCextracted[year > 2004, pixelID])
+
+# <~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ HERE We have more than 1 of these cases per pixelGroup...
+# BiomassTotal == 0, so we don't have a proportional biomass nor burn...
+# In this case, should I exclude these pixels? Convert all pixels that have total biomass as 0 to class 1, and proportional biomass and class as 1? Check again... The latest update from the model might be correcting these now.
+
+# cohortData2011[totalBiomass == 0, list(burnClass, propBiomass, propBurnClass) := list("class1", 1, 1)]
+# cohortData2001[totalBiomass == 0, list(burnClass, propBiomass, propBurnClass) := list("class1", 1, 1)]
+
+# Removing these:
+#cohortData2011 <- cohortData2011[totalBiomass > 0, ]
+#cohortData2001 <- cohortData2001[totalBiomass > 0, ]
+
 # Assertions:
 if (any(!isTRUE(all(cohortData2001$pixelGroup %in% pixelGroupMap2001[MDCextracted[year < 2005, pixelID]])),
         !isTRUE(all(cohortData2011$pixelGroup %in% pixelGroupMap2011[MDCextracted[year > 2004, pixelID]]))))
@@ -624,6 +625,7 @@ setkey(pixelID_pixelGroup2001, pixelGroup)
 setkey(pixelID_pixelGroup2011, pixelGroup)
 
 # We allow.cartesian because each pixel group might have more than one pixel in BOTH tables (i.e. pixelGroup cmposed of several pixels, and several cohorts)
+
 fullCD2001 <- merge(cohortData2001, pixelID_pixelGroup2001, all.y = TRUE, allow.cartesian = TRUE)
 fullCD2011 <- merge(cohortData2011, pixelID_pixelGroup2011, all.y = TRUE, allow.cartesian = TRUE)
 
@@ -671,8 +673,8 @@ modelTable2001[, fireSize := .N, by = "fireID_year"]
 modelTable2011[, fireSize := .N, by = "fireID_year"]
 
 # Average MDC based on fire ID
-modelTable2001[, averageMDC := mean(MDC), by = "fireID_year"]
-modelTable2011[, averageMDC := mean(MDC), by = "fireID_year"]
+modelTable2001[, averageMDC := mean(MDC, na.rm = TRUE), by = "fireID_year"]
+modelTable2011[, averageMDC := mean(MDC, na.rm = TRUE), by = "fireID_year"]
 
 # Reduce the table to what matters and remove duplicated values
 modelTable2001[, pixelID := NULL]

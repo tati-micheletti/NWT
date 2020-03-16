@@ -9,7 +9,6 @@ googledrive::drive_auth(email = usrEmail)
 
 if (pemisc::user() %in% c("Tati", "tmichele"))
   setwd("/mnt/data/Micheletti/NWT")
-t1 <- Sys.time()
 updateCRAN <- FALSE
 updateGithubPackages <- FALSE
 updateSubmodules <- FALSE
@@ -440,8 +439,7 @@ objects <- list(
   "studyArea" = studyArea,
   "waterRaster" = waterRaster,
   "fireRegimePolys" = studyArea,
-  "ecoregionRst" = ecoRegionRAS,
-  "t1" = t1
+  "ecoregionRst" = ecoRegionRAS
 )
 
 data.table::setDTthreads(10) # Data.table has all threads by default, which is inconveninent and unecessary. Will try setting it for only 10 cores.  

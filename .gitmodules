@@ -71,3 +71,6 @@
 [submodule "modules/priorityPlaces_DataPrep"]
 	path = modules/priorityPlaces_DataPrep
 	url = git@github.com:tati-micheletti/priorityPlaces_DataPrep.git
+[submodule "modules/fireSense_SizeFit"]
+	path = modules/fireSense_SizeFit
+	url = git@github.com:PredictiveEcology/fireSense_SizeFit.git

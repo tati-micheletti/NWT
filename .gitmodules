@@ -74,3 +74,6 @@
 [submodule "modules/fireSense_SizeFit"]
 	path = modules/fireSense_SizeFit
 	url = git@github.com:PredictiveEcology/fireSense_SizeFit.git
+[submodule "modules/caribouIK"]
+	path = modules/caribouIK
+	url = git@github.com:tati-micheletti/caribouIK.git

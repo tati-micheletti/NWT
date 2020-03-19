@@ -4,7 +4,7 @@
 # googledrive::drive_auth(use_oob = TRUE) # USE ONLY ONCE, the first time you are running the project 
 # USING RStudio Server.
 
-usrEmail <- if (pemisc::user() %in% c("tmichele", "Tati")) "tati.micheletti@gmail.com" else NULL
+usrEmail <- if (pemisc::user() %in% c("tmichele", "Tati")) "tati.micheletti@gmail.com" else "eliotmcintire@gmail.com"
 googledrive::drive_auth(email = usrEmail)
 
 if (pemisc::user() %in% c("Tati", "tmichele"))

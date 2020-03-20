@@ -5,7 +5,7 @@ calculateMDC <- function(pathInputs, doughtMonths = 4:9, years,
   variables <- c(paste0("Tmax0", doughtMonths), paste0("PPT0", 
                                                        doughtMonths))
   
-  yearsList <- future_lapply(X = years, FUN = function(y){
+  yearsList <- lapply(X = years, FUN = function(y){ # future
     
   fileName <- file.path(pathInputs, paste0("MDC_", y, ".grd"))
     

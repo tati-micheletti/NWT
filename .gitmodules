@@ -77,3 +77,6 @@
 [submodule "modules/caribouIK"]
 	path = modules/caribouIK
 	url = git@github.com:tati-micheletti/caribouIK.git
+[submodule "modules/caribouCIP"]
+	path = modules/caribouCIP
+	url = git@github.com:tati-micheletti/caribouCIP.git

@@ -26,7 +26,7 @@ if (updateGithubPackages){
   devtools::install_github("PredictiveEcology/map@development")
   devtools::install_github("PredictiveEcology/SpaDES.core@development") # Updates SpaDES.tools and SpaDES.core quickPlot
   devtools::install_github("PredictiveEcology/SpaDES.tools@development") # Updates SpaDES.tools and SpaDES.core quickPlot
-  devtools::install_github("PredictiveEcology/LandR@ecoregion") # Updates SpaDES.tools and SpaDES.core quickPlot
+  devtools::install_github("PredictiveEcology/LandR@reworkCohorts") # Updates SpaDES.tools and SpaDES.core quickPlot
   devtools::install_github("ianmseddy/LandR.CS@master") # Climate sensitivity in LandR
 }
 
@@ -114,7 +114,7 @@ opts <- options(
   "map.useParallel" = TRUE, #!identical("windows", .Platform$OS.type),
   "reproducible.futurePlan" = FALSE,
   "future.globals.maxSize" = if (pemisc::user("tmichele")) 6000*1024^2 else 1000*1024^2,
-  "reproducible.cacheSaveFormat" = "qs",
+  "reproducible.cacheSaveFormat" = "rds",
   "reproducible.qsPreset" = "fast",
   "reproducible.inputPaths" = if (pemisc::user("emcintir")) "~/data" else paths$inputPath,
   "reproducible.quick" = FALSE,
@@ -557,7 +557,15 @@ fireLocations <- Cache(getFirePolygons, years = 1991:2017, studyArea = studyArea
 # I downloaded the data manually using climateNA and placed in the /inputs folder
 source("functions/calculateMDC.R") 
 # plan("multiprocess", workers = length(1991:2017))
-MDC <- Cache(calculateMDC, pathInputs = file.path(Paths$inputPath, "NWT_3ArcMinuteM"), years = c(1991:2017), doughtMonths = 4:9, rasterToMatch = pixelGroupMap2001, userTags = c("MDC_1991_2017", "normals_MDC"))
+if (!file.exists(file.path(Paths$inputPath, "MDC_1991_2017.rds"))){
+  MDC <- Cache(calculateMDC, pathInputs = file.path(Paths$inputPath, "NWT_3ArcMinuteM"), 
+               years = c(1991:2017), doughtMonths = 4:9, rasterToMatch = pixelGroupMap2001, 
+               userTags = c("MDC_1991_2017", "normals_MDC"))
+  
+  saveRDS(MDC, file.path(Paths$inputPath, "MDC_1991_2017.rds"))
+} else {
+  MDC <- readRDS(file.path(Paths$inputPath, "MDC_1991_2017.rds"))
+}
 
 # 1. Extract MDC from fire polygons for each year with location! Double checked, no NA's
 # > any(is.na(MDCextracted$pixelID))

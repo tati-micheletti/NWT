@@ -619,16 +619,9 @@ cohortData2001_class <- classifyBurnability(cohortData = cohortData2001,
                                       pixelGroupMap = pixelGroupMap2001, 
                                       pixelsToSubset = MDCextracted[year < 2005, pixelID])
 
-cohortData2011 <- classifyBurnability(cohortData = cohortData2011, 
+cohortData2011_class <- classifyBurnability(cohortData = cohortData2011, 
                                       pixelGroupMap = pixelGroupMap2011, 
                                       pixelsToSubset = MDCextracted[year > 2004, pixelID])
-
-# <~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ HERE We have more than 1 of these cases per pixelGroup...
-# BiomassTotal == 0, so we don't have a proportional biomass nor burn...
-# In this case, should I exclude these pixels? Convert all pixels that have total biomass as 0 to class 1, and proportional biomass and class as 1? Check again... The latest update from the model might be correcting these now.
-
-# cohortData2011[totalBiomass == 0, list(burnClass, propBiomass, propBurnClass) := list("class1", 1, 1)]
-# cohortData2001[totalBiomass == 0, list(burnClass, propBiomass, propBurnClass) := list("class1", 1, 1)]
 
 # Removing these:
 #cohortData2011 <- cohortData2011[totalBiomass > 0, ]

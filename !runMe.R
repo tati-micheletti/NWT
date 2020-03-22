@@ -571,6 +571,7 @@ if (!file.exists(file.path(Paths$inputPath, "MDC_1991_2017.rds"))){
 # > any(is.na(MDCextracted$pixelID))
 # [1] FALSE
 source('/mnt/data/Micheletti/NWT/functions/not_included/extractRasFromPolys.R')
+if (!file.exists(file.path(Paths$inputPath, "MDCextracted_1991_2017.rds"))){
 MDCextracted <- lapply(X = names(MDC), FUN = function(ys){
   extractedMDC <- Cache(extractRasFromPolys, year = ys, rasList = MDC[[ys]], 
                        # destinationPath = Paths$inputPath,
@@ -580,6 +581,9 @@ MDCextracted <- lapply(X = names(MDC), FUN = function(ys){
   })
 MDCextracted <- rbindlist(MDCextracted, use.names = FALSE)
 names(MDCextracted) <- c("ID", "pixelID", "MDC", "year")
+} else {
+  MDCextracted <- readRDS(file.path(Paths$inputPath, "MDCextracted_1991_2017.rds"))
+}
 
 # 2. Calculate the proportions of each of the classes below 
 # Class1: Proportion of the pixels that has age < 15
@@ -593,7 +597,7 @@ names(MDCextracted) <- c("ID", "pixelID", "MDC", "year")
 
 source('/mnt/data/Micheletti/NWT/functions/not_included/classifyBurnability.R')
 # classify burnable classes. Here is still pixel based
-cohortData2001 <- classifyBurnability(cohortData = cohortData2001, 
+cohortData2001_class <- classifyBurnability(cohortData = cohortData2001, 
                                       pixelGroupMap = pixelGroupMap2001, 
                                       pixelsToSubset = MDCextracted[year < 2005, pixelID])
 

@@ -472,7 +472,7 @@ if (prepCohortData){
                            paths = tempPaths, useCache = "overwrite",
                            loadOrder = "Biomass_borealDataPrep",
                            outputs = outputsPreamble,
-                           userTags = c("objective:preambleBiomassDataPrep", "time:year2001", paste0("LandR_version:",remotes:::local_sha("LandR"))), omitArgs = "useCache")
+                           userTags = c("objective:preambleBiomassDataPrep", "time:year2001", "version:fixedZeros"))
   
   # 2. Load these:
   speciesLayers2011 <- Cache(loadkNNSpeciesLayersValidation,
@@ -482,7 +482,7 @@ if (prepCohortData){
                              sppEquiv = sppEquivalencies_CA,
                              knnNamesCol = "KNN",
                              sppEquivCol = sppEquivCol,
-                             thresh = 10, 
+                             thresh = 10,
                              url = "http://ftp.maps.canada.ca/pub/nrcan_rncan/Forests_Foret/canada-forests-attributes_attributs-forests-canada/2011-attributes_attributs-2011/",
                              userTags = c("preamble", "speciesLayers2011"))
   
@@ -501,9 +501,7 @@ if (prepCohortData){
                            paths = tempPaths, useCache = "overwrite",
                            loadOrder = "Biomass_borealDataPrep",
                            outputs = outputsPreamble,
-                           userTags = c("objective:preambleBiomassDataPrep", 
-                                        "time:year2011", 
-                                        paste0("LandR_version:",remotes:::local_sha("LandR"))))
+                           userTags = c("objective:preambleBiomassDataPrep", "time:year2011"))
   
 }
 
@@ -573,24 +571,15 @@ if (!file.exists(file.path(Paths$inputPath, "MDC_1991_2017.rds"))){
 # > any(is.na(MDCextracted$pixelID))
 # [1] FALSE
 source('/mnt/data/Micheletti/NWT/functions/not_included/extractRasFromPolys.R')
-
-if (!file.exists(file.path(Paths$inputPath, "MDC_1991_2017.rds"))){
-  MDCextracted <- lapply(X = names(MDC), FUN = function(ys){
-    extractedMDC <- Cache(extractRasFromPolys, year = ys, rasList = MDC[[ys]], 
-                          # destinationPath = Paths$inputPath,
-                          polyList = fireLocations[[ys]],
-                          userTags = c(paste0("year:", ys), "MDC"))
-    return(extractedMDC)
+MDCextracted <- lapply(X = names(MDC), FUN = function(ys){
+  extractedMDC <- Cache(extractRasFromPolys, year = ys, rasList = MDC[[ys]], 
+                       # destinationPath = Paths$inputPath,
+                                      polyList = fireLocations[[ys]],
+                        userTags = c(paste0("year:", ys), "MDC"))
+  return(extractedMDC)
   })
-  MDCextracted <- rbindlist(MDCextracted, use.names = FALSE)
-  names(MDCextracted) <- c("ID", "pixelID", "MDC", "year")
-  
-  saveRDS(MDCextracted, file.path(Paths$inputPath, "MDCextracted_1991_2017.rds"))
-} else {
-  MDCextracted <- readRDS(file.path(Paths$inputPath, "MDCextracted_1991_2017.rds"))
-}
-
-MDCextracted <- na.omit(MDCextracted)
+MDCextracted <- rbindlist(MDCextracted, use.names = FALSE)
+names(MDCextracted) <- c("ID", "pixelID", "MDC", "year")
 
 # 2. Calculate the proportions of each of the classes below 
 # Class1: Proportion of the pixels that has age < 15

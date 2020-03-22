@@ -465,13 +465,13 @@ if (prepCohortData){
   # 271 unique using ecoregion
   # 973 unique using ecodistrict
   
-  biomassMaps2001 <- Cache(simInitAndSpades, times = list(start = 2001, end = 2001),
+  biomassMaps2001 <- Cache(simInitAndExperiment, times = list(start = 2001, end = 2001),
                            params = parameters,
                            modules = list("Biomass_borealDataPrep"),
                            objects = objects,
                            paths = tempPaths, useCache = "overwrite",
                            loadOrder = "Biomass_borealDataPrep",
-                           outputs = outputsPreamble,
+                           outputs = outputsPreamble, clearSimEnv = TRUE,
                            userTags = c("objective:preambleBiomassDataPrep", "time:year2001", "version:fixedZeros"))
   
   # 2. Load these:
@@ -494,12 +494,13 @@ if (prepCohortData){
   objectsPre$speciesLayers <- speciesLayers2011
   
   # and pass as object to a second call of Biomass_borealDataPrep. Save cohortData + pixelGroupMap.
-  biomassMaps2011 <- Cache(simInitAndSpades, times = list(start = 2011, end = 2011),
+  biomassMaps2011 <- Cache(simInitAndExperiment, times = list(start = 2011, end = 2011),
                            params = parameters,
                            modules = list("Biomass_borealDataPrep"),
                            objects = objectsPre,
                            paths = tempPaths, useCache = "overwrite",
                            loadOrder = "Biomass_borealDataPrep",
+                           clearSimEnv = TRUE,
                            outputs = outputsPreamble,
                            userTags = c("objective:preambleBiomassDataPrep", "time:year2011"))
   

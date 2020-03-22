@@ -581,6 +581,24 @@ MDCextracted <- lapply(X = names(MDC), FUN = function(ys){
   })
 MDCextracted <- rbindlist(MDCextracted, use.names = FALSE)
 names(MDCextracted) <- c("ID", "pixelID", "MDC", "year")
+
+#Unique ID for each fire
+MDCextracted[, fireID_year := paste0(ID, "_", year)]
+polysNoMDC <- unique(MDCextracted[is.na(MDC), fireID_year])
+message(crayon::blue(paste0(NROW(MDCextracted[fireID_year %in% polysNoMDC,]), " pixels without MDC. Trying to fix...")))
+
+# There are some polygons for which we don't have MDC. 
+# Checking if there are some that we can attribute MDC from neighboring pixs
+lapply(polysNoMDC, function(MDClessGroup){
+  subMDC <- MDCextracted[fireID_year == MDClessGroup, ]
+  MDCtoFill <- mean(subMDC$MDC, na.rm = TRUE)
+  MDCextracted[is.na(MDC) & pixelID %in% subMDC$pixelID & fireID_year == MDClessGroup, MDC := MDCtoFill] 
+})
+# Check which/how many ones we still have as NA. These we are going to have to let go
+polysNoMDC <- unique(MDCextracted[is.na(MDC), fireID_year])
+message(crayon::blue(paste0(NROW(MDCextracted[fireID_year %in% polysNoMDC,]), " pixels still without MDC. Removing...")))
+MDCextracted <- na.omit(MDCextracted)
+saveRDS(MDCextracted, file.path(Paths$inputPath, "MDCextracted_1991_2017.rds"))
 } else {
   MDCextracted <- readRDS(file.path(Paths$inputPath, "MDCextracted_1991_2017.rds"))
 }
@@ -674,10 +692,6 @@ if (any(!isTRUE(all(fullCD2001$pixelGroup %in% pixelGroupMap2001[MDCextracted[ye
 names(MDCextracted)[names(MDCextracted) == "ID"] <- "fireID"
 modelTable2001 <- merge(fullCD2001, MDCextracted[year < 2005], all = TRUE)
 modelTable2011 <- merge(fullCD2001, MDCextracted[year > 2004], all = TRUE)
-
-#Unique ID for each fire
-modelTable2001[, fireID_year := paste0(fireID, "_", year)]
-modelTable2011[, fireID_year := paste0(fireID, "_", year)]
 
 modelTable2001[, fireSize := .N, by = "fireID_year"]
 modelTable2011[, fireSize := .N, by = "fireID_year"]

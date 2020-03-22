@@ -38,11 +38,6 @@ classifyBurnability <- function(cohortData, pixelGroupMap, pixelsToSubset = NULL
   # Classify the burnClasses
   cohortData <- reclassCohortData(cohortData = cohortData, reclassTable = reclassTable)
   
-  # Assertion
-  if(!isTRUE(all(cohortData$pixelGroup %in% firePixelGroup))){
-    stop("Something went wrong with the merging. 
-           It created new pixelGroups in cohortData. Debug.")
-  }
   # Calculate proportional biomass (it might or might now be present already in cohortData)
   cohortData[, totalBiomass := sum(B), by = "pixelGroup"]
   cohortData[, propBiomass := B/totalBiomass, by = "pixelGroup"]

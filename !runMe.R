@@ -12,19 +12,19 @@ if (pemisc::user() %in% c("Tati", "tmichele"))
 updateCRAN <- FALSE
 updateGithubPackages <- FALSE
 updateSubmodules <- FALSE
-prepCohortData <- TRUE # Preamble. If already ran (i.e. objs cohortData2011 and cohortData2001 
+prepCohortData <- FALSE # Preamble. If already ran (i.e. objs cohortData2011 and cohortData2001 
                         # exist in inputs folder) this should NOT be run i.e. FALSE)
 
 if (updateCRAN)
   update.packages(checkBuilt = TRUE, ask = FALSE)
 
 if (updateGithubPackages){
-  devtools::install_github("PredictiveEcology/reproducible@development")
+  devtools::install_github("PredictiveEcology/reproducible@messagingOverhaul")
   devtools::install_github("tati-micheletti/usefun") # Updates LandR
   devtools::install_github("achubaty/amc@development")
   devtools::install_github("PredictiveEcology/pemisc@development")
   devtools::install_github("PredictiveEcology/map@development")
-  devtools::install_github("PredictiveEcology/SpaDES.core@development") # Updates SpaDES.tools and SpaDES.core quickPlot
+  devtools::install_github("PredictiveEcology/SpaDES.core@lowMemory") # Updates SpaDES.tools and SpaDES.core quickPlot
   devtools::install_github("PredictiveEcology/SpaDES.tools@development") # Updates SpaDES.tools and SpaDES.core quickPlot
   devtools::install_github("PredictiveEcology/LandR@reworkCohorts") # Updates SpaDES.tools and SpaDES.core quickPlot
   devtools::install_github("ianmseddy/LandR.CS@master") # Climate sensitivity in LandR
@@ -469,7 +469,7 @@ if (prepCohortData){
                            params = parameters,
                            modules = list("Biomass_borealDataPrep"),
                            objects = objects,
-                           paths = tempPaths,
+                           paths = tempPaths, useCache = "overwrite",
                            loadOrder = "Biomass_borealDataPrep",
                            outputs = outputsPreamble,
                            userTags = c("objective:preambleBiomassDataPrep", "time:year2001", paste0("LandR_version:",remotes:::local_sha("LandR"))), omitArgs = "useCache")
@@ -498,7 +498,7 @@ if (prepCohortData){
                            params = parameters,
                            modules = list("Biomass_borealDataPrep"),
                            objects = objectsPre,
-                           paths = tempPaths,
+                           paths = tempPaths, useCache = "overwrite",
                            loadOrder = "Biomass_borealDataPrep",
                            outputs = outputsPreamble,
                            userTags = c("objective:preambleBiomassDataPrep", 

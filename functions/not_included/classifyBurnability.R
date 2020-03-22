@@ -39,9 +39,9 @@ classifyBurnability <- function(cohortData, pixelGroupMap, pixelsToSubset = NULL
   cohortData <- reclassCohortData(cohortData = cohortData, reclassTable = reclassTable)
   
   # Calculate proportional biomass (it might or might now be present already in cohortData)
-  cohortData[, totalBiomass := sum(B), by = "pixelGroup"]
+  cohortData[, totalBiomass := sum(B, na.rm = TRUE), by = "pixelGroup"]
   cohortData[, propBiomass := B/totalBiomass, by = "pixelGroup"]
   # Calculate proportional biomass per class
-  cohortData[, propBurnClass := sum(propBiomass), by = c("pixelGroup", "burnClass")]
+  cohortData[, propBurnClass := sum(propBiomass, na.rm = TRUE), by = c("pixelGroup", "burnClass")]
   return(cohortData)
 }

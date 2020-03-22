@@ -19,12 +19,12 @@ if (updateCRAN)
   update.packages(checkBuilt = TRUE, ask = FALSE)
 
 if (updateGithubPackages){
-  devtools::install_github("PredictiveEcology/reproducible@development")
+  devtools::install_github("PredictiveEcology/reproducible@messagingOverhaul")
   devtools::install_github("tati-micheletti/usefun") # Updates LandR
   devtools::install_github("achubaty/amc@development")
   devtools::install_github("PredictiveEcology/pemisc@development")
   devtools::install_github("PredictiveEcology/map@development")
-  devtools::install_github("PredictiveEcology/SpaDES.core@development") # Updates SpaDES.tools and SpaDES.core quickPlot
+  devtools::install_github("PredictiveEcology/SpaDES.core@lowMemory") # Updates SpaDES.tools and SpaDES.core quickPlot
   devtools::install_github("PredictiveEcology/SpaDES.tools@development") # Updates SpaDES.tools and SpaDES.core quickPlot
   devtools::install_github("PredictiveEcology/LandR@reworkCohorts") # Updates SpaDES.tools and SpaDES.core quickPlot
   devtools::install_github("ianmseddy/LandR.CS@master") # Climate sensitivity in LandR
@@ -469,7 +469,7 @@ if (prepCohortData){
                            params = parameters,
                            modules = list("Biomass_borealDataPrep"),
                            objects = objects,
-                           paths = tempPaths,
+                           paths = tempPaths, useCache = "overwrite",
                            loadOrder = "Biomass_borealDataPrep",
                            outputs = outputsPreamble,
                            userTags = c("objective:preambleBiomassDataPrep", "time:year2001", "version:fixedZeros"))
@@ -498,7 +498,7 @@ if (prepCohortData){
                            params = parameters,
                            modules = list("Biomass_borealDataPrep"),
                            objects = objectsPre,
-                           paths = tempPaths,
+                           paths = tempPaths, useCache = "overwrite",
                            loadOrder = "Biomass_borealDataPrep",
                            outputs = outputsPreamble,
                            userTags = c("objective:preambleBiomassDataPrep", "time:year2011"))
@@ -571,6 +571,7 @@ if (!file.exists(file.path(Paths$inputPath, "MDC_1991_2017.rds"))){
 # > any(is.na(MDCextracted$pixelID))
 # [1] FALSE
 source('/mnt/data/Micheletti/NWT/functions/not_included/extractRasFromPolys.R')
+if (!file.exists(file.path(Paths$inputPath, "MDCextracted_1991_2017.rds"))){
 MDCextracted <- lapply(X = names(MDC), FUN = function(ys){
   extractedMDC <- Cache(extractRasFromPolys, year = ys, rasList = MDC[[ys]], 
                        # destinationPath = Paths$inputPath,
@@ -580,6 +581,27 @@ MDCextracted <- lapply(X = names(MDC), FUN = function(ys){
   })
 MDCextracted <- rbindlist(MDCextracted, use.names = FALSE)
 names(MDCextracted) <- c("ID", "pixelID", "MDC", "year")
+
+#Unique ID for each fire
+MDCextracted[, fireID_year := paste0(ID, "_", year)]
+polysNoMDC <- unique(MDCextracted[is.na(MDC), fireID_year])
+message(crayon::blue(paste0(NROW(MDCextracted[fireID_year %in% polysNoMDC,]), " pixels without MDC. Trying to fix...")))
+
+# There are some polygons for which we don't have MDC. 
+# Checking if there are some that we can attribute MDC from neighboring pixs
+lapply(polysNoMDC, function(MDClessGroup){
+  subMDC <- MDCextracted[fireID_year == MDClessGroup, ]
+  MDCtoFill <- mean(subMDC$MDC, na.rm = TRUE)
+  MDCextracted[is.na(MDC) & pixelID %in% subMDC$pixelID & fireID_year == MDClessGroup, MDC := MDCtoFill] 
+})
+# Check which/how many ones we still have as NA. These we are going to have to let go
+polysNoMDC <- unique(MDCextracted[is.na(MDC), fireID_year])
+message(crayon::blue(paste0(NROW(MDCextracted[fireID_year %in% polysNoMDC,]), " pixels still without MDC. Removing...")))
+MDCextracted <- na.omit(MDCextracted)
+saveRDS(MDCextracted, file.path(Paths$inputPath, "MDCextracted_1991_2017.rds"))
+} else {
+  MDCextracted <- readRDS(file.path(Paths$inputPath, "MDCextracted_1991_2017.rds"))
+}
 
 # 2. Calculate the proportions of each of the classes below 
 # Class1: Proportion of the pixels that has age < 15
@@ -593,7 +615,7 @@ names(MDCextracted) <- c("ID", "pixelID", "MDC", "year")
 
 source('/mnt/data/Micheletti/NWT/functions/not_included/classifyBurnability.R')
 # classify burnable classes. Here is still pixel based
-cohortData2001 <- classifyBurnability(cohortData = cohortData2001, 
+cohortData2001_class <- classifyBurnability(cohortData = cohortData2001, 
                                       pixelGroupMap = pixelGroupMap2001, 
                                       pixelsToSubset = MDCextracted[year < 2005, pixelID])
 
@@ -670,10 +692,6 @@ if (any(!isTRUE(all(fullCD2001$pixelGroup %in% pixelGroupMap2001[MDCextracted[ye
 names(MDCextracted)[names(MDCextracted) == "ID"] <- "fireID"
 modelTable2001 <- merge(fullCD2001, MDCextracted[year < 2005], all = TRUE)
 modelTable2011 <- merge(fullCD2001, MDCextracted[year > 2004], all = TRUE)
-
-#Unique ID for each fire
-modelTable2001[, fireID_year := paste0(fireID, "_", year)]
-modelTable2011[, fireID_year := paste0(fireID, "_", year)]
 
 modelTable2001[, fireSize := .N, by = "fireID_year"]
 modelTable2011[, fireSize := .N, by = "fireID_year"]

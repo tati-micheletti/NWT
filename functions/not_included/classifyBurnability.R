@@ -6,10 +6,8 @@ classifyBurnability <- function(cohortData, pixelGroupMap, pixelsToSubset = NULL
     newCohortData[age < 15, burnClass := "class1"]
     
     # Assertion
-    if(!isTRUE(all(newCohortData$pixelGroup %in% firePixelGroup))){
-      stop("Something went wrong with the merging. 
-           It created new pixelGroups in cohortData. Debug.")
-    }
+    testthat::expect_true(all(newCohortData$pixelGroup %in% firePixelGroup))
+    
     return(newCohortData)
   }
   
@@ -30,6 +28,7 @@ classifyBurnability <- function(cohortData, pixelGroupMap, pixelsToSubset = NULL
     # [1] TRUE
     # Browse[1]> all(firePixelGroup %in% cohortData$pixelGroup)
     # [1] FALSE
+
   }
   
   spCode <- c('Pice_Mar', 'Pice_Gla', 'Lari_Lar', 'Betu_Pap', 'Popu_Tre', 'Pinu_Ban') # TODO Make it flexible!

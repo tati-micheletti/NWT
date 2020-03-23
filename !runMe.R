@@ -10,8 +10,8 @@ googledrive::drive_auth(email = usrEmail)
 if (pemisc::user() %in% c("Tati", "tmichele"))
   setwd("/mnt/data/Micheletti/NWT")
 updateCRAN <- FALSE
-updateGithubPackages <- FALSE
-updateSubmodules <- FALSE
+updateGithubPackages <- TRUE
+updateSubmodules <- TRUE
 prepCohortData <- FALSE # Preamble. If already ran (i.e. objs cohortData2011 and cohortData2001 
                         # exist in inputs folder) this should NOT be run i.e. FALSE)
 
@@ -465,13 +465,13 @@ if (prepCohortData){
   # 271 unique using ecoregion
   # 973 unique using ecodistrict
   
-  biomassMaps2001 <- Cache(simInitAndExperiment, times = list(start = 2001, end = 2001),
+  biomassMaps2001 <- Cache(simInitAndSpades, times = list(start = 2001, end = 2001),
                            params = parameters,
                            modules = list("Biomass_borealDataPrep"),
                            objects = objects,
                            paths = tempPaths, useCache = "overwrite",
                            loadOrder = "Biomass_borealDataPrep",
-                           outputs = outputsPreamble, clearSimEnv = TRUE,
+                           outputs = outputsPreamble, #clearSimEnv = TRUE,
                            userTags = c("objective:preambleBiomassDataPrep", "time:year2001", "version:fixedZeros"))
   
   # 2. Load these:
@@ -494,7 +494,7 @@ if (prepCohortData){
   objectsPre$speciesLayers <- speciesLayers2011
   
   # and pass as object to a second call of Biomass_borealDataPrep. Save cohortData + pixelGroupMap.
-  biomassMaps2011 <- Cache(simInitAndExperiment, times = list(start = 2011, end = 2011),
+  biomassMaps2011 <- Cache(simInitAndSpades, times = list(start = 2011, end = 2011),
                            params = parameters,
                            modules = list("Biomass_borealDataPrep"),
                            objects = objectsPre,
@@ -623,10 +623,6 @@ cohortData2001_class <- classifyBurnability(cohortData = cohortData2001,
 cohortData2011_class <- classifyBurnability(cohortData = cohortData2011, 
                                       pixelGroupMap = pixelGroupMap2011, 
                                       pixelsToSubset = MDCextracted[year > 2004, pixelID])
-
-# Removing these:
-#cohortData2011 <- cohortData2011[totalBiomass > 0, ]
-#cohortData2001 <- cohortData2001[totalBiomass > 0, ]
 
 # Assertions:
 if (any(!isTRUE(all(cohortData2001$pixelGroup %in% pixelGroupMap2001[MDCextracted[year < 2005, pixelID]])),

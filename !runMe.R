@@ -465,13 +465,13 @@ if (prepCohortData){
   # 271 unique using ecoregion
   # 973 unique using ecodistrict
   
-  biomassMaps2001 <- Cache(simInitAndSpades, times = list(start = 2001, end = 2001),
+  biomassMaps2001 <- Cache(simInitAndExperiment, times = list(start = 2001, end = 2001),
                            params = parameters,
                            modules = list("Biomass_borealDataPrep"),
                            objects = objects,
                            paths = tempPaths, useCache = "overwrite",
                            loadOrder = "Biomass_borealDataPrep",
-                           outputs = outputsPreamble,
+                           outputs = outputsPreamble, clearSimEnv = TRUE,
                            userTags = c("objective:preambleBiomassDataPrep", "time:year2001", "version:fixedZeros"))
   
   # 2. Load these:
@@ -494,12 +494,13 @@ if (prepCohortData){
   objectsPre$speciesLayers <- speciesLayers2011
   
   # and pass as object to a second call of Biomass_borealDataPrep. Save cohortData + pixelGroupMap.
-  biomassMaps2011 <- Cache(simInitAndSpades, times = list(start = 2011, end = 2011),
+  biomassMaps2011 <- Cache(simInitAndExperiment, times = list(start = 2011, end = 2011),
                            params = parameters,
                            modules = list("Biomass_borealDataPrep"),
                            objects = objectsPre,
                            paths = tempPaths, useCache = "overwrite",
                            loadOrder = "Biomass_borealDataPrep",
+                           clearSimEnv = TRUE,
                            outputs = outputsPreamble,
                            userTags = c("objective:preambleBiomassDataPrep", "time:year2011"))
   
@@ -619,16 +620,9 @@ cohortData2001_class <- classifyBurnability(cohortData = cohortData2001,
                                       pixelGroupMap = pixelGroupMap2001, 
                                       pixelsToSubset = MDCextracted[year < 2005, pixelID])
 
-cohortData2011 <- classifyBurnability(cohortData = cohortData2011, 
+cohortData2011_class <- classifyBurnability(cohortData = cohortData2011, 
                                       pixelGroupMap = pixelGroupMap2011, 
                                       pixelsToSubset = MDCextracted[year > 2004, pixelID])
-
-# <~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ HERE We have more than 1 of these cases per pixelGroup...
-# BiomassTotal == 0, so we don't have a proportional biomass nor burn...
-# In this case, should I exclude these pixels? Convert all pixels that have total biomass as 0 to class 1, and proportional biomass and class as 1? Check again... The latest update from the model might be correcting these now.
-
-# cohortData2011[totalBiomass == 0, list(burnClass, propBiomass, propBurnClass) := list("class1", 1, 1)]
-# cohortData2001[totalBiomass == 0, list(burnClass, propBiomass, propBurnClass) := list("class1", 1, 1)]
 
 # Removing these:
 #cohortData2011 <- cohortData2011[totalBiomass > 0, ]

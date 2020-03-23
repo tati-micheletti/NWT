@@ -43,5 +43,10 @@ classifyBurnability <- function(cohortData, pixelGroupMap, pixelsToSubset = NULL
   cohortData[, propBiomass := B/totalBiomass, by = "pixelGroup"]
   # Calculate proportional biomass per class
   cohortData[, propBurnClass := sum(propBiomass, na.rm = TRUE), by = c("pixelGroup", "burnClass")]
+  cohortData[totalBiomass == 0 & age == 0, c("propBiomass", "propBurnClass") := 1]
+  
+  # Assertion: we don't have any more NA's
+  testthat::expect_true(NROW(cohortData) == NROW(na.omit(cohortData)))
+  
   return(cohortData)
 }

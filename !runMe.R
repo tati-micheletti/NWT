@@ -603,160 +603,127 @@ saveRDS(MDCextracted, file.path(Paths$inputPath, "MDCextracted_1991_2017.rds"))
 } else {
   MDCextracted <- readRDS(file.path(Paths$inputPath, "MDCextracted_1991_2017.rds"))
 }
+# TODO Should I maybe use 1991 to 2001 and 2002 to 2011? I have 979 unique fires if I do this. 
+# Otherwise (1991-2017) I have 1536
 
-# 2. Calculate the proportions of each of the classes below 
+# 1. Join the cohortData with the MDCextracted table based on the year.
+# Get the pixels I need to merge the MDC table (has both MDC and polygon info ~ fire size)
+# There are pixels in here that don't have a pixeGroup: these are outside of forests, maybe?
+pixelID_pixelGroup2001 <- data.table(pixelID = unique(MDCextracted[year < 2005, pixelID]),
+                                     pixelGroup = pixelGroupMap2001[unique(MDCextracted[year < 2005, pixelID])])
+pixelID_pixelGroup2011 <- data.table(pixelID = unique(MDCextracted[year > 2004, pixelID]), 
+                                     pixelGroup = pixelGroupMap2011[unique(MDCextracted[year > 2004, pixelID])])
+
+# # Merge MDC and cohortData using pixelID_pixelGroup Tables
+# setkey(cohortData2001, pixelGroup)
+# setkey(cohortData2011, pixelGroup)
+# setkey(pixelID_pixelGroup2001, pixelGroup)
+# setkey(pixelID_pixelGroup2011, pixelGroup)
+
+# 2. Mege both tables:
+# pixelID have no NA, pixelGroups have (potentially non-forests)
+cohortData2001_px <- merge(cohortData2001, pixelID_pixelGroup2001, all.y = TRUE)
+cohortData2011_px <- merge(cohortData2011, pixelID_pixelGroup2011, all.y = TRUE)
+
+# 3. Merge the two datasets: fire and cohortData
+# We only care about the pixels that had fire (coming from MDCextracted). So we do all.y = TRUE,
+# but all.x = FALSE
+cohortData2001_MDC <- merge(cohortData2001_px, MDCextracted[year < 2005, ], all.y = TRUE, by = "pixelID")
+cohortData2011_MDC <- merge(cohortData2011_px, MDCextracted[year > 2004, ], all.y = TRUE, by = "pixelID")
+
+# 4. rbind the 2001 and 2011 datasets. Now each row has its specific cover and MDC, and all, 
+# it should be fine to joing these
+cohort_MDC <- rbind(cohortData2001_MDC, cohortData2011_MDC)
+# simplify the dataset
+cohort_MDC <- cohort_MDC[, c("pixelGroup", "ecoregionGroup", "rasterToMatch", "totalBiomass") := NULL]
+
+# 5. calculate the number of pixels in each fireID_year 
+cohort_MDC[, fireSize := length(unique(pixelID)), by = fireID_year]
+
+# 6. Calculate the real age based on fire year:
+cohort_MDC[as.numeric(year) < 2001, realAge := 2001 - as.numeric(year)]
+cohort_MDC[as.numeric(year) < 2011 & as.numeric(year) > 2000, realAge := 2011 - as.numeric(year)]
+cohort_MDC[!is.na(realAge), age := realAge]
+cohort_MDC[, realAge := NULL]
+
+# 7. Calculate the proportion of each class for each fireID_year: maybe create one column for each one of the classes
 # Class1: Proportion of the pixels that has age < 15
 # Class2: Proportion of deciduous biomass per pixel (Popu_Trem, Lari_Lar, Betu_Pap)
 # Class3: Proportion of conifer + Larix biomass per pixel (Pice_Mar + Pice_Gla + Lari_Lar)
 # Class4: Proportion of Pine biomass per pixel (Pinu_Ban)
 # Class5: Proportion of other covers
 
+spCode <- c('Pice_Mar', 'Pice_Gla', 'Lari_Lar', 'Betu_Pap', 'Popu_Tre', 'Pinu_Ban') # TODO Make it flexible and into a function!
+reclassTable <- data.table(speciesCode = spCode, burnClass = c("class3", "class3", "class3", "class2", "class2", "class4"))
+cohort_MDC <- merge(cohort_MDC, reclassTable, by = "speciesCode", all.x = TRUE)
+cohort_MDC[age < 15, burnClass := "class1"]
+cohort_MDC[is.na(B), burnClass := "class5"]
+
+# 8. Calculate proportional biomass
+# 8.1. Now that I reclassified the species, I could drop speciesCode. But won't do that in case I find any duplicates I can check.
+  # cohort_MDC[, "speciesCode" := NULL]
+cohort_MDC[, totalBiomassPixel := sum(B), by = c("pixelID", "fireID_year")]
+#Assertion
+testthat::expect_true(NROW(cohort_MDC[is.na(totalBiomassPixel) & burnClass != "class5", ])==0)
+testthat::expect_true(NROW(cohort_MDC[!is.na(totalBiomassPixel) & burnClass == "class5", ])==0)
+
+cohort_MDC[, BperClass := sum(B), by = c("burnClass", "pixelID", "fireID_year")]
+cohort_MDC[, totalBiomassFire := sum(totalBiomassPixel, na.rm = TRUE), by = c("fireID_year")] # I may have some polys with class 5, need na.rm = TRUE
+cohort_MDC[, BperClassFire := sum(BperClass, na.rm = TRUE), by = c("burnClass", "fireID_year")]
+cohort_MDC[, propBurnClassFire := BperClassFire/totalBiomassFire]
+# Fix 0/0
+cohort_MDC[is.na(propBurnClassFire), propBurnClassFire := 0]
+
+# 9. Average MDC per fireID_year
+cohort_MDC[, averageMDC := mean(MDC), by = "fireID_year"]
+# We shouldn't have any NAs in MDC, we dealt with those before
+testthat::expect_false(any(is.na(cohort_MDC$averageMDC)))
+
+colsToKeep <- c("fireID_year", "fireSize", "burnClass", "propBurnClassFire", "averageMDC")
+colsToDel <- setdiff(names(cohort_MDC), colsToKeep)
+cohort_MDC[, c(colsToDel) := NULL]
+cohort_MDC <- unique(cohort_MDC)
+
+# Assertion: we don't have any more NA's
+testthat::expect_true(NROW(cohort_MDC) == NROW(na.omit(cohort_MDC)))
+
+# Add another test here: expect no message from dcast!
+#fun.aggregate
+#Should the data be aggregated before casting? If the formula doesn't identify a single observation for each cell, then aggregation defaults to length with a message.
+# So, if all is working, I should NOT have to pass fun.aggregated to dcast and it should NOT give me a warning. This happens because, as I 
+# see above, I have 4 cases where I have more than 1 pixel per burnClass per fire
+
+# For testing: if I have lengh of any class > 1, means I have more than 1  
+cohort_cast <- dcast(cohort_MDC, fireID_year + fireSize + averageMDC ~ burnClass, 
+                           value.var = "propBurnClassFire")
+
+replaceNAwith0 <- function(DT){
+  for (i in names(DT))
+    DT[is.na(get(i)), (i):=0]
+}
+replaceNAwith0(cohort_cast)
+
+# Assertion:
+testthat::expect_true(length(unique(cohort_cast$fireID_year))==NROW(cohort_cast)) # One fire per row
+testthat::expect_true(all(cohort_cast[, class1+class2+class3+class4+class5 <= 1, ])) # The proportions make sense
+
+#Cleanup
+cohort_cast[, fireID_year := NULL]
+# Class5 needs to be removed, as we might not be able to get the parameter (and we actually don't really care!). 
+cohort_cast[, class5 := NULL]
+names(cohort_cast)[names(cohort_cast) == "averageMDC"] <- "weather"
+
 # We will build a model with: 
-# fireSize ~ (class1 + class2 + class3 + class4 + class5) * MDC
+# fireSize ~ (class1 + class2 + class3 + class4) * MDC
 
-source('/mnt/data/Micheletti/NWT/functions/not_included/classifyBurnability.R')
-# classify burnable classes. Here is still pixel based
-cohortData2001_class <- classifyBurnability(cohortData = cohortData2001, 
-                                      pixelGroupMap = pixelGroupMap2001, 
-                                      pixelsToSubset = MDCextracted[year < 2005, pixelID])
+dataFireSense_SizeFit <- cohort_cast
 
-cohortData2011_class <- classifyBurnability(cohortData = cohortData2011, 
-                                      pixelGroupMap = pixelGroupMap2011, 
-                                      pixelsToSubset = MDCextracted[year > 2004, pixelID])
-
-# Assertions:
-if (any(!isTRUE(all(cohortData2001$pixelGroup %in% pixelGroupMap2001[MDCextracted[year < 2005, pixelID]])),
-        !isTRUE(all(cohortData2011$pixelGroup %in% pixelGroupMap2011[MDCextracted[year > 2004, pixelID]]))))
-  stop("Something went wrong with the merging. 
-           It created new pixelGroups in cohortData. Debug.")
-
-# Get the pixels I need to merge the MDC table (has both MDC and polygon info ~ fire size)
-pixelID_pixelGroup2001 <- data.table(pixelID = MDCextracted[year < 2005, pixelID], 
-                                     pixelGroup = pixelGroupMap2001[MDCextracted[year < 2005, pixelID]])
-pixelID_pixelGroup2011 <- data.table(pixelID = MDCextracted[year > 2004, pixelID], 
-                                     pixelGroup = pixelGroupMap2011[MDCextracted[year > 2004, pixelID]])
-
-# Merge MDC and cohortData using pixelID_pixelGroup Tables
-setkey(cohortData2001, pixelGroup)
-setkey(cohortData2011, pixelGroup)
-setkey(pixelID_pixelGroup2001, pixelGroup)
-setkey(pixelID_pixelGroup2011, pixelGroup)
-
-# We allow.cartesian because each pixel group might have more than one pixel in BOTH tables (i.e. pixelGroup cmposed of several pixels, and several cohorts)
-
-fullCD2001 <- merge(cohortData2001, pixelID_pixelGroup2001, all.y = TRUE, allow.cartesian = TRUE)
-fullCD2011 <- merge(cohortData2011, pixelID_pixelGroup2011, all.y = TRUE, allow.cartesian = TRUE)
-
-# Give class5 to pixels that are NOT forest, but burned (i.e. pixels that did not exist in 
-# cohortData, and are therefore NA after the merge)
-# OBS.: For now with this, we assume all other landcovers burn the same way! We will address 
-# that after April 
-fullCD2001[is.na(burnClass),  burnClass := "class5"]
-fullCD2011[is.na(burnClass),  burnClass := "class5"]
-
-# Give propBurnClass 1 to NA's (i.e. pixels that burned but not forest are 100% covered 
-# by the other category)
-fullCD2001[is.na(propBurnClass),  propBurnClass := 1L]
-fullCD2011[is.na(propBurnClass),  propBurnClass := 1L]
-
-# Simplify the tables: I only need: burnClass, propBurnClass and pixelID
-colsToKeep <- c("burnClass", "propBurnClass", "pixelID", "age")
-fullCD2001 <- fullCD2001[, ..colsToKeep]
-fullCD2011 <- fullCD2011[, ..colsToKeep]
-
-# Remove duplicated values that were created when proportions of the same burn class were summed
-# (ie a pixel had Pice_Mar and Pice_Gla, each at 0.1 proportional Biomass and each one in one row. 
-# The column propBuenClass will have exactly the same value for both, ie. 0.2 as they are from the 
-# same class.
-fullCD2001 <- unique(fullCD2001)
-fullCD2011 <- unique(fullCD2011)
-
-# Assertion
-if (any(!isTRUE(all(fullCD2001$pixelGroup %in% pixelGroupMap2001[MDCextracted[year < 2005, pixelID]])),
-        !isTRUE(all(fullCD2011$pixelGroup %in% pixelGroupMap2011[MDCextracted[year > 2004, pixelID]]))))
-  stop("Something went wrong with the merging. 
-       It created new pixelGroups in cohortData. Debug.")
-
-# Merge now MDC, which has polygon ID per fire. We will need to summarize the table by
-# total fire area (fireSize), and % of each class (as columns)
-names(MDCextracted)[names(MDCextracted) == "ID"] <- "fireID"
-modelTable2001 <- merge(fullCD2001, MDCextracted[year < 2005], all = TRUE)
-modelTable2011 <- merge(fullCD2001, MDCextracted[year > 2004], all = TRUE)
-
-modelTable2001[, fireSize := .N, by = "fireID_year"]
-modelTable2011[, fireSize := .N, by = "fireID_year"]
-
-# Average MDC based on fire ID
-modelTable2001[, averageMDC := mean(MDC, na.rm = TRUE), by = "fireID_year"]
-modelTable2011[, averageMDC := mean(MDC, na.rm = TRUE), by = "fireID_year"]
-
-# Reduce the table to what matters and remove duplicated values
-modelTable2001[, pixelID := NULL]
-modelTable2011[, pixelID := NULL]
-
-modelTable2001 <- unique(modelTable2001)
-modelTable2011 <- unique(modelTable2011)
-
-colsToKeep <- c("burnClass", "propBurnClass", "fireSize", "averageMDC", "age", "year")
-modelTable2001 <- modelTable2001[, ..colsToKeep]
-modelTable2011 <- modelTable2011[, ..colsToKeep]
-
-# Fix age based on fires:
-modelTable2001$year <- as.numeric(modelTable2001$year)
-modelTable2001[year < 2002, ageFromFire := 2001 - year]
+# ready to try fireSense_SizeFit
 
 
-# modelTable2001[year < 2002, ageFromFire := 2001 - year]
-
-# dcast so each burnClass is a column with the propBurnClass as value:
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~> HERE. Not yet working correctly... 
-# The value of propBurnClass is not being used! 
-modelData2001 <- dcast(modelTable2001, fireSize + averageMDC ~ burnClass, value.var = "propBurnClass")
-
-
-# This table should be dataFireSense_SizeFit. Year doesn't really matter anymore.
-#        All these are points, unless we are going to use year as random effect!
-
-
-landtypeTypeOneBufMn <- extract(landTypeOne, buf_around_loc_escaped) %>% 
-  lapply(mean) %>% 
-  unlist
-
-landtypeTypeTwoBufMn <- extract(landTypeTwo, buf_around_loc_escaped) %>% 
-  lapply(mean) %>% 
-  unlist
-
-weatherBufMn <- extract(weather, buf_around_loc_escaped) %>%
-  lapply(mean) %>%
-  unlist
-
-
-dataFireSense_SizeFit <- data.table(
-  landtype_1_pp = landtypeTypeOneBufMn,
-  landtype_2_pp = landtypeTypeTwoBufMn,
-  weather = weatherBufMn
-)
-
-b1_l <- -.03
-b2_l <- 4
-b3_l <- -2
-
-lambda <- with(dataFireSense_SizeFit, exp(weather * b1_l + landtype_1_pp * b2_l + landtype_2_pp * b3_l))
-
-b1_t <- .02
-b2_t <- 4
-b3_t <- 2
-
-theta <- with(dataFireSense_SizeFit, exp(weather * b1_t + landtype_1_pp * b2_t + landtype_2_pp * b3_t))
-
-fireSize <- round(rtappareto(n = length(lambda), lambda = lambda, theta = theta, a = 1))
-
-dataFireSense_SizeFit[, fire_size := fireSize]
-# dataFireSense_SizeFit <- mutate(dataFireSense_SizeFit, fire_size = fireSize)
-
-# Create the fire attribute dataset that describes the starting locations 
-# and the size of the fires to be spread. This is needed to fit the statistical model of spread probabilities
-fireAttributesFireSense_SpreadFit <- SpatialPointsDataFrame(fireLocations[as.logical(escaped)], data = data.frame(size = fireSize))
+# # Create the fire attribute dataset that describes the starting locations 
+# # and the size of the fires to be spread. This is needed to fit the statistical model of spread probabilities
+# fireAttributesFireSense_SpreadFit <- SpatialPointsDataFrame(fireLocations[as.logical(escaped)], data = data.frame(size = fireSize))
 
 
 

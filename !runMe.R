@@ -470,7 +470,7 @@ if (prepCohortData){
                            params = parameters,
                            modules = list("Biomass_borealDataPrep"),
                            objects = objects,
-                           paths = tempPaths, useCache = "overwrite",
+                           paths = tempPaths,
                            loadOrder = "Biomass_borealDataPrep",
                            outputs = outputsPreamble, #clearSimEnv = TRUE,
                            userTags = c("objective:preambleBiomassDataPrep", "time:year2001", "version:fixedZeros"))
@@ -506,7 +506,7 @@ if (prepCohortData){
                            userTags = c("objective:preambleBiomassDataPrep", "time:year2011"))
   
 }
-
+  
 # Now I have to generate the data to fit the Size module -- This was modified from the fireSense_Tutorial
 # to accommodate real data
 
@@ -610,6 +610,8 @@ saveRDS(MDCextracted, file.path(Paths$inputPath, "MDCextracted_1991_2017.rds"))
 # 1. Join the cohortData with the MDCextracted table based on the year.
 # Get the pixels I need to merge the MDC table (has both MDC and polygon info ~ fire size)
 # There are pixels in here that don't have a pixeGroup: these are outside of forests, maybe?
+library("data.table")
+library("testthat")
 pixelID_pixelGroup2001 <- data.table(pixelID = unique(MDCextracted[year < 2005, pixelID]),
                                      pixelGroup = pixelGroupMap2001[unique(MDCextracted[year < 2005, pixelID])])
 pixelID_pixelGroup2011 <- data.table(pixelID = unique(MDCextracted[year > 2004, pixelID]), 
@@ -688,15 +690,10 @@ cohort_MDC <- unique(cohort_MDC)
 # Assertion: we don't have any more NA's
 testthat::expect_true(NROW(cohort_MDC) == NROW(na.omit(cohort_MDC)))
 
-# Add another test here: expect no message from dcast!
-#fun.aggregate
-#Should the data be aggregated before casting? If the formula doesn't identify a single observation for each cell, then aggregation defaults to length with a message.
-# So, if all is working, I should NOT have to pass fun.aggregated to dcast and it should NOT give me a warning. This happens because, as I 
-# see above, I have 4 cases where I have more than 1 pixel per burnClass per fire
-
-# For testing: if I have lengh of any class > 1, means I have more than 1  
-cohort_cast <- dcast(cohort_MDC, fireID_year + fireSize + averageMDC ~ burnClass, 
-                           value.var = "propBurnClassFire")
+# If all is working, I should NOT have to pass fun.aggregated to dcast and it should NOT give me a warning.
+# If that happens it means we have duplicates
+testthat::expect_warning({cohort_cast <- dcast(cohort_MDC, fireID_year + fireSize + averageMDC ~ burnClass, 
+                           value.var = "propBurnClassFire")},regexp = NA)
 
 replaceNAwith0 <- function(DT){
   for (i in names(DT))
@@ -719,7 +716,49 @@ names(cohort_cast)[names(cohort_cast) == "averageMDC"] <- "weather"
 
 dataFireSense_SizeFit <- cohort_cast
 
-# ready to try fireSense_SizeFit
+################ fireSense_SizeFit
+
+modules <- list("fireSense_SizeFit")
+
+times <- list(start = 1, end = 1)
+
+# Define fireSense_SizeFit module inputs
+objects <- list(dataFireSense_SizeFit = dataFireSense_SizeFit)
+
+# Define fireSense_SizeFit module parameters
+formula <- formula(fireSize ~ weather * (class1 + class2 + class3 + class4))
+dataObjName <- "dataFireSense_SizeFit"
+
+parameters <- list(
+  fireSense_SizeFit = list(
+    formula = list(     # Formulas of the statistical model
+      beta = formula,   # The formulas for the beta and theta parameters of the tapered Pareto.
+      theta = formula   # They do not have to be identical, even if it's the case here
+    ),
+    data = dataObjName, # Name of the data.frame containing the variables in the statistical model. By default "dataFireSense_SizeFit"
+    link = list(
+      beta = "log",     # Link function for the beta parameter of the tapered Pareto
+      theta = "log"     # Link function for the theta parameter of the tapered Pareto
+    ),
+    a = 1,              # Lower truncation point a of the tapered Pareto
+    ub = list(
+      beta = 10,
+      theta = 10
+    ),
+    itermax = 2000,
+    trace = 100
+  )
+)
+
+# Run the simulation
+fireSizeFit <- simInitAndSpades(
+  modules = modules,
+  params = parameters,
+  objects = objects,
+  times = times
+)
+
+fireSense_SizeFitted <- sim$fireSense_SizeFitted # Extract the fitted model from the sim object
 
 
 # # Create the fire attribute dataset that describes the starting locations 

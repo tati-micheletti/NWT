@@ -10,8 +10,8 @@ googledrive::drive_auth(email = usrEmail)
 if (pemisc::user() %in% c("Tati", "tmichele"))
   setwd("/mnt/data/Micheletti/NWT")
 updateCRAN <- FALSE
-updateGithubPackages <- TRUE
-updateSubmodules <- TRUE
+updateGithubPackages <- FALSE
+updateSubmodules <- FALSE
 prepCohortData <- FALSE # Preamble. If already ran (i.e. objs cohortData2011 and cohortData2001 
                         # exist in inputs folder) this should NOT be run i.e. FALSE)
 
@@ -682,6 +682,39 @@ cohort_MDC[, averageMDC := mean(MDC), by = "fireID_year"]
 # We shouldn't have any NAs in MDC, we dealt with those before
 testthat::expect_false(any(is.na(cohort_MDC$averageMDC)))
 
+######################## Create dataset for SpreadFit ########################
+
+# Here I can diverge and create the dataset of initial fire locations for fireSense_SpreadFit
+# We need a dataframe of the origin of the fire (coordinates) and each fire size (as a data.frame)
+# I will need:
+cohortData2001
+pixelGroupMap2001
+
+# 1. To get the origin of the fire:
+source(file.path(getwd(), "functions/getFirePoints_NFDB.R"))
+fireLocations <- Cache(getFirePoints_NFDB(url = "http://cwfis.cfs.nrcan.gc.ca/downloads/nfdb/fire_pnt/current_version/NFDB_point.zip",
+                                    studyArea = studyArea, rasterToMatch = rasterToMatch,
+                                    NFDB_pointPath = file.path(Paths$inputPath, "NFDB_point")),
+                       userTags = c("what:firePoints", "forWhat:fireSense_SpreadFit"))
+
+
+# 2. To get the coordinates:
+startingPointsCoord <- 
+  
+# 3. To get the pixelID based on the coordinates:
+
+# 4. To get fire size based on the coordinates pixelID from cohort_MDC:
+
+startingPointsCoord <- 
+
+fireSize <- 
+  
+testthat::expect_true(NROW(dt) == length(coordinatesOfFires))
+
+fireAttributesFireSense_SpreadFit <- SpatialPointsDataFrame(startingPointsCoord, data = data.frame(size = fireSize))
+
+####################### Finished dataset for SpreadFit #######################
+
 colsToKeep <- c("fireID_year", "fireSize", "burnClass", "propBurnClassFire", "averageMDC")
 colsToDel <- setdiff(names(cohort_MDC), colsToKeep)
 cohort_MDC[, c(colsToDel) := NULL]
@@ -708,7 +741,9 @@ testthat::expect_true(all(cohort_cast[, class1+class2+class3+class4+class5 <= 1,
 #Cleanup
 cohort_cast[, fireID_year := NULL]
 # Class5 needs to be removed, as we might not be able to get the parameter (and we actually don't really care!). 
-cohort_cast[, class5 := NULL]
+# cohort_cast[, class5 := NULL]
+cohort_cast[, class5 := 1-(class1+class2+class3+class4)]
+
 names(cohort_cast)[names(cohort_cast) == "averageMDC"] <- "weather"
 
 # We will build a model with: 
@@ -717,54 +752,114 @@ names(cohort_cast)[names(cohort_cast) == "averageMDC"] <- "weather"
 dataFireSense_SizeFit <- cohort_cast
 
 ################ fireSense_SizeFit
+# 
+# modules <- list("fireSense_SizeFit")
+# 
+# times <- list(start = 1, end = 1)
+# 
+# # Define fireSense_SizeFit module inputs
+# objects <- list(dataFireSense_SizeFit = dataFireSense_SizeFit)
+# 
+# # Define fireSense_SizeFit module parameters
+# # formula <- formula(fireSize ~ weather * (class1 + class2 + class3 + class4))
+# # formula <- formula(fireSize ~ weather * (class1 + class2 + class3 + class4 + class5))
+# formula <- formula(fireSize ~ 0 + weather * (class1 + class2 + class3 + class4 + class5))
+# dataObjName <- "dataFireSense_SizeFit"
+# 
+# parameters <- list(
+#   fireSense_SizeFit = list(
+#     formula = list(     # Formulas of the statistical model
+#       beta = formula,   # The formulas for the beta and theta parameters of the tapered Pareto.
+#       theta = formula   # They do not have to be identical, even if it's the case here
+#     ),
+#     data = dataObjName, # Name of the data.frame containing the variables in the statistical model. By default "dataFireSense_SizeFit"
+#     link = list(
+#       beta = "log",     # Link function for the beta parameter of the tapered Pareto
+#       theta = "log"     # Link function for the theta parameter of the tapered Pareto
+#     ),
+#     a = 1,              # Lower truncation point a of the tapered Pareto
+#     ub = list(
+#       beta = 100,
+#       theta = 100
+#     ),
+#     itermax = 20000,
+#     trace = 100
+#   )
+# )
+# 
+# # Run the simulation
+# fireSizeFit <- simInitAndSpades(
+#   modules = modules,
+#   params = parameters,
+#   objects = objects,
+#   times = times
+# )
+# 
+# fireSense_SizeFitted <- fireSizeFit$fireSense_SizeFitted # Extract the fitted model from the sim object
 
-modules <- list("fireSense_SizeFit")
+#################### fireSense_SizePredict
 
-times <- list(start = 1, end = 1)
+# Now that we fit the fireSizes to the fires we know, we should predict beta and theta for each pixel in a map
+# For that, we need the 2001 pixelGroupMap and cohortData, and rasterizeReduce each one of the to all pixels in the map
 
-# Define fireSense_SizeFit module inputs
-objects <- list(dataFireSense_SizeFit = dataFireSense_SizeFit)
+# 24th MARCH 2019: Did not predict fire size. Didnt put the  dataFireSense_SizePredict together. Will try running straight the 
+# SpreadFit
+# 
+# dataFireSense_SizePredict # RASTER stack of all classes proportions per pixel, being each class proportion one layer in the stack
+# 
+# modules <- list("fireSense_SizePredict")
+# times <- list(start = 1, end = 1)
+# 
+# # Define fireSense_SizePredict module inputs
+# objects <- list(
+#   fireSense_SizeFitted = fireSense_SizeFitted,
+#   dataFireSense_SizePredict = dataFireSense_SizePredict # RASTER
+# )
+# 
+# # Define fireSense_SizePredict module outputs
+# outputs <- rbind(
+#   data.frame(
+#     file = "fireSense_SizePredicted_Beta.tif",
+#     fun = "writeRaster",
+#     objectName = "fireSense_SizePredicted_Beta",
+#     package = "raster",
+#     saveTime = 1
+#   ),
+#   data.frame(
+#     file = "fireSense_SizePredicted_Theta.tif",
+#     fun = "writeRaster",
+#     objectName = "fireSense_SizePredicted_Theta",
+#     package = "raster",
+#     saveTime = 1
+#   )
+# )
+# 
+# # Define fireSense_SizePredict module parameters
+# parameters <- list(
+#   fireSense_SizePredict = list(
+#     data = "dataFireSense_SizePredict",
+#     modelName = "fireSense_SizeFitted" # This is the default
+#   )
+# )
+# 
+# # Run the simulation
+# fireSizePredict <- simInitAndSpades(
+#   modules = modules,
+#   objects = objects,
+#   outputs = outputs,
+#   params = parameters,
+#   times = times
+# )
 
-# Define fireSense_SizeFit module parameters
-formula <- formula(fireSize ~ weather * (class1 + class2 + class3 + class4))
-dataObjName <- "dataFireSense_SizeFit"
-
-parameters <- list(
-  fireSense_SizeFit = list(
-    formula = list(     # Formulas of the statistical model
-      beta = formula,   # The formulas for the beta and theta parameters of the tapered Pareto.
-      theta = formula   # They do not have to be identical, even if it's the case here
-    ),
-    data = dataObjName, # Name of the data.frame containing the variables in the statistical model. By default "dataFireSense_SizeFit"
-    link = list(
-      beta = "log",     # Link function for the beta parameter of the tapered Pareto
-      theta = "log"     # Link function for the theta parameter of the tapered Pareto
-    ),
-    a = 1,              # Lower truncation point a of the tapered Pareto
-    ub = list(
-      beta = 10,
-      theta = 10
-    ),
-    itermax = 2000,
-    trace = 100
-  )
-)
-
-# Run the simulation
-fireSizeFit <- simInitAndSpades(
-  modules = modules,
-  params = parameters,
-  objects = objects,
-  times = times
-)
-
-fireSense_SizeFitted <- sim$fireSense_SizeFitted # Extract the fitted model from the sim object
+#################### fireSense_SpreadFit
 
 
-# # Create the fire attribute dataset that describes the starting locations 
-# # and the size of the fires to be spread. This is needed to fit the statistical model of spread probabilities
-# fireAttributesFireSense_SpreadFit <- SpatialPointsDataFrame(fireLocations[as.logical(escaped)], data = data.frame(size = fireSize))
+getFirePoints_NFDB
 
+# Not sure I understand the step below
+# Create the fire attribute dataset that describes the starting locations 
+# and the size of the fires to be spread. This is needed to fit the statistical model of spread probabilities
+fireAttributesFireSense_SpreadFit <- SpatialPointsDataFrame(fireLocations[as.logical(escaped)], data = data.frame(size = fireSize))
 
 
 #########################################################

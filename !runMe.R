@@ -682,38 +682,7 @@ cohort_MDC[, averageMDC := mean(MDC), by = "fireID_year"]
 # We shouldn't have any NAs in MDC, we dealt with those before
 testthat::expect_false(any(is.na(cohort_MDC$averageMDC)))
 
-######################## Create dataset for SpreadFit ########################
-
-# Here I can diverge and create the dataset of initial fire locations for fireSense_SpreadFit
-# We need a dataframe of the origin of the fire (coordinates) and each fire size (as a data.frame)
-# I will need:
-cohortData2001
-pixelGroupMap2001
-
-# 1. To get the origin of the fire:
-source(file.path(getwd(), "functions/getFirePoints_NFDB.R"))
-fireLocations <- Cache(getFirePoints_NFDB(url = "http://cwfis.cfs.nrcan.gc.ca/downloads/nfdb/fire_pnt/current_version/NFDB_point.zip",
-                                    studyArea = studyArea, rasterToMatch = rasterToMatch,
-                                    NFDB_pointPath = file.path(Paths$inputPath, "NFDB_point")),
-                       userTags = c("what:firePoints", "forWhat:fireSense_SpreadFit"))
-
-
-# 2. To get the coordinates:
-startingPointsCoord <- 
-  
-# 3. To get the pixelID based on the coordinates:
-
-# 4. To get fire size based on the coordinates pixelID from cohort_MDC:
-
-startingPointsCoord <- 
-
-fireSize <- 
-  
-testthat::expect_true(NROW(dt) == length(coordinatesOfFires))
-
-fireAttributesFireSense_SpreadFit <- SpatialPointsDataFrame(startingPointsCoord, data = data.frame(size = fireSize))
-
-####################### Finished dataset for SpreadFit #######################
+cohort_Fire <- copy(cohort_MDC) # To be used later for fireSense
 
 colsToKeep <- c("fireID_year", "fireSize", "burnClass", "propBurnClassFire", "averageMDC")
 colsToDel <- setdiff(names(cohort_MDC), colsToKeep)
@@ -752,42 +721,43 @@ names(cohort_cast)[names(cohort_cast) == "averageMDC"] <- "weather"
 dataFireSense_SizeFit <- cohort_cast
 
 ################ fireSense_SizeFit
-# 
-# modules <- list("fireSense_SizeFit")
-# 
-# times <- list(start = 1, end = 1)
-# 
-# # Define fireSense_SizeFit module inputs
-# objects <- list(dataFireSense_SizeFit = dataFireSense_SizeFit)
-# 
-# # Define fireSense_SizeFit module parameters
-# # formula <- formula(fireSize ~ weather * (class1 + class2 + class3 + class4))
-# # formula <- formula(fireSize ~ weather * (class1 + class2 + class3 + class4 + class5))
+
+modules <- list("fireSense_SizeFit")
+
+times <- list(start = 1, end = 1)
+
+# Define fireSense_SizeFit module inputs
+objects <- list(dataFireSense_SizeFit = dataFireSense_SizeFit)
+
+# Define fireSense_SizeFit module parameters
+# formula <- formula(fireSize ~ weather * (class1 + class2 + class3 + class4))
+# formula <- formula(fireSize ~ weather * (class1 + class2 + class3 + class4 + class5))
 # formula <- formula(fireSize ~ 0 + weather * (class1 + class2 + class3 + class4 + class5))
-# dataObjName <- "dataFireSense_SizeFit"
-# 
-# parameters <- list(
-#   fireSense_SizeFit = list(
-#     formula = list(     # Formulas of the statistical model
-#       beta = formula,   # The formulas for the beta and theta parameters of the tapered Pareto.
-#       theta = formula   # They do not have to be identical, even if it's the case here
-#     ),
-#     data = dataObjName, # Name of the data.frame containing the variables in the statistical model. By default "dataFireSense_SizeFit"
-#     link = list(
-#       beta = "log",     # Link function for the beta parameter of the tapered Pareto
-#       theta = "log"     # Link function for the theta parameter of the tapered Pareto
-#     ),
-#     a = 1,              # Lower truncation point a of the tapered Pareto
-#     ub = list(
-#       beta = 100,
-#       theta = 100
-#     ),
-#     itermax = 20000,
-#     trace = 100
-#   )
-# )
-# 
-# # Run the simulation
+formula <- formula(fireSize ~ class1 + class2 + class3 + class4 + class5 + weather - 1)
+dataObjName <- "dataFireSense_SizeFit"
+
+parameters <- list(
+  fireSense_SizeFit = list(
+    formula = list(     # Formulas of the statistical model
+      beta = formula,   # The formulas for the beta and theta parameters of the tapered Pareto.
+      theta = formula   # They do not have to be identical, even if it's the case here
+    ),
+    data = dataObjName, # Name of the data.frame containing the variables in the statistical model. By default "dataFireSense_SizeFit"
+    link = list(
+      beta = "log",     # Link function for the beta parameter of the tapered Pareto
+      theta = "log"     # Link function for the theta parameter of the tapered Pareto
+    ),
+    a = 1,              # Lower truncation point a of the tapered Pareto
+    ub = list(
+      beta = 100,
+      theta = 100
+    ),
+    itermax = 20000,
+    trace = 100
+  )
+)
+
+# Run the simulation
 # fireSizeFit <- simInitAndSpades(
 #   modules = modules,
 #   params = parameters,
@@ -804,43 +774,43 @@ dataFireSense_SizeFit <- cohort_cast
 
 # 24th MARCH 2019: Did not predict fire size. Didnt put the  dataFireSense_SizePredict together. Will try running straight the 
 # SpreadFit
-# 
-# dataFireSense_SizePredict # RASTER stack of all classes proportions per pixel, being each class proportion one layer in the stack
-# 
-# modules <- list("fireSense_SizePredict")
-# times <- list(start = 1, end = 1)
-# 
-# # Define fireSense_SizePredict module inputs
-# objects <- list(
-#   fireSense_SizeFitted = fireSense_SizeFitted,
-#   dataFireSense_SizePredict = dataFireSense_SizePredict # RASTER
-# )
-# 
-# # Define fireSense_SizePredict module outputs
-# outputs <- rbind(
-#   data.frame(
-#     file = "fireSense_SizePredicted_Beta.tif",
-#     fun = "writeRaster",
-#     objectName = "fireSense_SizePredicted_Beta",
-#     package = "raster",
-#     saveTime = 1
-#   ),
-#   data.frame(
-#     file = "fireSense_SizePredicted_Theta.tif",
-#     fun = "writeRaster",
-#     objectName = "fireSense_SizePredicted_Theta",
-#     package = "raster",
-#     saveTime = 1
-#   )
-# )
-# 
-# # Define fireSense_SizePredict module parameters
-# parameters <- list(
-#   fireSense_SizePredict = list(
-#     data = "dataFireSense_SizePredict",
-#     modelName = "fireSense_SizeFitted" # This is the default
-#   )
-# )
+
+dataFireSense_SizePredict # RASTER stack of all classes proportions per pixel, being each class proportion one layer in the stack
+
+modules <- list("fireSense_SizePredict")
+times <- list(start = 1, end = 1)
+
+# Define fireSense_SizePredict module inputs
+objects <- list(
+  fireSense_SizeFitted = fireSense_SizeFitted,
+  dataFireSense_SizePredict = dataFireSense_SizePredict # RASTER
+)
+
+# Define fireSense_SizePredict module outputs
+outputs <- rbind(
+  data.frame(
+    file = "fireSense_SizePredicted_Beta.tif",
+    fun = "writeRaster",
+    objectName = "fireSense_SizePredicted_Beta",
+    package = "raster",
+    saveTime = 1
+  ),
+  data.frame(
+    file = "fireSense_SizePredicted_Theta.tif",
+    fun = "writeRaster",
+    objectName = "fireSense_SizePredicted_Theta",
+    package = "raster",
+    saveTime = 1
+  )
+)
+
+# Define fireSense_SizePredict module parameters
+parameters <- list(
+  fireSense_SizePredict = list(
+    data = "dataFireSense_SizePredict",
+    modelName = "fireSense_SizeFitted" # This is the default
+  )
+)
 # 
 # # Run the simulation
 # fireSizePredict <- simInitAndSpades(
@@ -853,13 +823,166 @@ dataFireSense_SizeFit <- cohort_cast
 
 #################### fireSense_SpreadFit
 
+######################## Create dataset for SpreadFit ########################
 
-getFirePoints_NFDB
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ fireAttributesFireSense_SpreadFit
 
-# Not sure I understand the step below
-# Create the fire attribute dataset that describes the starting locations 
-# and the size of the fires to be spread. This is needed to fit the statistical model of spread probabilities
-fireAttributesFireSense_SpreadFit <- SpatialPointsDataFrame(fireLocations[as.logical(escaped)], data = data.frame(size = fireSize))
+# Here I can diverge and create the dataset of initial fire locations for fireSense_SpreadFit
+# We need a dataframe of the origin of the fire (coordinates) and each fire size (as a data.frame)
+
+# 1. To get the origin of the fire:
+source(file.path(getwd(), "functions/getFirePoints_NFDB.R"))
+fireLocations <- Cache(getFirePoints_NFDB, url = "http://cwfis.cfs.nrcan.gc.ca/downloads/nfdb/fire_pnt/current_version/NFDB_point.zip",
+                       studyArea = studyArea, rasterToMatch = rasterToMatch,
+                       NFDB_pointPath = file.path(Paths$inputPath, "NFDB_point"),
+                       userTags = c("what:firePoints", "forWhat:fireSense_SpreadFit"))
+rasterTemp <- setValues(pixelGroupMap2001, values = 1:ncell(pixelGroupMap2001))
+
+# 2. To get the coordinates:
+startingPointsCoord <- data.table(coords = coordinates(fireLocations),
+                                  year = fireLocations$YEAR)
+
+# Subsetting for the same period we have the dataset
+startingPointsCoord <- startingPointsCoord[, coords.coords.x3 := NULL][year < 2018 & year > 1990]
+names(startingPointsCoord) <- c("x", "y", "year")
+
+# 3. To get the pixelID based on the coordinates:
+pixelID_fireStarts <- data.table(pixelID = raster::extract(rasterTemp, coordinates(startingPointsCoord[, c("x", "y")])),
+                                 origin = TRUE)
+
+# 4. To get fire size based on the coordinates pixelID from cohort_Fire:
+cohort_starts <- merge(cohort_Fire, pixelID_fireStarts, by = "pixelID", all.y = TRUE)
+cohort_startsRed <- na.omit(cohort_starts)
+colsToKeep <- c("year", "fireSize", "pixelID")
+colsToDel <- setdiff(names(cohort_starts), colsToKeep)
+cohort_startsRed <- cohort_startsRed[, c(colsToDel) := NULL]
+cohort_startsRed <- unique(cohort_startsRed)
+
+# We have the same pixel burning in different years... 
+ids <- duplicated(cohort_startsRed$pixelID)
+Reps <- cohort_startsRed[ids, pixelID]
+cohort_startsRed[pixelID %in% Reps, ]
+
+# 5. Extract coordinates of the pixelID's I have in cohort_startsRed
+coordins <- raster::xyFromCell(object = rasterTemp, cell = cohort_startsRed$pixelID)
+testthat::expect_true(NROW(cohort_startsRed) == NROW(coordins))
+
+fireAttributesFireSense_SpreadFit <- SpatialPointsDataFrame(coordins, data = data.frame(size = cohort_startsRed$fireSize,
+                                                                                        date = cohort_startsRed$year))
+crs(fireAttributesFireSense_SpreadFit) <- crs(rasterTemp)
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ dataFireSense_SpreadFit
+
+# RasterStack of the model covariates. 
+# The number of layers in the RasterStack should equal the number of distinct dates in column 'date'.
+# Each COVARIATE of the model is ONE different raster stack containing that variable for all the different years.
+# TODO: To include a bit more stochasticity, simulate changes from 2001 until 2011, and from 2011 until 2017 using 2001 and 2011 layers, respectively and the fire dataset (I know exactly where the fires occurred and how big they were! I just need to call them in a module each year) . At each each I save cohortData and pixelGroupMap, and using rasterizeReduce, I create the proportional biomass layers for each year for each class (would have to reclassify the species).
+
+# For now, however, we will assume the landscape and proportions of species don't change for @ 15 years, and we use all the dataset 1991-2017 to fit the spread model, using 2001 and 2011 layers
+# 1991:2004 --> 2001: cohortData2001
+# 2005:2017 --> 2011: cohortData2011
+
+# Create the classification. Repeat with 2011
+classList2001 <- classifyCohortsFireSenseSpread(cohortData2001, year = 2001)
+classList2011 <- classifyCohortsFireSenseSpread(cohortData2011, year = 2011)
+
+class1 <- class2 <- class3 <- class4 <- list()
+
+classesList <- lapply(paste0("class", 1:4), function(cl){
+  classYear <- lapply(1991:2017, function(i) {
+    if (i < 2005){
+      assign(cl, classList2001[[cl]])
+    } else {
+      assign(cl, classList2011[[cl]])
+    }
+  })
+  names(classYear) <- paste(cl, 1991:2017, sep = "_")
+  classYear <- lapply(names(classYear), function(clsYrNm){
+    names(classYear[[clsYrNm]]) <- clsYrNm
+    return(classYear[[clsYrNm]])
+  })
+  names(classYear) <- paste(cl, 1991:2017, sep = "_")
+  return(classYear)
+})
+names(classesList) <- paste0("class", 1:4)
+
+
+# lapply through names(classesList) clsNames, stack and assign each stack to clsNames
+env <- environment()
+invisible(lapply(names(classesList), function(clsNames){
+  stk <- raster::stack(classesList[[clsNames]])
+  assign(x = clsNames, value = stk, envir = env)
+}))
+
+weather <- raster::stack(MDC)
+
+####################### Finished dataset for SpreadFit #######################
+
+modules <- list("fireSense_SpreadFit")
+
+times <- list(start = 1, end = 1)
+
+# Define fireSense_SpreadFit module inputs # For when doing SizeFit/Predict
+# inputs <- rbind(
+#   # tapered Pareto's beta
+#   data.frame(
+#     files = dir(
+#       getPaths()$outputPath,
+#       pattern = "fireSense_SizePredicted_Beta", 
+#       full.names = TRUE
+#     ),
+#     functions = "raster::raster",
+#     objectName = "beta",
+#     loadTime = 1
+#   ),
+#   # tapered Pareto's theta
+#   data.frame(
+#     files = dir(
+#       getPaths()$outputPath,
+#       pattern = "fireSense_SizePredicted_Theta", 
+#       full.names = TRUE
+#     ),
+#     functions = "raster::raster",
+#     objectName = "theta",
+#     loadTime = 1
+#   )
+# )
+
+objects <- list(fireAttributesFireSense_SpreadFit = fireAttributesFireSense_SpreadFit,
+                class1 = class1,
+                class2 = class2,
+                class3 = class3,
+                class4 = class4,
+                weather = weather)
+
+# Define fireSense_SpreadFit module parameters
+# formula <- formula(~ I(1/beta) + log(theta) - 1) # For when doing SizeFit/Predict
+formula <- formula(~ 0 + weather * (class1 + class2 + class3 + class4)) # For when not doing SizeFit/Predict
+
+parameters <- list(
+  fireSense_SpreadFit = list(
+    formula = formula, # Formula of the statistical model
+    fireAttributesFireSense_SpreadFit = "fireAttributesFireSense_SpreadFit", # Default
+    # data = c("beta", "theta"),
+    data = c("weather", "class1", "class2", "class3", "class4"),
+    lower = c(.01, 0, .1, .3, .001, .001),
+    upper = c(.20, .1, 10, 4., .300, .300),
+    cores = 50#pemisc::makeOptimalCluster(useParallel = TRUE)
+  )
+)
+
+# Run the simulation
+sim <- simInitAndSpades(
+  inputs = inputs,
+  modules = modules,
+  objects = objects,
+  params = parameters,
+  times = times
+)
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~> HERE
+
+fireSense_SpreadFitted <- sim$fireSense_SpreadFitted # Extract the fitted model from the sim object
 
 
 #########################################################

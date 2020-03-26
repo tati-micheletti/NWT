@@ -454,6 +454,7 @@ if (runOnlySimInit){
 #########################################################
 ##                   PREAMBLE                          ##
 #########################################################
+
 if (prepCohortData){
   tempPaths <- getPaths()
   tempPaths$outputPath <- tempPaths$inputPath
@@ -507,42 +508,9 @@ if (prepCohortData){
   
 }
   
-# Now I have to generate the data to fit the Size module -- This was modified from the fireSense_Tutorial
-# to accommodate real data
+# Load these so I can use as rasterToMatch 
+#TODO Wrap this up in a tryCatch + a redo statement
 
-# Calculate mean landcover and weather conditions around the locations of escaped fires
-# fireLocations <- getFirePoints_NFDB(url = "http://cwfis.cfs.nrcan.gc.ca/downloads/nfdb/fire_pnt/current_version/NFDB_point.zip", 
-#                                     studyArea = studyArea, rasterToMatch = rasterToMatch, 
-#                                     NFDB_pointPath = file.path(Paths$inputPath, "NFDB_point"))
-# Subset fires from 1991 - 2017
-# fireLocations1991_2017 <- 
-
-# Convert fire size from ha to m2 by multiplying by 10000, then divide by pi and take the Sqrt 
-# of the result to go from points to radiuss
-# fireLocations$radius <- sqrt(10000*fireLocations$SIZE_HA/pi)
-# 
-# 
-# buf_around_loc_escaped <- buffer(fireLocations, byid = TRUE, dissolve = FALSE, 
-#                                  width = fireLocations$radius) # THIS width is coming from the total area burned.
-
-# Or we use the real polygons
-# fireLocations <- reproducible::prepInputs(url = "https://cwfis.cfs.nrcan.gc.ca/downloads/nbac/nbac_1986_to_2018_20191129.zip",
-#                                           studyArea = studyArea, rasterToMatch = rasterToMatch,
-#                                           destinationPath = Paths$inputPath, 
-#                                           userTags = c("typeOfFile:fireComposite", "objectName:fireLocations", "goal:fireSenseFit"))
-#                                           # ABOVE FAILING BECAUSE OF SOME INTERSECTION PROBLEM... WILL TRY YEARLY # UPDATE [This might have been 
-#                                           resolved in the latest post call (reproducible development 89e652ef111af7de91a17a613c66312c1b848847)]
-
-# So, with the above failing, I manually downloaded the fire data for each year. Deviding into pre 2006 and post 2006 because the 2006 layer has problems
-# fireLocations1991_2005 <- Cache(getFirePolygons, years = 1991:2005, studyArea = studyArea, 
-#                                  pathInputs = Paths$inputPath, userTags = c("years:1991_2005"))
-# 
-# fireLocations2007_2017 <- Cache(getFirePolygons, years = 2007:2017, studyArea = studyArea, 
-#                                  pathInputs = Paths$inputPath, userTags = c("years:1991_2005"))
-# 
-# fireLocations <- c(fireLocations1991_2005, fireLocations2007_2017)
-
-# Load these so I can use as rasterToMatch
 # 2001
 cohortData2001 <- readRDS(file.path(Paths$inputPath, "cohortData2001_fireSense_year2001.rds"))
 pixelGroupMap2001 <- readRDS(file.path(Paths$inputPath, "pixelGroupMap2001_fireSense_year2001.rds"))
@@ -697,11 +665,14 @@ testthat::expect_true(NROW(cohort_MDC) == NROW(na.omit(cohort_MDC)))
 testthat::expect_warning({cohort_cast <- dcast(cohort_MDC, fireID_year + fireSize + averageMDC ~ burnClass, 
                            value.var = "propBurnClassFire")},regexp = NA)
 
-replaceNAwith0 <- function(DT){
-  for (i in names(DT))
+#TODO move!
+dtReplaceNAwith0 <- function(DT, colsToUse){
+  if (is.null(colsToUse))
+    colsToUse <- names(DT)
+  for (i in colsToUse)
     DT[is.na(get(i)), (i):=0]
 }
-replaceNAwith0(cohort_cast)
+dtReplaceNAwith0(cohort_cast)
 
 # Assertion:
 testthat::expect_true(length(unique(cohort_cast$fireID_year))==NROW(cohort_cast)) # One fire per row
@@ -732,8 +703,8 @@ objects <- list(dataFireSense_SizeFit = dataFireSense_SizeFit)
 # Define fireSense_SizeFit module parameters
 # formula <- formula(fireSize ~ weather * (class1 + class2 + class3 + class4))
 # formula <- formula(fireSize ~ weather * (class1 + class2 + class3 + class4 + class5))
-# formula <- formula(fireSize ~ 0 + weather * (class1 + class2 + class3 + class4 + class5))
-formula <- formula(fireSize ~ class1 + class2 + class3 + class4 + class5 + weather - 1)
+formula <- formula(fireSize ~ 0 + weather * (class1 + class2 + class3 + class4 + class5))
+# formula <- formula(fireSize ~ class1 + class2 + class3 + class4 + class5 + weather - 1)
 dataObjName <- "dataFireSense_SizeFit"
 
 parameters <- list(
@@ -775,42 +746,42 @@ parameters <- list(
 # 24th MARCH 2019: Did not predict fire size. Didnt put the  dataFireSense_SizePredict together. Will try running straight the 
 # SpreadFit
 
-dataFireSense_SizePredict # RASTER stack of all classes proportions per pixel, being each class proportion one layer in the stack
-
-modules <- list("fireSense_SizePredict")
-times <- list(start = 1, end = 1)
-
-# Define fireSense_SizePredict module inputs
-objects <- list(
-  fireSense_SizeFitted = fireSense_SizeFitted,
-  dataFireSense_SizePredict = dataFireSense_SizePredict # RASTER
-)
-
-# Define fireSense_SizePredict module outputs
-outputs <- rbind(
-  data.frame(
-    file = "fireSense_SizePredicted_Beta.tif",
-    fun = "writeRaster",
-    objectName = "fireSense_SizePredicted_Beta",
-    package = "raster",
-    saveTime = 1
-  ),
-  data.frame(
-    file = "fireSense_SizePredicted_Theta.tif",
-    fun = "writeRaster",
-    objectName = "fireSense_SizePredicted_Theta",
-    package = "raster",
-    saveTime = 1
-  )
-)
-
-# Define fireSense_SizePredict module parameters
-parameters <- list(
-  fireSense_SizePredict = list(
-    data = "dataFireSense_SizePredict",
-    modelName = "fireSense_SizeFitted" # This is the default
-  )
-)
+# dataFireSense_SizePredict # RASTER stack of all classes proportions per pixel, being each class proportion one layer in the stack
+# 
+# modules <- list("fireSense_SizePredict")
+# times <- list(start = 1, end = 1)
+# 
+# # Define fireSense_SizePredict module inputs
+# objects <- list(
+#   fireSense_SizeFitted = fireSense_SizeFitted,
+#   dataFireSense_SizePredict = dataFireSense_SizePredict #TODO Raster stack of all classes proportions per pixel, being each class proportion one layer in the stack ==> can be leveraged from the SpreadFit somehow?
+# )
+# 
+# # Define fireSense_SizePredict module outputs
+# outputs <- rbind(
+#   data.frame(
+#     file = "fireSense_SizePredicted_Beta.tif",
+#     fun = "writeRaster",
+#     objectName = "fireSense_SizePredicted_Beta",
+#     package = "raster",
+#     saveTime = 1
+#   ),
+#   data.frame(
+#     file = "fireSense_SizePredicted_Theta.tif",
+#     fun = "writeRaster",
+#     objectName = "fireSense_SizePredicted_Theta",
+#     package = "raster",
+#     saveTime = 1
+#   )
+# )
+# 
+# # Define fireSense_SizePredict module parameters
+# parameters <- list(
+#   fireSense_SizePredict = list(
+#     data = "dataFireSense_SizePredict",
+#     modelName = "fireSense_SizeFitted" # This is the default
+#   )
+# )
 # 
 # # Run the simulation
 # fireSizePredict <- simInitAndSpades(
@@ -861,13 +832,13 @@ cohort_startsRed <- unique(cohort_startsRed)
 # We have the same pixel burning in different years... 
 ids <- duplicated(cohort_startsRed$pixelID)
 Reps <- cohort_startsRed[ids, pixelID]
-cohort_startsRed[pixelID %in% Reps, ]
+# cohort_startsRed[pixelID %in% Reps, ]
 
 # 5. Extract coordinates of the pixelID's I have in cohort_startsRed
 coordins <- raster::xyFromCell(object = rasterTemp, cell = cohort_startsRed$pixelID)
 testthat::expect_true(NROW(cohort_startsRed) == NROW(coordins))
 
-fireAttributesFireSense_SpreadFit <- SpatialPointsDataFrame(coordins, data = data.frame(size = cohort_startsRed$fireSize,
+  fireAttributesFireSense_SpreadFit <- SpatialPointsDataFrame(coordins, data = data.frame(size = cohort_startsRed$fireSize,
                                                                                         date = cohort_startsRed$year))
 crs(fireAttributesFireSense_SpreadFit) <- crs(rasterTemp)
 
@@ -883,12 +854,21 @@ crs(fireAttributesFireSense_SpreadFit) <- crs(rasterTemp)
 # 2005:2017 --> 2011: cohortData2011
 
 # Create the classification. Repeat with 2011
+source(file.path(getwd(), 'functions/classifyCohortsFireSenseSpread.R'))
 classList2001 <- classifyCohortsFireSenseSpread(cohortData2001, year = 2001)
 classList2011 <- classifyCohortsFireSenseSpread(cohortData2011, year = 2011)
 
-class1 <- class2 <- class3 <- class4 <- list()
+# To create the class5, I need to do 1-sum(class1:4)
+class5_2001 <- calc(x = stack(classList2001), fun = sum, na.rm = TRUE)
+classList2001[["class5"]] <- 1 - class5_2001
+names(classList2001[["class5"]]) <- "class5_2001"
+class5_2011 <- calc(x = stack(classList2011), fun = sum, na.rm = TRUE)
+classList2011[["class5"]] <- 1 - class5_2011
+names(classList2011[["class5"]]) <- "class5_2011"
 
-classesList <- lapply(paste0("class", 1:4), function(cl){
+class1 <- class2 <- class3 <- class4 <- class5 <- list()
+
+classesList <- lapply(paste0("class", 1:5), function(cl){
   classYear <- lapply(1991:2017, function(i) {
     if (i < 2005){
       assign(cl, classList2001[[cl]])
@@ -904,8 +884,7 @@ classesList <- lapply(paste0("class", 1:4), function(cl){
   names(classYear) <- paste(cl, 1991:2017, sep = "_")
   return(classYear)
 })
-names(classesList) <- paste0("class", 1:4)
-
+names(classesList) <- paste0("class", 1:5)
 
 # lapply through names(classesList) clsNames, stack and assign each stack to clsNames
 env <- environment()
@@ -917,10 +896,6 @@ invisible(lapply(names(classesList), function(clsNames){
 weather <- raster::stack(MDC)
 
 ####################### Finished dataset for SpreadFit #######################
-
-modules <- list("fireSense_SpreadFit")
-
-times <- list(start = 1, end = 1)
 
 # Define fireSense_SpreadFit module inputs # For when doing SizeFit/Predict
 # inputs <- rbind(
@@ -948,26 +923,46 @@ times <- list(start = 1, end = 1)
 #   )
 # )
 
+modules <- list("fireSense_SpreadFit")
+
+times <- list(start = 1, end = 1)
+
 objects <- list(fireAttributesFireSense_SpreadFit = fireAttributesFireSense_SpreadFit,
                 class1 = class1,
                 class2 = class2,
                 class3 = class3,
                 class4 = class4,
+                class5 = class5,
                 weather = weather)
 
 # Define fireSense_SpreadFit module parameters
 # formula <- formula(~ I(1/beta) + log(theta) - 1) # For when doing SizeFit/Predict
-formula <- formula(~ 0 + weather * (class1 + class2 + class3 + class4)) # For when not doing SizeFit/Predict
+formula <- formula(~ 0 + weather + class1 + class2 + class3 + class4 + class5) # For when not doing SizeFit/Predict
+
+# The parameters for
+# weather : need to be positive, but very low... as the sum of all needs to be < 0.245
+# class1 : needs to be negative, as it influences negatively the fire
+# class2 : needs to be negative, as it influences negatively the fire
+# class3 : needs to be positive, as fire spreads through conifers
+# class4 : needs to be positive + , as fire spreads through Jack Pine even better
+# class 5 : can be either...
+lowerParams <- c(0, 0.001, 0.001, 0.003, 0.003, 0.001)
+upperParams <- c(0.0005, 0.05, 0.05, 0.07, 0.07, 0.05)
 
 parameters <- list(
   fireSense_SpreadFit = list(
     formula = formula, # Formula of the statistical model
     fireAttributesFireSense_SpreadFit = "fireAttributesFireSense_SpreadFit", # Default
     # data = c("beta", "theta"),
-    data = c("weather", "class1", "class2", "class3", "class4"),
-    lower = c(.01, 0, .1, .3, .001, .001),
-    upper = c(.20, .1, 10, 4., .300, .300),
-    cores = 50#pemisc::makeOptimalCluster(useParallel = TRUE)
+    data = c("weather", "class1", "class2", "class3", "class4", "class5"),
+    # Here are the bounds for: 4 parameters for log fun + n parameters for the model (i.e. n terms of a formula)
+    lower = c(0.01, 0, 0.1, 0.3, lowerParams),
+    upper = c(0.20, 0.1, 10, 4, upperParams),
+    cores = 20, #pemisc::makeOptimalCluster(useParallel = TRUE)
+    iterDEoptim = 50,
+    verbose = FALSE,
+    trace = 1,
+    termsNAtoZ = c(paste0("class", 1:5))
   )
 )
 

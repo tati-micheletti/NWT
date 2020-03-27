@@ -523,10 +523,6 @@ pixelGroupMap2001 <- readRDS(file.path(Paths$inputPath, "pixelGroupMap2001_fireS
 cohortData2011 <- readRDS(file.path(Paths$inputPath, "cohortData2011_fireSense_year2011.rds"))
 pixelGroupMap2011 <- readRDS(file.path(Paths$inputPath, "pixelGroupMap2011_fireSense_year2011.rds"))
 
-source("functions/getFirePolygons.R")
-fireLocationsPolys <- Cache(getFirePolygons, years = 1991:2017, studyArea = studyArea, 
-                            pathInputs = Paths$inputPath, userTags = c("years:1991_2017"))
-
 # After getting the fire, I should get the weather (MDC)
 # I downloaded the data manually using climateNA and placed in the /inputs folder
 source("functions/calculateMDC.R") 
@@ -641,8 +637,19 @@ weather <- raster::stack(MDC)
 # Create a raster of the initial locations of the fires then buffer it so we 
 # Can calculate later the probabilities of burned and not burned
 
-historicalFire <- 
-  
+# Think I have this already...
+# pixelIDLociYear <- data.table(pixelID = raster::extract(rasterTemp, coordinates(startingPointsCoord[, c("x", "y")])),
+#                                  year = startingPointsCoord$year)
+
+# This below should be in the module...
+# Historical DT # --> Use as .inputObjects if not available
+source("functions/getFirePolygons.R")
+firePolys <- Cache(getFirePolygons, years = 1991:2017, studyArea = studyArea, 
+                            pathInputs = Paths$inputPath, userTags = c("years:1991_2017"))
+fireBuffered <- Cache(makeBufferedFires, fireLocationsPolys = firePolys,
+                                  rasterToMatch = rasterToMatch, useParallel = TRUE, 
+                      omitArgs = "useParallel")
+
 ####################### Finished dataset for SpreadFit #######################
 
 modules <- list("fireSense_SpreadFit")

@@ -634,21 +634,14 @@ invisible(lapply(names(classesList), function(clsNames){
 
 weather <- raster::stack(MDC)
 
-# Create a raster of the initial locations of the fires then buffer it so we 
-# Can calculate later the probabilities of burned and not burned
-
-# Think I have this already...
 # pixelIDLociYear <- data.table(pixelID = raster::extract(rasterTemp, coordinates(startingPointsCoord[, c("x", "y")])),
 #                                  year = startingPointsCoord$year)
+# Think I have this already...
 
-# This below should be in the module...
-# Historical DT # --> Use as .inputObjects if not available
 source("functions/getFirePolygons.R")
 firePolys <- Cache(getFirePolygons, years = 1991:2017, studyArea = studyArea, 
                             pathInputs = Paths$inputPath, userTags = c("years:1991_2017"))
-fireBuffered <- Cache(makeBufferedFires, fireLocationsPolys = firePolys,
-                                  rasterToMatch = rasterToMatch, useParallel = TRUE, 
-                      omitArgs = "useParallel")
+
 
 ####################### Finished dataset for SpreadFit #######################
 

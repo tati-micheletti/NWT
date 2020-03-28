@@ -525,11 +525,14 @@ pixelGroupMap2011 <- readRDS(file.path(Paths$inputPath, "pixelGroupMap2011_fireS
 
 # After getting the fire, I should get the weather (MDC)
 # I downloaded the data manually using climateNA and placed in the /inputs folder
-source("functions/calculateMDC.R") 
-# plan("multiprocess", workers = length(1991:2017))
+source("functions/calculateMDC.R")
+
+fireYears <- 1991:2017 
+names(fireYears) <- as.character(fireYears)
+# plan("multiprocess", workers = length(fireYears))
 if (!file.exists(file.path(Paths$inputPath, "MDC_1991_2017.rds"))){
   MDC <- Cache(calculateMDC, pathInputs = file.path(Paths$inputPath, "NWT_3ArcMinuteM"), 
-               years = c(1991:2017), doughtMonths = 4:9, rasterToMatch = pixelGroupMap2001, 
+               years = c(fireYears), doughtMonths = 4:9, rasterToMatch = pixelGroupMap2001, 
                userTags = c("MDC_1991_2017", "normals_MDC"))
   
   saveRDS(MDC, file.path(Paths$inputPath, "MDC_1991_2017.rds"))
@@ -537,314 +540,69 @@ if (!file.exists(file.path(Paths$inputPath, "MDC_1991_2017.rds"))){
   MDC <- readRDS(file.path(Paths$inputPath, "MDC_1991_2017.rds"))
 }
 
-<<<<<<< Updated upstream
 # Here I create the dataset of initial fire locations for fireSense_SpreadFit
-=======
-# 1. Extract MDC from fire polygons for each year with location! Double checked, no NA's
-# > any(is.na(MDCextracted$pixelID))
-# [1] FALSE
-source('/mnt/data/Micheletti/NWT/functions/not_included/extractRasFromPolys.R')
-if (!file.exists(file.path(Paths$inputPath, "MDCextracted_1991_2017.rds"))){
-MDCextracted <- lapply(X = names(MDC), FUN = function(ys){
-  extractedMDC <- Cache(extractRasFromPolys, year = ys, rasList = MDC[[ys]], 
-                       # destinationPath = Paths$inputPath,
-                                      polyList = fireLocations[[ys]],
-                        userTags = c(paste0("year:", ys), "MDC"))
-  return(extractedMDC)
-  })
-MDCextracted <- rbindlist(MDCextracted, use.names = FALSE)
-names(MDCextracted) <- c("ID", "pixelID", "MDC", "year")
-
-#Unique ID for each fire
-MDCextracted[, fireID_year := paste0(ID, "_", year)]
-polysNoMDC <- unique(MDCextracted[is.na(MDC), fireID_year])
-message(crayon::blue(paste0(NROW(MDCextracted[fireID_year %in% polysNoMDC,]), " pixels without MDC. Trying to fix...")))
-
-# There are some polygons for which we don't have MDC. 
-# Checking if there are some that we can attribute MDC from neighboring pixs
-lapply(polysNoMDC, function(MDClessGroup){
-  subMDC <- MDCextracted[fireID_year == MDClessGroup, ]
-  MDCtoFill <- mean(subMDC$MDC, na.rm = TRUE)
-  MDCextracted[is.na(MDC) & pixelID %in% subMDC$pixelID & fireID_year == MDClessGroup, MDC := MDCtoFill] 
-})
-# Check which/how many ones we still have as NA. These we are going to have to let go
-polysNoMDC <- unique(MDCextracted[is.na(MDC), fireID_year])
-message(crayon::blue(paste0(NROW(MDCextracted[fireID_year %in% polysNoMDC,]), " pixels still without MDC. Removing...")))
-MDCextracted <- na.omit(MDCextracted)
-saveRDS(MDCextracted, file.path(Paths$inputPath, "MDCextracted_1991_2017.rds"))
-} else {
-  MDCextracted <- readRDS(file.path(Paths$inputPath, "MDCextracted_1991_2017.rds"))
-}
-# TODO Should I maybe use 1991 to 2001 and 2002 to 2011? I have 979 unique fires if I do this. 
-# Otherwise (1991-2017) I have 1536
-
-# 1. Join the cohortData with the MDCextracted table based on the year.
-# Get the pixels I need to merge the MDC table (has both MDC and polygon info ~ fire size)
-# There are pixels in here that don't have a pixeGroup: these are outside of forests, maybe?
-library("data.table")
-library("testthat")
-pixelID_pixelGroup2001 <- data.table(pixelID = unique(MDCextracted[year < 2005, pixelID]),
-                                     pixelGroup = pixelGroupMap2001[unique(MDCextracted[year < 2005, pixelID])])
-pixelID_pixelGroup2011 <- data.table(pixelID = unique(MDCextracted[year > 2004, pixelID]), 
-                                     pixelGroup = pixelGroupMap2011[unique(MDCextracted[year > 2004, pixelID])])
-
-# # Merge MDC and cohortData using pixelID_pixelGroup Tables
-# setkey(cohortData2001, pixelGroup)
-# setkey(cohortData2011, pixelGroup)
-# setkey(pixelID_pixelGroup2001, pixelGroup)
-# setkey(pixelID_pixelGroup2011, pixelGroup)
-
-# 2. Mege both tables:
-# pixelID have no NA, pixelGroups have (potentially non-forests)
-cohortData2001_px <- merge(cohortData2001, pixelID_pixelGroup2001, all.y = TRUE)
-cohortData2011_px <- merge(cohortData2011, pixelID_pixelGroup2011, all.y = TRUE)
-
-# 3. Merge the two datasets: fire and cohortData
-# We only care about the pixels that had fire (coming from MDCextracted). So we do all.y = TRUE,
-# but all.x = FALSE
-cohortData2001_MDC <- merge(cohortData2001_px, MDCextracted[year < 2005, ], all.y = TRUE, by = "pixelID")
-cohortData2011_MDC <- merge(cohortData2011_px, MDCextracted[year > 2004, ], all.y = TRUE, by = "pixelID")
-
-# 4. rbind the 2001 and 2011 datasets. Now each row has its specific cover and MDC, and all, 
-# it should be fine to joing these
-cohort_MDC <- rbind(cohortData2001_MDC, cohortData2011_MDC)
-# simplify the dataset
-cohort_MDC <- cohort_MDC[, c("pixelGroup", "ecoregionGroup", "rasterToMatch", "totalBiomass") := NULL]
-
-# 5. calculate the number of pixels in each fireID_year 
-cohort_MDC[, fireSize := length(unique(pixelID)), by = fireID_year]
-
-# 6. Calculate the real age based on fire year:
-cohort_MDC[as.numeric(year) < 2001, realAge := 2001 - as.numeric(year)]
-cohort_MDC[as.numeric(year) < 2011 & as.numeric(year) > 2000, realAge := 2011 - as.numeric(year)]
-cohort_MDC[!is.na(realAge), age := realAge]
-cohort_MDC[, realAge := NULL]
-
-# 7. Calculate the proportion of each class for each fireID_year: maybe create one column for each one of the classes
-# Class1: Proportion of the pixels that has age < 15
-# Class2: Proportion of deciduous biomass per pixel (Popu_Trem, Lari_Lar, Betu_Pap)
-# Class3: Proportion of conifer + Larix biomass per pixel (Pice_Mar + Pice_Gla + Lari_Lar)
-# Class4: Proportion of Pine biomass per pixel (Pinu_Ban)
-# Class5: Proportion of other covers
-
-spCode <- c('Pice_Mar', 'Pice_Gla', 'Lari_Lar', 'Betu_Pap', 'Popu_Tre', 'Pinu_Ban') # TODO Make it flexible and into a function!
-reclassTable <- data.table(speciesCode = spCode, burnClass = c("class3", "class3", "class3", "class2", "class2", "class4"))
-cohort_MDC <- merge(cohort_MDC, reclassTable, by = "speciesCode", all.x = TRUE)
-cohort_MDC[age < 15, burnClass := "class1"]
-cohort_MDC[is.na(B), burnClass := "class5"]
-
-# 8. Calculate proportional biomass
-# 8.1. Now that I reclassified the species, I could drop speciesCode. But won't do that in case I find any duplicates I can check.
-  # cohort_MDC[, "speciesCode" := NULL]
-cohort_MDC[, totalBiomassPixel := sum(B), by = c("pixelID", "fireID_year")]
-#Assertion
-testthat::expect_true(NROW(cohort_MDC[is.na(totalBiomassPixel) & burnClass != "class5", ])==0)
-testthat::expect_true(NROW(cohort_MDC[!is.na(totalBiomassPixel) & burnClass == "class5", ])==0)
-
-cohort_MDC[, BperClass := sum(B), by = c("burnClass", "pixelID", "fireID_year")]
-cohort_MDC[, totalBiomassFire := sum(totalBiomassPixel, na.rm = TRUE), by = c("fireID_year")] # I may have some polys with class 5, need na.rm = TRUE
-cohort_MDC[, BperClassFire := sum(BperClass, na.rm = TRUE), by = c("burnClass", "fireID_year")]
-cohort_MDC[, propBurnClassFire := BperClassFire/totalBiomassFire]
-# Fix 0/0
-cohort_MDC[is.na(propBurnClassFire), propBurnClassFire := 0]
-
-# 9. Average MDC per fireID_year
-cohort_MDC[, averageMDC := mean(MDC), by = "fireID_year"]
-# We shouldn't have any NAs in MDC, we dealt with those before
-testthat::expect_false(any(is.na(cohort_MDC$averageMDC)))
-
-cohort_Fire <- copy(cohort_MDC) # To be used later for fireSense
-
-colsToKeep <- c("fireID_year", "fireSize", "burnClass", "propBurnClassFire", "averageMDC")
-colsToDel <- setdiff(names(cohort_MDC), colsToKeep)
-cohort_MDC[, c(colsToDel) := NULL]
-cohort_MDC <- unique(cohort_MDC)
-
-# Assertion: we don't have any more NA's
-testthat::expect_true(NROW(cohort_MDC) == NROW(na.omit(cohort_MDC)))
-
-# If all is working, I should NOT have to pass fun.aggregated to dcast and it should NOT give me a warning.
-# If that happens it means we have duplicates
-testthat::expect_warning({cohort_cast <- dcast(cohort_MDC, fireID_year + fireSize + averageMDC ~ burnClass, 
-                           value.var = "propBurnClassFire")},regexp = NA)
-
-#TODO move!
-dtReplaceNAwith0 <- function(DT, colsToUse = NULL){
-  if (is.null(colsToUse))
-    colsToUse <- names(DT)
-  for (i in colsToUse)
-    DT[is.na(get(i)), (i):=0]
-}
-dtReplaceNAwith0(cohort_cast)
-
-# Assertion:
-testthat::expect_true(length(unique(cohort_cast$fireID_year))==NROW(cohort_cast)) # One fire per row
-testthat::expect_true(all(cohort_cast[, class1+class2+class3+class4+class5 <= 1, ])) # The proportions make sense
-
-#Cleanup
-cohort_cast[, fireID_year := NULL]
-# Class5 needs to be removed, as we might not be able to get the parameter (and we actually don't really care!). 
-# cohort_cast[, class5 := NULL]
-cohort_cast[, class5 := 1-(class1+class2+class3+class4)]
-
-names(cohort_cast)[names(cohort_cast) == "averageMDC"] <- "weather"
-
-# We will build a model with: 
-# fireSize ~ (class1 + class2 + class3 + class4) * MDC
-
-dataFireSense_SizeFit <- cohort_cast
-
-################ fireSense_SizeFit
-
-modules <- list("fireSense_SizeFit")
-
-times <- list(start = 1, end = 1)
-
-# Define fireSense_SizeFit module inputs
-objects <- list(dataFireSense_SizeFit = dataFireSense_SizeFit)
-
-# Define fireSense_SizeFit module parameters
-# formula <- formula(fireSize ~ weather * (class1 + class2 + class3 + class4))
-# formula <- formula(fireSize ~ weather * (class1 + class2 + class3 + class4 + class5))
-formula <- formula(fireSize ~ 0 + weather * (class1 + class2 + class3 + class4 + class5))
-# formula <- formula(fireSize ~ class1 + class2 + class3 + class4 + class5 + weather - 1)
-dataObjName <- "dataFireSense_SizeFit"
-
-parameters <- list(
-  fireSense_SizeFit = list(
-    formula = list(     # Formulas of the statistical model
-      beta = formula,   # The formulas for the beta and theta parameters of the tapered Pareto.
-      theta = formula   # They do not have to be identical, even if it's the case here
-    ),
-    data = dataObjName, # Name of the data.frame containing the variables in the statistical model. By default "dataFireSense_SizeFit"
-    link = list(
-      beta = "log",     # Link function for the beta parameter of the tapered Pareto
-      theta = "log"     # Link function for the theta parameter of the tapered Pareto
-    ),
-    a = 1,              # Lower truncation point a of the tapered Pareto
-    ub = list(
-      beta = 100,
-      theta = 100
-    ),
-    itermax = 20000,
-    trace = 100
-  )
-)
-
-# Run the simulation
-# fireSizeFit <- simInitAndSpades(
-#   modules = modules,
-#   params = parameters,
-#   objects = objects,
-#   times = times
-# )
-# 
-# fireSense_SizeFitted <- fireSizeFit$fireSense_SizeFitted # Extract the fitted model from the sim object
-
-#################### fireSense_SizePredict
-
-# Now that we fit the fireSizes to the fires we know, we should predict beta and theta for each pixel in a map
-# For that, we need the 2001 pixelGroupMap and cohortData, and rasterizeReduce each one of the to all pixels in the map
-
-# 24th MARCH 2019: Did not predict fire size. Didnt put the  dataFireSense_SizePredict together. Will try running straight the 
-# SpreadFit
-
-# dataFireSense_SizePredict # RASTER stack of all classes proportions per pixel, being each class proportion one layer in the stack
-# 
-# modules <- list("fireSense_SizePredict")
-# times <- list(start = 1, end = 1)
-# 
-# # Define fireSense_SizePredict module inputs
-# objects <- list(
-#   fireSense_SizeFitted = fireSense_SizeFitted,
-#   dataFireSense_SizePredict = dataFireSense_SizePredict #TODO Raster stack of all classes proportions per pixel, being each class proportion one layer in the stack ==> can be leveraged from the SpreadFit somehow?
-# )
-# 
-# # Define fireSense_SizePredict module outputs
-# outputs <- rbind(
-#   data.frame(
-#     file = "fireSense_SizePredicted_Beta.tif",
-#     fun = "writeRaster",
-#     objectName = "fireSense_SizePredicted_Beta",
-#     package = "raster",
-#     saveTime = 1
-#   ),
-#   data.frame(
-#     file = "fireSense_SizePredicted_Theta.tif",
-#     fun = "writeRaster",
-#     objectName = "fireSense_SizePredicted_Theta",
-#     package = "raster",
-#     saveTime = 1
-#   )
-# )
-# 
-# # Define fireSense_SizePredict module parameters
-# parameters <- list(
-#   fireSense_SizePredict = list(
-#     data = "dataFireSense_SizePredict",
-#     modelName = "fireSense_SizeFitted" # This is the default
-#   )
-# )
-# 
-# # Run the simulation
-# fireSizePredict <- simInitAndSpades(
-#   modules = modules,
-#   objects = objects,
-#   outputs = outputs,
-#   params = parameters,
-#   times = times
-# )
-
-#################### fireSense_SpreadFit
-
-######################## Create dataset for SpreadFit ########################
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ fireAttributesFireSense_SpreadFit
-
-Require(c("data.table", "SpaDES.core"))
-# Here I can diverge and create the dataset of initial fire locations for fireSense_SpreadFit
->>>>>>> Stashed changes
 # We need a dataframe of the origin of the fire (coordinates) and each fire size (as a data.frame)
 
 # 1. To get the origin of the fire:
 source(file.path(getwd(), "functions/getFirePoints_NFDB.R"))
-fireLocationsPoints <- Cache(getFirePoints_NFDB, url = "http://cwfis.cfs.nrcan.gc.ca/downloads/nfdb/fire_pnt/current_version/NFDB_point.zip",
+fireLocationsPoints <- Cache(getFirePoints_NFDB,
+                             url = "http://cwfis.cfs.nrcan.gc.ca/downloads/nfdb/fire_pnt/current_version/NFDB_point.zip",
                        studyArea = studyArea, rasterToMatch = rasterToMatch,
                        NFDB_pointPath = file.path(Paths$inputPath, "NFDB_point"),
                        userTags = c("what:firePoints", "forWhat:fireSense_SpreadFit"))
+fireLocationsPoints <- fireLocationsPoints[fireLocationsPoints$YEAR <= max(fireYears) & 
+                                             fireLocationsPoints$YEAR >= min(fireYears),]
+fireLocationsPoints <- fireLocationsPoints[, c("YEAR", "SIZE_HA")]
+fireLocationsPoints$fireSize <- asInteger(fireLocationsPoints$SIZE_HA / prod(res(rasterToMatch)) * 1e4)
+names(fireLocationsPoints) <- c("date", "size_ha", "size")
+
+# bigger than 1 pixel
+fireLocationsPoints <- fireLocationsPoints[fireLocationsPoints$size > 1,]
+fireAttributesFireSense_SpreadFit <- fireLocationsPoints
+
 rasterTemp <- setValues(pixelGroupMap2001, values = 1:ncell(pixelGroupMap2001))
 
-# 2. To get the coordinates:
-startingPointsCoord <- data.table(coords = coordinates(fireLocationsPoints),
-                                  year = fireLocationsPoints$YEAR)
+if (FALSE) {
+  # 2. To get the coordinates:
+  startingPointsCoord <- data.table(coords = coordinates(fireLocationsPoints)[, 1:2],
+                                    year = fireLocationsPoints$YEAR,
+                                    fireID = fireLocationsPoints$FIRE_ID,
+                                    fireSize = asInteger(fireLocationsPoints$SIZE_HA/
+                                                           prod(res(rasterToMatch))*1e4))
+  
+  # Subsetting for the same period we have the dataset
+  startingPointsCoord <- startingPointsCoord[year <= max(fireYears) & year >= min(fireYears)]
+  setDT(startingPointsCoord)
+  setnames(startingPointsCoord, old = colnames(startingPointsCoord)[1:3],
+           new = c("x", "y", "year"))
+  
+  # 3. To get the pixelID based on the coordinates:
+  pixelID_fireStarts <- startingPointsCoord[
+    , `:=`(pixelID = raster::extract(rasterTemp, coordinates(startingPointsCoord[, c("x", "y")])),
+           origin = TRUE)]
+  
+  # 4. To get fire size based on the coordinates pixelID from cohort_Fire:
+  cohort_starts <- merge(cohort_Fire, pixelID_fireStarts, by = "pixelID", all.y = TRUE)
+  cohort_startsRed <- na.omit(cohort_starts)
+  colsToKeep <- c("year", "fireSize", "pixelID")
+  colsToDel <- setdiff(names(cohort_starts), colsToKeep)
+  cohort_startsRed <- cohort_startsRed[, c(colsToDel) := NULL]
+  cohort_startsRed <- unique(cohort_startsRed)
+  
+  # We have the same pixel burning in different years... 
+  #ids <- duplicated(cohort_startsRed$pixelID)
+  #Reps <- cohort_startsRed[ids, pixelID]
+  # cohort_startsRed[pixelID %in% Reps, ]
+  
+  # 5. Extract coordinates of the pixelID's I have in cohort_startsRed
+  coordins <- raster::xyFromCell(object = rasterTemp, cell = cohort_startsRed$pixelID)
+  testthat::expect_true(NROW(cohort_startsRed) == NROW(coordins))
+  
+  fireAttributesFireSense_SpreadFit <- 
+    SpatialPointsDataFrame(coordins, data = data.frame(size = cohort_startsRed$fireSize,
+                                                       date = cohort_startsRed$year))
+}
 
-# Subsetting for the same period we have the dataset
-startingPointsCoord <- startingPointsCoord[, coords.coords.x3 := NULL][year < 2018 & year > 1990]
-names(startingPointsCoord) <- c("x", "y", "year")
-
-# 3. To get the pixelID based on the coordinates:
-pixelID_fireStarts <- data.table(pixelID = raster::extract(rasterTemp, coordinates(startingPointsCoord[, c("x", "y")])),
-                                 origin = TRUE)
-
-# 4. To get fire size based on the coordinates pixelID from cohort_Fire:
-cohort_starts <- merge(cohort_Fire, pixelID_fireStarts, by = "pixelID", all.y = TRUE)
-cohort_startsRed <- na.omit(cohort_starts)
-colsToKeep <- c("year", "fireSize", "pixelID")
-colsToDel <- setdiff(names(cohort_starts), colsToKeep)
-cohort_startsRed <- cohort_startsRed[, c(colsToDel) := NULL]
-cohort_startsRed <- unique(cohort_startsRed)
-
-# We have the same pixel burning in different years... 
-ids <- duplicated(cohort_startsRed$pixelID)
-Reps <- cohort_startsRed[ids, pixelID]
-# cohort_startsRed[pixelID %in% Reps, ]
-
-# 5. Extract coordinates of the pixelID's I have in cohort_startsRed
-coordins <- raster::xyFromCell(object = rasterTemp, cell = cohort_startsRed$pixelID)
-testthat::expect_true(NROW(cohort_startsRed) == NROW(coordins))
-
-  fireAttributesFireSense_SpreadFit <- SpatialPointsDataFrame(coordins, data = data.frame(size = cohort_startsRed$fireSize,
-                                                                                        date = cohort_startsRed$year))
 crs(fireAttributesFireSense_SpreadFit) <- crs(rasterTemp)
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ dataFireSense_SpreadFit
@@ -863,6 +621,7 @@ source(file.path(getwd(), 'functions/classifyCohortsFireSenseSpread.R'))
 classList2001 <- classifyCohortsFireSenseSpread(cohortData2001, year = 2001)
 classList2011 <- classifyCohortsFireSenseSpread(cohortData2011, year = 2011)
 
+
 # To create the class5, I need to do 1-sum(class1:4)
 class5_2001 <- calc(x = stack(classList2001), fun = sum, na.rm = TRUE)
 classList2001[["class5"]] <- 1 - class5_2001
@@ -871,41 +630,66 @@ class5_2011 <- calc(x = stack(classList2011), fun = sum, na.rm = TRUE)
 classList2011[["class5"]] <- 1 - class5_2011
 names(classList2011[["class5"]]) <- "class5_2011"
 
-class1 <- class2 <- class3 <- class4 <- class5 <- list()
+#class1 <- class2 <- class3 <- class4 <- class5 <- list()
 
-classesList <- lapply(paste0("class", 1:5), function(cl){
-  classYear <- lapply(1991:2017, function(i) {
-    if (i < 2005){
-      assign(cl, classList2001[[cl]])
-    } else {
-      assign(cl, classList2011[[cl]])
-    }
-  })
-  names(classYear) <- paste(cl, 1991:2017, sep = "_")
-  classYear <- lapply(names(classYear), function(clsYrNm){
-    names(classYear[[clsYrNm]]) <- clsYrNm
-    return(classYear[[clsYrNm]])
-  })
-  names(classYear) <- paste(cl, 1991:2017, sep = "_")
-  return(classYear)
-})
-names(classesList) <- paste0("class", 1:5)
+# Assign values from 2001 and 2011 veg input layers to annual data
+yearToDivide <- 2005
+numClasses <- length(classList2001)
+fireYearsList <- split(fireYears, f = fireYears >= yearToDivide) # because fireYears has names, it keeps them
+classList <- append(rep(classList2001, length(fireYearsList[[1]])), 
+                    rep(classList2011, length(fireYearsList[[2]])))
+# make 2 level list -- year on outside
+classList <- split(classList, f = rep(fireYears, each = numClasses))
+# classList <- purrr::transpose(classList)
 
-# lapply through names(classesList) clsNames, stack and assign each stack to clsNames
-env <- environment()
-invisible(lapply(names(classesList), function(clsNames){
-  stk <- raster::stack(classesList[[clsNames]])
-  assign(x = clsNames, value = stk, envir = env)
-}))
+# classesList <- lapply(paste0("class", 1:5), function(cl){
+#   classYear <- lapply(fireYears, function(i) {
+#     if (i < 2005){
+#       assign(cl, classList2001[[cl]])
+#     } else {
+#       assign(cl, classList2011[[cl]])
+#     }
+#   })
+#   names(classYear) <- as.character(fireYears)
+#   classYear <- lapply(names(classYear), function(clsYrNm){
+#     names(classYear[[clsYrNm]]) <- clsYrNm
+#     return(classYear[[clsYrNm]])
+#   })
+#   names(classYear) <- as.character(fireYears)
+#   #names(classYear) <- paste(cl, fireYears, sep = "_")
+#   return(classYear)
+# })
+# names(classesList) <- paste0("class", 1:5)
+# 
+# # lapply through names(classesList) clsNames, stack and assign each stack to clsNames
+# env <- environment()
+# invisible(lapply(names(classesList), function(clsNames){
+#   stk <- raster::stack(classesList[[clsNames]])
+#   assign(x = clsNames, value = stk, envir = env)
+# }))
 
-weather <- raster::stack(MDC)
+# pull to memory
+stackToMemory <- function (x, ...) 
+{
+    r <- stack(x, ...)
+    r <- setValues(r, getValues(r))
+    return(r)
+}
+
+weather <- Cache(stackToMemory, MDC)
+weather <- raster::unstack(weather)
+names(weather) <- names(classList)
+# weave all covariates together
+annualRasters <- mapply(c, weather = weather, classList, SIMPLIFY=FALSE)
+annualStacks <- lapply(annualRasters, raster::stack)
+rm(annualRasters)
 
 # pixelIDLociYear <- data.table(pixelID = raster::extract(rasterTemp, coordinates(startingPointsCoord[, c("x", "y")])),
 #                                  year = startingPointsCoord$year)
 # Think I have this already...
 
 source("functions/getFirePolygons.R")
-firePolys <- Cache(getFirePolygons, years = 1991:2017, studyArea = studyArea, 
+firePolys <- Cache(getFirePolygons, years = fireYears, studyArea = studyArea, 
                             pathInputs = Paths$inputPath, userTags = c("years:1991_2017"))
 
 
@@ -915,13 +699,15 @@ modules <- list("fireSense_SpreadFit")
 
 times <- list(start = 1, end = 1)
 
-objects <- list(fireAttributesFireSense_SpreadFit = fireAttributesFireSense_SpreadFit,
-                class1 = class1,
-                class2 = class2,
-                class3 = class3,
-                class4 = class4,
-                class5 = class5,
-                weather = weather)
+objects <- list(annualStacks = annualStacks, rasterToMatch = rasterToMatch,
+                fireAttributesFireSense_SpreadFit = fireAttributesFireSense_SpreadFit)
+rm(annualStacks, weather)
+#   class1 = class1,
+                # class2 = class2,
+                # class3 = class3,
+                # class4 = class4,
+                # class5 = class5,
+                # weather = weather)
 
 # Define fireSense_SpreadFit module parameters
 # formula <- formula(~ I(1/beta) + log(theta) - 1) # For when doing SizeFit/Predict
@@ -956,7 +742,7 @@ parameters <- list(
     # Here are the bounds for: 4 parameters for log fun + n parameters for the model (i.e. n terms of a formula)
     lower = c(0.01, 0, 0.1, 0.3, lowerParams),
     upper = c(0.20, 0.1, 10, 4, upperParams),
-    cores = 1, #pemisc::makeOptimalCluster(useParallel = TRUE)
+    cores = 25, #pemisc::makeOptimalCluster(useParallel = TRUE)
     iterDEoptim = 50,
     verbose = FALSE,
     trace = 1,
@@ -1154,3 +940,4 @@ if (runCaribou){
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+

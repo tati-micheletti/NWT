@@ -39,6 +39,7 @@ if (updateSubmodules){
 } 
 
 library("usefun")
+library("data.table")
 library("LandR")
 library("LandR.CS")
 library("SpaDES")
@@ -634,12 +635,19 @@ names(classList2011[["class5"]]) <- "class5_2011"
 
 # Assign values from 2001 and 2011 veg input layers to annual data
 yearToDivide <- 2005
-numClasses <- length(classList2001)
-fireYearsList <- split(fireYears, f = fireYears >= yearToDivide) # because fireYears has names, it keeps them
-classList <- append(rep(classList2001, length(fireYearsList[[1]])), 
-                    rep(classList2011, length(fireYearsList[[2]])))
-# make 2 level list -- year on outside
-classList <- split(classList, f = rep(fireYears, each = numClasses))
+if (FALSE) {
+  numClasses <- length(classList2001)
+  fireYearsList <- split(fireYears, f = fireYears >= yearToDivide) # because fireYears has names, it keeps them
+  classList <- append(rep(classList2001, length(fireYearsList[[1]])), 
+                      rep(classList2011, length(fireYearsList[[2]])))
+  # make 2 level list -- year on outside
+  classList <- split(classList, f = rep(fireYears, each = numClasses))
+} else {
+  classList <- list(classList2001, classList2011)
+  names(classList) <- c(paste0(fireYears[fireYears < yearToDivide], collapse = "_"),
+                        paste0(fireYears[fireYears >= yearToDivide], collapse = "_"))
+  
+}
 # classList <- purrr::transpose(classList)
 
 # classesList <- lapply(paste0("class", 1:5), function(cl){
@@ -678,11 +686,16 @@ stackToMemory <- function (x, ...)
 
 weather <- Cache(stackToMemory, MDC)
 weather <- raster::unstack(weather)
-names(weather) <- names(classList)
+names(weather) <- as.character(fireYears)
+
 # weave all covariates together
-annualRasters <- mapply(c, weather = weather, classList, SIMPLIFY=FALSE)
+annualRasters <- mapply(c, weather = weather, SIMPLIFY=FALSE)
 annualStacks <- lapply(annualRasters, raster::stack)
 rm(annualRasters)
+
+nonAnnualRasters <- mapply(c, classList, SIMPLIFY=FALSE)
+nonAnnualStacks <- lapply(nonAnnualRasters, raster::stack)
+rm(nonAnnualRasters)
 
 # pixelIDLociYear <- data.table(pixelID = raster::extract(rasterTemp, coordinates(startingPointsCoord[, c("x", "y")])),
 #                                  year = startingPointsCoord$year)
@@ -699,9 +712,11 @@ modules <- list("fireSense_SpreadFit")
 
 times <- list(start = 1, end = 1)
 
-objects <- list(annualStacks = annualStacks, rasterToMatch = rasterToMatch,
+objects <- list(annualStacks = annualStacks, 
+                nonAnnualStacks = nonAnnualStacks,
+                rasterToMatch = rasterToMatch,
                 fireAttributesFireSense_SpreadFit = fireAttributesFireSense_SpreadFit)
-rm(annualStacks, weather)
+rm(annualStacks, weather, nonAnnualStacks, classList, classList2001, objectsPre)
 #   class1 = class1,
                 # class2 = class2,
                 # class3 = class3,
@@ -743,8 +758,8 @@ parameters <- list(
     lower = c(0.01, 0, 0.1, 0.3, lowerParams),
     upper = c(0.20, 0.1, 10, 4, upperParams),
     cores = 25, #pemisc::makeOptimalCluster(useParallel = TRUE)
-    iterDEoptim = 50,
-    verbose = FALSE,
+    iterDEoptim = 100,
+    verbose = TRUE,
     trace = 1,
     termsNAtoZ = c(paste0("class", 1:5))
   )

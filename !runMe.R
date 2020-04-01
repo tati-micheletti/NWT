@@ -1,3 +1,4 @@
+#if (TRUE) { # set this to FALSE to jump directly to simInitAndSpades of fireSense_SpreadFit
 # Before running this script, read !sourceScript to know the 4 
 # parameters that needed to define the run 
 
@@ -13,7 +14,7 @@ updateCRAN <- FALSE
 updateGithubPackages <- FALSE
 updateSubmodules <- FALSE
 prepCohortData <- TRUE # Preamble. If already ran (i.e. objs cohortData2011 and cohortData2001 
-                        # exist in inputs folder) this should NOT be run i.e. FALSE)
+# exist in inputs folder) this should NOT be run i.e. FALSE)
 
 if (updateCRAN)
   update.packages(checkBuilt = TRUE, ask = FALSE)
@@ -25,7 +26,7 @@ if (updateGithubPackages){
   devtools::install_github("PredictiveEcology/pemisc@development")
   devtools::install_github("PredictiveEcology/map@development")
   devtools::install_github("PredictiveEcology/SpaDES.core@lowMemory") # Updates SpaDES.tools and SpaDES.core quickPlot
-  devtools::install_github("PredictiveEcology/SpaDES.tools@development") # Updates SpaDES.tools and SpaDES.core quickPlot
+  devtools::install_github("PredictiveEcology/SpaDES.tools@allowOverlap") # Updates SpaDES.tools and SpaDES.core quickPlot
   devtools::install_github("PredictiveEcology/LandR@reworkCohorts") # Updates SpaDES.tools and SpaDES.core quickPlot
   devtools::install_github("ianmseddy/LandR.CS@master") # Climate sensitivity in LandR
 }
@@ -168,7 +169,7 @@ studyArea <- Cache(prepInputs,
                    destinationPath = getPaths()$inputPath[[1]],
                    userTags = "edeSA",
                    omitArgs = c("destinationPath"))
-		
+
 rasterToMatch <- Cache(prepInputs, url = "https://drive.google.com/open?id=1fo08FMACr_aTV03lteQ7KsaoN9xGx1Df",
                        studyArea = studyArea,
                        targetFile = "RTM.tif", destinationPath = getPaths()$inputPath[[1]],
@@ -229,7 +230,7 @@ ecoRegionRAS <- Cache(prepInputs,
                                    "overwrite",
                                    "userTags"))
 
-  if (!exists("climateModel")) climateModel <- "CCSM4_85" # Default if not provided
+if (!exists("climateModel")) climateModel <- "CCSM4_85" # Default if not provided
 if (!climateModel %in% c("CCSM4_85", "CCSM4_45")) stop("Other climate scenarios are still not implemented.")
 
 cmi.url <- ifelse(climateModel == "CCSM4_85", "https://drive.google.com/open?id=1OcVsAQXKO4N4ZIESNmIZAI9IZcutctHX", 
@@ -243,9 +244,9 @@ alsoExt <- ifelse(climateModel == "CCSM4_85", "Canada3ArcMinute_CCSM4_85_CMI2011
 #                           alsoExtract = alsoExt,
 #                           url = cmi.url,
 #                           destinationPath = file.path(getwd(), "modules/gmcsDataPrep/data"),
- #                          fun = "raster::stack", useCache = TRUE, 
-  #                        userTags = c(paste0("climateModel:", climateModel), "CMI"),
-   #                        omitArgs = c("destinationPath"))
+#                          fun = "raster::stack", useCache = TRUE, 
+#                        userTags = c(paste0("climateModel:", climateModel), "CMI"),
+#                        omitArgs = c("destinationPath"))
 
 ata.url <- ifelse(climateModel == "CCSM4_85", "https://drive.google.com/open?id=1jyfq-7wG4a7EoyNhirgMlq4mYnAvoOeY", 
                   "https://drive.google.com/open?id=1OA67hJDJunQbfeG0nvCnwd3iDutI_EKf")
@@ -373,7 +374,7 @@ parameters <- list(
     "fireInitialTime" = times$start
   ),
   gmcsDataPrep = list(
-     "GCM" = "CCSM4_RCP8.5"),
+    "GCM" = "CCSM4_RCP8.5"),
   fireSense_IgnitionPredict = list(
     "data" = c("MDC06", "LCC"),
     "modelObjName" = "fireSense_FrequencyFitted"),
@@ -508,7 +509,7 @@ if (prepCohortData){
                            userTags = c("objective:preambleBiomassDataPrep", "time:year2011"))
   
 }
-  
+
 ######################## Create dataset for SpreadFit ########################
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ fireAttributesFireSense_SpreadFit
@@ -548,9 +549,9 @@ if (!file.exists(file.path(Paths$inputPath, "MDC_1991_2017.rds"))){
 source(file.path(getwd(), "functions/getFirePoints_NFDB.R"))
 fireLocationsPoints <- Cache(getFirePoints_NFDB,
                              url = "http://cwfis.cfs.nrcan.gc.ca/downloads/nfdb/fire_pnt/current_version/NFDB_point.zip",
-                       studyArea = studyArea, rasterToMatch = rasterToMatch,
-                       NFDB_pointPath = file.path(Paths$inputPath, "NFDB_point"),
-                       userTags = c("what:firePoints", "forWhat:fireSense_SpreadFit"))
+                             studyArea = studyArea, rasterToMatch = rasterToMatch,
+                             NFDB_pointPath = file.path(Paths$inputPath, "NFDB_point"),
+                             userTags = c("what:firePoints", "forWhat:fireSense_SpreadFit"))
 fireLocationsPoints <- fireLocationsPoints[fireLocationsPoints$YEAR <= max(fireYears) & 
                                              fireLocationsPoints$YEAR >= min(fireYears),]
 fireLocationsPoints <- fireLocationsPoints[, c("YEAR", "SIZE_HA")]
@@ -679,9 +680,9 @@ if (FALSE) {
 # pull to memory
 stackToMemory <- function (x, ...) 
 {
-    r <- stack(x, ...)
-    r <- setValues(r, getValues(r))
-    return(r)
+  r <- stack(x, ...)
+  r <- setValues(r, getValues(r))
+  return(r)
 }
 
 weather <- Cache(stackToMemory, MDC)
@@ -702,8 +703,8 @@ rm(nonAnnualRasters)
 # Think I have this already...
 
 source("functions/getFirePolygons.R")
-firePolys <- Cache(getFirePolygons, years = fireYears, studyArea = studyArea, 
-                            pathInputs = Paths$inputPath, userTags = c("years:1991_2017"))
+#firePolys <- Cache(getFirePolygons, years = fireYears, studyArea = studyArea, 
+#                            pathInputs = Paths$inputPath, userTags = c("years:1991_2017"))
 
 
 ####################### Finished dataset for SpreadFit #######################
@@ -718,11 +719,11 @@ objects <- list(annualStacks = annualStacks,
                 fireAttributesFireSense_SpreadFit = fireAttributesFireSense_SpreadFit)
 rm(annualStacks, weather, nonAnnualStacks, classList, classList2001, objectsPre)
 #   class1 = class1,
-                # class2 = class2,
-                # class3 = class3,
-                # class4 = class4,
-                # class5 = class5,
-                # weather = weather)
+# class2 = class2,
+# class3 = class3,
+# class4 = class4,
+# class5 = class5,
+# weather = weather)
 
 # Define fireSense_SpreadFit module parameters
 # formula <- formula(~ I(1/beta) + log(theta) - 1) # For when doing SizeFit/Predict
@@ -745,8 +746,8 @@ formula <- formula(~ 0 + weather + class1 + class2 + class3 + class4 + class5) #
 
 # RESCALE MDC 
 # Should let the classes take 100% of it if needs
-lowerParams <- c(0, 0.001, 0.001, 0.003, 0.003, 0.001)
-upperParams <- c(0.0005, 0.05, 0.05, 0.07, 0.07, 0.05)
+lowerParams <- c(0, 0.001, 0.001, 0.001, 0.001, 0.001)
+upperParams <- c(0.05, 0.1, 0.1, 0.1, 0.1, 0.1)
 
 parameters <- list(
   fireSense_SpreadFit = list(
@@ -754,17 +755,18 @@ parameters <- list(
     fireAttributesFireSense_SpreadFit = "fireAttributesFireSense_SpreadFit", # Default
     # data = c("beta", "theta"),
     data = c("weather", "class1", "class2", "class3", "class4", "class5"),
-    # Here are the bounds for: 4 parameters for log fun + n parameters for the model (i.e. n terms of a formula)
-    lower = c(0.01, 0, 0.1, 0.3, lowerParams),
-    upper = c(0.20, 0.1, 10, 4, upperParams),
-    cores = 25, #pemisc::makeOptimalCluster(useParallel = TRUE)
+    # Here are the bounds for: 5 parameters for log fun + n parameters for the model (i.e. n terms of a formula)
+    #  lower asymptote, upper asymptote, (inflection point), slope at inflection pt, asymmetry
+    lower = c(0.02, 0.22, 0.1, 0.5, lowerParams),
+    upper = c(0.15, 0.3, 10, 4, upperParams),
+    cores = 20, #pemisc::makeOptimalCluster(useParallel = TRUE)
     iterDEoptim = 100,
     verbose = TRUE,
     trace = 1,
     termsNAtoZ = c(paste0("class", 1:5))
   )
 )
-
+#}
 # Run the simulation
 sim <- simInitAndSpades(
   inputs = inputs,

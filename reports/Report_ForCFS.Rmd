@@ -3,8 +3,8 @@ title: 'Simulation effects of climate change on fire regime\: implications for B
   Caribou and landbird communities in the Northwest Territories'
 author: Tati Micheletti\textsuperscript 1, Frances Stewart\textsuperscript 2, Eliot
   McIntire\textsuperscript {1,2}, Ian Eddy\textsuperscript 2,  Ceres Barros\textsuperscript
-  1, Jean Marchal\textsuperscript 3, Diana Stralberg\textsuperscript 4, Mario van
-  Telgen\textsuperscript 5, Ana Raymundo\textsuperscript 5, Alex Chubaty\textsuperscript
+  1, Jean Marchal\textsuperscript 3,    Diana Stralberg\textsuperscript 4, Mario van
+  Telgen\textsuperscript 5, Ana Raymundo\textsuperscript 5, Alex M. Chubaty\textsuperscript
   6, Steve Cumming\textsuperscript 5
 subtitle: Draft last revised 9/26/2019
 output:

@@ -759,7 +759,7 @@ parameters <- list(
     #  lower asymptote, upper asymptote, (inflection point), slope at inflection pt, asymmetry
     lower = c(0.02, 0.22, 0.1, 0.5, lowerParams),
     upper = c(0.15, 0.3, 10, 4, upperParams),
-    cores = 20, #pemisc::makeOptimalCluster(useParallel = TRUE)
+    cores = 50, #pemisc::makeOptimalCluster(useParallel = TRUE)
     iterDEoptim = 100,
     verbose = TRUE,
     trace = 1,

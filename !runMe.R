@@ -91,9 +91,15 @@ if (length(paths$modulePath) == 1) paths$modulePath <- c(paths$modulePath, file.
 paths$outputPath <- checkPath(file.path(paths$outputPath, definedRun$whichRUN, replicateNumber), create = TRUE) # Redefine outputPath based on type of run
 paths$outputPath <- gsub(x = paths$outputPath, pattern = toupper(format(Sys.time(), "%d%b%y")), replacement = "fireSenseTESTS") # Added on 16th Jan after checking all went well.
 
-if (pemisc::user() %in% c("Tati", "tmichele")) {
-  setTempFolder(paths = paths, setTmpFolder = TRUE, usr = user)
+if (pemisc::user() %in% c("Tati", "tmichele")){
+  workDirectory <- getwd()
+  message("Your current temporary directory is ", tempdir())
+  unlink(file.path(paths$cachePath, "tmp"), recursive = TRUE, force = TRUE)
+  tempFolder <- asPath(reproducible::checkPath(file.path(dirname(workDirectory), "tmp"), 
+                                               create = TRUE))
+  unixtools::set.tempdir(tempFolder)
 }
+
 maxMemory <- 5e+12
 scratchDir <- checkPath(path = paste0("/mnt/tmp/rasterTMP/", user), create = TRUE)
 #Here we check that the creation of the folder worked (we might have problems with writting access, only tested with my own user)

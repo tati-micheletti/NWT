@@ -13,7 +13,7 @@ if (pemisc::user() %in% c("Tati", "tmichele"))
 updateCRAN <- FALSE
 updateGithubPackages <- FALSE
 updateSubmodules <- FALSE
-prepCohortData <- TRUE # Preamble. If already ran (i.e. objs cohortData2011 and cohortData2001 
+prepCohortData <- FALSE # Preamble. If already ran (i.e. objs cohortData2011 and cohortData2001 
 # exist in inputs folder) this should NOT be run i.e. FALSE)
 
 if (updateCRAN)
@@ -615,7 +615,7 @@ crs(fireAttributesFireSense_SpreadFit) <- crs(rasterTemp)
 # RasterStack of the model covariates. 
 # The number of layers in the RasterStack should equal the number of distinct dates in column 'date'.
 # Each COVARIATE of the model is ONE different raster stack containing that variable for all the different years.
-# TODO: To include a bit more stochasticity, simulate changes from 2001 until 2011, and from 2011 until 2017 using 2001 and 2011 layers, respectively and the fire dataset (I know exactly where the fires occurred and how big they were! I just need to call them in a module each year) . At each each I save cohortData and pixelGroupMap, and using rasterizeReduce, I create the proportional biomass layers for each year for each class (would have to reclassify the species).
+# TODO: To include a bit more stochasticity, simulate vegetation changes from 2001 until 2011, and from 2011 until 2017 using 2001 and 2011 layers, respectively and the fire dataset (I know exactly where the fires occurred and how big they were! I just need to call them in a module each year). At each each I save cohortData and pixelGroupMap, and using rasterizeReduce, I create the proportional biomass layers for each year for each class (would have to reclassify the species).
 
 # For now, however, we will assume the landscape and proportions of species don't change for @ 15 years, and we use all the dataset 1991-2017 to fit the spread model, using 2001 and 2011 layers
 # 1991:2004 --> 2001: cohortData2001

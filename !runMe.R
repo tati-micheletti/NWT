@@ -1,4 +1,5 @@
-#if (TRUE) { # set this to FALSE to jump directly to simInitAndSpades of fireSense_SpreadFit
+
+if (TRUE){ # set this to FALSE to jump directly to simInitAndSpades of fireSense_SpreadFit
 # Before running this script, read !sourceScript to know the 4 
 # parameters that needed to define the run 
 
@@ -29,6 +30,8 @@ if (updateGithubPackages){
   devtools::install_github("PredictiveEcology/SpaDES.tools@allowOverlap") # Updates SpaDES.tools and SpaDES.core quickPlot
   devtools::install_github("PredictiveEcology/LandR@reworkCohorts") # Updates SpaDES.tools and SpaDES.core quickPlot
   devtools::install_github("ianmseddy/LandR.CS@master") # Climate sensitivity in LandR
+  devtools::install_github("PredictiveEcology/fireSenseUtils@development")
+  # pedev::updateGit("fireSenseUtils", branch = "development")
 }
 
 if (updateSubmodules){
@@ -122,7 +125,7 @@ opts <- options(
   "map.tilePath" = tilePath,
   "map.useParallel" = TRUE, #!identical("windows", .Platform$OS.type),
   "reproducible.futurePlan" = FALSE,
-  "future.globals.maxSize" = if (pemisc::user("tmichele")) 6000*1024^2 else 1000*1024^2,
+  "future.globals.maxSize" = if (pemisc::user("tmichele")) 6000*1024^2 else 6000*1024^2,
   "reproducible.cacheSaveFormat" = "qs",
   "reproducible.qsPreset" = "fast",
   "reproducible.inputPaths" = if (pemisc::user("emcintir")) "~/data" else paths$inputPath,
@@ -754,8 +757,9 @@ formula <- formula(~ 0 + weather + class1 + class2 + class3 + class4 + class5) #
 # RESCALE MDC 
 # Should let the classes take 100% of it if needs
 lowerParams <- c(0, 0.001, 0.001, 0.001, 0.001, 0.001)
-upperParams <- c(0.05, 0.1, 0.1, 0.1, 0.1, 0.1)
+upperParams <- c(3, 3, 3, 3, 3, 3)
 
+}
 parameters <- list(
   fireSense_SpreadFit = list(
     formula = formula, # Formula of the statistical model
@@ -766,14 +770,16 @@ parameters <- list(
     #  lower asymptote, upper asymptote, (inflection point), slope at inflection pt, asymmetry
     lower = c(0.02, 0.22, 0.1, 0.5, lowerParams),
     upper = c(0.15, 0.3, 10, 4, upperParams),
-    cores = 50, #pemisc::makeOptimalCluster(useParallel = TRUE)
-    iterDEoptim = 100,
+    cores = clusters <- c(rep("localhost", 50), rep("10.20.0.58", 51)), #pemisc::makeOptimalCluster(useParallel = TRUE)
+    iterDEoptim = 500,
+    rescaleAll = TRUE,
+    maxFireSpread = 0.28,
+    toleranceFireBuffer = c(1, 1.4),
     verbose = TRUE,
     trace = 1,
     termsNAtoZ = c(paste0("class", 1:5))
   )
 )
-#}
 # Run the simulation
 sim <- simInitAndSpades(
   inputs = inputs,

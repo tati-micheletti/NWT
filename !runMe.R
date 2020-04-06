@@ -14,7 +14,7 @@ if (pemisc::user() %in% c("Tati", "tmichele"))
 updateCRAN <- FALSE
 updateGithubPackages <- FALSE
 updateSubmodules <- FALSE
-prepCohortData <- TRUE # Preamble. If already ran (i.e. objs cohortData2011 and cohortData2001 
+prepCohortData <- FALSE # Preamble. If already ran (i.e. objs cohortData2011 and cohortData2001 
 # exist in inputs folder) this should NOT be run i.e. FALSE)
 
 if (updateCRAN)
@@ -94,9 +94,15 @@ if (length(paths$modulePath) == 1) paths$modulePath <- c(paths$modulePath, file.
 paths$outputPath <- checkPath(file.path(paths$outputPath, definedRun$whichRUN, replicateNumber), create = TRUE) # Redefine outputPath based on type of run
 paths$outputPath <- gsub(x = paths$outputPath, pattern = toupper(format(Sys.time(), "%d%b%y")), replacement = "fireSenseTESTS") # Added on 16th Jan after checking all went well.
 
-if (pemisc::user() %in% c("Tati", "tmichele")) {
-  setTempFolder(paths = paths, setTmpFolder = TRUE, usr = user)
+if (pemisc::user() %in% c("Tati", "tmichele")){
+  workDirectory <- getwd()
+  message("Your current temporary directory is ", tempdir())
+  unlink(file.path(paths$cachePath, "tmp"), recursive = TRUE, force = TRUE)
+  tempFolder <- asPath(reproducible::checkPath(file.path(dirname(workDirectory), "tmp"), 
+                                               create = TRUE))
+  unixtools::set.tempdir(tempFolder)
 }
+
 maxMemory <- 5e+12
 scratchDir <- checkPath(path = paste0("/mnt/tmp/rasterTMP/", user), create = TRUE)
 #Here we check that the creation of the folder worked (we might have problems with writting access, only tested with my own user)
@@ -536,7 +542,10 @@ fireYears <- 1991:2017
 names(fireYears) <- as.character(fireYears)
 # plan("multiprocess", workers = length(fireYears))
 if (!file.exists(file.path(Paths$inputPath, "MDC_1991_2017.rds"))){
-  MDC <- Cache(calculateMDC, pathInputs = file.path(Paths$inputPath, "NWT_3ArcMinuteM"), 
+  # This file NWT_3ArcMinuteM comes from downloading the specific data from ClimateNA. 
+  # While there isn't an API for it, this is a manual step. You will need the DEM for the area
+  # and specify which variables you want (in our case, monthlt variables)
+  MDC <- Cache(calculateMDC, pathInputs = file.path(Paths$inputPath, "NWT_3ArcMinuteM"),  
                years = c(fireYears), doughtMonths = 4:9, rasterToMatch = pixelGroupMap2001, 
                userTags = c("MDC_1991_2017", "normals_MDC"))
   
@@ -567,46 +576,46 @@ fireAttributesFireSense_SpreadFit <- fireLocationsPoints
 
 rasterTemp <- setValues(pixelGroupMap2001, values = 1:ncell(pixelGroupMap2001))
 
-if (FALSE) {
-  # 2. To get the coordinates:
-  startingPointsCoord <- data.table(coords = coordinates(fireLocationsPoints)[, 1:2],
-                                    year = fireLocationsPoints$YEAR,
-                                    fireID = fireLocationsPoints$FIRE_ID,
-                                    fireSize = asInteger(fireLocationsPoints$SIZE_HA/
-                                                           prod(res(rasterToMatch))*1e4))
-  
-  # Subsetting for the same period we have the dataset
-  startingPointsCoord <- startingPointsCoord[year <= max(fireYears) & year >= min(fireYears)]
-  setDT(startingPointsCoord)
-  setnames(startingPointsCoord, old = colnames(startingPointsCoord)[1:3],
-           new = c("x", "y", "year"))
-  
-  # 3. To get the pixelID based on the coordinates:
-  pixelID_fireStarts <- startingPointsCoord[
-    , `:=`(pixelID = raster::extract(rasterTemp, coordinates(startingPointsCoord[, c("x", "y")])),
-           origin = TRUE)]
-  
-  # 4. To get fire size based on the coordinates pixelID from cohort_Fire:
-  cohort_starts <- merge(cohort_Fire, pixelID_fireStarts, by = "pixelID", all.y = TRUE)
-  cohort_startsRed <- na.omit(cohort_starts)
-  colsToKeep <- c("year", "fireSize", "pixelID")
-  colsToDel <- setdiff(names(cohort_starts), colsToKeep)
-  cohort_startsRed <- cohort_startsRed[, c(colsToDel) := NULL]
-  cohort_startsRed <- unique(cohort_startsRed)
-  
-  # We have the same pixel burning in different years... 
-  #ids <- duplicated(cohort_startsRed$pixelID)
-  #Reps <- cohort_startsRed[ids, pixelID]
-  # cohort_startsRed[pixelID %in% Reps, ]
-  
-  # 5. Extract coordinates of the pixelID's I have in cohort_startsRed
-  coordins <- raster::xyFromCell(object = rasterTemp, cell = cohort_startsRed$pixelID)
-  testthat::expect_true(NROW(cohort_startsRed) == NROW(coordins))
-  
-  fireAttributesFireSense_SpreadFit <- 
-    SpatialPointsDataFrame(coordins, data = data.frame(size = cohort_startsRed$fireSize,
-                                                       date = cohort_startsRed$year))
-}
+# if (FALSE) {
+#   # 2. To get the coordinates:
+#   startingPointsCoord <- data.table(coords = coordinates(fireLocationsPoints)[, 1:2],
+#                                     year = fireLocationsPoints$YEAR,
+#                                     fireID = fireLocationsPoints$FIRE_ID,
+#                                     fireSize = asInteger(fireLocationsPoints$SIZE_HA/
+#                                                            prod(res(rasterToMatch))*1e4))
+#   
+#   # Subsetting for the same period we have the dataset
+#   startingPointsCoord <- startingPointsCoord[year <= max(fireYears) & year >= min(fireYears)]
+#   setDT(startingPointsCoord)
+#   setnames(startingPointsCoord, old = colnames(startingPointsCoord)[1:3],
+#            new = c("x", "y", "year"))
+#   
+#   # 3. To get the pixelID based on the coordinates:
+#   pixelID_fireStarts <- startingPointsCoord[
+#     , `:=`(pixelID = raster::extract(rasterTemp, coordinates(startingPointsCoord[, c("x", "y")])),
+#            origin = TRUE)]
+#   
+#   # 4. To get fire size based on the coordinates pixelID from cohort_Fire:
+#   cohort_starts <- merge(cohort_Fire, pixelID_fireStarts, by = "pixelID", all.y = TRUE)
+#   cohort_startsRed <- na.omit(cohort_starts)
+#   colsToKeep <- c("year", "fireSize", "pixelID")
+#   colsToDel <- setdiff(names(cohort_starts), colsToKeep)
+#   cohort_startsRed <- cohort_startsRed[, c(colsToDel) := NULL]
+#   cohort_startsRed <- unique(cohort_startsRed)
+#   
+#   # We have the same pixel burning in different years... 
+#   #ids <- duplicated(cohort_startsRed$pixelID)
+#   #Reps <- cohort_startsRed[ids, pixelID]
+#   # cohort_startsRed[pixelID %in% Reps, ]
+#   
+#   # 5. Extract coordinates of the pixelID's I have in cohort_startsRed
+#   coordins <- raster::xyFromCell(object = rasterTemp, cell = cohort_startsRed$pixelID)
+#   testthat::expect_true(NROW(cohort_startsRed) == NROW(coordins))
+#   
+#   fireAttributesFireSense_SpreadFit <- 
+#     SpatialPointsDataFrame(coordins, data = data.frame(size = cohort_startsRed$fireSize,
+#                                                        date = cohort_startsRed$year))
+# }
 
 crs(fireAttributesFireSense_SpreadFit) <- crs(rasterTemp)
 
@@ -615,7 +624,7 @@ crs(fireAttributesFireSense_SpreadFit) <- crs(rasterTemp)
 # RasterStack of the model covariates. 
 # The number of layers in the RasterStack should equal the number of distinct dates in column 'date'.
 # Each COVARIATE of the model is ONE different raster stack containing that variable for all the different years.
-# TODO: To include a bit more stochasticity, simulate changes from 2001 until 2011, and from 2011 until 2017 using 2001 and 2011 layers, respectively and the fire dataset (I know exactly where the fires occurred and how big they were! I just need to call them in a module each year) . At each each I save cohortData and pixelGroupMap, and using rasterizeReduce, I create the proportional biomass layers for each year for each class (would have to reclassify the species).
+# TODO: To include a bit more stochasticity, simulate vegetation changes from 2001 until 2011, and from 2011 until 2017 using 2001 and 2011 layers, respectively and the fire dataset (I know exactly where the fires occurred and how big they were! I just need to call them in a module each year). At each each I save cohortData and pixelGroupMap, and using rasterizeReduce, I create the proportional biomass layers for each year for each class (would have to reclassify the species).
 
 # For now, however, we will assume the landscape and proportions of species don't change for @ 15 years, and we use all the dataset 1991-2017 to fit the spread model, using 2001 and 2011 layers
 # 1991:2004 --> 2001: cohortData2001
@@ -639,19 +648,19 @@ names(classList2011[["class5"]]) <- "class5_2011"
 
 # Assign values from 2001 and 2011 veg input layers to annual data
 yearToDivide <- 2005
-if (FALSE) {
-  numClasses <- length(classList2001)
-  fireYearsList <- split(fireYears, f = fireYears >= yearToDivide) # because fireYears has names, it keeps them
-  classList <- append(rep(classList2001, length(fireYearsList[[1]])), 
-                      rep(classList2011, length(fireYearsList[[2]])))
-  # make 2 level list -- year on outside
-  classList <- split(classList, f = rep(fireYears, each = numClasses))
-} else {
+# if (FALSE) { # Eliot's fixes
+#   numClasses <- length(classList2001)
+#   fireYearsList <- split(fireYears, f = fireYears >= yearToDivide) # because fireYears has names, it keeps them
+#   classList <- append(rep(classList2001, length(fireYearsList[[1]])), 
+#                       rep(classList2011, length(fireYearsList[[2]])))
+#   # make 2 level list -- year on outside
+#   classList <- split(classList, f = rep(fireYears, each = numClasses))
+# } else {
   classList <- list(classList2001, classList2011)
   names(classList) <- c(paste0(fireYears[fireYears < yearToDivide], collapse = "_"),
                         paste0(fireYears[fireYears >= yearToDivide], collapse = "_"))
   
-}
+# }
 # classList <- purrr::transpose(classList)
 
 # classesList <- lapply(paste0("class", 1:5), function(cl){
@@ -681,8 +690,7 @@ if (FALSE) {
 # }))
 
 # pull to memory
-stackToMemory <- function (x, ...) 
-{
+stackToMemory <- function (x, ...){
   r <- stack(x, ...)
   r <- setValues(r, getValues(r))
   return(r)
@@ -704,8 +712,7 @@ rm(nonAnnualRasters)
 # pixelIDLociYear <- data.table(pixelID = raster::extract(rasterTemp, coordinates(startingPointsCoord[, c("x", "y")])),
 #                                  year = startingPointsCoord$year)
 # Think I have this already...
-
-source("functions/getFirePolygons.R")
+# source("functions/getFirePolygons.R")
 #firePolys <- Cache(getFirePolygons, years = fireYears, studyArea = studyArea, 
 #                            pathInputs = Paths$inputPath, userTags = c("years:1991_2017"))
 

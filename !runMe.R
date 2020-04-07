@@ -21,6 +21,7 @@ if (updateCRAN)
   update.packages(checkBuilt = TRUE, ask = FALSE)
 
 if (updateGithubPackages){
+  if (pemisc::user("emcintir")) Sys.setenv("R_REMOTES_UPGRADE"="never")
   devtools::install_github("PredictiveEcology/reproducible@messagingOverhaul")
   devtools::install_github("tati-micheletti/usefun") # Updates LandR
   devtools::install_github("achubaty/amc@development")
@@ -770,7 +771,7 @@ parameters <- list(
     #  lower asymptote, upper asymptote, (inflection point), slope at inflection pt, asymmetry
     lower = c(0.02, 0.22, 0.1, 0.5, lowerParams),
     upper = c(0.15, 0.3, 10, 4, upperParams),
-    cores = clusters <- c(rep("localhost", 50), rep("10.20.0.58", 51)), #pemisc::makeOptimalCluster(useParallel = TRUE)
+    cores = c(rep("10.20.0.97", 20), rep("10.20.0.216", 20), rep("localhost", 29), rep("10.20.0.58", 31)), #pemisc::makeOptimalCluster(useParallel = TRUE)
     iterDEoptim = 500,
     rescaleAll = TRUE,
     maxFireSpread = 0.28,
@@ -789,6 +790,11 @@ sim <- simInitAndSpades(
   times = times
 )
 
+if (FALSE) {
+  # Iteration: 399 bestvalit: 362.469704 bestmemit:    0.117161    0.270096    7.032851    3.281557    0.529472    2.851134    1.839160    2.506558    2.243100    2.689801
+  best <- c(0.117161,0.270096,7.032851,3.281557,0.529472,2.851134,1.839160,2.506558,2.243100,2.689801)
+  
+}
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~> HERE
 
 fireSense_SpreadFitted <- sim$fireSense_SpreadFitted # Extract the fitted model from the sim object

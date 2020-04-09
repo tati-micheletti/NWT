@@ -49,7 +49,7 @@
 	url = git@github.com:tati-micheletti/fireSense_EscapePredict.git
 [submodule "modules/fireSense_SpreadFit"]
 	path = modules/fireSense_SpreadFit
-	url = git@github.com:tati-micheletti/fireSense_SpreadFit.git
+	url = git@github.com:PredictiveEcology/fireSense_SpreadFit.git
 [submodule "modules/fireSense_SpreadPredict"]
 	path = modules/fireSense_SpreadPredict
 	url = git@github.com:tati-micheletti/fireSense_SpreadPredict.git

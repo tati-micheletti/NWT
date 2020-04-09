@@ -86,7 +86,8 @@ isTest <- FALSE
 if (user %in% c("tmichele", "Tati")) {
   paths <- pathsSetup(whichComputer = whichComputer, isTest = isTest)
 } else {
-  paths <- setPaths(modulePath = file.path(getwd(), "modules"),
+  paths <- setPaths(inputPath = file.path(getwd(), "inputs"),
+                    modulePath = file.path(getwd(), "modules"),
                     outputPath = file.path(getwd(), "outputs"),
                     cachePath = file.path(getwd(), "cache"))
   paths <- getPaths()

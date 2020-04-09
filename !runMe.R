@@ -695,12 +695,23 @@ formula <- formula(~ 0 + weather + class1 + class2 + class3 + class4 + class5)
 # Inside the ibj fun: generate the landscape, and spread 1000 times, convert those 1000 maps in the probability of being burned. # eliot will help with spread
 # And compare (take the sum of the negative and log of the probabilities) each pixel coming from these 1000 burned prob map with the historical burned using bernoulli ()
 
-# RESCALE MDC 
-# Should let the classes take 100% of it if needs
-lowerParams <- c(0, 0.001, 0.001, 0.001, 0.001, 0.001)
-upperParams <- c(3, 3, 3, 3, 3, 3)
-
+  # RESCALE MDC 
+  # Should let the classes take 100% of it if needs
+  lowerParams <- c(0, 0.001, 0.001, 0.001, 0.001, 0.001)
+  upperParams <- c(6, 3, 3, 3, 3, 3)
+  
 }
+machines <- data.frame(
+  ipEnd =          c(97, 216, 189, 187, 68, 174),
+  availableCores = c(28, 28,  28,  28,  50, 28)
+)
+makeIps <- function(machines, ipStart = "10.20.0.", N = 100) {
+  ipsEnd <- rep(machines$ipEnd, ceiling(machines$availableCores/ (sum(machines$availableCores)/N)) )
+  ips <- paste0(ipStart, ipsEnd)
+  ips <- sample(ips, N)
+  sort(ips)
+}
+
 parameters <- list(
   fireSense_SpreadFit = list(
     formula = formula, # Formula of the statistical model
@@ -711,11 +722,11 @@ parameters <- list(
     #  lower asymptote, upper asymptote, (inflection point), slope at inflection pt, asymmetry
     lower = c(0.02, 0.22, 0.1, 0.5, lowerParams),
     upper = c(0.15, 0.3, 10, 4, upperParams),
-    cores = c(rep("10.20.0.97", 20), rep("10.20.0.216", 20), rep("localhost", 29), rep("10.20.0.58", 31)), #pemisc::makeOptimalCluster(useParallel = TRUE)
+    cores = makeIps(machines),
     iterDEoptim = 500,
     rescaleAll = TRUE,
-    maxFireSpread = 0.28,
-    toleranceFireBuffer = c(1, 1.4),
+    maxFireSpread = 0.27,
+    toleranceFireBuffer = c(2.6, 3.4),
     verbose = TRUE,
     trace = 1,
     termsNAtoZ = c(paste0("class", 1:5))
@@ -729,6 +740,19 @@ sim <- simInitAndSpades(
   params = parameters,
   times = times
 )
+
+# Check weather (MDC)
+dt <- data.table( 
+  year = names(objects$annualStacks),
+  meanAnnualMDC = unlist(lapply(objects$annualStacks, function(x) 
+    median(asInteger(x$weather[sim$fireAttributesFireSense_SpreadFit]/10)*10L, na.rm = TRUE))),
+  AnnualAreaBurned = unlist(lapply(sim$firePolys, function(x) 
+    sum(asInteger(x$POLY_HA/10)*10L, na.rm = TRUE))))
+plot(dt[,-1], pch = "", main = "NWT fire size by MDC and fire year")
+text(dt[,-1], labels = gsub("^..", "", dt$year))
+lm1 <- lm(AnnualAreaBurned ~ meanAnnualMDC, data = dt)
+abline(lm1)
+
 
 if (FALSE) {
   # Iteration: 399 bestvalit: 362.469704 bestmemit:    0.117161    0.270096    7.032851    3.281557    0.529472    2.851134    1.839160    2.506558    2.243100    2.689801

@@ -31,23 +31,14 @@ classifyCohortsFireSenseSpread <- function(cohortData, yearCohort, pixelGroupMap
   ####################### Prep Layers: Identify non-forested pixels (non-ice/water/rocks) as class5
   # Pixels that are *NOT* NA in the RTM when this has been NA'ed for water, ice, and rocks, and 
   # ARE NA in the pixelGroupMap are the pixels that are class5
-browser()
   class5ras <- raster(pixelGroupMap)
-  class5 <- pixelGroupMap[is.na(pixelGroupMap) & !is.na(flammable)]
-  class5ras[class5pix] <- 1
-
+  pixGroupVals <- getValues(pixelGroupMap)
+  flammableVals <- getValues(flammable)
+  class5 <- which(is.na(pixelGroupMap[]) & !is.na(flammable[]))
+  class5ras[class5] <- 1
+  
   classList <- c(classList, list(class5ras))
-  # # To create the class5, I need to do 1-sum(class1:4)
-  # class5_2001 <- calc(x = stack(classList2001), fun = sum, na.rm = TRUE)
-  # classList2001[["class5"]] <- 1 - class5_2001
-  # names(classList2001[["class5"]]) <- "class5_2001"
-  # class5_2011 <- calc(x = stack(classList2011), fun = sum, na.rm = TRUE)
-  # classList2011[["class5"]] <- 1 - class5_2011
-  # names(classList2011[["class5"]]) <- "class5_2011"
-  #
-  # # CHECK CLASS5 is only 1 or 0
-  # #TODO
-
+  
   names(classList) <- paste0("class", 1:5)
   return(classList)
 }

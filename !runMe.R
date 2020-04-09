@@ -595,63 +595,53 @@ crs(fireAttributesFireSense_SpreadFit) <- crs(rasterTemp)
 
 # Create the classification. Repeat with 2011
 source(file.path(getwd(), 'functions/classifyCohortsFireSenseSpread.R'))
-classList2001 <- classifyCohortsFireSenseSpread(cohortData2001, year = 2001)
-classList2011 <- classifyCohortsFireSenseSpread(cohortData2011, year = 2011)
+classList2001 <- classifyCohortsFireSenseSpread(cohortData2001, 
+                                                year = 2001, 
+                                                pixelGroupMap = pixelGroupMap2001)
+classList2011 <- classifyCohortsFireSenseSpread(cohortData2011, 
+                                                year = 2011, 
+                                                pixelGroupMap = pixelGroupMap2011)
 
+####################### Prep Layers: Exclude water, rocks and ice from RTM --> NA
 
-# To create the class5, I need to do 1-sum(class1:4)
-class5_2001 <- calc(x = stack(classList2001), fun = sum, na.rm = TRUE)
-classList2001[["class5"]] <- 1 - class5_2001
-names(classList2001[["class5"]]) <- "class5_2001"
-class5_2011 <- calc(x = stack(classList2011), fun = sum, na.rm = TRUE)
-classList2011[["class5"]] <- 1 - class5_2011
-names(classList2011[["class5"]]) <- "class5_2011"
+waterVals <- raster::getValues(waterRaster) # Uplands = 3, Water = 1, Wetlands = 2, so 2 and 3 to NA
+waterVals[!is.na(waterVals) & waterVals != 1] <- NA
+waterRaster <- raster::setValues(waterRaster, waterVals)
 
-#class1 <- class2 <- class3 <- class4 <- class5 <- list()
+rstLCC <- Cache(prepInputs,
+                targetFile = file.path(Paths$inputPath[[1]], "LCC2005_V1_4a.tif"),
+                archive = asPath("LandCoverOfCanada2005_V1_4.zip"),
+                destinationPath = Paths$inputPath[[1]],
+                studyArea = studyArea,
+                rasterToMatch = rasterToMatch,
+                maskWithRTM = TRUE,
+                method = "bilinear",
+                datatype = "INT2U",
+                filename2 = TRUE, overwrite = TRUE,
+                userTags = c("prepInputsrstLCC_rtm"),
+                omitArgs = c("destinationPath", "targetFile", "userTags"))
+
+# Ice/snow = 39
+# Water (LCC05) = 37:38
+# Rocks = 33
+# Urban = 36
+
+nonFlammClass <- c(33, 36:39)
+flammableRTM <- rasterToMatch
+# Remove LCC non flammable classes first
+flammableRTM[rstLCC[] %in% nonFlammClass] <- NA
+# Remove more detailed water from DUCKS layer
+flammableRTM[waterRaster[] == 1] <- NA
+
+######################################
 
 # Assign values from 2001 and 2011 veg input layers to annual data
 yearToDivide <- 2005
-# if (FALSE) { # Eliot's fixes
-#   numClasses <- length(classList2001)
-#   fireYearsList <- split(fireYears, f = fireYears >= yearToDivide) # because fireYears has names, it keeps them
-#   classList <- append(rep(classList2001, length(fireYearsList[[1]])), 
-#                       rep(classList2011, length(fireYearsList[[2]])))
-#   # make 2 level list -- year on outside
-#   classList <- split(classList, f = rep(fireYears, each = numClasses))
-# } else {
+
   classList <- list(classList2001, classList2011)
   names(classList) <- c(paste0(fireYears[fireYears < yearToDivide], collapse = "_"),
                         paste0(fireYears[fireYears >= yearToDivide], collapse = "_"))
   
-# }
-# classList <- purrr::transpose(classList)
-
-# classesList <- lapply(paste0("class", 1:5), function(cl){
-#   classYear <- lapply(fireYears, function(i) {
-#     if (i < 2005){
-#       assign(cl, classList2001[[cl]])
-#     } else {
-#       assign(cl, classList2011[[cl]])
-#     }
-#   })
-#   names(classYear) <- as.character(fireYears)
-#   classYear <- lapply(names(classYear), function(clsYrNm){
-#     names(classYear[[clsYrNm]]) <- clsYrNm
-#     return(classYear[[clsYrNm]])
-#   })
-#   names(classYear) <- as.character(fireYears)
-#   #names(classYear) <- paste(cl, fireYears, sep = "_")
-#   return(classYear)
-# })
-# names(classesList) <- paste0("class", 1:5)
-# 
-# # lapply through names(classesList) clsNames, stack and assign each stack to clsNames
-# env <- environment()
-# invisible(lapply(names(classesList), function(clsNames){
-#   stk <- raster::stack(classesList[[clsNames]])
-#   assign(x = clsNames, value = stk, envir = env)
-# }))
-
 # pull to memory
 stackToMemory <- function (x, ...){
   r <- stack(x, ...)
@@ -681,18 +671,12 @@ times <- list(start = 1, end = 1)
 objects <- list(annualStacks = annualStacks, 
                 nonAnnualStacks = nonAnnualStacks,
                 rasterToMatch = rasterToMatch,
-                fireAttributesFireSense_SpreadFit = fireAttributesFireSense_SpreadFit)
+                fireAttributesFireSense_SpreadFit = fireAttributesFireSense_SpreadFit,
+                flammableRTM = flammableRTM)
 rm(annualStacks, weather, nonAnnualStacks, classList, classList2001, objectsPre)
-#   class1 = class1,
-# class2 = class2,
-# class3 = class3,
-# class4 = class4,
-# class5 = class5,
-# weather = weather)
 
 # Define fireSense_SpreadFit module parameters
-# formula <- formula(~ I(1/beta) + log(theta) - 1) # For when doing SizeFit/Predict
-formula <- formula(~ 0 + weather + class1 + class2 + class3 + class4 + class5) # For when not doing SizeFit/Predict
+formula <- formula(~ 0 + weather + class1 + class2 + class3 + class4 + class5) 
 
 # The parameters for
 # weather : need to be positive, but very low... as the sum of all needs to be < 0.245

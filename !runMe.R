@@ -563,25 +563,25 @@ if (!file.exists(file.path(Paths$inputPath, "MDC_1991_2017.rds"))){
 # We need a dataframe of the origin of the fire (coordinates) and each fire size (as a data.frame)
 
 # 1. To get the origin of the fire:
-source(file.path(getwd(), "functions/getFirePoints_NFDB.R"))
-fireLocationsPoints <- Cache(getFirePoints_NFDB,
-                             url = "http://cwfis.cfs.nrcan.gc.ca/downloads/nfdb/fire_pnt/current_version/NFDB_point.zip",
-                             studyArea = studyArea, rasterToMatch = rasterToMatch,
-                             NFDB_pointPath = file.path(Paths$inputPath, "NFDB_point"),
-                             userTags = c("what:firePoints", "forWhat:fireSense_SpreadFit"))
-fireLocationsPoints <- fireLocationsPoints[fireLocationsPoints$YEAR <= max(fireYears) & 
-                                             fireLocationsPoints$YEAR >= min(fireYears),]
-fireLocationsPoints <- fireLocationsPoints[, c("YEAR", "SIZE_HA")]
-fireLocationsPoints$fireSize <- asInteger(fireLocationsPoints$SIZE_HA / prod(res(rasterToMatch)) * 1e4)
-names(fireLocationsPoints) <- c("date", "size_ha", "size")
-
-# bigger than 1 pixel
-fireLocationsPoints <- fireLocationsPoints[fireLocationsPoints$size > 1,]
-fireAttributesFireSense_SpreadFit <- fireLocationsPoints
-
-rasterTemp <- setValues(pixelGroupMap2001, values = 1:ncell(pixelGroupMap2001))
-
-crs(fireAttributesFireSense_SpreadFit) <- crs(rasterTemp)
+# source(file.path(getwd(), "functions/getFirePoints_NFDB.R"))
+# fireLocationsPoints <- Cache(getFirePoints_NFDB,
+#                              url = "http://cwfis.cfs.nrcan.gc.ca/downloads/nfdb/fire_pnt/current_version/NFDB_point.zip",
+#                              studyArea = studyArea, rasterToMatch = rasterToMatch,
+#                              NFDB_pointPath = file.path(Paths$inputPath, "NFDB_point"),
+#                              userTags = c("what:firePoints", "forWhat:fireSense_SpreadFit"))
+# fireLocationsPoints <- fireLocationsPoints[fireLocationsPoints$YEAR <= max(fireYears) & 
+#                                              fireLocationsPoints$YEAR >= min(fireYears),]
+# fireLocationsPoints <- fireLocationsPoints[, c("YEAR", "SIZE_HA")]
+# fireLocationsPoints$fireSize <- asInteger(fireLocationsPoints$SIZE_HA / prod(res(rasterToMatch)) * 1e4)
+# names(fireLocationsPoints) <- c("date", "size_ha", "size")
+# 
+# # bigger than 1 pixel
+# fireLocationsPoints <- fireLocationsPoints[fireLocationsPoints$size > 1,]
+# fireAttributesFireSense_SpreadFit <- fireLocationsPoints
+# 
+# rasterTemp <- setValues(pixelGroupMap2001, values = 1:ncell(pixelGroupMap2001))
+# 
+# crs(fireAttributesFireSense_SpreadFit) <- crs(rasterTemp)
 
 ####################### Prep Layers: Exclude water, rocks and ice from RTM --> NA
 
@@ -674,7 +674,7 @@ times <- list(start = 1, end = 1)
 objects <- list(annualStacks = annualStacks, 
                 nonAnnualStacks = nonAnnualStacks,
                 rasterToMatch = rasterToMatch,
-                fireAttributesFireSense_SpreadFit = fireAttributesFireSense_SpreadFit,
+                #fireAttributesFireSense_SpreadFit = fireAttributesFireSense_SpreadFit,
                 flammableRTM = flammableRTM)
 rm(annualStacks, weather, nonAnnualStacks, classList, classList2001, objectsPre)
 

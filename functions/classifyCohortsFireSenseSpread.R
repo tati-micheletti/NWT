@@ -1,10 +1,14 @@
 classifyCohortsFireSenseSpread <- function(cohortData, yearCohort, pixelGroupMap, flammable){
-  spCode <- c('Pice_Mar', 'Pice_Gla', 'Lari_Lar', 'Betu_Pap', 'Popu_Tre', 'Pinu_Ban') # TODO Make it flexible and into a function!
-  reclassTable <- data.table(speciesCode = spCode, burnClass = c("class3", "class3", "class3", "class2", "class2", "class4"))
+  
+  spCode <- c('Pice_Mar', 'Pice_Gla', 'Lari_Lar', 
+              'Betu_Pap', 'Popu_Tre', 'Pinu_Ban') 
+  # TODO Make it flexible and into a function!
+  reclassTable <- data.table(speciesCode = spCode, 
+                             burnClass = c("class3", "class3", "class3", 
+                                           "class2", "class2", "class4"))
   cohortData <- merge(cohortData, reclassTable, by = "speciesCode", all.x = TRUE)
   cohortData[age < 15, burnClass := "class1"]
-  browser()
-  # cohortData[is.na(B), burnClass := "class5"] # Potentially not happening here.... We should not have is.na(B)
+  
   #Assertion
   testthat::expect_true(NROW(cohortData[is.na(totalBiomass) & burnClass != "class5", ])==0)
   testthat::expect_true(NROW(cohortData[!is.na(totalBiomass) & burnClass == "class5", ])==0)
@@ -29,7 +33,7 @@ classifyCohortsFireSenseSpread <- function(cohortData, yearCohort, pixelGroupMap
     return(ras)
   })
   
-  ####################### Prep Layers: Identify non-forested pixels (non-ice/water/rocks) as class5
+  # Identify non-forested pixels (non-ice/water/rocks) as class5
   # Pixels that are *NOT* NA in the RTM when this has been NA'ed for water, ice, and rocks, and 
   # ARE NA in the pixelGroupMap are the pixels that are class5
   class5ras <- raster(pixelGroupMap)

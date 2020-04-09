@@ -590,6 +590,8 @@ waterVals[!is.na(waterVals) & waterVals != 1] <- NA
 waterRaster <- raster::setValues(waterRaster, waterVals)
 
 rstLCC <- Cache(prepInputs,
+                url = paste0("ftp://ftp.ccrs.nrcan.gc.ca/ad/NLCCLandCover/",
+                             "LandcoverCanada2005_250m/LandCoverOfCanada2005_V1_4.zip"),
                 targetFile = file.path(Paths$inputPath[[1]], "LCC2005_V1_4a.tif"),
                 archive = asPath("LandCoverOfCanada2005_V1_4.zip"),
                 destinationPath = Paths$inputPath[[1]],

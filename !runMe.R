@@ -582,26 +582,6 @@ rasterTemp <- setValues(pixelGroupMap2001, values = 1:ncell(pixelGroupMap2001))
 
 crs(fireAttributesFireSense_SpreadFit) <- crs(rasterTemp)
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ dataFireSense_SpreadFit
-
-# RasterStack of the model covariates. 
-# The number of layers in the RasterStack should equal the number of distinct dates in column 'date'.
-# Each COVARIATE of the model is ONE different raster stack containing that variable for all the different years.
-# TODO: To include a bit more stochasticity, simulate vegetation changes from 2001 until 2011, and from 2011 until 2017 using 2001 and 2011 layers, respectively and the fire dataset (I know exactly where the fires occurred and how big they were! I just need to call them in a module each year). At each each I save cohortData and pixelGroupMap, and using rasterizeReduce, I create the proportional biomass layers for each year for each class (would have to reclassify the species).
-
-# For now, however, we will assume the landscape and proportions of species don't change for @ 15 years, and we use all the dataset 1991-2017 to fit the spread model, using 2001 and 2011 layers
-# 1991:2004 --> 2001: cohortData2001
-# 2005:2017 --> 2011: cohortData2011
-
-# Create the classification. Repeat with 2011
-source(file.path(getwd(), 'functions/classifyCohortsFireSenseSpread.R'))
-classList2001 <- classifyCohortsFireSenseSpread(cohortData2001, 
-                                                year = 2001, 
-                                                pixelGroupMap = pixelGroupMap2001)
-classList2011 <- classifyCohortsFireSenseSpread(cohortData2011, 
-                                                year = 2011, 
-                                                pixelGroupMap = pixelGroupMap2011)
-
 ####################### Prep Layers: Exclude water, rocks and ice from RTM --> NA
 
 waterVals <- raster::getValues(waterRaster) # Uplands = 3, Water = 1, Wetlands = 2, so 2 and 3 to NA
@@ -634,6 +614,28 @@ flammableRTM[rstLCC[] %in% nonFlammClass] <- NA
 flammableRTM[waterRaster[] == 1] <- NA
 
 ######################################
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ dataFireSense_SpreadFit
+
+# RasterStack of the model covariates. 
+# The number of layers in the RasterStack should equal the number of distinct dates in column 'date'.
+# Each COVARIATE of the model is ONE different raster stack containing that variable for all the different years.
+# TODO: To include a bit more stochasticity, simulate vegetation changes from 2001 until 2011, and from 2011 until 2017 using 2001 and 2011 layers, respectively and the fire dataset (I know exactly where the fires occurred and how big they were! I just need to call them in a module each year). At each each I save cohortData and pixelGroupMap, and using rasterizeReduce, I create the proportional biomass layers for each year for each class (would have to reclassify the species).
+
+# For now, however, we will assume the landscape and proportions of species don't change for @ 15 years, and we use all the dataset 1991-2017 to fit the spread model, using 2001 and 2011 layers
+# 1991:2004 --> 2001: cohortData2001
+# 2005:2017 --> 2011: cohortData2011
+
+# Create the classification. Repeat with 2011
+source(file.path(getwd(), 'functions/classifyCohortsFireSenseSpread.R'))
+classList2001 <- classifyCohortsFireSenseSpread(cohortData2001, 
+                                                year = 2001, 
+                                                pixelGroupMap = pixelGroupMap2001,
+                                                flammable = flammableRTM)
+classList2011 <- classifyCohortsFireSenseSpread(cohortData2011, 
+                                                year = 2011, 
+                                                pixelGroupMap = pixelGroupMap2011,
+                                                flammable = flammableRTM)
 
 # Assign values from 2001 and 2011 veg input layers to annual data
 yearToDivide <- 2005

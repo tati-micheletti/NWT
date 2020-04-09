@@ -3,6 +3,7 @@ classifyCohortsFireSenseSpread <- function(cohortData, yearCohort, pixelGroupMap
   reclassTable <- data.table(speciesCode = spCode, burnClass = c("class3", "class3", "class3", "class2", "class2", "class4"))
   cohortData <- merge(cohortData, reclassTable, by = "speciesCode", all.x = TRUE)
   cohortData[age < 15, burnClass := "class1"]
+  browser()
   # cohortData[is.na(B), burnClass := "class5"] # Potentially not happening here.... We should not have is.na(B)
   #Assertion
   testthat::expect_true(NROW(cohortData[is.na(totalBiomass) & burnClass != "class5", ])==0)

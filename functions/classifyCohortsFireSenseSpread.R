@@ -1,4 +1,4 @@
-classifyCohortsFireSenseSpread <- function(cohortData, yearCohort, pixelGroupMap){
+classifyCohortsFireSenseSpread <- function(cohortData, yearCohort, pixelGroupMap, flammable){
   spCode <- c('Pice_Mar', 'Pice_Gla', 'Lari_Lar', 'Betu_Pap', 'Popu_Tre', 'Pinu_Ban') # TODO Make it flexible and into a function!
   reclassTable <- data.table(speciesCode = spCode, burnClass = c("class3", "class3", "class3", "class2", "class2", "class4"))
   cohortData <- merge(cohortData, reclassTable, by = "speciesCode", all.x = TRUE)
@@ -33,7 +33,7 @@ classifyCohortsFireSenseSpread <- function(cohortData, yearCohort, pixelGroupMap
   # ARE NA in the pixelGroupMap are the pixels that are class5
 browser()
   class5ras <- raster(pixelGroupMap)
-  class5 <- pixelGroupMap[is.na(pixelGroupMap) & !is.na(nonFlammable)]
+  class5 <- pixelGroupMap[is.na(pixelGroupMap) & !is.na(flammable)]
   class5ras[class5pix] <- 1
 
   classList <- c(classList, list(class5ras))

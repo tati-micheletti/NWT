@@ -6,7 +6,8 @@ if (TRUE){ # set this to FALSE to jump directly to simInitAndSpades of fireSense
 # googledrive::drive_auth(use_oob = TRUE) # USE ONLY ONCE, the first time you are running the project 
 # USING RStudio Server.
 
-usrEmail <- if (pemisc::user() %in% c("tmichele", "Tati")) "tati.micheletti@gmail.com" else "eliotmcintire@gmail.com"
+usrEmail <- if (pemisc::user() %in% c("tmichele", "Tati")) "tati.micheletti@gmail.com" else 
+                                                            "eliotmcintire@gmail.com"
 googledrive::drive_auth(email = usrEmail)
 
 if (pemisc::user() %in% c("Tati", "tmichele"))
@@ -472,7 +473,8 @@ if (prepCohortData){
   tempPaths$outputPath <- tempPaths$inputPath
   outputsPreamble <- data.frame(objectName = c("cohortData", "pixelGroupMap"),
                                 saveTime = 2001,
-                                file = c("cohortData2001_fireSense.rds", "pixelGroupMap2001_fireSense.rds"))
+                                file = c("cohortData2001_fireSense.rds", 
+                                         "pixelGroupMap2001_fireSense.rds"))
   
   # 1. Run borealBiomassDataPrep ALONE and save: cohortData + pixelGroupMap: will be used 
   # in fireSense_SizeFit and fireSense_SpreadFit (later on, will be also used in Ignition and Escape fits)
@@ -487,7 +489,8 @@ if (prepCohortData){
                            #useCloud = TRUE, cloudFolderID = cloudFolderID,
                            loadOrder = "Biomass_borealDataPrep",
                            outputs = outputsPreamble, #clearSimEnv = TRUE,
-                           userTags = c("objective:preambleBiomassDataPrep", "time:year2001", "version:fixedZeros"))
+                           userTags = c("objective:preambleBiomassDataPrep", 
+                                        "time:year2001", "version:fixedZeros"))
   # 2. Load these:
   speciesLayers2011 <- Cache(loadkNNSpeciesLayersValidation,
                              dPath = Paths$inputPath,
@@ -576,47 +579,6 @@ fireLocationsPoints <- fireLocationsPoints[fireLocationsPoints$size > 1,]
 fireAttributesFireSense_SpreadFit <- fireLocationsPoints
 
 rasterTemp <- setValues(pixelGroupMap2001, values = 1:ncell(pixelGroupMap2001))
-
-# if (FALSE) {
-#   # 2. To get the coordinates:
-#   startingPointsCoord <- data.table(coords = coordinates(fireLocationsPoints)[, 1:2],
-#                                     year = fireLocationsPoints$YEAR,
-#                                     fireID = fireLocationsPoints$FIRE_ID,
-#                                     fireSize = asInteger(fireLocationsPoints$SIZE_HA/
-#                                                            prod(res(rasterToMatch))*1e4))
-#   
-#   # Subsetting for the same period we have the dataset
-#   startingPointsCoord <- startingPointsCoord[year <= max(fireYears) & year >= min(fireYears)]
-#   setDT(startingPointsCoord)
-#   setnames(startingPointsCoord, old = colnames(startingPointsCoord)[1:3],
-#            new = c("x", "y", "year"))
-#   
-#   # 3. To get the pixelID based on the coordinates:
-#   pixelID_fireStarts <- startingPointsCoord[
-#     , `:=`(pixelID = raster::extract(rasterTemp, coordinates(startingPointsCoord[, c("x", "y")])),
-#            origin = TRUE)]
-#   
-#   # 4. To get fire size based on the coordinates pixelID from cohort_Fire:
-#   cohort_starts <- merge(cohort_Fire, pixelID_fireStarts, by = "pixelID", all.y = TRUE)
-#   cohort_startsRed <- na.omit(cohort_starts)
-#   colsToKeep <- c("year", "fireSize", "pixelID")
-#   colsToDel <- setdiff(names(cohort_starts), colsToKeep)
-#   cohort_startsRed <- cohort_startsRed[, c(colsToDel) := NULL]
-#   cohort_startsRed <- unique(cohort_startsRed)
-#   
-#   # We have the same pixel burning in different years... 
-#   #ids <- duplicated(cohort_startsRed$pixelID)
-#   #Reps <- cohort_startsRed[ids, pixelID]
-#   # cohort_startsRed[pixelID %in% Reps, ]
-#   
-#   # 5. Extract coordinates of the pixelID's I have in cohort_startsRed
-#   coordins <- raster::xyFromCell(object = rasterTemp, cell = cohort_startsRed$pixelID)
-#   testthat::expect_true(NROW(cohort_startsRed) == NROW(coordins))
-#   
-#   fireAttributesFireSense_SpreadFit <- 
-#     SpatialPointsDataFrame(coordins, data = data.frame(size = cohort_startsRed$fireSize,
-#                                                        date = cohort_startsRed$year))
-# }
 
 crs(fireAttributesFireSense_SpreadFit) <- crs(rasterTemp)
 
@@ -709,14 +671,6 @@ rm(annualRasters)
 nonAnnualRasters <- mapply(c, classList, SIMPLIFY=FALSE)
 nonAnnualStacks <- lapply(nonAnnualRasters, raster::stack)
 rm(nonAnnualRasters)
-
-# pixelIDLociYear <- data.table(pixelID = raster::extract(rasterTemp, coordinates(startingPointsCoord[, c("x", "y")])),
-#                                  year = startingPointsCoord$year)
-# Think I have this already...
-# source("functions/getFirePolygons.R")
-#firePolys <- Cache(getFirePolygons, years = fireYears, studyArea = studyArea, 
-#                            pathInputs = Paths$inputPath, userTags = c("years:1991_2017"))
-
 
 ####################### Finished dataset for SpreadFit #######################
 

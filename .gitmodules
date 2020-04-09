@@ -1,15 +1,18 @@
 [submodule "modules/Biomass_regeneration"]
 	path = modules/Biomass_regeneration
 	url = git@github.com:PredictiveEcology/Biomass_regeneration.git
-        branch = master
+  branch = master
 [submodule "modules/scfm"]
 	path = modules/scfm
 	url = git@github.com:PredictiveEcology/scfm.git
-        branch = development
+  branch = development
+[submodule "modules/LandR_speciesParameters"]
+	path = modules/LandR_speciesParameters
+	url = git@github.com:ianmseddy/LandR_speciesParameters.git
 [submodule "modules/caribouPopGrowthModel"]
 	path = modules/caribouPopGrowthModel
 	url = git@github.com:tati-micheletti/caribouPopGrowthModel.git
-        branch = master
+  branch = master
 [submodule "modules/birdsNWT"]
 	path = modules/birdsNWT
 	url = git@github.com:tati-micheletti/birdsNWT.git

@@ -6,9 +6,6 @@
 	path = modules/scfm
 	url = git@github.com:PredictiveEcology/scfm.git
   branch = development
-[submodule "modules/LandR_speciesParameters"]
-	path = modules/LandR_speciesParameters
-	url = git@github.com:ianmseddy/LandR_speciesParameters.git
 [submodule "modules/caribouPopGrowthModel"]
 	path = modules/caribouPopGrowthModel
 	url = git@github.com:tati-micheletti/caribouPopGrowthModel.git

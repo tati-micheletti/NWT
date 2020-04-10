@@ -1,5 +1,5 @@
 
-if (TRUE){ # set this to FALSE to jump directly to simInitAndSpades of fireSense_SpreadFit
+if (!exists("upperParams")){ # set this to FALSE to jump directly to simInitAndSpades of fireSense_SpreadFit
 # Before running this script, read !sourceScript to know the 4 
 # parameters that needed to define the run 
 

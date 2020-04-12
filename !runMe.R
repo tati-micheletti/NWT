@@ -729,6 +729,7 @@ parameters <- list(
     iterDEoptim = 500,
     rescaleAll = TRUE,
     maxFireSpread = 0.28,
+    objfunFireReps = 30,
     toleranceFireBuffer = c(2.6, 3.4),
     verbose = TRUE,
     trace = 1,

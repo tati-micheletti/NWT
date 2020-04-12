@@ -728,7 +728,7 @@ parameters <- list(
     cores = makeIps(machines),
     iterDEoptim = 500,
     rescaleAll = TRUE,
-    maxFireSpread = 0.27,
+    maxFireSpread = 0.28,
     toleranceFireBuffer = c(2.6, 3.4),
     verbose = TRUE,
     trace = 1,

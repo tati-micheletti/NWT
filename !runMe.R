@@ -727,6 +727,7 @@ parameters <- list(
     upper = c(0.15, 0.3, 10, 4, upperParams),
     cores = makeIps(machines),
     iterDEoptim = 500,
+    minBufferSize = 1000,
     rescaleAll = TRUE,
     maxFireSpread = 0.28,
     objfunFireReps = 30,

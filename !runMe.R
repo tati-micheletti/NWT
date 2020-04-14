@@ -706,14 +706,23 @@ formula <- formula(~ 0 + weather + class1 + class2 + class3 + class4 + class5)
 }
 machines <- data.frame(
   ipEnd =          c(97, 216, 189, 187, 68, 174),
-  availableCores = c(28, 28,  28,  28,  50, 28)
+  availableCores = c(28, 28,  28,  28,  35, 28)
 )
 makeIps <- function(machines, ipStart = "10.20.0.", N = 100) {
   ipsEnd <- rep(machines$ipEnd, ceiling(machines$availableCores/ (sum(machines$availableCores)/N)) )
   ips <- paste0(ipStart, ipsEnd)
-  ips <- sample(ips, N)
+  i <- 0
+  while(length(ips) > N) {
+    i <- i + 1
+    i <- i %% NROW(machines)
+    j <- i+1
+    ips <- ips[-which(endsWith(ips, suffix = as.character(machines$ipEnd[i])))[1]]  
+  }
+  # ips <- sample(ips, N)
   sort(ips)
 }
+cores <- makeIps(machines)
+(table(cores))
 
 parameters <- list(
   fireSense_SpreadFit = list(
@@ -723,15 +732,17 @@ parameters <- list(
     data = c("weather", "class1", "class2", "class3", "class4", "class5"),
     # Here are the bounds for: 5 parameters for log fun + n parameters for the model (i.e. n terms of a formula)
     #  lower asymptote, upper asymptote, (inflection point), slope at inflection pt, asymmetry
-    lower = c(0.02, 0.22, 0.1, 0.5, lowerParams),
-    upper = c(0.15, 0.3, 10, 4, upperParams),
-    cores = makeIps(machines),
+    #lower = c(0.02, 0.22, 0.1, 0.5, lowerParams),
+    #upper = c(0.15, 0.3, 10, 4, upperParams),
+    lower = c(0.22, 0.1, 0.5, lowerParams),
+    upper = c(0.3, 10, 4, upperParams),
+    cores = cores,
     iterDEoptim = 500,
     minBufferSize = 1000,
     rescaleAll = TRUE,
     maxFireSpread = 0.28,
-    objfunFireReps = 30,
-    toleranceFireBuffer = c(2.6, 3.4),
+    objfunFireReps = 100,
+    #toleranceFireBuffer = c(2.6, 3.4),
     verbose = TRUE,
     trace = 1,
     termsNAtoZ = c(paste0("class", 1:5))

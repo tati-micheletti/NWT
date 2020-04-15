@@ -740,7 +740,7 @@ parameters <- list(
     iterDEoptim = 500,
     minBufferSize = 1000,
     rescaleAll = TRUE,
-    maxFireSpread = 0.28,
+    maxFireSpread = 0.3,
     objfunFireReps = 100,
     #toleranceFireBuffer = c(2.6, 3.4),
     verbose = TRUE,

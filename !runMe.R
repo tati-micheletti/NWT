@@ -704,11 +704,15 @@ formula <- formula(~ 0 + weather + class1 + class2 + class3 + class4 + class5)
   upperParams <- c(6, 3, 3, 3, 3, 3)
   
 }
+
+lower <- c(0.22, 0.1, 0.5, lowerParams)
+upper <- c(0.3, 10, 4, upperParams)
+
 machines <- data.frame(
   ipEnd =          c(97, 216, 189, 187, 68, 174),
   availableCores = c(28, 28,  28,  28,  35, 28)
 )
-makeIps <- function(machines, ipStart = "10.20.0.", N = 100) {
+makeIps <- function(machines, ipStart = "10.20.0.", N = length(lower) * 10) {
   ipsEnd <- rep(machines$ipEnd, ceiling(machines$availableCores/ (sum(machines$availableCores)/N)) )
   ips <- paste0(ipStart, ipsEnd)
   i <- 0
@@ -734,8 +738,8 @@ parameters <- list(
     #  lower asymptote, upper asymptote, (inflection point), slope at inflection pt, asymmetry
     #lower = c(0.02, 0.22, 0.1, 0.5, lowerParams),
     #upper = c(0.15, 0.3, 10, 4, upperParams),
-    lower = c(0.22, 0.1, 0.5, lowerParams),
-    upper = c(0.3, 10, 4, upperParams),
+    lower = lower,
+    upper = upper,
     cores = cores,
     iterDEoptim = 500,
     minBufferSize = 1000,

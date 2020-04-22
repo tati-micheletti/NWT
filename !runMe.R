@@ -701,7 +701,7 @@ formula <- formula(~ 0 + weather + class1 + class2 + class3 + class4 + class5)
   # RESCALE MDC 
   # Should let the classes take 100% of it if needs
   lowerParams <- c(0, 0.001, 0.001, 0.001, 0.001, 0.001)
-  upperParams <- c(6, 3, 3, 3, 3, 3)
+  upperParams <- c(6, 3, 3, 5, 5, 3)
   
 }
 
@@ -740,16 +740,20 @@ parameters <- list(
     #upper = c(0.15, 0.3, 10, 4, upperParams),
     lower = lower,
     upper = upper,
-    cores = cores,
+    cores = NULL, #cores,
     iterDEoptim = 500,
     minBufferSize = 1000,
+    debugMode = FALSE, #isRstudioServer(), # DEoptim may spawn many machines via PSOCK --> may be better from cmd line
     rescaleAll = TRUE,
     maxFireSpread = 0.3,
     objfunFireReps = 100,
-    #toleranceFireBuffer = c(2.6, 3.4),
     verbose = TRUE,
     trace = 1,
-    termsNAtoZ = c(paste0("class", 1:5))
+    visualizeDEoptim = TRUE,
+    cacheId_DE = "c3af84b504e99a5d", # This is NWT DEoptim Cache
+    cloudFolderID_DE = "1kUZczPyArGIIkbl-4_IbtJWBhVDveZFZ",
+    useCloud_DE = TRUE
+    
   )
 )
 # Run the simulation
@@ -761,11 +765,12 @@ sim <- simInitAndSpades(
   times = times
 )
 
+browser()
 # Check weather (MDC)
 dt <- data.table( 
   year = names(objects$annualStacks),
   meanAnnualMDC = unlist(lapply(objects$annualStacks, function(x) 
-    median(asInteger(x$weather[sim$fireAttributesFireSense_SpreadFit]/10)*10L, na.rm = TRUE))),
+    median(asInteger(x$weather/10)*10L, na.rm = TRUE))),
   AnnualAreaBurned = unlist(lapply(sim$firePolys, function(x) 
     sum(asInteger(x$POLY_HA/10)*10L, na.rm = TRUE))))
 plot(dt[,-1], pch = "", main = "NWT fire size by MDC and fire year")

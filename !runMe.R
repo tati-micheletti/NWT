@@ -740,8 +740,8 @@ parameters <- list(
     #upper = c(0.15, 0.3, 10, 4, upperParams),
     lower = lower,
     upper = upper,
-    cores = NULL, #cores,
-    iterDEoptim = 500,
+    cores = rep("localhost", 40), #cores,
+    iterDEoptim = 15,
     minBufferSize = 1000,
     debugMode = FALSE, #isRstudioServer(), # DEoptim may spawn many machines via PSOCK --> may be better from cmd line
     rescaleAll = TRUE,
@@ -749,10 +749,10 @@ parameters <- list(
     objfunFireReps = 100,
     verbose = TRUE,
     trace = 1,
-    visualizeDEoptim = TRUE,
-    cacheId_DE = "c3af84b504e99a5d", # This is NWT DEoptim Cache
-    cloudFolderID_DE = "1kUZczPyArGIIkbl-4_IbtJWBhVDveZFZ",
-    useCloud_DE = TRUE
+    visualizeDEoptim = TRUE#,
+    #cacheId_DE = "56769e2b2edfe8ab",#  "c3af84b504e99a5d", # This is NWT DEoptim Cache
+    #cloudFolderID_DE = "1kUZczPyArGIIkbl-4_IbtJWBhVDveZFZ",
+    #useCloud_DE = TRUE
     
   )
 )
@@ -769,10 +769,8 @@ browser()
 # Check weather (MDC)
 dt <- data.table( 
   year = names(objects$annualStacks),
-  meanAnnualMDC = unlist(lapply(objects$annualStacks, function(x) 
-    median(asInteger(x$weather/10)*10L, na.rm = TRUE))),
-  AnnualAreaBurned = unlist(lapply(sim$firePolys, function(x) 
-    sum(asInteger(x$POLY_HA/10)*10L, na.rm = TRUE))))
+  meanAnnualMDC = unlist(lapply(objects$annualStacks, function(x) median(asInteger(x$weather[]/10)*10L, na.rm = TRUE))),
+  AnnualAreaBurned = unlist(lapply(sim$firePolys, function(x) sum(asInteger(x$POLY_HA/10)*10L, na.rm = TRUE))))
 plot(dt[,-1], pch = "", main = "NWT fire size by MDC and fire year")
 text(dt[,-1], labels = gsub("^..", "", dt$year))
 lm1 <- lm(AnnualAreaBurned ~ meanAnnualMDC, data = dt)

@@ -44,7 +44,6 @@ inputs/*.zip
 *.zip
 !CHEKCSUMS.txt
 ./modules/Boreal_LBMRDataPrep/data/*
-./.git
 *.grd
 *.gri
 *.tif

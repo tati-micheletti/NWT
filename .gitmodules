@@ -53,7 +53,7 @@
 [submodule "modules/fireSense_SpreadFit"]
 	path = modules/fireSense_SpreadFit
 	url = git@github.com:PredictiveEcology/fireSense_SpreadFit.git
-	branch = fireSenseUtils
+	branch = development
 [submodule "modules/fireSense_SpreadPredict"]
 	path = modules/fireSense_SpreadPredict
 	url = git@github.com:PredictiveEcology/fireSense_SpreadPredict.git

@@ -94,3 +94,6 @@
 	path = modules/caribouCIP
 	url = git@github.com:tati-micheletti/caribouCIP.git
 	branch = master
+[submodule "modules/Biomass_speciesParameters"]
+	path = modules/Biomass_speciesParameters
+	url = git@github.com:PredictiveEcology/Biomass_speciesParameters.git

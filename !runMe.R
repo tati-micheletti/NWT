@@ -740,8 +740,9 @@ parameters <- list(
     #upper = c(0.15, 0.3, 10, 4, upperParams),
     lower = lower,
     upper = upper,
-    cores = rep("localhost", 40), #cores,
-    iterDEoptim = 15,
+    cores = cores, #rep("localhost", 40), #cores,
+    iterDEoptim = 100,
+    iterStep = 25,
     minBufferSize = 1000,
     debugMode = FALSE, #isRstudioServer(), # DEoptim may spawn many machines via PSOCK --> may be better from cmd line
     rescaleAll = TRUE,

@@ -26,10 +26,6 @@
 	path = modules/PSP_Clean
 	url = git@github.com:ianmseddy/PSP_Clean.git
 	branch = master
-[submodule "modules/Biomass_speciesParameters"]
-	path = modules/Biomass_speciesParameters
-	url = git@github.com:PredictiveEcology/Biomass_speciesParameters.git
-	branch = master
 [submodule "modules/LBMR2LCC_DataPrep"]
 	path = modules/LBMR2LCC_DataPrep
 	url = git@github.com:tati-micheletti/LBMR2LCC_DataPrep.git

@@ -2,13 +2,13 @@ defineRun <- function(replicateNumber = NULL, vegetation = "LandR.CS", fire = "f
   
  LandR <-c("Biomass_borealDataPrep",
            "PSP_Clean", # New parameters
-           "LandR_speciesParameters", # New parameters
+           "Biomass_speciesParameters", # New parameters
            "Biomass_regeneration",
            "Biomass_core")
  
  LandR.CS <- c("Biomass_borealDataPrep",
                "PSP_Clean", # New parameters
-               "LandR_speciesParameters", # New parameters
+               "Biomass_speciesParameters", # New parameters
                "Biomass_regeneration",
                "Biomass_core",
                # CS
@@ -19,11 +19,7 @@ defineRun <- function(replicateNumber = NULL, vegetation = "LandR.CS", fire = "f
                 "fireSense_EscapePredict",
                 "LBMR2LCC_DataPrep",
                 "fireSense",
-                #SCFM
-                "scfmLandcoverInit",
-                "scfmRegime",
-                "scfmDriver",
-                "scfmSpread")
+                "fireSense_SpreadPredict")
  
  SCFM <- c("scfmLandcoverInit",
            "scfmRegime",

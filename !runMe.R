@@ -1,10 +1,15 @@
 
-if (!exists("upperParams")){ # set this to FALSE to jump directly to simInitAndSpades of fireSense_SpreadFit
 # Before running this script, read !sourceScript to know the 4 
 # parameters that needed to define the run 
 
 # googledrive::drive_auth(use_oob = TRUE) # USE ONLY ONCE, the first time you are running the project 
 # USING RStudio Server.
+
+############################################
+############################################
+#    I n  i t i a l     S e t u p          #  
+############################################
+############################################
 
 usrEmail <- if (pemisc::user() %in% c("tmichele", "Tati")) "tati.micheletti@gmail.com" else 
                                                             "eliotmcintire@gmail.com"
@@ -15,8 +20,6 @@ if (pemisc::user() %in% c("Tati", "tmichele"))
 updateCRAN <- FALSE
 updateGithubPackages <- FALSE
 updateSubmodules <- FALSE
-prepCohortData <- FALSE # Preamble. If already ran (i.e. objs cohortData2011 and cohortData2001 
-# exist in inputs folder) this should NOT be run i.e. FALSE)
 
 if (updateCRAN)
   update.packages(checkBuilt = TRUE, ask = FALSE)
@@ -24,7 +27,7 @@ if (updateCRAN)
 if (updateGithubPackages){
   if (pemisc::user("emcintir")) Sys.setenv("R_REMOTES_UPGRADE"="never")
   devtools::install_github("PredictiveEcology/reproducible@messagingOverhaul")
-  devtools::install_github("tati-micheletti/usefun") # Updates LandR
+  devtools::install_github("PredictiveEcology/usefun@development") # Updates LandR
   devtools::install_github("achubaty/amc@development")
   devtools::install_github("PredictiveEcology/pemisc@development")
   devtools::install_github("PredictiveEcology/map@development")
@@ -154,25 +157,10 @@ if (checkMemory){
   availableMem <- future::future(ongoingAvailableMemory(pathToSave = getPaths()$outputPath))
 } # it is taking too long!
 
+
 #################################################################################
 ################################## SIMULATION SET UP ############################
 #################################################################################
-
-library("googledrive")
-
-tryCatch(googledrive::drive_download(file = googledrive::as_id("1EetOiGxAq-QTZCVU9Q6Y3I26tqjZm3Oi"), 
-                                     path = file.path(getPaths()$inputPath, "fireSense_FrequencyFitted.rds")), 
-         error = function(e){message("Files are already present and won't be overwritten")})
-tryCatch(googledrive::drive_download(file = googledrive::as_id("11CrK9PfNJzkU5cZg9-JYYzyr-VP23W0x"), 
-                                     path = file.path(getPaths()$inputPath, "fireSense_EscapeFitted.rds")), 
-         error = function(e){message("Files are already present and won't be overwritten")})
-
-inputs <- data.frame(
-  files = c(file.path(getPaths()$inputPath, "fireSense_FrequencyFitted.rds"), 
-            file.path(getPaths()$inputPath, "fireSense_EscapeFitted.rds")),
-  functions = c("base::readRDS", "base::readRDS"),
-  stringsAsFactors = FALSE
-)
 
 NWT.url <- "https://drive.google.com/open?id=1LUxoY2-pgkCmmNH5goagBp3IMpj6YrdU"
 # EDE.url <- "https://drive.google.com/open?id=1fYvNPwovjNtTABoGcegrvdFGkNfCUsxf"
@@ -427,7 +415,7 @@ lastYears <- data.frame(objectName = c("predictedCaribou", "plotCaribou",
                                        "fireRegimeRas", "speciesEcoregion", 
                                        "species", "gcsModel", "mcsModel"),
                         saveTime = times$end)
-if (length(grepMulti(x = definedRun$modules, "Biomass_core")) != 0){
+if (length(usefun::grepMulti(x = definedRun$modules, "Biomass_core")) != 0){
   clim <- data.frame(objectName = rep(c("fireSense_IgnitionPredicted", 
                                         "fireSense_EscapePredicted", "burnSummary", 
                                         "successionLayers", "activePixelIndex"), 
@@ -468,242 +456,244 @@ if (runOnlySimInit){
 #########################################################
 ##                   PREAMBLE                          ##
 #########################################################
-
-if (prepCohortData){
-  tempPaths <- getPaths()
-  tempPaths$outputPath <- tempPaths$inputPath
-  outputsPreamble <- data.frame(objectName = c("cohortData", "pixelGroupMap"),
-                                saveTime = 2001,
-                                file = c("cohortData2001_fireSense.rds", 
-                                         "pixelGroupMap2001_fireSense.rds"))
+if (!exists("runFireSenseFit")) runFireSenseFit <- FALSE
+if (runFireSenseFit){
+  if (!exists("prepCohortData")) prepCohortData <- FALSE
+# Preamble. If already ran (i.e. objs cohortData2011 and cohortData2001 
+  # exist in inputs folder) this should NOT be run i.e. FALSE)
+  if (prepCohortData){
+    tempPaths <- getPaths()
+    tempPaths$outputPath <- tempPaths$inputPath
+    outputsPreamble <- data.frame(objectName = c("cohortData", "pixelGroupMap"),
+                                  saveTime = 2001,
+                                  file = c("cohortData2001_fireSense.rds", 
+                                           "pixelGroupMap2001_fireSense.rds"))
+    
+    # 1. Run borealBiomassDataPrep ALONE and save: cohortData + pixelGroupMap: will be used 
+    # in fireSense_SizeFit and fireSense_SpreadFit (later on, will be also used in Ignition and Escape fits)
+    # 271 unique using ecoregion
+    # 973 unique using ecodistrict
+    
+    biomassMaps2001 <- Cache(simInitAndSpades, times = list(start = 2001, end = 2001),
+                             params = parameters,
+                             modules = list("Biomass_borealDataPrep"),
+                             objects = objects,
+                             paths = tempPaths, 
+                             #useCloud = TRUE, cloudFolderID = cloudFolderID,
+                             loadOrder = "Biomass_borealDataPrep",
+                             outputs = outputsPreamble, #clearSimEnv = TRUE,
+                             userTags = c("objective:preambleBiomassDataPrep", 
+                                          "time:year2001", "version:fixedZeros"))
+    # 2. Load these:
+    speciesLayers2011 <- Cache(loadkNNSpeciesLayersValidation,
+                               dPath = Paths$inputPath,
+                               rasterToMatch = rasterToMatch,
+                               studyArea = studyArea,   ## Ceres: makePixel table needs same no. pixels for this, RTM rawBiomassMap, LCC.. etc
+                               sppEquiv = sppEquivalencies_CA,
+                               knnNamesCol = "KNN",
+                               sppEquivCol = sppEquivCol,
+                               thresh = 10,
+                               url = "http://ftp.maps.canada.ca/pub/nrcan_rncan/Forests_Foret/canada-forests-attributes_attributs-forests-canada/2011-attributes_attributs-2011/",
+                               userTags = c("preamble", "speciesLayers2011"))
+    
+    outputsPreamble <- data.frame(objectName = c("cohortData", "pixelGroupMap"),
+                                  saveTime = 2011,
+                                  file = c("cohortData2011_fireSense.rds", "pixelGroupMap2011_fireSense.rds"))
+    
+    objectsPre <- objects
+    objectsPre$speciesLayers <- speciesLayers2011
+    
+    # and pass as object to a second call of Biomass_borealDataPrep. Save cohortData + pixelGroupMap.
+    biomassMaps2011 <- Cache(simInitAndSpades, times = list(start = 2011, end = 2011),
+                             params = parameters,
+                             modules = list("Biomass_borealDataPrep"),
+                             objects = objectsPre,
+                             paths = tempPaths, #useCache = "overwrite",
+                             loadOrder = "Biomass_borealDataPrep",
+                             clearSimEnv = TRUE,
+                             outputs = outputsPreamble,
+                             userTags = c("objective:preambleBiomassDataPrep", "time:year2011"))
+    
+  }
   
-  # 1. Run borealBiomassDataPrep ALONE and save: cohortData + pixelGroupMap: will be used 
-  # in fireSense_SizeFit and fireSense_SpreadFit (later on, will be also used in Ignition and Escape fits)
-  # 271 unique using ecoregion
-  # 973 unique using ecodistrict
+  ######################## Create dataset for SpreadFit ########################
   
-  biomassMaps2001 <- Cache(simInitAndSpades, times = list(start = 2001, end = 2001),
-                           params = parameters,
-                           modules = list("Biomass_borealDataPrep"),
-                           objects = objects,
-                           paths = tempPaths, 
-                           #useCloud = TRUE, cloudFolderID = cloudFolderID,
-                           loadOrder = "Biomass_borealDataPrep",
-                           outputs = outputsPreamble, #clearSimEnv = TRUE,
-                           userTags = c("objective:preambleBiomassDataPrep", 
-                                        "time:year2001", "version:fixedZeros"))
-  # 2. Load these:
-  speciesLayers2011 <- Cache(loadkNNSpeciesLayersValidation,
-                             dPath = Paths$inputPath,
-                             rasterToMatch = rasterToMatch,
-                             studyArea = studyArea,   ## Ceres: makePixel table needs same no. pixels for this, RTM rawBiomassMap, LCC.. etc
-                             sppEquiv = sppEquivalencies_CA,
-                             knnNamesCol = "KNN",
-                             sppEquivCol = sppEquivCol,
-                             thresh = 10,
-                             url = "http://ftp.maps.canada.ca/pub/nrcan_rncan/Forests_Foret/canada-forests-attributes_attributs-forests-canada/2011-attributes_attributs-2011/",
-                             userTags = c("preamble", "speciesLayers2011"))
+  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ fireAttributesFireSense_SpreadFit
   
-  outputsPreamble <- data.frame(objectName = c("cohortData", "pixelGroupMap"),
-                                saveTime = 2011,
-                                file = c("cohortData2011_fireSense.rds", "pixelGroupMap2011_fireSense.rds"))
+  # Load these so I can use as rasterToMatch 
+  #TODO Wrap this up in a tryCatch + a redo statement
   
-  objectsPre <- objects
-  objectsPre$speciesLayers <- speciesLayers2011
+  # 2001
+  cohortData2001 <- readRDS(file.path(Paths$inputPath, "cohortData2001_fireSense_year2001.rds"))
+  pixelGroupMap2001 <- readRDS(file.path(Paths$inputPath, "pixelGroupMap2001_fireSense_year2001.rds"))
   
-  # and pass as object to a second call of Biomass_borealDataPrep. Save cohortData + pixelGroupMap.
-  biomassMaps2011 <- Cache(simInitAndSpades, times = list(start = 2011, end = 2011),
-                           params = parameters,
-                           modules = list("Biomass_borealDataPrep"),
-                           objects = objectsPre,
-                           paths = tempPaths, #useCache = "overwrite",
-                           loadOrder = "Biomass_borealDataPrep",
-                           clearSimEnv = TRUE,
-                           outputs = outputsPreamble,
-                           userTags = c("objective:preambleBiomassDataPrep", "time:year2011"))
+  # 2011
+  cohortData2011 <- readRDS(file.path(Paths$inputPath, "cohortData2011_fireSense_year2011.rds"))
+  pixelGroupMap2011 <- readRDS(file.path(Paths$inputPath, "pixelGroupMap2011_fireSense_year2011.rds"))
   
-}
-
-######################## Create dataset for SpreadFit ########################
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ fireAttributesFireSense_SpreadFit
-
-# Load these so I can use as rasterToMatch 
-#TODO Wrap this up in a tryCatch + a redo statement
-
-# 2001
-cohortData2001 <- readRDS(file.path(Paths$inputPath, "cohortData2001_fireSense_year2001.rds"))
-pixelGroupMap2001 <- readRDS(file.path(Paths$inputPath, "pixelGroupMap2001_fireSense_year2001.rds"))
-
-# 2011
-cohortData2011 <- readRDS(file.path(Paths$inputPath, "cohortData2011_fireSense_year2011.rds"))
-pixelGroupMap2011 <- readRDS(file.path(Paths$inputPath, "pixelGroupMap2011_fireSense_year2011.rds"))
-
-# After getting the fire, I should get the weather (MDC)
-# I downloaded the data manually using climateNA and placed in the /inputs folder
-source("functions/calculateMDC.R")
-
-fireYears <- 1991:2017 
-names(fireYears) <- as.character(fireYears)
-# plan("multiprocess", workers = length(fireYears))
-if (!file.exists(file.path(Paths$inputPath, "MDC_1991_2017.rds"))){
-  # This file NWT_3ArcMinuteM comes from downloading the specific data from ClimateNA. 
-  # While there isn't an API for it, this is a manual step. You will need the DEM for the area
-  # and specify which variables you want (in our case, monthlt variables)
-  MDC <- Cache(calculateMDC, pathInputs = file.path(Paths$inputPath, "NWT_3ArcMinuteM"),  
-               years = c(fireYears), doughtMonths = 4:9, rasterToMatch = pixelGroupMap2001, 
-               userTags = c("MDC_1991_2017", "normals_MDC"))
+  # After getting the fire, I should get the weather (MDC)
+  # I downloaded the data manually using climateNA and placed in the /inputs folder
+  source("functions/calculateMDC.R")
   
-  saveRDS(MDC, file.path(Paths$inputPath, "MDC_1991_2017.rds"))
-} else {
-  MDC <- readRDS(file.path(Paths$inputPath, "MDC_1991_2017.rds"))
-}
-
-# Here I create the dataset of initial fire locations for fireSense_SpreadFit
-# We need a dataframe of the origin of the fire (coordinates) and each fire size (as a data.frame)
-
-# 1. To get the origin of the fire:
-# source(file.path(getwd(), "functions/getFirePoints_NFDB.R"))
-# fireLocationsPoints <- Cache(getFirePoints_NFDB,
-#                              url = "http://cwfis.cfs.nrcan.gc.ca/downloads/nfdb/fire_pnt/current_version/NFDB_point.zip",
-#                              studyArea = studyArea, rasterToMatch = rasterToMatch,
-#                              NFDB_pointPath = file.path(Paths$inputPath, "NFDB_point"),
-#                              userTags = c("what:firePoints", "forWhat:fireSense_SpreadFit"))
-# fireLocationsPoints <- fireLocationsPoints[fireLocationsPoints$YEAR <= max(fireYears) & 
-#                                              fireLocationsPoints$YEAR >= min(fireYears),]
-# fireLocationsPoints <- fireLocationsPoints[, c("YEAR", "SIZE_HA")]
-# fireLocationsPoints$fireSize <- asInteger(fireLocationsPoints$SIZE_HA / prod(res(rasterToMatch)) * 1e4)
-# names(fireLocationsPoints) <- c("date", "size_ha", "size")
-# 
-# # bigger than 1 pixel
-# fireLocationsPoints <- fireLocationsPoints[fireLocationsPoints$size > 1,]
-# fireAttributesFireSense_SpreadFit <- fireLocationsPoints
-# 
-# rasterTemp <- setValues(pixelGroupMap2001, values = 1:ncell(pixelGroupMap2001))
-# 
-# crs(fireAttributesFireSense_SpreadFit) <- crs(rasterTemp)
-
-####################### Prep Layers: Exclude water, rocks and ice from RTM --> NA
-
-waterVals <- raster::getValues(waterRaster) # Uplands = 3, Water = 1, Wetlands = 2, so 2 and 3 to NA
-waterVals[!is.na(waterVals) & waterVals != 1] <- NA
-waterRaster <- raster::setValues(waterRaster, waterVals)
-
-rstLCC <- Cache(prepInputs,
-                url = paste0("ftp://ftp.ccrs.nrcan.gc.ca/ad/NLCCLandCover/",
-                             "LandcoverCanada2005_250m/LandCoverOfCanada2005_V1_4.zip"),
-                targetFile = file.path(Paths$inputPath[[1]], "LCC2005_V1_4a.tif"),
-                archive = asPath("LandCoverOfCanada2005_V1_4.zip"),
-                destinationPath = Paths$inputPath[[1]],
-                studyArea = studyArea,
-                rasterToMatch = rasterToMatch,
-                maskWithRTM = TRUE,
-                method = "bilinear",
-                datatype = "INT2U",
-                filename2 = TRUE, overwrite = TRUE,
-                userTags = c("prepInputsrstLCC_rtm"),
-                omitArgs = c("destinationPath", "targetFile", "userTags"))
-
-# Ice/snow = 39
-# Water (LCC05) = 37:38
-# Rocks = 33
-# Urban = 36
-
-nonFlammClass <- c(33, 36:39)
-flammableRTM <- rasterToMatch
-# Remove LCC non flammable classes first
-flammableRTM[rstLCC[] %in% nonFlammClass] <- NA
-# Remove more detailed water from DUCKS layer
-flammableRTM[waterRaster[] == 1] <- NA
-
-######################################
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ dataFireSense_SpreadFit
-
-# RasterStack of the model covariates. 
-# The number of layers in the RasterStack should equal the number of distinct dates in column 'date'.
-# Each COVARIATE of the model is ONE different raster stack containing that variable for all the different years.
-# TODO: To include a bit more stochasticity, simulate vegetation changes from 2001 until 2011, and from 2011 until 2017 using 2001 and 2011 layers, respectively and the fire dataset (I know exactly where the fires occurred and how big they were! I just need to call them in a module each year). At each each I save cohortData and pixelGroupMap, and using rasterizeReduce, I create the proportional biomass layers for each year for each class (would have to reclassify the species).
-
-# For now, however, we will assume the landscape and proportions of species don't change for @ 15 years, and we use all the dataset 1991-2017 to fit the spread model, using 2001 and 2011 layers
-# 1991:2004 --> 2001: cohortData2001
-# 2005:2017 --> 2011: cohortData2011
-
-# Create the classification. Repeat with 2011
-source(file.path(getwd(), 'functions/classifyCohortsFireSenseSpread.R'))
-classList2001 <- classifyCohortsFireSenseSpread(cohortData2001, 
-                                                year = 2001, 
-                                                pixelGroupMap = pixelGroupMap2001,
-                                                flammable = flammableRTM)
-classList2011 <- classifyCohortsFireSenseSpread(cohortData2011, 
-                                                year = 2011, 
-                                                pixelGroupMap = pixelGroupMap2011,
-                                                flammable = flammableRTM)
-
-# Assign values from 2001 and 2011 veg input layers to annual data
-yearToDivide <- 2005
-
+  fireYears <- 1991:2017 
+  names(fireYears) <- as.character(fireYears)
+  # plan("multiprocess", workers = length(fireYears))
+  if (!file.exists(file.path(Paths$inputPath, "MDC_1991_2017.rds"))){
+    # This file NWT_3ArcMinuteM comes from downloading the specific data from ClimateNA. 
+    # While there isn't an API for it, this is a manual step. You will need the DEM for the area
+    # and specify which variables you want (in our case, monthlt variables)
+    MDC <- Cache(calculateMDC, pathInputs = file.path(Paths$inputPath, "NWT_3ArcMinuteM"),  
+                 years = c(fireYears), doughtMonths = 4:9, rasterToMatch = pixelGroupMap2001, 
+                 userTags = c("MDC_1991_2017", "normals_MDC"))
+    
+    saveRDS(MDC, file.path(Paths$inputPath, "MDC_1991_2017.rds"))
+  } else {
+    MDC <- readRDS(file.path(Paths$inputPath, "MDC_1991_2017.rds"))
+  }
+  
+  # Here I create the dataset of initial fire locations for fireSense_SpreadFit
+  # We need a dataframe of the origin of the fire (coordinates) and each fire size (as a data.frame)
+  
+  # 1. To get the origin of the fire:
+  # source(file.path(getwd(), "functions/getFirePoints_NFDB.R"))
+  # fireLocationsPoints <- Cache(getFirePoints_NFDB,
+  #                              url = "http://cwfis.cfs.nrcan.gc.ca/downloads/nfdb/fire_pnt/current_version/NFDB_point.zip",
+  #                              studyArea = studyArea, rasterToMatch = rasterToMatch,
+  #                              NFDB_pointPath = file.path(Paths$inputPath, "NFDB_point"),
+  #                              userTags = c("what:firePoints", "forWhat:fireSense_SpreadFit"))
+  # fireLocationsPoints <- fireLocationsPoints[fireLocationsPoints$YEAR <= max(fireYears) & 
+  #                                              fireLocationsPoints$YEAR >= min(fireYears),]
+  # fireLocationsPoints <- fireLocationsPoints[, c("YEAR", "SIZE_HA")]
+  # fireLocationsPoints$fireSize <- asInteger(fireLocationsPoints$SIZE_HA / prod(res(rasterToMatch)) * 1e4)
+  # names(fireLocationsPoints) <- c("date", "size_ha", "size")
+  # 
+  # # bigger than 1 pixel
+  # fireLocationsPoints <- fireLocationsPoints[fireLocationsPoints$size > 1,]
+  # fireAttributesFireSense_SpreadFit <- fireLocationsPoints
+  # 
+  # rasterTemp <- setValues(pixelGroupMap2001, values = 1:ncell(pixelGroupMap2001))
+  # 
+  # crs(fireAttributesFireSense_SpreadFit) <- crs(rasterTemp)
+  
+  ####################### Prep Layers: Exclude water, rocks and ice from RTM --> NA
+  
+  waterVals <- raster::getValues(waterRaster) # Uplands = 3, Water = 1, Wetlands = 2, so 2 and 3 to NA
+  waterVals[!is.na(waterVals) & waterVals != 1] <- NA
+  waterRaster <- raster::setValues(waterRaster, waterVals)
+  
+  rstLCC <- Cache(prepInputs,
+                  url = paste0("ftp://ftp.ccrs.nrcan.gc.ca/ad/NLCCLandCover/",
+                               "LandcoverCanada2005_250m/LandCoverOfCanada2005_V1_4.zip"),
+                  targetFile = file.path(Paths$inputPath[[1]], "LCC2005_V1_4a.tif"),
+                  archive = asPath("LandCoverOfCanada2005_V1_4.zip"),
+                  destinationPath = Paths$inputPath[[1]],
+                  studyArea = studyArea,
+                  rasterToMatch = rasterToMatch,
+                  maskWithRTM = TRUE,
+                  method = "bilinear",
+                  datatype = "INT2U",
+                  filename2 = TRUE, overwrite = TRUE,
+                  userTags = c("prepInputsrstLCC_rtm"),
+                  omitArgs = c("destinationPath", "targetFile", "userTags"))
+  
+  # Ice/snow = 39
+  # Water (LCC05) = 37:38
+  # Rocks = 33
+  # Urban = 36
+  
+  nonFlammClass <- c(33, 36:39)
+  flammableRTM <- rasterToMatch
+  # Remove LCC non flammable classes first
+  flammableRTM[rstLCC[] %in% nonFlammClass] <- NA
+  # Remove more detailed water from DUCKS layer
+  flammableRTM[waterRaster[] == 1] <- NA
+  
+  ######################################
+  
+  # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ dataFireSense_SpreadFit
+  
+  # RasterStack of the model covariates. 
+  # The number of layers in the RasterStack should equal the number of distinct dates in column 'date'.
+  # Each COVARIATE of the model is ONE different raster stack containing that variable for all the different years.
+  # TODO: To include a bit more stochasticity, simulate vegetation changes from 2001 until 2011, and from 2011 until 2017 using 2001 and 2011 layers, respectively and the fire dataset (I know exactly where the fires occurred and how big they were! I just need to call them in a module each year). At each each I save cohortData and pixelGroupMap, and using rasterizeReduce, I create the proportional biomass layers for each year for each class (would have to reclassify the species).
+  
+  # For now, however, we will assume the landscape and proportions of species don't change for @ 15 years, and we use all the dataset 1991-2017 to fit the spread model, using 2001 and 2011 layers
+  # 1991:2004 --> 2001: cohortData2001
+  # 2005:2017 --> 2011: cohortData2011
+  
+  # Create the classification. Repeat with 2011
+  source(file.path(getwd(), 'functions/classifyCohortsFireSenseSpread.R'))
+  classList2001 <- classifyCohortsFireSenseSpread(cohortData2001, 
+                                                  year = 2001, 
+                                                  pixelGroupMap = pixelGroupMap2001,
+                                                  flammable = flammableRTM)
+  classList2011 <- classifyCohortsFireSenseSpread(cohortData2011, 
+                                                  year = 2011, 
+                                                  pixelGroupMap = pixelGroupMap2011,
+                                                  flammable = flammableRTM)
+  
+  # Assign values from 2001 and 2011 veg input layers to annual data
+  yearToDivide <- 2005
+  
   classList <- list(classList2001, classList2011)
   names(classList) <- c(paste0(fireYears[fireYears < yearToDivide], collapse = "_"),
                         paste0(fireYears[fireYears >= yearToDivide], collapse = "_"))
   
-# pull to memory
-stackToMemory <- function (x, ...){
-  r <- stack(x, ...)
-  r <- setValues(r, getValues(r))
-  return(r)
-}
-
-weather <- Cache(stackToMemory, MDC)
-weather <- raster::unstack(weather)
-names(weather) <- as.character(fireYears)
-
-# weave all covariates together
-annualRasters <- mapply(c, weather = weather, SIMPLIFY=FALSE)
-annualStacks <- lapply(annualRasters, raster::stack)
-rm(annualRasters)
-
-nonAnnualRasters <- mapply(c, classList, SIMPLIFY=FALSE)
-nonAnnualStacks <- lapply(nonAnnualRasters, raster::stack)
-rm(nonAnnualRasters)
-
-####################### Finished dataset for SpreadFit #######################
-
-modules <- list("fireSense_SpreadFit")
-
-times <- list(start = 1, end = 1)
-
-objects <- list(annualStacks = annualStacks, 
-                nonAnnualStacks = nonAnnualStacks,
-                rasterToMatch = rasterToMatch,
-                #fireAttributesFireSense_SpreadFit = fireAttributesFireSense_SpreadFit,
-                flammableRTM = flammableRTM)
-rm(annualStacks, weather, nonAnnualStacks, classList, classList2001, objectsPre)
-
-# Define fireSense_SpreadFit module parameters
-formula <- formula(~ 0 + weather + class1 + class2 + class3 + class4 + class5) 
-
-# The parameters for
-# weather : need to be positive, but very low... as the sum of all needs to be < 0.245
-# class1 : needs to be negative, as it influences negatively the fire
-# class2 : needs to be negative, as it influences negatively the fire
-# class3 : needs to be positive, as fire spreads through conifers
-# class4 : needs to be positive + , as fire spreads through Jack Pine even better
-# class 5 : can be either...
-
-# IDEAS:
-
-# Rasterize the fire polygons with what burned and what didn't
-# For each set of parameters, we
-# Inside the ibj fun: generate the landscape, and spread 1000 times, convert those 1000 maps in the probability of being burned. # eliot will help with spread
-# And compare (take the sum of the negative and log of the probabilities) each pixel coming from these 1000 burned prob map with the historical burned using bernoulli ()
-
+  # pull to memory
+  stackToMemory <- function (x, ...){
+    r <- stack(x, ...)
+    r <- setValues(r, getValues(r))
+    return(r)
+  }
+  
+  weather <- Cache(stackToMemory, MDC)
+  weather <- raster::unstack(weather)
+  names(weather) <- as.character(fireYears)
+  
+  # weave all covariates together
+  annualRasters <- mapply(c, weather = weather, SIMPLIFY=FALSE)
+  annualStacks <- lapply(annualRasters, raster::stack)
+  rm(annualRasters)
+  
+  nonAnnualRasters <- mapply(c, classList, SIMPLIFY=FALSE)
+  nonAnnualStacks <- lapply(nonAnnualRasters, raster::stack)
+  rm(nonAnnualRasters)
+  
+  ####################### Finished dataset for SpreadFit #######################
+  
+  modules_fS <- list("fireSense_SpreadFit")
+  
+  times_fS <- list(start = 1, end = 1)
+  
+  objects_fS <- list(annualStacks = annualStacks, 
+                  nonAnnualStacks = nonAnnualStacks,
+                  rasterToMatch = rasterToMatch,
+                  #fireAttributesFireSense_SpreadFit = fireAttributesFireSense_SpreadFit,
+                  flammableRTM = flammableRTM)
+  rm(annualStacks, weather, nonAnnualStacks, classList, classList2001, objectsPre)
+  
+  # Define fireSense_SpreadFit module parameters
+  formula <- formula(~ 0 + weather + class1 + class2 + class3 + class4 + class5) 
+  
+  # The parameters for
+  # weather : need to be positive, but very low... as the sum of all needs to be < 0.245
+  # class1 : needs to be negative, as it influences negatively the fire
+  # class2 : needs to be negative, as it influences negatively the fire
+  # class3 : needs to be positive, as fire spreads through conifers
+  # class4 : needs to be positive + , as fire spreads through Jack Pine even better
+  # class 5 : can be either...
+  
+  # IDEAS:
+  
+  # Rasterize the fire polygons with what burned and what didn't
+  # For each set of parameters, we
+  # Inside the ibj fun: generate the landscape, and spread 1000 times, convert those 1000 maps in the probability of being burned. # eliot will help with spread
+  # And compare (take the sum of the negative and log of the probabilities) each pixel coming from these 1000 burned prob map with the historical burned using bernoulli ()
+  
   # RESCALE MDC 
   # Should let the classes take 100% of it if needs
   lowerParams <- c(0, 0.001, 0.001, 0.001, 0.001, 0.001)
   upperParams <- c(6, 3, 3, 5, 5, 3)
-  
-}
 
 lower <- c(0.22, 0.1, 0.5, lowerParams)
 upper <- c(0.3, 10, 4, upperParams)
@@ -728,7 +718,7 @@ makeIps <- function(machines, ipStart = "10.20.0.", N = length(lower) * 10) {
 cores <- makeIps(machines)
 (table(cores))
 
-parameters <- list(
+parameters_fS <- list(
   fireSense_SpreadFit = list(
     formula = formula, # Formula of the statistical model
     fireAttributesFireSense_SpreadFit = "fireAttributesFireSense_SpreadFit", # Default
@@ -750,48 +740,58 @@ parameters <- list(
     objfunFireReps = 100,
     verbose = TRUE,
     trace = 1,
-    visualizeDEoptim = TRUE#,
-    #cacheId_DE = "56769e2b2edfe8ab",#  "c3af84b504e99a5d", # This is NWT DEoptim Cache
-    #cloudFolderID_DE = "1kUZczPyArGIIkbl-4_IbtJWBhVDveZFZ",
-    #useCloud_DE = TRUE
+    visualizeDEoptim = TRUE,#,
+    cacheId_DE = "56769e2b2edfe8ab",#  "c3af84b504e99a5d", # This is NWT DEoptim Cache
+    cloudFolderID_DE = "1kUZczPyArGIIkbl-4_IbtJWBhVDveZFZ",
+    useCloud_DE = TRUE
     
   )
 )
 # Run the simulation
 sim <- simInitAndSpades(
-  inputs = inputs,
-  modules = modules,
-  objects = objects,
-  params = parameters,
-  times = times
+  modules = modules_fS,
+  objects = objects_fS,
+  params = parameters_fS,
+  times = times_fS
 )
 
-browser()
-# Check weather (MDC)
-dt <- data.table( 
-  year = names(objects$annualStacks),
-  meanAnnualMDC = unlist(lapply(objects$annualStacks, function(x) median(asInteger(x$weather[]/10)*10L, na.rm = TRUE))),
-  AnnualAreaBurned = unlist(lapply(sim$firePolys, function(x) sum(asInteger(x$POLY_HA/10)*10L, na.rm = TRUE))))
-plot(dt[,-1], pch = "", main = "NWT fire size by MDC and fire year")
-text(dt[,-1], labels = gsub("^..", "", dt$year))
-lm1 <- lm(AnnualAreaBurned ~ meanAnnualMDC, data = dt)
-abline(lm1)
+# Iteration: 399 bestvalit: 362.469704 bestmemit:    0.117161    0.270096    7.032851    3.281557    0.529472    2.851134    1.839160    2.506558    2.243100    2.689801
+# best <- c(0.117161,0.270096,7.032851,3.281557,0.529472,2.851134,1.839160,2.506558,2.243100,2.689801) # Eliot,  27th April 2020
+fireSense_SpreadFitted <- sim$fireSense_SpreadFitted # Extract the fitted model from the sim object  
+saveRDS(fireSense_SpreadFitted, file.path(Paths$inputPath, "fireSense_SpreadFitted.rds"))
+library("googledrive")
+drive_upload(file.path(Paths$inputPath, "fireSense_SpreadFitted.rds"), 
+             as_id("1Uvba7IkfTfgvStQuA3xOKRyceR56mqIB"))
 
-
-if (FALSE) {
-  # Iteration: 399 bestvalit: 362.469704 bestmemit:    0.117161    0.270096    7.032851    3.281557    0.529472    2.851134    1.839160    2.506558    2.243100    2.689801
-  best <- c(0.117161,0.270096,7.032851,3.281557,0.529472,2.851134,1.839160,2.506558,2.243100,2.689801)
-  
+} else {
+  fireSense_SpreadFitted <- readRDS(file.path(Paths$input, 
+                                              "fireSense_SpreadFitted.rds"))
 }
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~> HERE
 
-fireSense_SpreadFitted <- sim$fireSense_SpreadFitted # Extract the fitted model from the sim object
 
+library("googledrive")
+
+tryCatch(googledrive::drive_download(file = googledrive::as_id("1EetOiGxAq-QTZCVU9Q6Y3I26tqjZm3Oi"), 
+                                     path = file.path(getPaths()$inputPath, "fireSense_FrequencyFitted.rds")), 
+         error = function(e){message("Files are already present and won't be overwritten")})
+tryCatch(googledrive::drive_download(file = googledrive::as_id("11CrK9PfNJzkU5cZg9-JYYzyr-VP23W0x"), 
+                                     path = file.path(getPaths()$inputPath, "fireSense_EscapeFitted.rds")), 
+         error = function(e){message("Files are already present and won't be overwritten")})
+tryCatch(googledrive::drive_download(file = googledrive::as_id(""), 
+                                     path = file.path(getPaths()$inputPath, "fireSense_SpreadFitted.rds")), 
+         error = function(e){message("Files are already present and won't be overwritten")})
+
+inputs <- data.frame(
+  files = c(file.path(getPaths()$inputPath, "fireSense_FrequencyFitted.rds"),
+            file.path(getPaths()$inputPath, "fireSense_EscapeFitted.rds"),
+            file.path(getPaths()$inputPath, "fireSense_SpreadFitted.rds")),
+  functions = "base::readRDS",
+  stringsAsFactors = FALSE
+)
 
 #########################################################
 ##                      RUNS                           ##
 #########################################################
-
 
 if (!exists("runLandR")) runLandR <- FALSE # Default if not provided
 if (runLandR){

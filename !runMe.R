@@ -456,7 +456,7 @@ if (runOnlySimInit){
 #########################################################
 ##                   PREAMBLE                          ##
 #########################################################
-if (!exists("runFireSenseFit")) runFireSenseFit <- FALSE
+if (!exists("runFireSenseFit")) runFireSenseFit <- TRUE
 if (runFireSenseFit){
   if (!exists("prepCohortData")) prepCohortData <- FALSE
 # Preamble. If already ran (i.e. objs cohortData2011 and cohortData2001 
@@ -731,7 +731,7 @@ parameters_fS <- list(
     lower = lower,
     upper = upper,
     cores = cores, #rep("localhost", 40), #cores,
-    iterDEoptim = 100,
+    iterDEoptim = 300,
     iterStep = 25,
     minBufferSize = 1000,
     debugMode = FALSE, #isRstudioServer(), # DEoptim may spawn many machines via PSOCK --> may be better from cmd line
@@ -741,8 +741,8 @@ parameters_fS <- list(
     verbose = TRUE,
     trace = 1,
     visualizeDEoptim = TRUE,#,
-    cacheId_DE = "56769e2b2edfe8ab",#  "c3af84b504e99a5d", # This is NWT DEoptim Cache
-    cloudFolderID_DE = "1kUZczPyArGIIkbl-4_IbtJWBhVDveZFZ",
+    #cacheId_DE = "56769e2b2edfe8ab",#  "c3af84b504e99a5d", # This is NWT DEoptim Cache
+    #cloudFolderID_DE = "1kUZczPyArGIIkbl-4_IbtJWBhVDveZFZ",
     useCloud_DE = TRUE
     
   )

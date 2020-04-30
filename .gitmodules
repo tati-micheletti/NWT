@@ -65,7 +65,7 @@
 [submodule "modules/Biomass_borealDataPrep"]
 	path = modules/Biomass_borealDataPrep
 	url = git@github.com:PredictiveEcology/Biomass_borealDataPrep.git
-	branch = reworkCohorts
+	branch = development
 [submodule "modules/fireSense_NWT_DataPrep"]
 	path = modules/fireSense_NWT_DataPrep
 	url = git@github.com:PredictiveEcology/fireSense_NWT_DataPrep.git

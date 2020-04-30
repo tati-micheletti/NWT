@@ -734,16 +734,16 @@ parameters_fS <- list(
     iterDEoptim = 300,
     iterStep = 25,
     minBufferSize = 1000,
-    debugMode = FALSE, #isRstudioServer(), # DEoptim may spawn many machines via PSOCK --> may be better from cmd line
+    debugMode = isRstudioServer(), # DEoptim may spawn many machines via PSOCK --> may be better from cmd line
     rescaleAll = TRUE,
     maxFireSpread = 0.3,
     objfunFireReps = 100,
     verbose = TRUE,
     trace = 1,
-    visualizeDEoptim = TRUE,#,
+    visualizeDEoptim = TRUE#,
     #cacheId_DE = "56769e2b2edfe8ab",#  "c3af84b504e99a5d", # This is NWT DEoptim Cache
     #cloudFolderID_DE = "1kUZczPyArGIIkbl-4_IbtJWBhVDveZFZ",
-    useCloud_DE = TRUE
+    #useCloud_DE = TRUE
     
   )
 )

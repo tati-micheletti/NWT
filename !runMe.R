@@ -26,15 +26,15 @@ if (updateCRAN)
 
 if (updateGithubPackages){
   if (pemisc::user("emcintir")) Sys.setenv("R_REMOTES_UPGRADE"="never")
-  devtools::install_github("PredictiveEcology/reproducible@messagingOverhaul")
+  devtools::install_github("PredictiveEcology/reproducible@139-spatial-updates")
   devtools::install_github("PredictiveEcology/usefun@development") # Updates LandR
   devtools::install_github("achubaty/amc@development")
   devtools::install_github("PredictiveEcology/pemisc@development")
   devtools::install_github("PredictiveEcology/map@development")
   devtools::install_github("PredictiveEcology/SpaDES.core@lowMemory") # Updates SpaDES.tools and SpaDES.core quickPlot
   devtools::install_github("PredictiveEcology/SpaDES.tools@allowOverlap") # Updates SpaDES.tools and SpaDES.core quickPlot
-  devtools::install_github("PredictiveEcology/LandR@reworkCohorts") # Updates SpaDES.tools and SpaDES.core quickPlot
-  devtools::install_github("ianmseddy/LandR.CS@master") # Climate sensitivity in LandR
+  devtools::install_github("PredictiveEcology/LandR@development") # Updates SpaDES.tools and SpaDES.core quickPlot
+  devtools::install_github("tati-micheletti/LandR.CS@master") # Climate sensitivity in LandR
   devtools::install_github("PredictiveEcology/fireSenseUtils@development")
   # pedev::updateGit("fireSenseUtils", branch = "development")
 }
@@ -303,7 +303,7 @@ defaultInitialSaveTime <- NA
 parameters <- list(
   #SCFM
   # ".progress" = list(type = "text", interval = 1),
-  LandR_speciesParameters = 
+  Biomass_speciesParameters = 
     list("sppEquivCol"  = sppEquivCol,
          "GAMMiterations" = 2, 
          "GAMMknots" = list(

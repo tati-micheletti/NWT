@@ -80,7 +80,7 @@ if (saveInitialConditions){
 # cd0e267cf87b5729d84fd980b111f7be189906bd modules/LBMR (v1.3.2-3-gcd0e267)
 # d2533f11b45886dba7540131d3c6311ea02845ea modules/LBMR2LCC_DataPrep (heads/master)
 # 0d674d3a264e59148aa03fa4f3d004a007d115d2 modules/LandR_BiomassGMOrig (heads/development)
-# 9f351b9dc18ba76e1a94abaf479686c12b872a89 modules/LandR_speciesParameters (heads/master)
+# 9f351b9dc18ba76e1a94abaf479686c12b872a89 modules/Biomass_speciesParameters (heads/master)
 # 881957951841d667734556b84e39789622518343 modules/MDC_NWT_DataPrep (heads/master)
 # 1517fae323ab5f3b2259cb92a7082586812cbfbf modules/PSP_Clean (heads/master)
 # 196d8d06103a674cb2dd97400865381ccb4562ff modules/birdsNWT (heads/master)

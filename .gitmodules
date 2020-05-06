@@ -92,3 +92,9 @@
 [submodule "modules/fireSense_dataPrep"]
 	path = modules/fireSense_dataPrep
 	url = git@github.com:tati-micheletti/fireSense_dataPrep.git
+[submodule "modules/caribouCIP"]
+	path = modules/caribouCIP
+	url = git@github.com:tati-micheletti/caribouCIP.git
+[submodule "modules/caribouIK"]
+	path = modules/caribouIK
+	url = git@github.com:tati-micheletti/caribouIK.git

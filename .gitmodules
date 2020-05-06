@@ -86,14 +86,6 @@
 	path = modules/fireSense_SizeFit
 	url = git@github.com:PredictiveEcology/fireSense_SizeFit.git
 	branch = master
-[submodule "modules/caribouIK"]
-	path = modules/caribouIK
-	url = git@github.com:tati-micheletti/caribouIK.git
-	branch = master
-[submodule "modules/caribouCIP"]
-	path = modules/caribouCIP
-	url = git@github.com:tati-micheletti/caribouCIP.git
-	branch = master
 [submodule "modules/Biomass_speciesParameters"]
 	path = modules/Biomass_speciesParameters
 	url = git@github.com:PredictiveEcology/Biomass_speciesParameters.git

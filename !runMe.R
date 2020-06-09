@@ -415,7 +415,7 @@ lastYears <- data.frame(objectName = c("predictedCaribou", "plotCaribou",
                                        "fireRegimeRas", "speciesEcoregion", 
                                        "species", "gcsModel", "mcsModel"),
                         saveTime = times$end)
-if (length(usefun::grepMulti(x = definedRun$modules, "Biomass_core")) != 0){
+if (length(usefulFuns::grepMulti(x = definedRun$modules, "Biomass_core")) != 0){
   clim <- data.frame(objectName = rep(c("fireSense_IgnitionPredicted", 
                                         "fireSense_EscapePredicted", "burnSummary", 
                                         "successionLayers", "activePixelIndex"), 
@@ -549,6 +549,14 @@ if (runFireSenseFit){
     saveRDS(MDC, file.path(Paths$inputPath, "MDC_1991_2017.rds"))
   } else {
     MDC <- readRDS(file.path(Paths$inputPath, "MDC_1991_2017.rds"))
+    if (pemisc::user("emcintir"))
+      if (!file.exists(filename(MDC$Year1991$MDC_1991$MDC_1991))) 
+        MDC <- lapply(MDC, function(yr) {
+          r <- yr[[1]]
+          r@file@name <- gsub("^.*(MDC_.*)$", file.path(Paths$inputPath, "\\1"), yr[[1]][[1]]@file@name)
+          r
+        })
+      
   }
   
   # Here I create the dataset of initial fire locations for fireSense_SpreadFit
@@ -646,7 +654,7 @@ if (runFireSenseFit){
     return(r)
   }
   
-  weather <- Cache(stackToMemory, MDC)
+  weather <- stackToMemory(MDC)
   weather <- raster::unstack(weather)
   names(weather) <- as.character(fireYears)
   
@@ -692,31 +700,105 @@ if (runFireSenseFit){
   
   # RESCALE MDC 
   # Should let the classes take 100% of it if needs
-  lowerParams <- c(0, 0.001, 0.001, 0.001, 0.001, 0.001)
-  upperParams <- c(6, 3, 3, 5, 5, 3)
+  lowerParams <- c(-16, -16, -16, -16, -16, -16)
+  upperParams <- c(32, 32, 32, 32, 32, 32)
 
-lower <- c(0.22, 0.1, 0.5, lowerParams)
-upper <- c(0.3, 10, 4, upperParams)
+  # for logistic3p
+  #lower <- c(0.22, 0.001, 0.001, lowerParams)
+  #upper <- c(0.29, 10, 10, upperParams)
+  # for logistic2p
+  lower <- c(0.22, 0.001, lowerParams)
+  upper <- c(0.29, 10, upperParams)
+  
 
-machines <- data.frame(
-  ipEnd =          c(97, 216, 189, 187, 68, 174),
-  availableCores = c(28, 28,  28,  28,  35, 28)
-)
-makeIps <- function(machines, ipStart = "10.20.0.", N = length(lower) * 10) {
-  ipsEnd <- rep(machines$ipEnd, ceiling(machines$availableCores/ (sum(machines$availableCores)/N)) )
+makeIps <- function(machines, ipStart = "10.20.0.", N = NP) {
+  if (sum(machines$availableCores) < NP) stop("Not enough cores")
+  ipsEnd <- rep(machines$ipEnd, 
+                pmax(machines$availableCores, ceiling(machines$availableCores/ (sum(machines$availableCores)/N)) ))
   ips <- paste0(ipStart, ipsEnd)
   i <- 0
   while(length(ips) > N) {
     i <- i + 1
-    i <- i %% NROW(machines)
+    i <- (i - 1) %% NROW(machines) + 1
     j <- i+1
     ips <- ips[-which(endsWith(ips, suffix = as.character(machines$ipEnd[i])))[1]]  
   }
   # ips <- sample(ips, N)
   sort(ips)
 }
-cores <- makeIps(machines)
+
+machines <- data.frame(
+  ipEnd =          c(97, 216, 189, 187, 68, 174, 220, 213, 217, 58),
+  #maximumCores = rep( 9,   9,   9,   9, 15,   9,  14,  12,  10,  6),
+  availableCores = c( 8,   8,   9,   9, 16,   9,   8,   9,   7,  7)
+ # availableCores = c( 9,   7,   9,   9, 14,   9,   9,   8,   7,  8)
+)
+
+NP <- length(lower) * 10
+cores <- makeIps(machines, N = NP)
+cores[grep("68", cores)] <- "localhost"
 (table(cores))
+(length(cores))
+
+if (FALSE) {
+  aa <- showCache(userTags = "DEoptimForCache")
+  bb <- aa[tagKey == "accessed"]
+  setkey(bb, tagValue)
+  dd <- lapply(tail(bb$cacheId, 4), function(xx) {
+    aa <- loadFromCache(cacheId = xx, cachePath = Paths$cachePath)
+    bests <- lapply(seq(aa$member$lower), 
+                    function(x) MASS::fitdistr(aa$member$pop[,x], densfun = "normal"))
+    fittedBest <- do.call(rbind, lapply(bests, function(x) x$estimate))
+    dt <- as.data.table(fittedBest)
+    dt[, param := names(aa$member$lower)]
+    as.data.table(aa$member$pop)
+  })
+  names(dd) <- seq(dd)
+  dd <- rbindlist(dd, idcol = "iteration")
+  colnames(dd) <- gsub("V", "par", colnames(dd))
+  dd <- melt(dd, measure.vars = patterns("par.*", cols = names(dd)), variable.name = "param")
+  dd[, iteration := as.integer(iteration) * 150]
+  # dd[, list(mean = mean(mean), meanSd = sd(mean), se = mean(sd), seSd = sd(sd)), by = "param"]
+  
+  (means <- ggplot(dd, aes(x = iteration, y = value)) +
+    geom_point() +
+    geom_smooth(method="lm", se=TRUE, fullrange=TRUE, level=0.95) +
+    facet_wrap(~ param, scales = "free"))
+  summary(lm(value ~ iteration, data = dd[param == "par1"]))
+  
+  ee <- dd[, list(vals = {
+    a <- lm(value ~ iteration)
+    b <- summary(a)
+    coefficients(b)[2,]
+    }), by = param]
+  ee[, type := rep(c("mean", "se", "tvalue", "pvalue"), length.out = NROW(ee))]
+  ee[type == "pvalue"]
+  
+  means <- ggplot(dd, aes(x = iteration, y = value)) +
+    geom_point() +
+    geom_smooth(method="lm", se=TRUE, fullrange=TRUE, level=0.95) +
+    facet_wrap(~ param, scales = "free")
+  
+  ff <- dd[, list(value = sd(value)), by = c("iteration", "param")]
+  (ses <- ggplot(ff, aes(x = iteration, y = value)) +
+    geom_point() +
+    geom_smooth(method="lm", se=TRUE, fullrange=TRUE, level=0.95) +
+    facet_wrap(~ param, scales = "free"))
+  ff1 <- ff[, list(vals = {
+    a <- lm(value ~ iteration)
+    b <- summary(a)
+    coefficients(b)[2,]
+  }), by = param]
+  ff1[, type := rep(c("mean", "se", "tvalue", "pvalue"), length.out = NROW(ff1))]
+  ff1[type == "pvalue"]
+  
+  
+  aa <- loadFromCache(cacheId = tail(bb$cacheId,1), cachePath = Paths$cachePath)
+  bests <- lapply(seq(aa$member$lower), 
+                  function(x) MASS::fitdistr(aa$member$pop[,x], densfun = "normal"))
+  fittedBest <- do.call(rbind, lapply(bests, function(x) x$estimate))
+  rownames(fittedBest) <- names(aa$member$lower)
+}
 
 parameters_fS <- list(
   fireSense_SpreadFit = list(
@@ -730,18 +812,21 @@ parameters_fS <- list(
     #upper = c(0.15, 0.3, 10, 4, upperParams),
     lower = lower,
     upper = upper,
-    cores = cores, #rep("localhost", 40), #cores,
-    iterDEoptim = 300,
-    iterStep = 25,
-    minBufferSize = 1000,
+    cores = if (isRstudioServer()) NULL else cores, #rep("localhost", 40), #cores,
     debugMode = FALSE,#isRstudioServer(), # DEoptim may spawn many machines via PSOCK --> may be better from cmd line
+    iterDEoptim = 150,
+    iterStep = 150,
+    minBufferSize = 2000,
     rescaleAll = TRUE,
     maxFireSpread = 0.3,
     objfunFireReps = 100,
+    NP = length(cores),
     verbose = TRUE,
     trace = 1,
+    objFunCoresInternal = 3L,
     visualizeDEoptim = TRUE,
-    cacheId_DE = "56769e2b2edfe8ab",#  "c3af84b504e99a5d", # This is NWT DEoptim Cache
+    #initialpop = if (exists("aa")) aa$member$pop else NULL#[sample(seq_len(NROW(aa$member$pop)), length(cores)),]
+    #cacheId_DE = "56769e2b2edfe8ab",#  "c3af84b504e99a5d", # This is NWT DEoptim Cache
     cloudFolderID_DE = "1kUZczPyArGIIkbl-4_IbtJWBhVDveZFZ",
     useCloud_DE = TRUE
     

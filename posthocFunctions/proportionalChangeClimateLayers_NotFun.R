@@ -19,7 +19,7 @@ clearPlot()
 png(file.path("/mnt/data/Micheletti/NWT/outputs/23OCT19/", "deltaClimateLayers3.png"))
 plot(propChange[[19:24]], col = diverge_hcl(12, h = c(128, 330), c = 98, l = c(65, 90)))
 dev.off()
-fl <- usefun::grepMulti(x = list.files("/mnt/data/Micheletti/NWT/outputs/23OCT19/", full.names = TRUE), patterns = c("deltaClimateLayers"))
+fl <- usefulFuns::grepMulti(x = list.files("/mnt/data/Micheletti/NWT/outputs/23OCT19/", full.names = TRUE), patterns = c("deltaClimateLayers"))
 lapply(fl, function(r){
   googledrive::drive_upload(r, googledrive::as_id("1jgGqwGcOpxSjUwxJw8_bee-iQtcHSRTG"))
 })

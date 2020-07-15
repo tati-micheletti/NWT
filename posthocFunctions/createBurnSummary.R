@@ -2,7 +2,7 @@ createBurnSummary <- function(folderData,
                               typeSim){
   
   library("data.table")
-  library("usefun")
+  library("usefulFuns")
   library("LandR")
   library("reproducible")
   library("raster")
@@ -14,7 +14,7 @@ createBurnSummary <- function(folderData,
   burnSummary <- rbindlist(lapply(X = names(burnDT), FUN = function(yr){
     burnDTYear <- burnDT[[yr]]
     tempDT <- burnDTYear[, .(.N), by = "initialPixels"]
-    tempDT$year <- as.numeric(usefun::substrBoth(string = yr, 
+    tempDT$year <- as.numeric(usefulFuns::substrBoth(string = yr, 
                                          howManyCharacters = 4, fromEnd = TRUE))
     fireRegimeRas <- readRDS(file = file.path(folderPath, grepMulti(x = list.files(folderPath), 
                                                                     patterns = "fireRegimeRas")))

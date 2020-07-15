@@ -6,7 +6,7 @@ createCumEffRasters <- function(species = c("CAWA", "OSFL", "RUBL"),
   library(googledrive)
   library(future)
   library(future.apply)
-  library(usefun)
+  library(usefulFuns)
   plan("multicore")
   
   future_lapply(species, function(SP){ 

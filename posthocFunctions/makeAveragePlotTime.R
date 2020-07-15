@@ -4,7 +4,7 @@ makeAveragePlotTime <- function(dataFolder,
                                 years,
                                 shp = NULL, 
                                 overwrite = FALSE){
-  library("usefun")
+  library("usefulFuns")
   library("raster")
   library("quickPlot")
   library("raster")
@@ -41,21 +41,21 @@ makeAveragePlotTime <- function(dataFolder,
             shpSf$poly <- as.numeric(shpSf$OBJECTID)
             rasPoly <- fasterize::fasterize(shpSf, raster = ras, field = "poly")
             tb1 <- data.table(pixelID = 1:ncell(ras), val = getValues(ras), polyID = getValues(rasPoly))
-            dt <- data.table(species = usefun::substrBoth(strng = names(ras), 
+            dt <- data.table(species = usefulFuns::substrBoth(strng = names(ras), 
                                                           howManyCharacters = 4, fromEnd = FALSE), 
                              scenarios = scen,
                              polyID = setkey(na.omit(tb1[, mean(val, na.rm = TRUE), by = "polyID"]), "polyID")[["polyID"]],
                              average = setkey(na.omit(tb1[, mean(val, na.rm = TRUE), by = "polyID"]), "polyID")[["V1"]], 
                              std = setkey(na.omit(tb1[, sd(val, na.rm = TRUE), by = "polyID"]), "polyID")[["V1"]], 
-                             year = usefun::substrBoth(strng = names(ras), 
+                             year = usefulFuns::substrBoth(strng = names(ras), 
                                                        howManyCharacters = 4, fromEnd = TRUE))
           } else {
-            dt <- data.table(species = usefun::substrBoth(strng = names(ras), 
+            dt <- data.table(species = usefulFuns::substrBoth(strng = names(ras), 
                                                           howManyCharacters = 4, fromEnd = FALSE), 
                              scenarios = scen,
                              average = mean(ras[], na.rm = TRUE), 
                              std = sd(ras[], na.rm = TRUE), 
-                             year = usefun::substrBoth(strng = names(ras), 
+                             year = usefulFuns::substrBoth(strng = names(ras), 
                                                        howManyCharacters = 4, fromEnd = TRUE))
             
           }

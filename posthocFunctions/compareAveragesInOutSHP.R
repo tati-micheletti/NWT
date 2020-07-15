@@ -12,14 +12,14 @@ compareAveragesInOutSHP <- function(shp, folder, raster1Name, raster2Name = NULL
   }
   
   rasList <- lapply(years, function(y){
-    ras <- usefun::grepMulti(x = list.files(folder, full.names = TRUE, recursive = TRUE),
+    ras <- usefulFuns::grepMulti(x = list.files(folder, full.names = TRUE, recursive = TRUE),
                              patterns = c(raster1Name, y))
     ras1 <- raster::raster(ras)
     return(ras1)
   })
   if (!is.null(raster2Name)){
     rasList2 <- lapply(years, function(y){
-      ras <- usefun::grepMulti(x = list.files(folder, full.names = TRUE, recursive = TRUE),
+      ras <- usefulFuns::grepMulti(x = list.files(folder, full.names = TRUE, recursive = TRUE),
                                patterns = c(raster2Name, y))
       ras1 <- raster::raster(ras)
       ras1 <- Cache(reproducible::postProcess, x = ras1, rasterToMatch = rasList[[1]], 
@@ -48,7 +48,7 @@ compareAveragesInOutSHP <- function(shp, folder, raster1Name, raster2Name = NULL
   }
   library("data.table")
   pixelID <- data.table::data.table(pixelID = 1:ncell(rasList[[1]]))
-  dt <- usefun::cbindFromList(lapply(rasList, raster::getValues))
+  dt <- usefulFuns::cbindFromList(lapply(rasList, raster::getValues))
   names(dt) <- unlist(lapply(rasList, names))
   studyArea <-  data.table::data.table(studyArea = raster::getValues(x = sAras))
   dt <- cbind(pixelID, dt, studyArea)
@@ -61,8 +61,8 @@ compareAveragesInOutSHP <- function(shp, folder, raster1Name, raster2Name = NULL
     tb[, pixelID := NULL]
     library("reshape2")
     tb2 <- melt(data = tb, id = c("studyArea", "operation"))
-    tb2$year <- usefun::substrBoth(strng = as.character(tb2[,variable]), howManyCharacters = 4, fromEnd = TRUE)
-    tb2$index <- usefun::substrBoth(strng = as.character(tb2[,variable]), howManyCharacters = 8, fromEnd = FALSE)
+    tb2$year <- usefulFuns::substrBoth(strng = as.character(tb2[,variable]), howManyCharacters = 4, fromEnd = TRUE)
+    tb2$index <- usefulFuns::substrBoth(strng = as.character(tb2[,variable]), howManyCharacters = 8, fromEnd = FALSE)
     tb2[, variable := NULL]
     tb2$studyArea[tb2$studyArea == 2] <- "Outside Edehzhie"
     tb2$studyArea[tb2$studyArea == 1] <- "Edehzhie"

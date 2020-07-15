@@ -20,7 +20,7 @@ makeDiffAnalysis2 <- function(resultsFolder = file.path(getwd(), "outputs/06DEC1
   library(raster)
   library(data.table)
   library(tictoc)
-  library(usefun)
+  library(usefulFuns)
   library(future)
   library(future.apply)
   plan("multiprocess")

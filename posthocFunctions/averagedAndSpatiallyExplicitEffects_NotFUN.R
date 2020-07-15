@@ -1,7 +1,7 @@
 library(SpaDES)
 library(reproducible)
 library(data.table)
-library(usefun)
+library(usefulFuns)
 library(future)
 library(future.apply)
 googledrive::drive_auth("tati.micheletti@gmail.com")

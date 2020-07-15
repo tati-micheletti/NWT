@@ -1,5 +1,5 @@
 makeAllPlots <- function(CSfolder, typeSim){
-  library("usefun")
+  library("usefulFuns")
   library("LandR")
   library("reproducible")
   library("data.table")
@@ -13,7 +13,7 @@ makeAllPlots <- function(CSfolder, typeSim){
                                                                                       typeSim = typeSim, proportional = TRUE))
   assign(x = paste0(typeSim, "burnSumm"), value = plotBurnSummary(CSfolder, typeSim = typeSim))
   assign(x = paste0(typeSim, "disturbPlot"), value = disturbancePlotCaribou(CSfolder, typeSim = typeSim))
- toReturn <- usefun::grepMulti(ls(), patterns = typeSim)
+ toReturn <- usefulFuns::grepMulti(ls(), patterns = typeSim)
  listToReturn <- lapply(toReturn, function(plt){
    r <- get(plt)
    })

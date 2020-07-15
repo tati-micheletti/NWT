@@ -19,7 +19,7 @@ lapply(fl, function(ras){
 
 # ~~~~~~~~~~~~~~~~~ BIOMASS
 
-library("usefun")
+library("usefulFuns")
 library("LandR")
 library("reproducible")
 library("data.table")
@@ -29,8 +29,8 @@ library("raster")
 CSfolder <- "outputs/PAPER/LandR_SCFM/run1"
 typeSim <- "NonClimateSensitive"
 
-leadVegType <- usefun::plotLeadingVegetationType(dataPath = CSfolder, typeSim = typeSim, saveRAS = TRUE)
-maxBiomass <- usefun::plotVegetationBiomass(dataPath = CSfolder, typeSim = typeSim,
+leadVegType <- usefulFuns::plotLeadingVegetationType(dataPath = CSfolder, typeSim = typeSim, saveRAS = TRUE)
+maxBiomass <- usefulFuns::plotVegetationBiomass(dataPath = CSfolder, typeSim = typeSim,
                                             saveRAS = TRUE, colNA = "white")
 biomassPerSpecies <- totalBiomassPerSpecies(dataPath =  CSfolder, typeSim = typeSim, 
                                             proportional = FALSE, overstory = TRUE)
@@ -177,7 +177,7 @@ CS_2100 <- RSFplot(ras = predRS_CS$predictedPresenceProbability$Year2100$TaigaPl
 
 # [ FIX ] Still need to test this function with shp == NULL!
 folderBirds <- "/mnt/data/Micheletti/NWT/outputs/09OCT19/LandR.CS_fS/run1/birdPredictions"
-source('/mnt/data/Micheletti/NWT/posthocFunctions/bootstrapPercentChanges.R') # INTERNAL FUNCTIONS TO BE PUT IN USEFUN!!! [ FIX ]
+source('/mnt/data/Micheletti/NWT/posthocFunctions/bootstrapPercentChanges.R') # INTERNAL FUNCTIONS TO BE PUT IN usefulFuns!!! [ FIX ]
 shp <- "https://drive.google.com/open?id=1GA7hGslGEE1DGIMsD4Ou9duesS-eGbyZ"
 cacheFolder <- "/mnt/data/Micheletti/NWT/cache/"
 SpaDES.core::setPaths(cachePath = cacheFolder)
@@ -187,13 +187,13 @@ saveRDS(object = boot, file = file.path(folderBirds, "speciesChangeTables.rds"))
 
 # ~~~~~~~~~~~~~~~~~ summaryBirds
 
-library("usefun")
+library("usefulFuns")
 
 birdsFolder <- file.path(getwd(), CSfolder, 'birdPredictions/')
 
-birds2011 <- usefun::grepMulti(x = list.files(birdsFolder, 
+birds2011 <- usefulFuns::grepMulti(x = list.files(birdsFolder, 
                                       full.names = TRUE), patterns = c("predicted", "2011"))
-birds2100 <- usefun::grepMulti(x = list.files(birdsFolder, 
+birds2100 <- usefulFuns::grepMulti(x = list.files(birdsFolder, 
                                       full.names = TRUE), patterns = c("predicted", "2100"))
 birds <- c(birds2011, birds2100)
 library("data.table")

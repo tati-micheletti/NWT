@@ -10,7 +10,7 @@ defineModule(sim, list(
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.txt", "posthocLandR.Rmd"),
-  reqdPkgs = list("raster","tati-micheletti/usefun", "future", "future.apply"),
+  reqdPkgs = list("raster","tati-micheletti/usefulFuns", "future", "future.apply"),
   parameters = rbind(
     defineParameter("plotFireStats", "logical", FALSE, NA, NA, paste0("If fire was ran on the landscape, set this parameter to TRUE to generate burn summaries")),
     defineParameter("addCaribousuitability", "logical", FALSE, NA, NA, paste0("If TRUE, adds to the forest age plot the colors indicating suitability for caribou:",

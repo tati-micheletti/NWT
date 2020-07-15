@@ -14,9 +14,7 @@ library("future")
 library("future.apply")
 plan("sequential")
 googledrive::drive_auth("tati.micheletti@gmail.com")
-library(usefun)
-if (pemisc::user() %in% c("Tati", "tmichele"))
-  setwd("/mnt/data/Micheletti/NWT")
+library(usefulFuns)
 
 times <- list(start = 1, end = 1)
 Run <- "run1"

@@ -14,7 +14,7 @@ defineModule(sim, list(
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.txt", "rastersPosthoc.Rmd"),
-  reqdPkgs = list("raster", "data.table", "future", "future.apply", "tati-micheletti/usefun"),
+  reqdPkgs = list("raster", "data.table", "future", "future.apply", "tati-micheletti/usefulFuns@development"),
   parameters = rbind(
     defineParameter("species", "character", NULL, NA, NA, paste0("Which species to use? If NULL, it tries guessing which species are available. ",
                                                                  "However, this only works if all species were ran for all years")),
@@ -115,9 +115,9 @@ doEvent.rastersPosthoc = function(sim, eventTime, eventType) {
     },
     generateRSFbinned = {
       sim$RSFlikePlot <- lapply(X = names(sim$listOfRasters), FUN = function(scenarios){ # [FIX] future_lapply
-        ras <- tryCatch(sim$listOfRasters[[scenarios]][[usefun::grepMulti(x = names(sim$listOfRasters[[scenarios]]), patterns = "SelectionTaiga")]], 
+        ras <- tryCatch(sim$listOfRasters[[scenarios]][[usefulFuns::grepMulti(x = names(sim$listOfRasters[[scenarios]]), patterns = "SelectionTaiga")]], 
                         error = function(e){stop("This event can only be ran for Caribou, which has to have the 'SelectionTaiga' in its raster name")})
-        RSFlikePlot <- usefun::RSFplot(ras = ras,
+        RSFlikePlot <- usefulFuns::RSFplot(ras = ras,
                                        upload = P(sim)$uploadPlots,
                                        writeReclasRas = TRUE,
                                        outputFolder = getPaths()$outputPath,
@@ -129,7 +129,7 @@ doEvent.rastersPosthoc = function(sim, eventTime, eventType) {
       sim$averageInTime <- future_lapply(X = names(sim$listOfRasters), FUN = function(scenarios){
        allRasInScenarios <- future_lapply(X = sim$listOfRasters[[scenarios]],
                FUN = function(index){
-                 usefun::meanValuesTime(ras = index,
+                 usefulFuns::meanValuesTime(ras = index,
                                 scenario = scenarios,
                                 initialTime = P(sim)$years)
                })

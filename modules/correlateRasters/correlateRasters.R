@@ -10,7 +10,8 @@ defineModule(sim, list(
   timeunit = "year",
   citation = list("citation.bib"),
   documentation = list("README.txt", "correlateRasters.Rmd"),
-  reqdPkgs = list("raster", "data.table", "crayon", "sf","png", "fasterize","ggplot2","lme4", "tati-micheletti/usefun", "PredictiveEcology/pemisc"),
+  reqdPkgs = list("raster", "data.table", "crayon", "sf","png", "fasterize","ggplot2","lme4", 
+                  "tati-micheletti/usefulFuns", "PredictiveEcology/pemisc"),
   parameters = rbind(
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description"),
     defineParameter(".plotInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first plot event should occur"),
@@ -57,10 +58,10 @@ doEvent.correlateRasters = function(sim, eventTime, eventType) {
       # 2. Extract data: stuck it in the same DT (SAVE THIS DT)
       # currentDiversityRasters_yearXXXX.rds (rasterStack) # INPUT FOLDER: /outputs/30JUL19/comMetrics
       # relativeSelectionTaigaPlains_YearXXXX.tif (raster) # INPUT FOLDER: /outputs/30JUL19/RSF
-      sim$raster1 <- Cache(usefun::createModObject, data = sim$raster1Name, sim = sim,
+      sim$raster1 <- Cache(usefulFuns::createModObject, data = sim$raster1Name, sim = sim,
                            pathInput = inputPath(sim), currentTime = time(sim), fun = raster,
                            useCache = TRUE)
-      sim$raster2 <- Cache(usefun::createModObject, data = sim$raster2Name, sim = sim,
+      sim$raster2 <- Cache(usefulFuns::createModObject, data = sim$raster2Name, sim = sim,
                            pathInput = inputPath(sim), currentTime = time(sim), fun = raster,
                            useCache = TRUE)
       sim$raster2 <- checkAndAlignData(raster1 = sim$raster1, raster2 = sim$raster2) # Changes raster2 in function of raster1 if needed

@@ -23,9 +23,8 @@ For help writing in R Markdown, see http://rmarkdown.rstudio.com/.
 ```{r module_usage}
 library(SpaDES)
 
-if (getwd() != "/mnt/data/Micheletti/NWT/")
+if (getwd() != "/home/tmichele/projects/NWT/")
   stop("check you are in the right directory")
-setwd("/mnt/data/Micheletti/NWT/")
 setPaths(modulePath = file.path(getwd(), "modules"),
          inputPath = file.path(getwd(), "outputs/30JUL19"))
 getPaths() # shows where the 4 relevant paths are

@@ -3,7 +3,7 @@
 # please specify the package you need to run the sim function in the test files.
 
 # to test all the test files in the tests folder:
-test_dir("/mnt/data/Micheletti/NWT/modules/correlateRasters/tests/testthat")
+test_dir("~/modules/correlateRasters/tests/testthat")
 
 # Alternative, you can use test_file to test individual test file, e.g.:
-test_file("/mnt/data/Micheletti/NWT/modules/correlateRasters/tests/testthat/test-template.R")
+test_file("~/modules/correlateRasters/tests/testthat/test-template.R")

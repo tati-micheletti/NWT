@@ -72,7 +72,7 @@ hotspotMapping <- function(hotspotIndex, ras, shp = NULL, folder){
               axis.text.y=element_blank(),
               axis.ticks.y=element_blank()) +
         ggtitle(paste0("Hotspot index for multispecies conservation: ",
-                       usefun::substrBoth(y, 4, TRUE)))
+                       usefulFuns::substrBoth(y, 4, TRUE)))
       quickPlot::clearPlot()
       if (!is.null(shp)){
       #   browser() NOT CURRENTLY WORKING!

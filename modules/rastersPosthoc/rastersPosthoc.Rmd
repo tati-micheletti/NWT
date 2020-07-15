@@ -53,12 +53,8 @@ dynamic = list(
   library("future.apply")
   plan("sequential")
   googledrive::drive_auth("tati.micheletti@gmail.com")
-  library("usefun")
-# devtools::load_all("/mnt/data/Micheletti/usefun/")
-  
-  if (pemisc::user() %in% c("Tati", "tmichele"))
-    setwd("/mnt/data/Micheletti/NWT")
-  
+  library("usefulFuns")
+
   times <- list(start = 1, end = 1)
   Run <- "run1"
   

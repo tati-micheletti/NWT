@@ -9,7 +9,7 @@
 # 3. Modify the test description based on the content you are testing:
 test_that("test Event1 and Event2.", {
   module <- list("rastersPosthoc")
-  path <- list(modulePath = "/mnt/data/Micheletti/NWT/modules",
+  path <- list(modulePath = "~/modules",
                outputPath = file.path(tempdir(), "outputs"))
   parameters <- list(
     #.progress = list(type = "graphical", interval = 1),

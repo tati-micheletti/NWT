@@ -47,7 +47,7 @@ umbrellaTradeoffMapping <- function(hotspotIndex, ras){
             axis.text.y=element_blank(),
             axis.ticks.y=element_blank()) +
       ggtitle(paste0("Hotspot index for multispecies conservation: ",
-                     usefun::substrBoth(y, 4, TRUE)))
+                     usefulFuns::substrBoth(y, 4, TRUE)))
     quickPlot::clearPlot()
     p
     ggsave(file.path(getwd, "outputs/30JUL19/", paste0("hotspots", y,".png")), device = "png", width = 20,

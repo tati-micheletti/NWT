@@ -15,10 +15,9 @@ library("SpaDES")
 library("future")
 library("future.apply")
 plan("multiprocess")
-library("usefun")
+library("usefulFuns")
 
-SpaDES.core::setPaths(modulePath = file.path(getwd(), "modules"),
-                      cachePath = file.path(getwd(), "cache"))
+
 times <- list(start = 1, end = 1)
 
 Run <- "run1"
@@ -37,10 +36,7 @@ parameters <- list(
 modules <- list("posthocLandR")
 objects <- list(
   resultsFolders = list(
-        LandR.CS_fS = CSfolder,
-        # LandR.CS_SCFM = file.path(getwd(), "outputs/06DEC19/LandR.CS_SCFM", Run),
-        # LandR_fS = file.path(getwd(), "outputs/06DEC19/LandR_fS", Run),
-        LandR_SCFM = noCSfolder
+        LandR.CS_fS = Paths$outputPath
   )
 )
 inputs <- list()

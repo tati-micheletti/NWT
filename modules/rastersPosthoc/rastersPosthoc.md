@@ -69,8 +69,6 @@ For help writing in R Markdown, see http://rmarkdown.rstudio.com/.
 ```
 
 ```r
-  if (pemisc::user() %in% c("Tati", "tmichele"))
-    setwd("/mnt/data/Micheletti/NWT")
   
   setPaths(modulePath = file.path(getwd(), "modules"),
            inputPath = file.path(getwd(), "outputs/23OCT19/"),
@@ -81,9 +79,9 @@ For help writing in R Markdown, see http://rmarkdown.rstudio.com/.
 ```
 ## Setting:
 ##   options(
-##     spades.inputPath = '/mnt/data/Micheletti/NWT/outputs/23OCT19'
-##     spades.outputPath = '/mnt/data/Micheletti/NWT/outputs/23OCT19/birdResults'
-##     spades.modulePath = '/mnt/data/Micheletti/NWT/modules'
+##     spades.inputPath = '~/outputs/23OCT19'
+##     spades.outputPath = '~/outputs/23OCT19/birdResults'
+##     spades.modulePath = '~/modules'
 ##   )
 ```
 
@@ -92,9 +90,9 @@ For help writing in R Markdown, see http://rmarkdown.rstudio.com/.
 ##   options(
 ##     rasterTmpDir = '/tmp/RtmpYGcycv/raster'
 ##     reproducible.cachePath = '/tmp/RtmpYGcycv/reproducible/cache'
-##     spades.inputPath = '/mnt/data/Micheletti/NWT/outputs/23OCT19'
-##     spades.outputPath = '/mnt/data/Micheletti/NWT/outputs/23OCT19/birdResults'
-##     spades.modulePath = '/mnt/data/Micheletti/NWT/modules'
+##     spades.inputPath = '~/outputs/23OCT19'
+##     spades.outputPath = '~/outputs/23OCT19/birdResults'
+##     spades.modulePath = '~/modules'
 ##   )
 ```
 
@@ -107,13 +105,13 @@ For help writing in R Markdown, see http://rmarkdown.rstudio.com/.
 ## [1] "/tmp/RtmpYGcycv/reproducible/cache"
 ## 
 ## $inputPath
-## [1] "/mnt/data/Micheletti/NWT/outputs/23OCT19/"
+## [1] "~/outputs/23OCT19/"
 ## 
 ## $modulePath
-## [1] "/mnt/data/Micheletti/NWT/modules"
+## [1] "~/modules"
 ## 
 ## $outputPath
-## [1] "/mnt/data/Micheletti/NWT/outputs/23OCT19/birdResults"
+## [1] "~/outputs/23OCT19/birdResults"
 ## 
 ## $rasterPath
 ## [1] "/tmp/RtmpYGcycv/raster//"

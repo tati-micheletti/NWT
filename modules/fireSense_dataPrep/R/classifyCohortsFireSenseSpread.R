@@ -18,10 +18,10 @@ classifyCohortsFireSenseSpread <- function(cohortData, yearCohort, pixelGroupMap
   cohortData[, propBurnClassFire := BperClass/totalBiomass]
   # Fix 0/0
   cohortData[is.na(propBurnClassFire), propBurnClassFire := 0]
-  testthat::expect_true(NROW(cohortData) == NROW(na.omit(cohortData)))
+  # testthat::expect_true(NROW(cohortData) == NROW(na.omit(cohortData)))
   
   # Remove speciesCode so I can remove duplicates (i.e. different species that make the same class)
-  toRemove <- c("speciesCode", "ecoregionGroup", "rasterToMatch", "age", "B")
+  toRemove <- names(cohortData)[!names(cohortData) %in% c("pixelGroup", "burnClass", "propBurnClassFire")]
   cohortData[, c(toRemove) := NULL]
   cohortData <- unique(cohortData)
   
@@ -44,6 +44,7 @@ classifyCohortsFireSenseSpread <- function(cohortData, yearCohort, pixelGroupMap
   class5ras[class5] <- 1
   
   classList <- c(classList, list(class5ras))
+  
   
   names(classList) <- paste0("class", 1:5)
   return(classList)

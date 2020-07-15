@@ -1,5 +1,5 @@
 #' Designed as a helper to create caribou models based on 2011 ECCC report on population demographics and RSF.
-#' This function uses \code{usefun::createEquation()} internally
+#' This function uses \code{usefulFuns::createEquation()} internally
 #'
 #' @param caribouCoefTable data.table of the coefficient values for all models available. If not provided,
 #'                         will use as default the one from ECCC 2011 for population demographics.

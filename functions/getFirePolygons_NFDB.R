@@ -1,8 +1,13 @@
 getFirePolygons_NFDB <- function(studyArea = NULL, rasterToMatch = NULL,
-                                 redownloadIn = 1, # Time in YEARS that we tolerate the data to be "old" i.e. 0.5 would mean "redownload data older than 6 months"
-                                 NFDB_polyPath # Can't be NULL. Needs to be an existing location for the fire points
-                                 ){
-    check <- Checksums(NFDB_polyPath, checksumFile = file.path(NFDB_pointPath, "CHECKSUMS.txt"), write = TRUE)
+                                 redownloadIn = 2, # Time in YEARS that we tolerate the data to be "old" i.e. 0.5 would mean "redownload data older than 6 months"
+                                 NFDB_polyPath, # Can't be NULL. Needs to be an existing location for the fire points
+                                 redoChecksums = FALSE){
+  
+  if (redoChecksums){
+    check <- Checksums(NFDB_polyPath, checksumFile = file.path(NFDB_polyPath, "CHECKSUMS.txt"), write = TRUE) 
+  } else {
+    check <- Checksums(NFDB_polyPath, checksumFile = file.path(NFDB_polyPath, "CHECKSUMS.txt"), write = FALSE)
+  }
     whRowIsShp <- grep("NFDB_poly.*shp$", check$expectedFile)
     whIsOK <- which(check$result[whRowIsShp] == "OK")
     needNewDownload <- TRUE
@@ -19,13 +24,13 @@ getFirePolygons_NFDB <- function(studyArea = NULL, rasterToMatch = NULL,
       print("downloading NFDB")# put prepInputs here
       firePolys <- Cache(prepInputs, url = url,
                           studyArea = studyArea, fun = "shapefile",
-                          destination = NFDB_pointPath, useCache = "overwrite",
-                          useSAcrs = TRUE, omitArgs = c("NFDB_pointPath", "overwrite"))
+                          destination = NFDB_polyPath, useCache = "overwrite",
+                          useSAcrs = TRUE, omitArgs = c("NFDB_polyPath", "overwrite"))
     } else {
-      NFDBs <- grep(list.files(NFDB_pointPath), pattern = "^NFDB", value = TRUE)
-      shps <- grep(list.files(NFDB_pointPath), pattern = ".shp$", value = TRUE)
+      NFDBs <- grep(list.files(NFDB_polyPath), pattern = "^NFDB", value = TRUE)
+      shps <- grep(list.files(NFDB_polyPath), pattern = ".shp$", value = TRUE)
       aFile <- NFDBs[NFDBs %in% shps][1] #in case there are multiple files
-      firePolys <- Cache(shapefile, file.path(NFDB_pointPath, aFile))
+      firePolys <- Cache(shapefile, file.path(NFDB_polyPath, aFile))
       firePolys <- Cache(postProcess, x = firePolys,
                           studyArea = studyArea, filename2 = NULL,
                           rasterToMatch = rasterToMatch,

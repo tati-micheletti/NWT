@@ -15,8 +15,8 @@
 #' @param oldBurnTime numeric. Definition of the initial interval considered to be old burn. The end of this time is 20 years later (i.e. 40-60 years).
 #' @param elevation RasterLayer of elevation
 #' @param vrug RasterLayer of ruggeness           
-#' @param LCC05 RasterLayer of landcover classes 2005      
-#' @param reclassLCC05 List with reclassification for LCC05 values (i.e. LCC05 classes that should be classified as shrub or herbs)
+#' @param rstLCC RasterLayer of landcover classes 2005      
+#' @param reclassLCC05 List with reclassification for rstLCC values (i.e. rstLCC classes that should be classified as shrub or herbs)
 #' @param rasterToMatch RasterLayer template for these layers to match.
 #' 
 #' @return 
@@ -47,7 +47,7 @@ getLayers <- function(currentTime,
                       oldBurnTime = NULL,
                       elevation = NULL,
                       vrug = NULL,
-                      LCC05 = NULL,
+                      rstLCC = NULL,
                       reclassLCC05 = NULL,
                       rasterToMatch = NULL){
   
@@ -118,7 +118,7 @@ getLayers <- function(currentTime,
     
     staticLayers <- createStaticLayersRSF(elevation = elevation,
                                           vrug = vrug,
-                                          LCC = LCC05,
+                                          rstLCC = rstLCC,
                                           shrubName = "Shrub",
                                           herbName = "Herb",
                                           elevationName = "Elevation",

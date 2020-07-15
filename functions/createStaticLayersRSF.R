@@ -3,7 +3,7 @@
 #'
 #' @param elevation RasterLayer of elevation
 #' @param vrug RasterLayer of ruggeness           
-#' @param LCC RasterLayer of landcover classes 2005      
+#' @param rstLCC RasterLayer of landcover classes 2005      
 #' @param reclassLCC05 List with reclassification for LCC05 values
 #'                     (i.e. LCC05 classes that should be classified as shrub or herbs)
 #' @param RTM RasterLayer template for these layers to match.
@@ -29,7 +29,7 @@
 
 createStaticLayersRSF <- function(elevation,
                                   vrug,
-                                  LCC,
+                                  rstLCC,
                                   shrubName,
                                   herbName,
                                   elevationName,
@@ -43,7 +43,7 @@ createStaticLayersRSF <- function(elevation,
   vrug <- Cache(nameAndBringOn, ras = vrug, name = vrugName, RTM = RTM)
   
   # 1. Extract shrub and herb from LCC05: which classes are these? Don't forget naming
-  landCoverECCC <- raster::reclassify(x =  LCC, rcl = matrix(data = c(reclassLCC05[["classesLCC05"]], 
+  landCoverECCC <- raster::reclassify(x =  rstLCC, rcl = matrix(data = c(reclassLCC05[["classesLCC05"]], 
                                                                       reclassLCC05[["classesECCC"]]), 
                                                              ncol = 2, byrow = FALSE))
   Herbs <- Cache(createShrubHerbLayers, reclassLCC05 = reclassLCC05, landCoverECCC = landCoverECCC, layerName = herbName)

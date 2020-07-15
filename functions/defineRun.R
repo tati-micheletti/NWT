@@ -14,12 +14,13 @@ defineRun <- function(replicateNumber = NULL, vegetation = "LandR.CS", fire = "f
                # CS
                "gmcsDataPrep")
  
- fS <- c("fireSense_NWT_DataPrep",
+ fS <- c("fireSense_dataPrep",
+         # "fireSense_SpreadFit", # Being fitted separately
                 "fireSense_IgnitionPredict",
                 "fireSense_EscapePredict",
+                "fireSense_SpreadPredict",
                 "LBMR2LCC_DataPrep",
-                "fireSense",
-                "fireSense_SpreadPredict")
+                "fireSense")
  
  SCFM <- c("scfmLandcoverInit",
            "scfmRegime",

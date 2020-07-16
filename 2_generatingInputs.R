@@ -144,7 +144,8 @@ if (useCentroids) {
     names(firePoints) <- names(firePolys)
 } else {
     firePoints <- Cache(getFirePoints_NFDB,
-                            url = "http://cwfis.cfs.nrcan.gc.ca/downloads/nfdb/fire_pnt/current_version/NFDB_point.zip",
+                            url = paste0("http://cwfis.cfs.nrcan.gc.ca/downloads/nfdb/fire_pnt/",
+                                         "current_version/NFDB_point.zip"),
                             studyArea = studyArea,
                             rasterToMatch = rasterToMatch,
                             NFDB_pointPath = file.path(Paths$inputPath, "NFDB_point"),

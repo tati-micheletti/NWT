@@ -37,12 +37,11 @@ if (updateGithubPackages){
   devtools::install_github("PredictiveEcology/pemisc@development")
   devtools::install_github("achubaty/amc@development")
   devtools::install_github("PredictiveEcology/map@development")
-  devtools::install_github("PredictiveEcology/LandR@development")
+  devtools::install_github("PredictiveEcology/LandR@master")
   devtools::install_github("PredictiveEcology/usefulFuns@development")
   devtools::install_github("ianmseddy/LandR.CS@master")
   devtools::install_github("PredictiveEcology/fireSenseUtils@iterative")
   devtools::install_github("PredictiveEcology/SpaDES@development")
-  
 }
 
 if (updateSubmodules){

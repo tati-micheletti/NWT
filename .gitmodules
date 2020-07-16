@@ -1,15 +1,15 @@
 [submodule "modules/Biomass_regeneration"]
 	path = modules/Biomass_regeneration
 	url = git@github.com:PredictiveEcology/Biomass_regeneration.git
-  branch = master
+  	branch = master
 [submodule "modules/scfm"]
 	path = modules/scfm
 	url = git@github.com:PredictiveEcology/scfm.git
-  branch = development
+  	branch = stable
 [submodule "modules/caribouPopGrowthModel"]
 	path = modules/caribouPopGrowthModel
 	url = git@github.com:tati-micheletti/caribouPopGrowthModel.git
-  branch = master
+  	branch = master
 [submodule "modules/birdsNWT"]
 	path = modules/birdsNWT
 	url = git@github.com:tati-micheletti/birdsNWT.git
@@ -21,7 +21,7 @@
 [submodule "modules/gmcsDataPrep"]
 	path = modules/gmcsDataPrep
 	url = git@github.com:ianmseddy/gmcsDataPrep.git
-	branch = development
+	branch = master
 [submodule "modules/PSP_Clean"]
 	path = modules/PSP_Clean
 	url = git@github.com:ianmseddy/PSP_Clean.git
@@ -53,7 +53,7 @@
 [submodule "modules/fireSense_SpreadFit"]
 	path = modules/fireSense_SpreadFit
 	url = git@github.com:PredictiveEcology/fireSense_SpreadFit.git
-	branch = development
+	branch = master
 [submodule "modules/fireSense_SpreadPredict"]
 	path = modules/fireSense_SpreadPredict
 	url = git@github.com:PredictiveEcology/fireSense_SpreadPredict.git
@@ -61,14 +61,10 @@
 [submodule "modules/Biomass_core"]
 	path = modules/Biomass_core
 	url = git@github.com:PredictiveEcology/Biomass_core.git
-	branch = development
+	branch = master
 [submodule "modules/Biomass_borealDataPrep"]
 	path = modules/Biomass_borealDataPrep
 	url = git@github.com:PredictiveEcology/Biomass_borealDataPrep.git
-	branch = development
-[submodule "modules/fireSense_NWT_DataPrep"]
-	path = modules/fireSense_NWT_DataPrep
-	url = git@github.com:PredictiveEcology/fireSense_NWT_DataPrep.git
 	branch = master
 [submodule "modules/fireSense_SizePredict"]
 	path = modules/fireSense_SizePredict
@@ -77,11 +73,11 @@
 [submodule "modules/priorityPlaces"]
 	path = modules/priorityPlaces
 	url = git@github.com:PredictiveEcology/priorityPlaces.git
-	branch = reportGandC
+	branch = master
 [submodule "modules/priorityPlaces_DataPrep"]
 	path = modules/priorityPlaces_DataPrep
 	url = git@github.com:PredictiveEcology/priorityPlaces_DataPrep.git
-	branch = reportGandC
+	branch = master
 [submodule "modules/fireSense_SizeFit"]
 	path = modules/fireSense_SizeFit
 	url = git@github.com:PredictiveEcology/fireSense_SizeFit.git
@@ -89,12 +85,16 @@
 [submodule "modules/Biomass_speciesParameters"]
 	path = modules/Biomass_speciesParameters
 	url = git@github.com:PredictiveEcology/Biomass_speciesParameters.git
+	branch = master
 [submodule "modules/fireSense_dataPrep"]
 	path = modules/fireSense_dataPrep
 	url = git@github.com:tati-micheletti/fireSense_dataPrep.git
+	branch = master
 [submodule "modules/caribouCIP"]
 	path = modules/caribouCIP
 	url = git@github.com:tati-micheletti/caribouCIP.git
+	branch = master
 [submodule "modules/caribouIK"]
 	path = modules/caribouIK
 	url = git@github.com:tati-micheletti/caribouIK.git
+	branch = master

@@ -22,26 +22,40 @@ if (!exists("updateGithubPackages")) updateGithubPackages <- FALSE
 if (!exists("updateSubmodules")) updateSubmodules <- FALSE
 if (!exists("isTest")) isTest <- FALSE # runMe
 
-
 if (updateCRAN)
   update.packages(checkBuilt = TRUE, ask = FALSE)
 
 if (updateGithubPackages){
   if (pemisc::user() %in% c("emcintir", "tmichele")) Sys.setenv("R_REMOTES_UPGRADE"="never")
-  devtools::install_github("PredictiveEcology/Require@development")
-  devtools::install_github("PredictiveEcology/reproducible@development")
-  devtools::install_github("PredictiveEcology/quickPlot@development")
-  devtools::install_github("PredictiveEcology/SpaDES.addins@development")
-  devtools::install_github("PredictiveEcology/SpaDES.tools@development")
-  devtools::install_github("PredictiveEcology/SpaDES.core@development")
-  devtools::install_github("PredictiveEcology/pemisc@development")
-  devtools::install_github("achubaty/amc@development")
-  devtools::install_github("PredictiveEcology/map@development")
-  devtools::install_github("PredictiveEcology/LandR@master")
-  devtools::install_github("PredictiveEcology/usefulFuns@development")
-  devtools::install_github("ianmseddy/LandR.CS@master")
-  devtools::install_github("PredictiveEcology/fireSenseUtils@iterative")
-  devtools::install_github("PredictiveEcology/SpaDES@development")
+  Pkg <- c("PredictiveEcology/Require@master",
+           "PredictiveEcology/pemisc@development",
+              "PredictiveEcology/LandR@master",
+           ifelse(pemisc::user() %in% "tmichele", # <~~~~~~~~~~~~~~~~~~~~~~~~ HERE
+                  "tati-micheletti/usefulFuns@fileMystery",
+                  "PredictiveEcology/usefulFuns@development"),
+              "ianmseddy/LandR.CS@master",
+              "PredictiveEcology/fireSenseUtils@iterative",
+              "PredictiveEcology/SpaDES@development")
+  pkg <- lapply(Pkg, function(p){
+    capture.output(devtools::install_github(p))
+    })
+
+  if (sum(sapply(pkg, length)) != 0){
+    message(crayon::bgWhite(paste0("At least one new package was installed. ",
+                               "Restarting R. Please re-run your code")))
+    .rs.restartR()  
+  } else {
+    message(crayon::green(paste0("No new packages were installed. ",
+                                   "Your setup will continue.")))
+  }
+}
+
+library("Require")
+
+if (!exists("updateSpaDES")) updateSpaDES <- TRUE
+if (updateSpaDES){
+  Pkg <- c("reproducible", "quickPlot", "SpaDES.tools", "SpaDES.core")
+  lapply(X = Pkg, FUN = Require)
 }
 
 if (updateSubmodules){
@@ -68,9 +82,12 @@ library("fireSenseUtils")
 library("parallel")
 
 # Source all common functions
+
 source("functions/defineRun.R")
 source("functions/not_included/runNamesList.R")
 source("functions/getFirePolygons_NFDB.R")
+source("functions/getFirePoints_NFDB_V2.R")
+source("functions/makeIpsForClusters.R")
 
 if (!exists("vegetation")) vegetation <- "LandR" # Default if not provided
 if (!exists("fire")) fire <- "SCFM" # Default if not provided

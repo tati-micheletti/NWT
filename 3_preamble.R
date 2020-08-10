@@ -37,7 +37,8 @@ outputsPreamble2001 <- data.frame(objectName = c("cohortData",
 # 271 unique using ecoregion
 # 973 unique using ecodistrict
 
-biomassMaps2001 <- simInitAndSpades(times = list(start = 2001, end = 2001),
+biomassMaps2001 <- Cache(simInitAndSpades, 
+                         times = list(start = 2001, end = 2001),
                          params = parameters,
                          modules = list("Biomass_borealDataPrep"),
                          objects = objects,
@@ -49,7 +50,8 @@ biomassMaps2001 <- simInitAndSpades(times = list(start = 2001, end = 2001),
                                       "time:year2001", "version:fixedZeros"))
 # 2. Load these:
 # devtools::load_all(file.path(dirname(getwd()), "LandR"))
-speciesLayers2011 <- loadkNNSpeciesLayersValidation(dPath = Paths$inputPath,
+speciesLayers2011 <- Cache(loadkNNSpeciesLayersValidation,
+                           dPath = Paths$inputPath,
                            rasterToMatch = rasterToMatch,
                            studyArea = studyArea, 
                            sppEquiv = sppEquivalencies_CA,
@@ -75,6 +77,10 @@ outputsPreamble2011 <- data.frame(objectName = c("cohortData",
                                        "rawBiomassMap2011_borealDataPrep.rds")) # Currently not needed
 objectsPre <- objects
 objectsPre$speciesLayers <- speciesLayers2011
+
+
+#TODO Need to pass the age map from 2011! Shouldn't make a difference, though as we fix all values
+# under 15 years.
 
 # and pass as object to a second call of Biomass_borealDataPrep. Save cohortData + pixelGroupMap.
 biomassMaps2011 <- simInitAndSpades(times = list(start = 2011, end = 2011),

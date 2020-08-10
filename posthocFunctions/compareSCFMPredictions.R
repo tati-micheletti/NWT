@@ -1,10 +1,13 @@
-compareSCFMPredictions <- function(polyList, simList, scenario) {
+compareSCFMPredictions <- function(polyList, simList, scenario, colNameFireSize = "SIZE_HA") {
   out <- lapply(polyList, FUN = function(x, sim = simList) {
     regime <- sim$scfmRegimePars[[x]]
     driver <- sim$scfmDriverPars[[x]]
     landscapeAttr <- sim$landscapeAttr[[x]]
+    frpl <- sim$fireRegimePolys$PolyID
+    sim$firePoints$PolyID <- sp::over(sim$firePoints, sim$fireRegimePolys) #gives studyArea row name to point
+    sim$firePoints$PolyID <- sim$firePoints$PolyID$PolyID
     firePoints <- sim$firePoints[sim$firePoints$PolyID == x,]
-    hist_MAAB <- sum(firePoints$SIZE_HA[firePoints$SIZE_HA > landscapeAttr$cellSize])/
+    hist_MAAB <- sum(firePoints[[colNameFireSize]][firePoints[[colNameFireSize]] > landscapeAttr$cellSize])/
       (landscapeAttr$burnyArea*(sim@params$scfmRegime$fireEpoch[2] - sim@params$scfmRegime$fireEpoch[1] + 1)) * 100
     #This is a long way of saying, sum of fires/ (flammable landscape * fire epoch )
     #hist_mfs will be NaN if there were no fires larger than one pixel

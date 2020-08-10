@@ -15,7 +15,7 @@ retrieveRasters <- function(dataFolder,
                           patterns = patternsToRetrieveRasters)
       groupFiles <- lapply(X = patternsUsedForGrouping, FUN = function(eachGroup){
         filesPath <- grepMulti(x = allFiles, patterns = c(eachGroup, paste(years, collapse = "|")))
-        rastersTS <- stack(lapply(X = years, FUN = function(eachTS){
+        rastersTS <- raster::stack(lapply(X = years, FUN = function(eachTS){
           rasPath <- grepMulti(x = filesPath, patterns = eachTS)
           if (length(rasPath) == 0) 
             stop("At least one of the rasters doesn't seem to exist for the year sequence provided. Please check your data")

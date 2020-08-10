@@ -11,7 +11,7 @@ SpaDES.core::setPaths(cachePath = simulationsCache,
 if (isTest)
   SpaDES.core::setPaths(outputPath = gsub(x = Paths$outputPath, pattern = toupper(format(Sys.time(), "%d%b%y")),
                                           replacement = "Tests"))
-getPaths()
+Paths
 
 originalInputsPath <- Paths$inputPath
 
@@ -20,21 +20,25 @@ if (runLandR){
   message(crayon::red(paste0("Starting ", ifelse(runOnlySimInit, "simInit", "simulations"), 
                              " for ", definedRun$whichRUN, " ", 
                              definedRun$whichReplicate, " for ", runName)))
-  assign(x = definedRun$whichRUN, do.call(get(spadesFun), args = list(inputs = inputs, times = times,
+  t1 <- Sys.time()
+  if (!exists("Inputs"))
+    Inputs <- data.frame()
+  assign(x = definedRun$whichRUN, do.call(get(spadesFun), args = list(inputs = Inputs, 
+                                                                      times = times,
                                                                       params = parameters,
                                                                       modules = definedRun$modules,
                                                                       objects = objects,
-                                                                      paths = getPaths(),
+                                                                      paths = Paths,
                                                                       loadOrder = unlist(definedRun$modules),
                                                                       outputs = outputsLandR)))
   t2 <- Sys.time()
   message(crayon::green(paste0("Finished ", ifelse(runOnlySimInit, "simInit", "simulations")," for ", 
                                definedRun$whichRUN, ". Elapsed time: ", t2-t1)))
   if (!runOnlySimInit){
-    saveRDS(object = get(definedRun$whichRUN),
-            file = file.path(getPaths()$outputPath, paste0(definedRun$whichRUN,
-                                                           toupper(format(Sys.time(), 
-                                                                          "%d%b%y_%Hh%Mm%Ss")))))
+    qs::qsave(x = get(definedRun$whichRUN),
+              file = file.path(Paths$outputPath, paste0(definedRun$whichRUN,
+                                                        toupper(format(Sys.time(),
+                                                                       "%d%b%y_%Hh%Mm%Ss")))))
     message(crayon::magenta(paste0("Saved simulations for ", definedRun$whichRUN, ". Elapsed time: "
                                    , Sys.time()-t2)))
     rm(list = definedRun$whichRUN)
@@ -46,25 +50,37 @@ if (runLandR){
 
 if (!exists("runBirds")) runBirds <- FALSE # Default if not provided
 if (runBirds){
+  source("functions/birdPredictionCoresCalc.R")
   if (!exists("birdModelVersion")) birdModelVersion <- 6 # Default if not provided
   predictionInterval <- 20
   message(crayon::yellow(paste0("Starting simulations for BIRDS using ", definedRun$whichRUN, " ", 
                                 definedRun$whichReplicate, " for ", runName)))
   
   bMod <- ifelse(length(birdModelVersion) == 1, birdModelVersion, birdModelVersion[1])
+  
+  if (!exists("hostIp")) stop("hostIp needs to be specified!") # Default if not provided
+  hostTable <- data.table::data.table(ipEnd = c(97, 189, 213, 220, 58, 68),
+                          availableCores = c(10, rep(52, times = 5)),
+                          availableRAM = c(150, rep(470, times = 4), 920))
+
+  cores <- birdPredictionCoresCalc(ipEnd = hostIp,
+                                   availableCores = hostTable[hostIp == ipEnd, availableCores],
+                                   availableRAM = hostTable[hostIp == ipEnd, availableRAM],
+                                   sizeGbEachProcess = ifelse(bMod == 4, 3, 3),
+                                   localHostEndIp = hostIp)
   parameters <- list(
     birdsNWT = list(
-      "predictLastYear" = FALSE, # <~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~REMOVE FOR SIMULATIONS
+      "predictLastYear" = TRUE,
       "lowMem" = TRUE,
-      "scenario" = paste(replicateNumber, vegetation, fire, sep = "_"), # THIS IS THE CORRECT
+      "scenario" = paste(replicateNumber, vegetation, fire, sep = "_"),
       "useStaticPredictionsForNonForest" = TRUE,
       "useOnlyUplandsForPrediction" = TRUE,
       "baseLayer" = 2005,
       "overwritePredictions" = FALSE,
       "useTestSpeciesLayers" = FALSE, # Set it to false when you actually have results from 
-      # LandR_Biomass simulations to run it with
-      "useParallel" = FALSE, # Using parallel in windows is currently not working.
+                                      # LandR_Biomass simulations to run it with
       "predictionInterval" = predictionInterval,
+      "nCores" = "auto", # If not to parallelize, use 1
       "quickLoad" = TRUE,
       "version" = bMod, # VERSION 6 of the modules has both climate and vegetation as covariates for the model
       "RCP" = RCP,
@@ -99,7 +115,7 @@ if (runBirds){
     setPaths(inputPath = Paths$outputPath,
              outputPath = birdOutPath)
   }
-
+  
   tryCatch({
     pixelsWithDataAtInitialization <- readRDS(file.path(Paths$inputPath,
                                                         "activePixelIndex_year2011.rds"))
@@ -107,8 +123,9 @@ if (runBirds){
   error = function(e){
     stop(
       paste0(
-        "The pixelsWithDataAtInitialization.rds object was not found. Returning NULL.",
-        "This will affect bird predictions for the NWT (i.e. density will not be predicted",
+        "The activePixelIndex_year2011.rds object was not found. Is the inputs folder set correctly?",
+        "Current inputs folder: ", Paths$inputPath,
+        " This affects bird predictions for the NWT (i.e. density will not be predicted",
         "for pixels were total biomas = 0). To fix this, save the object named", 
         "'sim$activePixelIndex' in the end of Biomass_core's init i.e. add to Biomass_core's ",
         "Line 661-662: 
@@ -118,15 +135,16 @@ saveRDS(sim$activePixelIndex, file = file.path(outputPath(sim), 'pixelsWithDataA
   })
   
   objects <- c(objects, list(
-    "birdsList" = c("CAWA", "OSFL"), # [ FIX ] <~~~~~~~~~~~~~~~~~ For paper, just remove this line! 
     "uplandsRaster" = uplandsRaster,
     "climateDataFolder" = originalInputsPath,
     "pixelsWithDataAtInitialization" = pixelsWithDataAtInitialization
   ))
-  
+  for (GROUP in 1:length(cores$birdSpecies)) {
+    objects <- c(objects, list("birdsList" = cores$birdSpecies[[GROUP]]))
+    simulation <- paste0(definedRun$whichRUN, "_birdsV",
+                         parameters[["birdsNWT"]][["version"]])
   assign(
-    x = paste0(definedRun$whichRUN, "_birdsV",
-               parameters[["birdsNWT"]][["version"]]),
+    x = simulation,
     do.call(
       get(spadesFun),
       args = list(
@@ -134,33 +152,52 @@ saveRDS(sim$activePixelIndex, file = file.path(outputPath(sim), 'pixelsWithDataA
         params = parameters,
         modules = modules,
         objects = objects,
-        paths = getPaths(),
+        paths = Paths,
         loadOrder = unlist(modules),
         outputs = outputsLandR)))
+  rm(simulation)
+  } # ENd for-loop GROUPS
   
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ BIRDS MODEL 2
   
   if (length(birdModelVersion) > 1){ # Run a second bird model
     bMod <- birdModelVersion[2]
     parameters[["birdsNWT"]][["version"]] <- bMod
-    birdOutPath <- checkPath(file.path(dirname(getPaths()$outputPath), 
+    birdOutPath <- checkPath(file.path(dirname(Paths$outputPath), 
                                        paste0("birdPredictionsV", 
-                                              parameters[["birdsNWT"]][["version"]])), create = TRUE)
+                                              parameters[["birdsNWT"]][["version"]])), 
+                             create = TRUE)
     setPaths(outputPath = birdOutPath)
-    assign(x = paste0(definedRun$whichRUN, "_birdsV",
-                      parameters[["birdsNWT"]][["version"]]),
-           do.call(
-             get(spadesFun),
-             args = list(
-               times = times,
-               params = parameters,
-               modules = modules,
-               objects = objects,
-               paths = getPaths(),
-               loadOrder = unlist(modules),
-               outputs = outputsLandR
-             )
-           ))
+    
+    cores <- birdPredictionCoresCalc(ipEnd = hostIp,
+                                     availableCores = hostTable[hostIp == ipEnd, availableCores],
+                                     availableRAM = hostTable[hostIp == ipEnd, availableRAM],
+                                     sizeGbEachProcess = ifelse(bMod == 4, 3, 3),
+                                     localHostEndIp = hostIp)
+    parameters <- list(
+      birdsNWT = list(
+        "nCores" = "auto", # If not to parallelize, use 1
+      )
+    )
+    for (GROUP in 1:length(cores$birdSpecies)) {
+      objects <- c(objects, list("birdsList" = cores$birdSpecies[[GROUP]]))
+      simulation <- paste0(definedRun$whichRUN, "_birdsV",
+                           parameters[["birdsNWT"]][["version"]])
+      assign(
+        x = simulation,
+        do.call(get(spadesFun),
+               args = list(
+                 times = times,
+                 params = parameters,
+                 modules = modules,
+                 objects = objects,
+                 paths = Paths,
+                 loadOrder = unlist(modules),
+                 outputs = outputsLandR
+               )
+             ))
+      rm(simulation)
+    } # ENd for-loop GROUPS
   } # End of second bird model
 } # End of run birds
 
@@ -179,43 +216,44 @@ if (runCaribou){
     newOutputPath <- gsub(x = paths$outputPath, pattern = toupper(format(Sys.time(), "%d%b%y")), 
                           replacement = originalDateAnalysis)
     setPaths(inputPath = newInputPath,
-             outputPath = newOutputPath)
+             outputPath = file.path(newOutputPath, "caribouPredictions"))
   } else {
     if (runBirds == TRUE){ # input path is correct, independently if I ran LandR before birds
-      caribouOutPath <- checkPath(file.path(dirname(getPaths()$outputPath), "caribouPredictions"), create = TRUE)
+      caribouOutPath <- checkPath(file.path(dirname(Paths$outputPath), "caribouPredictions"), create = TRUE)
       setPaths(outputPath = caribouOutPath)
     } else { # only if I didn't run birds, only LandR
-      caribouOutPath <- checkPath(file.path(dirname(getPaths()$outputPath), "caribouPredictions"), create = TRUE)
-      setPaths(inputPath = getPaths()$outputPath,
-               outputPath = birdOutPath)
+      caribouOutPath <- checkPath(file.path(dirname(Paths$outputPath), "caribouPredictions"), create = TRUE)
+      setPaths(inputPath = Paths$outputPath,
+               outputPath = caribouOutPath)
     }
   }
   
   invisible(sapply(X = list.files(file.path(Paths$modulePath, "caribouRSF/R/"), 
                                   full.names = TRUE), FUN = source))
-  
   parameters <- list(
     caribouRSF = list(
       "decidousSp" = c("Betu_Pap", "Popu_Tre", "Popu_Bal"),
-      "predictionInterval" = 20
+      "predictionInterval" = 20,
+      plotTime = NA
     )
   )
   modules <- list("caribouRSF")
-  assign(x = paste0(definedRun$whichRUN, "_caribou"),
+  simulationBoo <- paste0(definedRun$whichRUN, "_caribou")
+  assign(x = simulationBoo,
          do.call(
            get(spadesFun),
            args = list(
-             inputs = inputs,
              times = times,
              params = parameters,
              modules = modules,
              objects = objects,
-             paths = getPaths(),
+             paths = Paths,
              loadOrder = unlist(modules),
              outputs = outputsLandR,
              debug = 1
            )
          ))
+  rm(simulationBoo)
 }
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

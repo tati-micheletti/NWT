@@ -121,7 +121,17 @@ firePolys <- Cache(lapply, firePolys, function(x) {
   x <- x[!duplicated(x$NFIREID), ]
 })
 
-if (!exists("useCentroids")) useCentroids <- TRUE # Default if not provided
+if (!exists("useCentroids")){
+  if (fire == "SCFM"){
+    useCentroids <- FALSE    
+  } else {
+    if (fire == "fS"){
+      useCentroids <- TRUE    
+    } else {
+     stop("Fire model has not been specified.") 
+    }
+  }
+} 
 if (useCentroids) {
     message("... preparing polyCentroids")
     yr <- min(fireYears)
@@ -143,17 +153,21 @@ if (useCentroids) {
                         ) # "cacheId:a6f02820c0ff9fa6"
     names(firePoints) <- names(firePolys)
 } else {
-    firePoints <- Cache(getFirePoints_NFDB,
+  NFDBPath <- checkPath(file.path(Paths$inputPath, "NFDB_pointFolder"), create = TRUE)
+  if (!file.exists(file.path(NFDBPath, "CHECKSUMS.txt"))){
+    Checksums(NFDBPath)
+  }
+    firePoints <- Cache(getFirePoints_NFDB_V2,
                             url = paste0("http://cwfis.cfs.nrcan.gc.ca/downloads/nfdb/fire_pnt/",
                                          "current_version/NFDB_point.zip"),
                             studyArea = studyArea,
                             rasterToMatch = rasterToMatch,
-                            NFDB_pointPath = file.path(Paths$inputPath, "NFDB_point"),
-                            years = fireYears,
-                            userTags = c("what:firePoints", 
-                                         "forWhat:fireSense_SpreadFit"))
-    crs(firePoints) <- crs(rasterToMatch)
-    names(firePoints) <- names(firePolys)
+                            NFDB_pointPath = NFDBPath,
+                        years = fireYears,
+                        userTags = c("what:firePoints",
+                        "forWhat:SCFM"),
+                        omitArgs = c("useCache", "purge")
+                        )
   }
   
 studyAreaPSP <- Cache(prepInputs, url = runNamesList()[RunName == runName, studyAreaPSP],
@@ -219,8 +233,12 @@ Edehzhie <- Cache(prepInputs, targetFile = "Edehzhie.shp",
                                "step:prepEdehzhie"))
 Edehzhie$Name <- Edehzhie$NAME_1
 
+listSACaribou <- list(caribouArea1, caribouArea2, Edehzhie)
+names(listSACaribou) <- c("caribouArea1", "caribouArea2", "Edehzhie")
+
 if (!exists("climateModel")) climateModel <- "CCSM4_85" # Default if not provided
-if (!climateModel %in% c("CCSM4_85", "CCSM4_45")) stop("Other climate scenarios are still not implemented.")
+if (!climateModel %in% c("CCSM4_85", "CCSM4_45")) 
+  stop("Other climate scenarios are still not implemented.")
 
 # TODO Still need to implement this for other provinces. Also need to implement other models! 
 # These have been done ONLY with NWT shapefile, I believe!
@@ -229,7 +247,8 @@ RCP <- ifelse(climateModel == "CCSM4_85", "85", "45")
 climateModelType = ifelse(climateModel == "CCSM4_85", "CCSM4", "CanESM2")# CanESM2 is NOT implemented yet. Here just figurative
 ensemble <- ifelse(climateModel == "CCSM4_85", "", "r11i1p1")
 climateResolution <- "3ArcMin" # Only available for now, matches the created layers for all modules
-climateFilePath <- ifelse(climateModel == "CCSM4_85", "https://drive.google.com/open?id=17idhQ_g43vGUQfT-n2gLVvlp0X9vo-R8", 
+climateFilePath <- ifelse(climateModel == "CCSM4_85", 
+                          "https://drive.google.com/open?id=17idhQ_g43vGUQfT-n2gLVvlp0X9vo-R8", 
                           "https://drive.google.com/open?id=1U0TuYNMC75sQCkZs7c4EcBRLcjqeVO6N")
 
 # Equivalency table for tree species
@@ -254,7 +273,7 @@ mixed <- structure("#D0FB84", names = "Mixed")
 sppColorVect[length(sppColorVect)+1] <- mixed
 attributes(sppColorVect)$names[length(sppColorVect)] <- "Mixed"
 
-times <- list(start = 2011, end = 2022)
+times <- list(start = 2011, end = 2100)
 
 #SCFM
 defaultInterval <- 1.0
@@ -276,34 +295,8 @@ lower <- c(0.22, 0.001, lowerParams)
 upper <- c(0.29, 10, upperParams)
 
 # Setting up IP's for paralelizing
-makeIps <- function(machines, ipStart = "10.20.0.", N = NP) {
-  if (sum(machines$availableCores) < NP) stop("Not enough cores")
-  ipsEnd <- rep(machines$ipEnd, 
-                pmax(machines$availableCores, 
-                     ceiling(machines$availableCores/(sum(machines$availableCores)/N))))
-  ips <- paste0(ipStart, ipsEnd)
-  i <- 0
-  while(length(ips) > N) {
-    i <- i + 1
-    i <- (i - 1) %% NROW(machines) + 1
-    j <- i+1
-    ips <- ips[-which(endsWith(ips, suffix = as.character(machines$ipEnd[i])))[1]]  
-  }
-  sort(ips)
-}
-machines <- data.frame(
-  ipEnd =          c(97, 216, 189, 187, 68, 174, 220, 213, 217, 58),
-  #maximumCores = rep( 9,   9,   9,   9, 15,   9,  14,  12,  10,  6),
-  availableCores = c( 8,   8,   9,   9, 16,   9,   8,   9,   7,  7)
-  # availableCores = c( 9,   7,   9,   9, 14,   9,   9,   8,   7,  8)
-)
-
-NP <- length(lower) * 10
-cores <- makeIps(machines, N = NP)
-cores[grep("68", cores)] <- "localhost"
-
-(table(cores))
-(length(cores))
+  cores <- makeIpsForClusters(module = "fireSense",
+                              availableCores = c(9,   9,   9,   9,  19,   9,   9,   9,   8))
 
 # TODO For the other areas I will need to reparameterize these.
 # I should put these in a table file somehow...
@@ -350,7 +343,9 @@ parameters <- list(
     ".plotInterval" = defaultPlotInterval,
     ".saveInitialTime" = defaultInitialSaveTime,
     ".saveInterval" = defaultInterval),
-  scfmRegime = list(fireCause = "L"),
+  scfmRegime = list(
+    "fireCause" = "L",
+    "fireEpoch" = c(1970, 2017)),
   scfmDriver = list(
     targetN = 1000),
   # LandR_Biomass
@@ -425,7 +420,7 @@ parameters <- list(
     "climateFilePath" = climateFilePath
   ),
   fireSense_SpreadFit = list(
-    "formula" = formula(~ 0 + weather + class1 + class2 + class3 + class4 + class5), # Formula of the statistical model
+    "formula_fire" = formula(~ 0 + weather + class1 + class2 + class3 + class4 + class5), # Formula of the statistical model
     "fireAttributesFireSense_SpreadFit" = "fireAttributesFireSense_SpreadFit", # Default
     "data" = c("weather", "class1", "class2", "class3", "class4", "class5"),
     # Here are the bounds for: 5 parameters for log fun + n parameters for the model (i.e. n terms of a formula)
@@ -476,7 +471,8 @@ if (length(usefulFuns::grepMulti(x = definedRun$modules, "Biomass_core")) != 0){
                                         "fireSense_EscapePredicted", "burnSummary", 
                                         "successionLayers", "activePixelIndex"), 
                                       each = 3),
-                     saveTime = rep(c(times$start, round((times$start + times$end)/2, 0), times$end), 
+                     saveTime = rep(c(times$start, round((times$start + times$end)/2, 0), 
+                                      times$end), 
                                     times = 1))
 } else {
   clim <- NULL
@@ -510,7 +506,8 @@ objects <- list(
   "Edehzhie" = Edehzhie,
   "roadDensity" = roadDensity,
   "firePolys" = firePolys,
-  "firePoints" = firePoints # ??? Giving me a hard time to generate. Don't need it now, just for predictions
+  "firePoints" = firePoints,
+  "listSACaribou" = listSACaribou
 )
 
 data.table::setDTthreads(2) # Data.table has all threads by default, 

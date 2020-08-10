@@ -15,6 +15,7 @@ getPaths()
 
 if (!exists("fitTheseFireSenseModels")) fitTheseFireSenseModels <- NULL # ignition, escape, spread
 
+if (is.null(fitTheseFireSenseModels)){ ### CODE BELOW NEEDS REVISION!
 ##################################### Ignition
 
 if (is(runNamesList()[RunName == runName, fireSenseIgnitionFitted], "character")){
@@ -146,14 +147,17 @@ if (is(runNamesList()[RunName == runName, fireSenseSpreadFitted], "character")){
   }
 
 ##################################### LOAD FIRE INPUTS
-  
-  inputs <- data.frame(
+} # End of is.null(fitTheseFireSenseModels)
+
+  Inputs <- data.frame(
     files = c(file.path(Paths$inputPath, "fireSense_IgnitionFitted_year2011.rds"),
               file.path(Paths$inputPath, "fireSense_EscapeFitted_year2011.rds"),
               file.path(Paths$inputPath, "fireSense_SpreadFitted_year2011.rds")),
     functions = "base::readRDS",
     stringsAsFactors = FALSE
   )
+  message("Following Inputs Loaded:")
+  print(Inputs)
 
   # Update other objects for fireSense
   objects <- c(objects, list(

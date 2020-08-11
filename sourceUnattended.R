@@ -1,8 +1,3 @@
-vegetation <- "LandR.CS"
-fire <- "fS"
-RUN <- "1"
-hostIp <- "68"
-
 usrEmail <- "tati.micheletti@gmail.com" # Your e.mail for GDrive authorization
 updateCRAN <- FALSE
 updateGithubPackages <- FALSE

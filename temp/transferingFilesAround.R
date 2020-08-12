@@ -21,3 +21,5 @@
 # rsync -rvh /home/tmichele/projects/NWT/cache/simulations/NWT_BCR6/cache.db tmichele@10.20.0.220:/home/tmichele/projects/NWT/cache/simulations/NWT_BCR6/cache.db
 # rsync -rvh /home/tmichele/projects/NWT/cache/simulations/NWT_BCR6/cacheOutputs/f4dd314df0ad40fe.qs tmichele@10.20.0.220:/home/tmichele/projects/NWT/cache/simulations/NWT_BCR6/cacheOutputs/f4dd314df0ad40fe.qs
 
+# rsync -rvh /home/tmichele/projects/NWT/inputs/NWT_BCR6/fireSense_SpreadFitted_year2011.rds tmichele@10.20.0.213:/home/tmichele/projects/NWT/inputs/NWT_BCR6/fireSense_SpreadFitted_year2011.rds
+

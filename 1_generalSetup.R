@@ -52,7 +52,7 @@ if (updateGithubPackages){
 
 library("Require")
 
-if (!exists("updateSpaDES")) updateSpaDES <- TRUE
+if (!exists("updateSpaDES")) updateSpaDES <- FALSE
 if (updateSpaDES){
   Pkg <- c("reproducible", "quickPlot", "SpaDES.tools", "SpaDES.core")
   lapply(X = Pkg, FUN = Require)

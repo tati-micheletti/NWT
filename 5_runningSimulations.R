@@ -60,8 +60,8 @@ if (runBirds){
   
   if (!exists("hostIp")) stop("hostIp needs to be specified!") # Default if not provided
   hostTable <- data.table::data.table(ipEnd = c(97, 189, 213, 220, 58, 68),
-                          availableCores = c(10, rep(52, times = 5)),
-                          availableRAM = c(150, rep(470, times = 4), 920))
+                          availableCores = rep(52, times = 6),
+                          availableRAM = c(rep(470, times = 5), 920))
 
   cores <- birdPredictionCoresCalc(ipEnd = hostIp,
                                    availableCores = hostTable[hostIp == ipEnd, availableCores],

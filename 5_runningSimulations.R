@@ -66,7 +66,7 @@ if (runBirds){
   cores <- birdPredictionCoresCalc(ipEnd = hostIp,
                                    availableCores = hostTable[hostIp == ipEnd, availableCores],
                                    availableRAM = hostTable[hostIp == ipEnd, availableRAM],
-                                   sizeGbEachProcess = ifelse(bMod == 4, 10, 10),
+                                   sizeGbEachProcess = ifelse(bMod == 4, 5, 10),
                                    localHostEndIp = hostIp)
   parameters <- list(
     birdsNWT = list(
@@ -172,7 +172,7 @@ saveRDS(sim$activePixelIndex, file = file.path(outputPath(sim), 'pixelsWithDataA
     cores <- birdPredictionCoresCalc(ipEnd = hostIp,
                                      availableCores = hostTable[hostIp == ipEnd, availableCores],
                                      availableRAM = hostTable[hostIp == ipEnd, availableRAM],
-                                     sizeGbEachProcess = ifelse(bMod == 4, 3, 3),
+                                     sizeGbEachProcess = ifelse(bMod == 4, 5, 10),
                                      localHostEndIp = hostIp)
     parameters <- list(
       birdsNWT = list(

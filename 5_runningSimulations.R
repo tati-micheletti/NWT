@@ -66,7 +66,7 @@ if (runBirds){
   cores <- birdPredictionCoresCalc(ipEnd = hostIp,
                                    availableCores = hostTable[hostIp == ipEnd, availableCores],
                                    availableRAM = hostTable[hostIp == ipEnd, availableRAM],
-                                   sizeGbEachProcess = ifelse(bMod == 4, 20, 20),
+                                   sizeGbEachProcess = ifelse(bMod == 4, 10, 10),
                                    localHostEndIp = hostIp)
   parameters <- list(
     birdsNWT = list(

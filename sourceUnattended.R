@@ -12,7 +12,7 @@ replicateNumber <- paste0("run", RUN)
 Sys.sleep(1)
 runLandR <- TRUE
 runBirds <- TRUE
-runCaribou <- TRUE
+runCaribou <- FALSE
 birdModelVersion <- c(4, 6)
 Sys.sleep(3)
 source("1_generalSetup.R")

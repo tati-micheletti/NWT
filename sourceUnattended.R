@@ -10,7 +10,8 @@ runName <- "NWT_BCR6"
 Sys.sleep(1)
 replicateNumber <- paste0("run", RUN)
 Sys.sleep(1)
-runLandR <- TRUE
+originalDateAnalysis <- "11AUG20" # <~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+runLandR <- FALSE # <~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 runBirds <- TRUE
 runCaribou <- FALSE
 birdModelVersion <- c(4, 6)
@@ -22,5 +23,3 @@ if (all(runLandR, fire != "SCFM")){
   source("4_fittingModules.R")
 }
 source("5_runningSimulations.R")
-Sys.sleep(60)
-q(save = "no")

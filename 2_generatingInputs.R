@@ -47,8 +47,12 @@ watersRaster <- Cache(prepInputs, url = runNamesList()[RunName == runName, water
                       # cacheId = "b097c68ef07d6978",
                       userTags = c("objectName:watersRaster", stepCacheTag, "outFun:Cache"),
                       omitArgs = c("destinationPath", "filename2"))
-
 watersVals <- raster::getValues(watersRaster) # Uplands = 3, Water = 1, Wetlands = 2, so 2 and 3 to NA
+
+# Fix missing 1's in Mackenzie River + Slave Lake
+rtmVals <- getValues(rasterToMatch)
+watersVals[is.na(watersVals) & rtmVals == 1] <- 1
+#####
 watersValsToChange <- watersVals 
 watersValsToChange[!is.na(watersValsToChange) & watersValsToChange != 1] <- NA
 waterRaster <- raster::setValues(x = watersRaster, watersValsToChange)

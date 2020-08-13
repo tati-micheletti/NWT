@@ -176,7 +176,7 @@ saveRDS(sim$activePixelIndex, file = file.path(outputPath(sim), 'pixelsWithDataA
                                      localHostEndIp = hostIp)
     parameters <- list(
       birdsNWT = list(
-        "nCores" = "auto", # If not to parallelize, use 1
+        "nCores" = "auto" # If not to parallelize, use 1
       )
     )
     for (GROUP in 1:length(cores$birdSpecies)) {

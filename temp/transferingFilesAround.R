@@ -23,3 +23,4 @@
 
 # rsync -rvh /home/tmichele/projects/NWT/inputs/NWT_BCR6/fireSense_SpreadFitted_year2011.rds tmichele@10.20.0.213:/home/tmichele/projects/NWT/inputs/NWT_BCR6/fireSense_SpreadFitted_year2011.rds
 
+# rsync -rvh /home/tmichele/projects/NWT/outputs/24JUL20/LandR.CS_fS/run8/ tmichele@10.20.0.213:/home/tmichele/projects/NWT/outputs/12AUG20/LandR.CS_fS/run8/

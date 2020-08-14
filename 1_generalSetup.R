@@ -136,7 +136,7 @@ maxMemory <- 5e+12
 scratchDir <- file.path("~/scratch")
 raster::rasterOptions(default = TRUE)
 options(rasterMaxMemory = maxMemory, rasterTmpDir = scratchDir)
-if(dir.create(scratchDir)) system(paste0("sudo chmod -R 777 ", scratchDir), wait = TRUE) 
+if(dir.create(scratchDir)) system(paste0("chmod -R 777 ", scratchDir), wait = TRUE) 
 rasterOptions(default = TRUE)
 options(rasterMaxMemory = maxMemory, 
         rasterTmpDir = scratchDir)

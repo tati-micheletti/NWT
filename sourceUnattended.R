@@ -10,7 +10,7 @@ runName <- "NWT_BCR6"
 Sys.sleep(1)
 replicateNumber <- paste0("run", RUN)
 Sys.sleep(1)
-originalDateAnalysis <- "11AUG20" # <~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+originalDateAnalysis <- "14AUG20" # <~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 runLandR <- FALSE # <~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 runBirds <- TRUE
 runCaribou <- FALSE

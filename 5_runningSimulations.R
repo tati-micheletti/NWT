@@ -91,7 +91,6 @@ if (runBirds){
                                       # LandR_Biomass simulations to run it with
       "predictionInterval" = predictionInterval,
       "nCores" = "auto", # If not to parallelize, use 1
-      "quickLoad" = TRUE,
       "version" = bMod, # VERSION 6 of the modules has both climate and vegetation as covariates for the model
       "RCP" = RCP,
       "climateModel" = climateModelType,

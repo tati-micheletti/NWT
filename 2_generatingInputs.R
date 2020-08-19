@@ -312,6 +312,9 @@ parameters <- list(
     "sppEquivCol"  = sppEquivCol,
     "GAMMiterations" = 2, 
     "GAMMknots" = list( # This needs to be put into a table of sorts for the specific region. So all species.
+      # "Pinu_Con" = 4,
+      # "Abie_Bal" = 4,
+      # "Popu_Bal" = 4,
       "Betu_Pap" = 3,
       "Lari_Lar" = 4,
       "Pice_Gla" = 3,
@@ -320,6 +323,9 @@ parameters <- list(
       "Popu_Tre" = 4),
     "minimumPlotsPerGamm" = 40,
     "constrainMortalityShape" = list(
+      # "Pinu_Con" = c(15,25),
+      # "Abie_Bal" = c(15,25),
+      # "Popu_Bal" = c(15,25),
       "Betu_Pap" = c(15,25),
       "Lari_Lar" = c(20,25),
       "Pice_Gla" = c(15,25),
@@ -328,6 +334,9 @@ parameters <- list(
       "Popu_Tre" = c(15,25)
     ),
     "quantileAgeSubset" = list(
+      # "Pinu_Con" = 97,
+      # "Abie_Bal" = 95,
+      # "Popu_Bal" = 95,
       "Betu_Pap" = 95,
       "Lari_Lar" = 95,
       "Pice_Gla" = 95,

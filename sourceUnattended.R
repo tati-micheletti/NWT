@@ -14,7 +14,7 @@ originalDateAnalysis <- "14AUG20" # <~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 runLandR <- FALSE # <~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 runBirds <- TRUE
 runCaribou <- FALSE
-birdModelVersion <- 4
+birdModelVersion <- "6a"
 Sys.sleep(3)
 source("1_generalSetup.R")
 source("2_generatingInputs.R")

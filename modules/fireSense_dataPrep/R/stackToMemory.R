@@ -1,7 +1,7 @@
 # pull to memory
 stackToMemory <- function (x, ...){
-  r <- stack(x, ...)
-  r <- setValues(r, getValues(r))
+  r <- raster::stack(x, ...)
+  r <- raster::setValues(r, raster::getValues(r))
   return(r)
 }
 

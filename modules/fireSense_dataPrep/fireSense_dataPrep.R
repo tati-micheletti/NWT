@@ -15,7 +15,8 @@ defineModule(sim, list(
   citation = list("citation.bib"),
   documentation = deparse(list("README.txt", "fireSense_dataPrep.Rmd")),
   reqdPkgs = list("raster", 
-                  "PredictiveEcology/LandR@development"),
+                  "PredictiveEcology/LandR@development",
+                  "tati-micheletti/usefulFuns@fileMystery"), # <~~~~~~~~~~~~~~~~~~~~~~~~ HERE
   parameters = rbind(
     defineParameter(".plotInitialTime", "numeric", NA, NA, NA,
                     "Describes the simulation time at which the first plot event should occur."),
@@ -294,12 +295,24 @@ doEvent.fireSense_dataPrep = function(sim, eventTime, eventType) {
         }
       }
       if (prepClimLays){
-        sim$MDC06 <- usefulFuns::prepareClimateLayers(authEmail = sim$usrEmail,
-                                                      pathInputs = inputPath(sim), 
+        sim$MDC06 <- prepareClimateLayersWithBackup(authEmail = sim$usrEmail,
+                                                      pathInputs = file.path(inputPath(sim), 
+                                                                             paste(P(sim)$climateModel, 
+                                                                                   paste0("RCP", 
+                                                                                          P(sim)$RCP), 
+                                                                                   sep = "_")), 
                                                       studyArea = sim$studyArea,
                                                       rasterToMatch = sim$rasterToMatch, 
                                                       years = time(sim),
-                                                      variables = "fireSense", model = "fireSense",
+                                                      variables = "fireSense", 
+                                                      model = "fireSense",
+                                                      backupFolder = file.path(inputPath(sim), 
+                                                                               paste(P(sim)$climateModel, 
+                                                                                     paste0("RCP", 
+                                                                                            P(sim)$RCP), 
+                                                                                     sep = "_"),
+                                                                               "backup"), 
+                                                      # <~~~~~~~~~~~~~~~~~~~~~ ADDED 
                                                       returnCalculatedLayersForFireSense = TRUE,
                                                       RCP = P(sim)$RCP,
                                                       climateModel = P(sim)$climateModel,
@@ -400,20 +413,21 @@ doEvent.fireSense_dataPrep = function(sim, eventTime, eventType) {
     },
     prepSpreadPredictData = {
     currentCohortData  <- copy(sim$cohortData)
-    sim$dataFireSense_SpreadPredict <- raster::stack(classifyCohortsFireSenseSpread(
-                                                            cohortData = currentCohortData,
-                                                           year = time(sim),
-                                                           pixelGroupMap = sim$pixelGroupMap,
-                                                           flammable = sim$flammableRTM))
+    classCohorts <- classifyCohortsFireSenseSpread(cohortData = currentCohortData,
+                                                   year = time(sim),
+                                                   pixelGroupMap = sim$pixelGroupMap,
+                                                   flammable = sim$flammableRTM)
+    sim$dataFireSense_SpreadPredict <- raster::stack(classCohorts)
     # We need to: 
     # 1) Add zeros to where we don't have proportions (currently NA)
-    sim$dataFireSense_SpreadPredict <- stack(lapply(names(sim$dataFireSense_SpreadPredict), 
+    spreadPredDataNames <- names(sim$dataFireSense_SpreadPredict)
+    sim$dataFireSense_SpreadPredict <- lapply(spreadPredDataNames, 
                                                     function(rasName){
       ras <- sim$dataFireSense_SpreadPredict[[rasName]]
       ras[rasterToMatch[] == 1 & is.na(ras[])] <- 0 
       return(ras)
     })
-    )
+    sim$dataFireSense_SpreadPredict <- raster::stack(sim$dataFireSense_SpreadPredict)
     # 2) Assert that all proportions sum to 1
     summedRas <- sum(sim$dataFireSense_SpreadPredict)
     tb <- table(summedRas[])
@@ -432,12 +446,20 @@ doEvent.fireSense_dataPrep = function(sim, eventTime, eventType) {
         }
       }
       if (prepClimLays){
-        sim$MDC06 <- usefulFuns::prepareClimateLayers(authEmail = sim$usrEmail,
+        sim$MDC06 <- prepareClimateLayersWithBackup(authEmail = sim$usrEmail,
                                           pathInputs = inputPath(sim), 
                                           studyArea = sim$studyArea,
                                           rasterToMatch = sim$rasterToMatch, 
                                           years = time(sim),
-                                          variables = "fireSense", model = "fireSense",
+                                          variables = "fireSense", 
+                                          model = "fireSense",
+                                          backupFolder = file.path(inputPath(sim), 
+                                                                   paste(P(sim)$climateModel, 
+                                                                         paste0("RCP", 
+                                                                                P(sim)$RCP), 
+                                                                         sep = "_"),
+                                                                   "backup"), 
+                                          # <~~~~~~~~~~~~~~~~~~~~~ ADDED 
                                           returnCalculatedLayersForFireSense = TRUE,
                                           RCP = P(sim)$RCP,
                                           climateModel = P(sim)$climateModel,
@@ -451,7 +473,7 @@ doEvent.fireSense_dataPrep = function(sim, eventTime, eventType) {
       # MDC06 is weather!
       MDC06 <- sim$MDC06 # Need a local MDC as it needs to be called weather for spread
       names(MDC06) <- "weather"
-      sim$dataFireSense_SpreadPredict <- stack(sim$dataFireSense_SpreadPredict, MDC06)
+      sim$dataFireSense_SpreadPredict <- raster::stack(sim$dataFireSense_SpreadPredict, MDC06)
       
       # Reschedule data prep
       sim <- scheduleEvent(sim, time(sim) + 1, "fireSense_dataPrep", "prepSpreadPredictData")

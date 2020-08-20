@@ -12,7 +12,7 @@ calculateMDC <- function(pathInputs, doughtMonths = 4:9, years,
       return(raster::stack(fileName))
     } else {
       filesToLoad <- paste0(variables, ".asc")
-      variablesStack <- stack(lapply(X = filesToLoad, FUN = function(variable){
+      variablesStack <- raster::stack(lapply(X = filesToLoad, FUN = function(variable){
         ras <- raster(x = file.path(pathInputs, paste0("Year_", y, "M"), variable))
         crs(ras) <- '+init=epsg:4326 +proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs +towgs84=0,0,0'
         if (any(!is.null(rasterToMatch), !is.null(studyArea)))
@@ -81,7 +81,7 @@ calculateMDC <- function(pathInputs, doughtMonths = 4:9, years,
       names(variablesStack) <- paste0("MDC_", y)
       dType <- assessDataType(variablesStack)
       writeRaster(variablesStack, filename = fileName, datatype = dType, overwrite = TRUE)
-      variablesStack <- stack(fileName)
+      variablesStack <- raster::stack(fileName)
       return(raster::stack(fileName))
     }
 })

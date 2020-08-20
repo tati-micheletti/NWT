@@ -21,6 +21,9 @@
 # rsync -rvh /home/tmichele/projects/NWT/cache/simulations/NWT_BCR6/cache.db tmichele@10.20.0.220:/home/tmichele/projects/NWT/cache/simulations/NWT_BCR6/cache.db
 # rsync -rvh /home/tmichele/projects/NWT/cache/simulations/NWT_BCR6/cacheOutputs/f4dd314df0ad40fe.qs tmichele@10.20.0.220:/home/tmichele/projects/NWT/cache/simulations/NWT_BCR6/cacheOutputs/f4dd314df0ad40fe.qs
 
-# rsync -rvh /home/tmichele/projects/NWT/inputs/NWT_BCR6/fireSense_SpreadFitted_year2011.rds tmichele@10.20.0.213:/home/tmichele/projects/NWT/inputs/NWT_BCR6/fireSense_SpreadFitted_year2011.rds
+# rsync -rvh /home/tmichele/projects/NWT/outputs/14AUG20/LandR.CS_fS/run4/ tmichele@10.20.0.97:/home/tmichele/projects/NWT/outputs/14AUG20/LandR.CS_fS/run4/
 
-# rsync -rvh /home/tmichele/projects/NWT/outputs/24JUL20/LandR.CS_fS/run8/ tmichele@10.20.0.213:/home/tmichele/projects/NWT/outputs/12AUG20/LandR.CS_fS/run8/
+# rsync -rvh /home/tmichele/projects/NWT/modules/birdsNWT/data/models/*brt6a.R tmichele@10.20.0.213:/home/tmichele/projects/NWT/modules/birdsNWT/data/models/
+# rsync -rvh /home/tmichele/projects/NWT/modules/birdsNWT/data/models/*brt6a.R tmichele@10.20.0.220:/home/tmichele/projects/NWT/modules/birdsNWT/data/models/
+# rsync -rvh /home/tmichele/projects/NWT/modules/birdsNWT/data/models/*brt6a.R tmichele@10.20.0.189:/home/tmichele/projects/NWT/modules/birdsNWT/data/models/
+# rsync -rvh /home/tmichele/projects/NWT/modules/birdsNWT/data/models/*brt6a.R tmichele@10.20.0.97:/home/tmichele/projects/NWT/modules/birdsNWT/data/models/

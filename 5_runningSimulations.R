@@ -144,7 +144,7 @@ saveRDS(sim$activePixelIndex, file = file.path(outputPath(sim), 'pixelsWithDataA
   
   objects <- c(objects, list(
     "uplandsRaster" = uplandsRaster,
-    "climateDataFolder" = originalInputsPath,
+    "climateDataFolder" = file.path(originalInputsPath, climateModel),
     "pixelsWithDataAtInitialization" = pixelsWithDataAtInitialization
   ))
   for (GROUP in 1:length(cores$birdSpecies)) {

@@ -26,7 +26,9 @@ defineModule(sim, list(
     defineParameter("totalBiomassOverstoryProp", "logical", FALSE, NA, NA, paste0("Should be overwritten?")),
     defineParameter("overwriteForestAge", "logical", FALSE, NA, NA, paste0("Should be overwritten?")),
     defineParameter("overwriteBurnSumm", "logical", FALSE, NA, NA, paste0("Should be overwritten?")),
-    defineParameter("futurePlan", "character", "multiprocess", NA, NA, paste0("Which plan should be used for parallelize?"))
+    defineParameter("futurePlan", "character", "multiprocess", NA, NA, 
+                    paste0("Which plan should be used for parallelize?")),
+    defineParameter("sppEquivCol", "character", "KNN", NA, NA, paste0("Column of sppEquivalencies_CA to be used"))
     ),
   inputObjects = bind_rows(
     expectsInput(objectName = "resultsFolders", objectClass = "list", 
@@ -34,7 +36,11 @@ defineModule(sim, list(
                                " (i.e. `folders[['LandR.CS_fS']] = file.path(getwd(),'outputs/DATE/LandR.CS_fS')`)",
                                " Pass as a vector of locations for running the functions in more than one location, as it",
                                " lapplies through it internally. The names should be the type of simulation ran"), 
-                 sourceURL = NA)
+                 sourceURL = NA),
+    expectsInput(objectName = "sppEquivalencies_CA", objectClass = "data.table", 
+                 desc = paste0("Equivalencies table with all species names. Defaults to LandR::sppEquivalencies_CA")),
+    expectsInput(objectName = "sppColorVect", objectClass = "character", 
+                 desc = paste0("Named color vector"))
   ),
   outputObjects = bind_rows(
     createsOutput(objectName = "LeadingVegetationType", objectClass = "", desc = NA),
@@ -67,30 +73,78 @@ doEvent.posthocLandR = function(sim, eventTime, eventType) {
       sim <- scheduleEvent(sim, start(sim), "posthocLandR", "createPlots")
     },
     createPlots = {
-      sim$allPlots <- lapply(names(sim$resultsFolders), function(typeSim){  # [ FIX ] still need to make use of the overwrite! # future.apply::future_lapply
-        sim$LeadingVegetationType[[typeSim]] <- plotLeadingVegetationType(dataPath = sim$resultsFolders[[typeSim]], typeSim = typeSim, saveRAS = P(sim)$saveRAS,
-                                                                          overwrite = P(sim)$overwriteLeadingMap)
-        sim$vegetationBiomassMap[[typeSim]] <- plotVegetationBiomass(dataPath = sim$resultsFolders[[typeSim]], typeSim = typeSim,
-                                                                     saveRAS = P(sim)$saveRAS, years = c(P(sim)$years[1], P(sim)$years[length(P(sim)$years)]),
-                                                                     overwrite = P(sim)$overwriteBiomassMap)
-        sim$biomassPerSpeciesPlot[[typeSim]] <- totalBiomassPerSpecies(dataPath = sim$resultsFolders[[typeSim]], typeSim = typeSim, 
-                                                                       proportional = FALSE, overstory = FALSE,
-                                                                       overwrite = P(sim)$totalBiomass)
-        sim$biomassPerSpeciesProportionalPlot[[typeSim]] <- totalBiomassPerSpecies(dataPath = sim$resultsFolders[[typeSim]], typeSim = typeSim, 
-                                                                                   proportional = TRUE, overstory = FALSE,
-                                                                                   overwrite = P(sim)$totalBiomassProp)
-        sim$overstoryBiomassPerSpeciesPlot[[typeSim]] <- totalBiomassPerSpecies(dataPath = sim$resultsFolders[[typeSim]], typeSim = typeSim, 
-                                                                                proportional = FALSE, overstory = TRUE,
-                                                                                overwrite = P(sim)$totalBiomassOverstory)
-        sim$overstoryBiomassPerSpeciesProportionalPlot[[typeSim]] <- totalBiomassPerSpecies(dataPath = sim$resultsFolders[[typeSim]], typeSim = typeSim, 
-                                                                                            proportional = TRUE, overstory = TRUE,
-                                                                                            overwrite = P(sim)$totalBiomassOverstoryProp)
-        sim$forestAgePlot[[typeSim]] <- forestAgePlot(dataPath = sim$resultsFolders[[typeSim]], typeSim = typeSim, 
-                                                      addCaribousuitability = P(sim)$addCaribousuitability, 
-                                                      overwrite = P(sim)$overwriteForestAge)
+      sim$allPlots <- future.apply::future_lapply(names(sim$resultsFolders), function(typeSim){  
+        # [ FIX ] still need to make use of the overwrite! # 
+        sim$LeadingVegetationType[[typeSim]] <- plotLeadingVegetationType(
+          dataPath = sim$resultsFolders[[typeSim]], 
+          typeSim = typeSim, 
+          saveRAS = P(sim)$saveRAS,
+          overwrite = P(sim)$overwriteLeadingMap,
+          sppColorVect = P(sim)$sppColorVect,
+          sppEquivalencies_CA = sim$sppEquivalencies_CA,
+          sppColorVect = sim$sppColorVect)
+        
+        sim$vegetationBiomassMap[[typeSim]] <- plotVegetationBiomass(
+          dataPath = sim$resultsFolders[[typeSim]], 
+          typeSim = typeSim,
+          saveRAS = P(sim)$saveRAS, 
+          years = c(P(sim)$years[1], 
+                    P(sim)$years[length(P(sim)$years)]),
+          overwrite = P(sim)$overwriteBiomassMap)
+        
+        sim$biomassPerSpeciesPlot[[typeSim]] <- totalBiomassPerSpecies(
+          dataPath = sim$resultsFolders[[typeSim]], 
+          typeSim = typeSim, 
+          proportional = FALSE, 
+          overstory = FALSE,
+          overwrite = P(sim)$totalBiomass,
+          sppColorVect = P(sim)$sppColorVect,
+          sppEquivalencies_CA = sim$sppEquivalencies_CA,
+          sppColorVect = sim$sppColorVect)
+        
+        sim$biomassPerSpeciesProportionalPlot[[typeSim]] <- totalBiomassPerSpecies(
+          dataPath = sim$resultsFolders[[typeSim]], 
+          typeSim = typeSim, 
+          proportional = TRUE, 
+          overstory = FALSE,
+          overwrite = P(sim)$totalBiomassProp,
+          sppColorVect = P(sim)$sppColorVect,
+          sppEquivalencies_CA = sim$sppEquivalencies_CA,
+          sppColorVect = sim$sppColorVect)
+        
+        sim$overstoryBiomassPerSpeciesPlot[[typeSim]] <- totalBiomassPerSpecies(
+          dataPath = sim$resultsFolders[[typeSim]], 
+          typeSim = typeSim, 
+          proportional = FALSE, 
+          overstory = TRUE,
+          overwrite = P(sim)$totalBiomassOverstory,
+          sppColorVect = P(sim)$sppColorVect,
+          sppEquivalencies_CA = sim$sppEquivalencies_CA,
+          sppColorVect = sim$sppColorVect)
+        
+        sim$overstoryBiomassPerSpeciesProportionalPlot[[typeSim]] <- totalBiomassPerSpecies(
+          dataPath = sim$resultsFolders[[typeSim]], 
+          typeSim = typeSim, 
+          proportional = TRUE, 
+          overstory = TRUE,
+          overwrite = P(sim)$totalBiomassOverstoryProp,
+          sppColorVect = P(sim)$sppColorVect,
+          sppEquivalencies_CA = sim$sppEquivalencies_CA,
+          sppColorVect = sim$sppColorVect)
+        
+        sim$forestAgePlot[[typeSim]] <- forestAgePlot(
+          dataPath = sim$resultsFolders[[typeSim]], 
+          typeSim = typeSim, 
+          addCaribousuitability = P(sim)$addCaribousuitability,
+          overwrite = P(sim)$overwriteForestAge)
+        
         if (P(sim)$plotFireStats)
-          sim$burnSummary[[typeSim]] <- plotBurnSummary(sim$resultsFolders[[typeSim]], typeSim = typeSim, lastYear = P(sim)$years[length(P(sim)$years)], 
-                                                        overwrite = P(sim)$overwriteBurnSumm) # theObject = LandR.CS_fS$burnSummary # if we have the object
+          sim$burnSummary[[typeSim]] <- plotBurnSummary(
+            sim$resultsFolders[[typeSim]], 
+            typeSim = typeSim, 
+            lastYear = P(sim)$years[length(P(sim)$years)],
+            overwrite = P(sim)$overwriteBurnSumm) 
+        # theObject = LandR.CS_fS$burnSummary # if we have the object
         
         allPlotsScenario <- list(LeadingVegetationType = sim$LeadingVegetationType[[typeSim]],
                                  vegetationBiomassMap = sim$vegetationBiomassMap[[typeSim]],
@@ -115,6 +169,14 @@ doEvent.posthocLandR = function(sim, eventTime, eventType) {
   if (!suppliedElsewhere(resultsFolders, "sim")){
     stop("Need to supply 'resultsFolders' that contains the .rds files saved from a run")
   }
-
+  
+  if (!suppliedElsewhere(sppEquivalencies_CA, "sim")){
+  sim$sppEquivalencies_CA <- LandR::sppEquivalencies_CA 
+  }
+  
+  if (!suppliedElsewhere(sppColorVect, "sim")){
+    sim$sppColorVect <- colors()[sample(x = 1:length(colors()), size = length(unique(LandR::sppEquivalencies_CA$KNN)), replace = FALSE)]
+    names(sim$sppColorVect) <- unique(LandR::sppEquivalencies_CA[,P(sim)$sppEquivCol])[[1]]
+  }
   return(invisible(sim))
 }

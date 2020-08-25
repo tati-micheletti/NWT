@@ -12,8 +12,8 @@ Makes posthoc plots for diagnosis of LandR
 
 ```{r module_usage}
 
-RUN <- "1"
-hostIp <- "68"
+RUN <- "2"
+hostIp <- "189"
 vegetation<-"LandR.CS"
 fire<-"fS"
 usrEmail <- "tati.micheletti@gmail.com" # Your e.mail for GDrive authorization
@@ -21,19 +21,9 @@ updateCRAN <- FALSE
 updateGithubPackages <- FALSE
 updateSubmodules <- FALSE
 isTest <- FALSE # runMe
-Sys.sleep(1)
-runOnlySimInit <- FALSE # TRUE to run experiment, FALSE to run simulations individually
-onlyLoadDEOptim <- TRUE
 runName <- "NWT_BCR6"
 Sys.sleep(1)
-replicateNumber <- paste0("run", RUN)
-Sys.sleep(1)
 originalDateAnalysis <- "14AUG20" # <~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-runLandR <- FALSE # <~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-runBirds <- FALSE
-runCaribou <- FALSE
-runPosthoc <- TRUE
-birdModelVersion <- "6a"
 Sys.sleep(3)
 source("1_generalSetup.R")
 source("2_generatingInputs.R")
@@ -54,10 +44,10 @@ modules <- list("posthocLandR")
 
 objects <- list(
   resultsFolders = list(
-    LandR.CS_fS_run1 = file.path(getwd(), originalDateAnalysis, "LandR.CS_fS/run1"),
     LandR.CS_fS_run2 = file.path(getwd(), originalDateAnalysis, "LandR.CS_fS/run2"),
-    LandR_SCFM_run1 = file.path(getwd(), originalDateAnalysis, "LandR_SCFM/run1"),
-    LandR_SCFM_run2 = file.path(getwd(), originalDateAnalysis, "LandR_SCFM/run2")
+    LandR.CS_fS_run7 = file.path(getwd(), originalDateAnalysis, "LandR.CS_fS/run7"),
+    LandR_SCFM_run2 = file.path(getwd(), originalDateAnalysis, "LandR_SCFM/run2"),
+    LandR_SCFM_run9 = file.path(getwd(), originalDateAnalysis, "LandR_SCFM/run9")
   ),
   sppColorVect = sppColorVect,
   sppEquivalencies_CA = sppEquivalencies_CA

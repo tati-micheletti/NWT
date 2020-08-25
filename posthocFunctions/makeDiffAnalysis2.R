@@ -58,7 +58,9 @@ makeDiffAnalysis2 <- function(resultsFolder = file.path(getwd(), "outputs/06DEC1
     })
   }))
   # 3 birds x 4 years x 3 runs x 8 scenarios = 288 rasters
+  # --> For paper: 64 birds x 6 years x 10 runs x 2 scenarios = 7,680 rasters
   # 1 caribou x 3 years x 3 runs x 4 scenarios = 36 rasters
+  # --> For paper: 1 caribou x 6 years x 10 runs x 2 scenarios = 120 rasters
   # Name the raster list
   allRastersNames <- unlist(lapply(allRasters, FUN = names))
   names(allRasters) <- allRastersNames

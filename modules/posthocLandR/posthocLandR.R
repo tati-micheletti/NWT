@@ -80,7 +80,7 @@ doEvent.posthocLandR = function(sim, eventTime, eventType) {
           typeSim = typeSim, 
           saveRAS = P(sim)$saveRAS,
           overwrite = P(sim)$overwriteLeadingMap,
-          sppColorVect = P(sim)$sppColorVect,
+          sppEquivCol = P(sim)$sppEquivCol,
           sppEquivalencies_CA = sim$sppEquivalencies_CA,
           sppColorVect = sim$sppColorVect)
         
@@ -98,7 +98,7 @@ doEvent.posthocLandR = function(sim, eventTime, eventType) {
           proportional = FALSE, 
           overstory = FALSE,
           overwrite = P(sim)$totalBiomass,
-          sppColorVect = P(sim)$sppColorVect,
+          sppEquivCol = P(sim)$sppEquivCol,
           sppEquivalencies_CA = sim$sppEquivalencies_CA,
           sppColorVect = sim$sppColorVect)
         
@@ -108,7 +108,7 @@ doEvent.posthocLandR = function(sim, eventTime, eventType) {
           proportional = TRUE, 
           overstory = FALSE,
           overwrite = P(sim)$totalBiomassProp,
-          sppColorVect = P(sim)$sppColorVect,
+          sppEquivCol = P(sim)$sppEquivCol,
           sppEquivalencies_CA = sim$sppEquivalencies_CA,
           sppColorVect = sim$sppColorVect)
         
@@ -118,7 +118,7 @@ doEvent.posthocLandR = function(sim, eventTime, eventType) {
           proportional = FALSE, 
           overstory = TRUE,
           overwrite = P(sim)$totalBiomassOverstory,
-          sppColorVect = P(sim)$sppColorVect,
+          sppEquivCol = P(sim)$sppEquivCol,
           sppEquivalencies_CA = sim$sppEquivalencies_CA,
           sppColorVect = sim$sppColorVect)
         
@@ -128,7 +128,7 @@ doEvent.posthocLandR = function(sim, eventTime, eventType) {
           proportional = TRUE, 
           overstory = TRUE,
           overwrite = P(sim)$totalBiomassOverstoryProp,
-          sppColorVect = P(sim)$sppColorVect,
+          sppEquivCol = P(sim)$sppEquivCol,
           sppEquivalencies_CA = sim$sppEquivalencies_CA,
           sppColorVect = sim$sppColorVect)
         

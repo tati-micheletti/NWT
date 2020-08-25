@@ -11,38 +11,62 @@ Makes posthoc plots for diagnosis of LandR
 # Usage
 
 ```{r module_usage}
-library("SpaDES")
-library("future")
-library("future.apply")
-plan("multiprocess")
-library("usefulFuns")
 
+RUN <- "1"
+hostIp <- "68"
+vegetation<-"LandR.CS"
+fire<-"fS"
+usrEmail <- "tati.micheletti@gmail.com" # Your e.mail for GDrive authorization
+updateCRAN <- FALSE
+updateGithubPackages <- FALSE
+updateSubmodules <- FALSE
+isTest <- FALSE # runMe
+Sys.sleep(1)
+runOnlySimInit <- FALSE # TRUE to run experiment, FALSE to run simulations individually
+onlyLoadDEOptim <- TRUE
+runName <- "NWT_BCR6"
+Sys.sleep(1)
+replicateNumber <- paste0("run", RUN)
+Sys.sleep(1)
+originalDateAnalysis <- "14AUG20" # <~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+runLandR <- FALSE # <~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+runBirds <- FALSE
+runCaribou <- FALSE
+runPosthoc <- TRUE
+birdModelVersion <- "6a"
+Sys.sleep(3)
+source("1_generalSetup.R")
+source("2_generatingInputs.R")
 
 times <- list(start = 1, end = 1)
-
-Run <- "run1"
 
 parameters <- list(
   posthocLandR = list(
     "years" = c(seq(2011, 2091, by = 10), 2100),
     "saveRAS" = TRUE,
-    "overwriteLeadingMap" = FALSE,
-    "overwriteBiomassMap" = TRUE,
     "addCaribousuitability" = TRUE,
     "plotFireStats" = TRUE,
-    "overwriteBurnSumm" = FALSE
+    "overwriteBurnSumm" = FALSE,
+    "sppEquivCol" = runName
     )
 )
 modules <- list("posthocLandR")
+
 objects <- list(
   resultsFolders = list(
-        LandR.CS_fS = Paths$outputPath
-  )
+    LandR.CS_fS_run1 = file.path(getwd(), originalDateAnalysis, "LandR.CS_fS/run1"),
+    LandR.CS_fS_run2 = file.path(getwd(), originalDateAnalysis, "LandR.CS_fS/run2"),
+    LandR_SCFM_run1 = file.path(getwd(), originalDateAnalysis, "LandR_SCFM/run1"),
+    LandR_SCFM_run2 = file.path(getwd(), originalDateAnalysis, "LandR_SCFM/run2")
+  ),
+  sppColorVect = sppColorVect,
+  sppEquivalencies_CA = sppEquivalencies_CA
 )
 inputs <- list()
 outputs <- list()
 
-posthocResultsLandR <- simInitAndSpades(times = times, params = parameters, 
+posthocResultsLandR <- simInitAndSpades(times = times, 
+                                        params = parameters, 
                                         modules = modules,
                                         objects = objects, debug = 1)
 

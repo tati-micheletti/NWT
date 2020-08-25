@@ -17,6 +17,10 @@ if (all(pemisc::user() %in% c("Tati", "tmichele"),
   message(crayon::red(paste0("Your current working directory is ", getwd(), 
                  ". Please make sure it is correct!"), 
           immediate. = TRUE))
+
+# Cleanup from previous runs
+system(paste0("find ", getwd()," -empty -type d -delete"))
+
 if (!exists("updateCRAN")) updateCRAN <- FALSE
 if (!exists("updateGithubPackages")) updateGithubPackages <- FALSE
 if (!exists("updateSubmodules")) updateSubmodules <- FALSE

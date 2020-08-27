@@ -86,10 +86,6 @@
 	path = modules/Biomass_speciesParameters
 	url = git@github.com:PredictiveEcology/Biomass_speciesParameters.git
 	branch = master
-[submodule "modules/fireSense_dataPrep"]
-	path = modules/fireSense_dataPrep
-	url = git@github.com:tati-micheletti/fireSense_dataPrep.git
-	branch = master
 [submodule "modules/caribouCIP"]
 	path = modules/caribouCIP
 	url = git@github.com:tati-micheletti/caribouCIP.git

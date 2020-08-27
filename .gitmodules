@@ -94,3 +94,7 @@
 	path = modules/caribouIK
 	url = git@github.com:tati-micheletti/caribouIK.git
 	branch = master
+[submodule "modules/fireSense_dataPrep"]
+	path = modules/fireSense_dataPrep
+	url = git@github.com:PredictiveEcology/fireSense_dataPrep.git
+	branch = master

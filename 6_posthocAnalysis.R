@@ -1,24 +1,91 @@
-library(SpaDES)
-library(reproducible)
-library(data.table)
-library(usefulFuns)
-library(future)
-library(future.apply)
-googledrive::drive_auth("tati.micheletti@gmail.com")
-resultsFolder <- file.path(getwd(), "outputs/14AUG20")
-# BIRDS
-# comparisons <- list(climate = c("V4", "V6a"),
-#                     vegetation = c("LandR_", "LandR.CS_"),
-#                     fire = c("fS", "SCFM"))
-comparisons <- list(climateChange = c("LandR_SCFM", "LandR.CS_fS")) # Not sure this works...
+#########################################################
+##                  P O S T H O C                      ##
+#########################################################
+
+stepCacheTag <- c(paste0("cache:6_posthocAnalysis"), 
+                  paste0("runName:", runName))
+
+SpaDES.core::setPaths(cachePath = posthocCache,
+                      outputPath = checkPath(file.path(getwd(), "outputs",
+                                                       "posthoc"),
+                                             create = TRUE))
+
+#########################################################
+##                    B I R D S                        ##
+#########################################################
+
+if (runPosthocBirds){
+  if (!exists("originalDateAnalysis")) originalDateAnalysis <- "14AUG20" # Default if not provided
+  
+  comparisons <- list(climateChange = 
+                        c("LandR_SCFM", 
+                          "LandR.CS_fS")) # Not sure this works...
+  if (!exists("birdModelVersion")) birdModelVersion <- c("4", "6a") # Default if not provided
+  
+}
+# Need to pass all down to the module. I only need :
+# pathToResults ("14AUG20")
+# names of the folders I want to compare (LandR.CS_fS, LandR_SCFM)
+# Bird models (V4, V6a)
+# 
+# The module should know I have the following structure
+#
+#originalDateAnalysis _____ LandR.CS_fS_____run1_____ birdPredictionsV4 ___ run1_LandR.CS_fSpredictedBIRDYear2011.tif
+#                   |              |           |                       |    (...)
+#                   |              |           |                       |____ run1_LandR.CS_fSpredictedBIRDYear2100.tif
+#                   |              |           | 
+#                   |              |           |_____ birdPredictionsV6a ____ run1_LandR.CS_fSpredictedBIRDYear2011.tif
+#                   |              |                                    |    (...)
+#                   |              |                                    |____ run1_LandR.CS_fSpredictedBIRDYear2100.tif
+#                   |              |  
+#                   |              |      (...)
+#                   |              |
+#                   |              |_____ run10 _____ birdPredictionsV4  ____ run1_LandR.CS_fSpredictedBIRDYear2011.tif
+#                   |                          |                        |    (...)
+#                   |                          |                        |____ run1_LandR.CS_fSpredictedBIRDYear2100.tif
+#                   |                          |
+#                   |                          |_____ birdPredictionsV6a ____ run1_LandR.CS_fSpredictedBIRDYear2011.tif
+#                   |                                                  |    (...)
+#                   |                                                  |____ run1_LandR.CS_fSpredictedBIRDYear2100.tif
+#                   |
+#                   |__ LandR_SCFM _____ run1  _____ birdPredictionsV4  ____ run1_LandR.CS_fSpredictedBIRDYear2011.tif
+#                                 |           |                        |    (...)
+#                                 |           |                        |____ run1_LandR.CS_fSpredictedBIRDYear2100.tif
+#                                 |           |
+#                                 |           |_____ birdPredictionsV6a ____ run1_LandR.CS_fSpredictedBIRDYear2011.tif
+#                                 |                                    |    (...)
+#                                 |                                    |____ run1_LandR.CS_fSpredictedBIRDYear2100.tif
+
+
+if (!exists("compat")) pathToBirdModelsCC <- "LandR.CS_fS/run1/birdPredictionsV6a" # Default 
+if (!exists("pathToBirdModelsNoCC")) pathToBirdModelsNoCC <- "LandR_SCFM/run1/birdPredictionsV4" # Default 
+if (!exists("pathToResults")) pathToResults <- file.path(getwd(), "outputs", 
+                                                                   originalDateAnalysis) # Default
+
+
 Species <- unique(sort(substrBoth(strng = substrBoth(strng = tools::file_path_sans_ext(
-  grepMulti(x = basename2(list.files(file.path(resultsFolder,
-                                               "LandR.CS_fS/run1/birdPredictionsV6a"))),
+  grepMulti(x = basename2(list.files(file.path(pathToResults,
+                                               pathToBirdModelsCC))),
             patterns = "predicted")),
   howManyCharacters = 12,
   fromEnd = TRUE),
   howManyCharacters = 4,
   fromEnd = FALSE)))
+
+######### ASSERTION #########
+
+SpeciesNoClim <- unique(sort(substrBoth(strng = substrBoth(strng = tools::file_path_sans_ext(
+  grepMulti(x = basename2(list.files(file.path(pathToResults,
+                                               pathToBirdModelsNoCC))),
+            patterns = "predicted")),
+  howManyCharacters = 12,
+  fromEnd = TRUE),
+  howManyCharacters = 4,
+  fromEnd = FALSE)))
+
+testthat::expect_true(Species %in% SpeciesNoClim)
+
+#############################
 
 source('/mnt/data/Micheletti/NWT/posthocFunctions/makeDiffAnalysis2.R')
 plts <- future_lapply(seq_along(comparisons), function(index){ #future_
@@ -65,47 +132,6 @@ plt <- makeAveragePlotTime(dataFolder = pth,
                            scenarios = scenarios, 
                            shp = shp)
 
-# CARIBOU
-comparisons <- list(vegetation = c("LandR_", "LandR.CS_"),
-                    fire = c("fS", "SCFM"))
-source('/mnt/data/Micheletti/NWT/posthocFunctions/makeDiffAnalysis2.R')
-plts <- lapply(seq_along(comparisons), function(index){ #future_
-  pl <- makeDiffAnalysis2(resultsFolder = file.path(getwd(), "outputs/PAPER"),
-                          Run = c("run1", "run2", "run3", "run4", "run5"),
-                          typeOfSpecies = "caribou",
-                          Species = "caribou",
-                          Year = c(seq(2011, 2091, by = 20), 2100),
-                          comparisons = comparisons[index], 
-                          writeRas = TRUE,
-                          overwrite = TRUE)
-})
-source(file.path(getwd(), '/posthocFunctions/makeAveragePlotTime.R'))
-pth <- file.path(getwd(), "outputs/PAPER/effectsRasters/")
-scenarios <- c("fire", "vegetation")
-shp <- prepInputs(url = "https://drive.google.com/open?id=1Vqny_ZMoksAjji4upnr3OiJl2laGeBGV", 
-                  destinationPath = pth, 
-                  filename2 = "caribouArea2")
-plt <- makeAveragePlotTime(dataFolder = pth, 
-                           years = c(seq(2011, 2091, by = 20), 2100),
-                           Species = "caribou",
-                           scenarios = scenarios, shp = shp)
-
-pal <- RColorBrewer::brewer.pal(7, name = "Set3")
-plot(shp, col = pal)
-legend("right",   # location of legend
-       legend = shp@data$OBJECTID, # categories or elements to render in the legend
-       fill = pal) # color palette to use to fill objects in legend.
-title("Polygons in the BCR6 NWT")
-
-library(SpaDES)
-pth <- checkPath(file.path(getwd(), "outputs/PAPER/"))
-runs <- paste0("run", seq(1, 5))
-CC <- c("LandR.CS_fS", "V6")
-noCC <- c("LandR_SCFM", "V4")
-yearToCompare <- 2100
-
-library(raster)
-
 # BIRDS!!
 listOfRasters <- lapply(runs, function(RUN){
   listOfRasterPaths <- list(CAWA = stack(raster(file.path(pth, paste0(noCC[1], "/", RUN, "/birdPredictions", noCC[2], "/", #Path
@@ -144,38 +170,3 @@ createCumEffRasters(species = c("CAWA", "OSFL", "RUBL"),
                     rasFolder = "/mnt/data/Micheletti/NWT/outputs/PAPER/effectsRasters",
                     googlefolderID = "1ymCZq7cPfXB2hA6rDpRd6J3lYkioQJxZ")
 
-# CARIBOU!!
-CC <- c("LandR.CS_fS")
-noCC <- c("LandR_SCFM")
-
-listOfRasters <- lapply(runs, function(RUN){
-  listOfRasterPaths <- list(caribou = stack(raster(file.path(pth, paste0(noCC, "/", RUN, "/caribouPredictions"), #Path
-                                                             paste0("relativeSelectionTaigaPlains_Year", yearToCompare,".tif"))), #filename
-                                            raster(file.path(pth, paste0(CC, "/", RUN, "/caribouPredictions"), #Path
-                                                             paste0("relativeSelectionTaigaPlains_Year", yearToCompare,".tif")))))
-  listOfRasterPaths <- lapply(listOfRasterPaths, function(ras){
-    names(ras) <- c(paste0("caribou_", noCC), paste0("caribou_", CC))
-    return(ras)
-  })
-  names(listOfRasterPaths) <- c("caribou")
-  return(listOfRasterPaths)
-})
-names(listOfRasters) <- paste0("cumulativeEffect_", runs)
-
-foldID <- as.list(c(rep("1Oz_DFqhOeIOl-nXEVGfYAssE68iCg40R", times = 5)))
-names(foldID) <- paste0("cumulativeEffect_", runs)
-
-source('/mnt/data/Micheletti/NWT/modules/rastersPosthoc/R/makeDeltaRasters.R')
-dRas <- makeDeltaRasters(listOfRasters = listOfRasters,
-                         relativeDelta = FALSE,
-                         outputFolder = file.path(pth, "effectsRasters"),
-                         lightLoad = TRUE,
-                         overwrite = FALSE,
-                         upload = TRUE,
-                         folderID = foldID,
-                         email = "tati.micheletti@gmail.com")
-
-source('/mnt/data/Micheletti/NWT/posthocFunctions/createCumEffRasters.R')
-createCumEffRasters(species = c("caribou"),
-                    rasFolder = "/mnt/data/Micheletti/NWT/outputs/PAPER/effectsRasters",
-                    googlefolderID = "1Oz_DFqhOeIOl-nXEVGfYAssE68iCg40R")

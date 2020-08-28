@@ -126,9 +126,10 @@ if (isTest)
                            replacement = "Tests")
 
 inputsCache <- checkPath(file.path(generalCacheFolder, "inputs", runName), create = TRUE)
-preambleCache <- checkPath(file.path(generalCacheFolder, "preamble", runName), create = TRUE)          
+preambleCache <- checkPath(file.path(generalCacheFolder, "preamble", runName), create = TRUE)        
 fittingCache <- checkPath(file.path(generalCacheFolder, "fitting", runName), create = TRUE)
 simulationsCache <- checkPath(file.path(generalCacheFolder, "simulations", runName), create = TRUE)
+posthocCache <- checkPath(file.path(generalCacheFolder, "posthoc", runName), create = TRUE)
 
 SpaDES.core::setPaths(modulePath = paths$modulePath, 
                       inputPath = paths$inputPath, 

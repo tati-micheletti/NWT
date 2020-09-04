@@ -23,7 +23,7 @@ if (runLandR){
   t1 <- Sys.time()
   if (!exists("Inputs"))
     Inputs <- data.frame()
-  assign(x = definedRun$whichRUN, do.call(get(spadesFun), args = list(inputs = Inputs, 
+  assign(x = definedRun$whichRUN, do.call(get(spadesFun), args = alist(inputs = Inputs, 
                                                                       times = times,
                                                                       params = parameters,
                                                                       modules = definedRun$modules,
@@ -155,7 +155,7 @@ saveRDS(sim$activePixelIndex, file = file.path(outputPath(sim), 'pixelsWithDataA
     x = simulation,
     do.call(
       get(spadesFun),
-      args = list(
+      args = alist(
         times = times,
         params = parameters,
         modules = modules,
@@ -203,7 +203,7 @@ saveRDS(sim$activePixelIndex, file = file.path(outputPath(sim), 'pixelsWithDataA
       assign(
         x = simulation,
         do.call(get(spadesFun),
-               args = list(
+               args = alist(
                  times = times,
                  params = parameters,
                  modules = modules,
@@ -259,7 +259,7 @@ if (runCaribou){
   assign(x = simulationBoo,
          do.call(
            get(spadesFun),
-           args = list(
+           args = alist(
              times = times,
              params = parameters,
              modules = modules,

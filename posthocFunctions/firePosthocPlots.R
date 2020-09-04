@@ -1,9 +1,9 @@
 firePosthocPlots <- function(df = df){
-  reproducible::Require("ggplot2")
+  
   
   breaks = seq(from = min(df$pSpread), to = max(df$pSpread), length.out = 6)
   
-  meanFireSize <- ggplot(df, aes(x = prdMeanSize, y = modMeanSize, color = pSpread)) +
+  meanFireSize <- ggplot2::ggplot(df, aes(x = prdMeanSize, y = modMeanSize, color = pSpread)) +
     geom_point(aes(prdMeanSize, modMeanSize)) + 
     scale_color_gradient(low = "blue", high = "red")+
     labs(y = "predicted size", x = "empirical size") +

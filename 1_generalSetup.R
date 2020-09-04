@@ -92,6 +92,7 @@ source("functions/not_included/runNamesList.R")
 source("functions/getFirePolygons_NFDB.R")
 source("functions/getFirePoints_NFDB_V2.R")
 source("functions/makeIpsForClusters.R")
+source("functions/getBirdPredictedRasters.R")
 
 if (!exists("vegetation")) vegetation <- "LandR" # Default if not provided
 if (!exists("fire")) fire <- "SCFM" # Default if not provided
@@ -172,6 +173,7 @@ opts <- options(
   "reproducible.showSimilar" = TRUE,
   "reproducible.useCloud" = FALSE,
   "spades.moduleCodeChecks" = FALSE, # Turn off all module's code checking
-  "spades.useRequire" = TRUE, # assuming all pkgs installed correctly
+  "spades.useRequire" = FALSE, # assuming all pkgs installed correctly # CHANGED on 31AUG20 
+  # --> Eliot is working on it. Its returning an error: Error: invalid version specification ‘	3.3-13’
   "pemisc.useParallel" = TRUE
 )

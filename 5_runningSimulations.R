@@ -51,7 +51,7 @@ if (runLandR){
 if (!exists("runBirds")) runBirds <- FALSE # Default if not provided
 if (runBirds){
   source("functions/birdPredictionCoresCalc.R")
-  if (!exists("birdModelVersion")) birdModelVersion <- 6 # Default if not provided
+  if (!exists("birdModelVersion")) birdModelVersion <- c("4", "6a") # Default if not provided
   predictionInterval <- 20
   message(crayon::yellow(paste0("Starting simulations for BIRDS using ", definedRun$whichRUN, " ", 
                                 definedRun$whichReplicate, " for ", runName)))

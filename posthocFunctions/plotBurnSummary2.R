@@ -9,7 +9,8 @@ plotBurnSummary2 <- function(dataPath,
     message("Plot exist and overwrite is FALSE. Returning plot path")
     return(fileName)
   }
-  
+  # Convert this to take more than 1 run!! dataPath would be where the runs of a typeSim 
+  # (LandR.CS_fS for example) is.
   
   parSetup <- par()
   invisible(on.exit(par(parSetup)))
@@ -25,7 +26,8 @@ plotBurnSummary2 <- function(dataPath,
   areaB <- burnSumm[, sumAB := sum(areaBurned), by = year]
   areaB <- data.table(year = areaB$year, val = areaB$sumAB, var = "area_burned")
   areaB <- unique(areaB)
-  areaB <- areaB[, val := val/1000] # Doing this so I can plot the axis with mostly the same limits. Needs to be informed in the captions!!
+  areaB <- areaB[, val := val/1000] # Doing this so I can plot the axis with mostly the same limits. 
+  #Needs to be informed in the captions!!
   # Could eventually implement something as: https://fishandwhistle.net/post/2018/modifying-facet-scales-in-ggplot2/
   
   tend <-lm(val ~ year, data = areaB)
@@ -63,8 +65,8 @@ plotBurnSummary2 <- function(dataPath,
   names(replacementNames) <- c("area_burned", "number_fires")
   
   dt <- rbind(areaB, nFires)
-  library("ggplot2")
-  p1 <- ggplot(data = dt[var == "area_burned",], aes(x = year, y = val)) +
+
+  p1 <- ggplot2::ggplot(data = dt[var == "area_burned",], aes(x = year, y = val)) +
     geom_point() +
     stat_smooth(method = "lm", color = "darkred", fill = "red") +
     facet_grid(var ~ ., labeller = labeller(var = replacementNames)) +
@@ -87,7 +89,7 @@ plotBurnSummary2 <- function(dataPath,
     ylab(label = "no. of fires")
   
   p <- gridExtra::grid.arrange(p1, p2, ncol=1,
-                               top = grid::textGrob(typeSim, gp = gpar(fontsize = 12)))
+                               top = grid::textGrob(typeSim, gp = grid::gpar(fontsize = 12)))
   
   ggsave(fileName, plot = p, dpi = 600)
   

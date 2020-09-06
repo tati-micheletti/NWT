@@ -191,11 +191,7 @@ saveRDS(sim$activePixelIndex, file = file.path(outputPath(sim), 'pixelsWithDataA
                                      availableRAM = hostTable[hostIp == ipEnd, availableRAM],
                                      sizeGbEachProcess = ifelse(bMod == 4, 5, 7),
                                      localHostEndIp = hostIp)
-    parameters <- list(
-      birdsNWT = list(
-        "nCores" = "auto" # If not to parallelize, use 1
-      )
-    )
+
     for (GROUP in 1:length(cores$birdSpecies)) {
       objects <- c(objects, list("birdsList" = cores$birdSpecies[[GROUP]]))
       simulation <- paste0(definedRun$whichRUN, "_birdsV",

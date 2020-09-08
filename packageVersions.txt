@@ -181,7 +181,7 @@
 "rematch2","/home/tmichele/R/x86_64-pc-linux-gnu-library/4.0","2.1.2",NA,NA,NA,NA
 "remotes","/home/tmichele/R/x86_64-pc-linux-gnu-library/4.0","2.1.1",NA,NA,NA,NA
 "reproducible","/home/tmichele/R/x86_64-pc-linux-gnu-library/4.0","1.2.1.9000","reproducible","PredictiveEcology","development","e8e1a726c3ae6ceae9233dc51195d5e51d1c7211"
-"Require","/home/tmichele/R/x86_64-pc-linux-gnu-library/4.0","0.0.8.9004","Require","PredictiveEcology","development","0dd2cd9061a5d59dbf159852a04803ddce5b060d"
+"Require","/home/tmichele/R/x86_64-pc-linux-gnu-library/4.0","0.0.8.9024","Require","PredictiveEcology","development","d76c2f64edb4e84e7ac6e5061fdf22fec50c7f64"
 "reshape2","/home/tmichele/R/x86_64-pc-linux-gnu-library/4.0","1.4.4",NA,NA,NA,NA
 "rex","/home/tmichele/R/x86_64-pc-linux-gnu-library/4.0","1.2.0",NA,NA,NA,NA
 "rgdal","/home/tmichele/R/x86_64-pc-linux-gnu-library/4.0","1.5-12",NA,NA,NA,NA
@@ -205,7 +205,7 @@
 "sp","/home/tmichele/R/x86_64-pc-linux-gnu-library/4.0","1.4-2",NA,NA,NA,NA
 "SpaDES","/home/tmichele/R/x86_64-pc-linux-gnu-library/4.0","2.0.5","SpaDES","PredictiveEcology","development","c2285635306804fc394b8da92c6cace004f1a798"
 "SpaDES.addins","/home/tmichele/R/x86_64-pc-linux-gnu-library/4.0","0.1.2","SpaDES.addins","PredictiveEcology","development","de8a9d6b348cc77f3637da6749e2887a4b5c9521"
-"SpaDES.core","/home/tmichele/R/x86_64-pc-linux-gnu-library/4.0","1.0.1",NA,NA,NA,NA
+"SpaDES.core","/home/tmichele/R/x86_64-pc-linux-gnu-library/4.0","1.0.2",NA,NA,NA,NA
 "SpaDES.experiment","/home/tmichele/R/x86_64-pc-linux-gnu-library/4.0","0.0.2.9000","SpaDES.experiment","PredictiveEcology","development","2b8e49b3362ad50e2cd977e69ff12fbb3be6618f"
 "SpaDES.tools","/home/tmichele/R/x86_64-pc-linux-gnu-library/4.0","0.3.6",NA,NA,NA,NA
 "spelling","/home/tmichele/R/x86_64-pc-linux-gnu-library/4.0","2.1",NA,NA,NA,NA
@@ -219,6 +219,7 @@
 "sysfonts","/home/tmichele/R/x86_64-pc-linux-gnu-library/4.0","0.8.1",NA,NA,NA,NA
 "testthat","/home/tmichele/R/x86_64-pc-linux-gnu-library/4.0","2.3.2",NA,NA,NA,NA
 "tibble","/home/tmichele/R/x86_64-pc-linux-gnu-library/4.0","3.0.3",NA,NA,NA,NA
+"tictoc","/home/tmichele/R/x86_64-pc-linux-gnu-library/4.0","1.0",NA,NA,NA,NA
 "tidyr","/home/tmichele/R/x86_64-pc-linux-gnu-library/4.0","1.1.0",NA,NA,NA,NA
 "tidyselect","/home/tmichele/R/x86_64-pc-linux-gnu-library/4.0","1.1.0",NA,NA,NA,NA
 "tiler","/home/tmichele/R/x86_64-pc-linux-gnu-library/4.0","0.2.4",NA,NA,NA,NA
@@ -228,7 +229,7 @@
 "TMB","/home/tmichele/R/x86_64-pc-linux-gnu-library/4.0","1.7.16",NA,NA,NA,NA
 "trust","/home/tmichele/R/x86_64-pc-linux-gnu-library/4.0","0.1-8",NA,NA,NA,NA
 "units","/home/tmichele/R/x86_64-pc-linux-gnu-library/4.0","0.6-7",NA,NA,NA,NA
-"usefulFuns","/home/tmichele/R/x86_64-pc-linux-gnu-library/4.0","0.1.0","usefulFuns","tati-micheletti","fileMystery","3bea6af03ba572af7a86ae30a4c0e8a11eb13345"
+"usefulFuns","/home/tmichele/R/x86_64-pc-linux-gnu-library/4.0","0.1.0","usefulFuns","tati-micheletti","fileMystery","a0dcfd232ebbe7ddf8ef2c1cb82196e2f271ef04"
 "usethis","/home/tmichele/R/x86_64-pc-linux-gnu-library/4.0","1.6.1",NA,NA,NA,NA
 "utf8","/home/tmichele/R/x86_64-pc-linux-gnu-library/4.0","1.1.4",NA,NA,NA,NA
 "uuid","/home/tmichele/R/x86_64-pc-linux-gnu-library/4.0","0.1-4",NA,NA,NA,NA

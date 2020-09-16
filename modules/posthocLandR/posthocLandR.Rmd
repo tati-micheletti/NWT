@@ -12,21 +12,8 @@ Makes posthoc plots for diagnosis of LandR
 
 ```{r module_usage}
 
-RUN <- "2"
-hostIp <- "189"
-vegetation<-"LandR.CS"
-fire<-"fS"
-usrEmail <- "tati.micheletti@gmail.com" # Your e.mail for GDrive authorization
-updateCRAN <- FALSE
-updateGithubPackages <- FALSE
-updateSubmodules <- FALSE
-isTest <- FALSE # runMe
 runName <- "NWT_BCR6"
-Sys.sleep(1)
-originalDateAnalysis <- "14AUG20" # <~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Sys.sleep(3)
-source("1_generalSetup.R")
-source("2_generatingInputs.R")
+originalDateAnalysis <- "SIMULATIONS"
 
 times <- list(start = 1, end = 1)
 
@@ -34,20 +21,49 @@ parameters <- list(
   posthocLandR = list(
     "years" = c(seq(2011, 2091, by = 10), 2100),
     "saveRAS" = TRUE,
-    "addCaribousuitability" = TRUE,
     "plotFireStats" = TRUE,
-    "overwriteBurnSumm" = FALSE,
     "sppEquivCol" = runName
     )
 )
 modules <- list("posthocLandR")
+source(file.path(getwd(), "1_generalSetup.R"))
+
+###################################################
+# Prepare sppEquivalencies_CA and sppColorVect
+###################################################
+
+data("sppEquivalencies_CA", package = "LandR")
+sppEquivCol <- runName
+
+# Make NWT spp equivalencies
+sppEquivalencies_CA[, paste0(runName) := c(Betu_Pap = "Betu_Pap", 
+                                           Lari_Lar = "Lari_Lar", 
+                                           Pice_Gla = "Pice_Gla",
+                                           Pice_Mar = "Pice_Mar", 
+                                           Pinu_Ban = "Pinu_Ban", 
+                                           Popu_Tre = "Popu_Tre")[Boreal]]
+
+sppEquivalencies_CA <- sppEquivalencies_CA[!is.na(get(runName))]
+sppEquivalencies_CA$EN_generic_short <- sppEquivalencies_CA[[paste0(runName)]]
+sppColorVect <- LandR::sppColors(sppEquiv = sppEquivalencies_CA, 
+                                 sppEquivCol = sppEquivCol,
+                                 palette = "Set3")
+mixed <- structure("#D0FB84", names = "Mixed")
+sppColorVect[length(sppColorVect)+1] <- mixed
+attributes(sppColorVect)$names[length(sppColorVect)] <- "Mixed"
+
+###################################################
 
 objects <- list(
   resultsFolders = list(
-    LandR.CS_fS_run2 = file.path(getwd(), originalDateAnalysis, "LandR.CS_fS/run2"),
-    LandR.CS_fS_run7 = file.path(getwd(), originalDateAnalysis, "LandR.CS_fS/run7"),
-    LandR_SCFM_run2 = file.path(getwd(), originalDateAnalysis, "LandR_SCFM/run2"),
-    LandR_SCFM_run9 = file.path(getwd(), originalDateAnalysis, "LandR_SCFM/run9")
+    LandR.CS_fS_run5 = file.path(getwd(), originalDateAnalysis, "LandR.CS_fS/run5"),
+    LandR.CS_fS_run10 = file.path(getwd(), originalDateAnalysis, "LandR.CS_fS/run10"),
+    LandR_SCFM_run5 = file.path(getwd(), originalDateAnalysis, "LandR_SCFM/run5"),
+    LandR_SCFM_run10 = file.path(getwd(), originalDateAnalysis, "LandR_SCFM/run10"),
+    LandR_fS_run5 = file.path(getwd(), originalDateAnalysis, "LandR_fS/run5"),
+    LandR_fS_run10 = file.path(getwd(), originalDateAnalysis, "LandR_fS/run10"),
+    LandR.CS_SCFM_run5 = file.path(getwd(), originalDateAnalysis, "LandR.CS_SCFM/run5"),
+    LandR.CS_SCFM_run10 = file.path(getwd(), originalDateAnalysis, "LandR.CS_SCFM/run10")
   ),
   sppColorVect = sppColorVect,
   sppEquivalencies_CA = sppEquivalencies_CA

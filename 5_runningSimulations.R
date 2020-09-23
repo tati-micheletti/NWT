@@ -23,6 +23,7 @@ if (runLandR){
   t1 <- Sys.time()
   if (!exists("Inputs"))
     Inputs <- data.frame()
+  trackSeed()
   assign(x = definedRun$whichRUN, do.call(get(spadesFun), args = alist(inputs = Inputs, 
                                                                       times = times,
                                                                       params = parameters,
@@ -151,6 +152,7 @@ saveRDS(sim$activePixelIndex, file = file.path(outputPath(sim), 'pixelsWithDataA
     objects <- c(objects, list("birdsList" = cores$birdSpecies[[GROUP]]))
     simulation <- paste0(definedRun$whichRUN, "_birdsV",
                          parameters[["birdsNWT"]][["version"]])
+    trackSeed()
   assign(
     x = simulation,
     do.call(
@@ -196,6 +198,7 @@ saveRDS(sim$activePixelIndex, file = file.path(outputPath(sim), 'pixelsWithDataA
       objects <- c(objects, list("birdsList" = cores$birdSpecies[[GROUP]]))
       simulation <- paste0(definedRun$whichRUN, "_birdsV",
                            parameters[["birdsNWT"]][["version"]])
+      trackSeed()
       assign(
         x = simulation,
         do.call(get(spadesFun),
@@ -252,6 +255,7 @@ if (runCaribou){
   )
   modules <- list("caribouRSF")
   simulationBoo <- paste0(definedRun$whichRUN, "_caribou")
+  trackSeed()
   assign(x = simulationBoo,
          do.call(
            get(spadesFun),

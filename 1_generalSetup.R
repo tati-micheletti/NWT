@@ -93,6 +93,7 @@ source("functions/getFirePolygons_NFDB.R")
 source("functions/getFirePoints_NFDB_V2.R")
 source("functions/makeIpsForClusters.R")
 source("functions/getBirdPredictedRasters.R")
+source("functions/trackSeed.R")
 
 if (!exists("vegetation")) vegetation <- "LandR" # Default if not provided
 if (!exists("fire")) fire <- "SCFM" # Default if not provided

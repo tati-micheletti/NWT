@@ -181,7 +181,7 @@
 "rematch2","/home/tmichele/R/x86_64-pc-linux-gnu-library/4.0","2.1.2",NA,NA,NA,NA
 "remotes","/home/tmichele/R/x86_64-pc-linux-gnu-library/4.0","2.1.1",NA,NA,NA,NA
 "reproducible","/home/tmichele/R/x86_64-pc-linux-gnu-library/4.0","1.2.1.9000","reproducible","PredictiveEcology","development","e8e1a726c3ae6ceae9233dc51195d5e51d1c7211"
-"Require","/home/tmichele/R/x86_64-pc-linux-gnu-library/4.0","0.0.8.9024","Require","PredictiveEcology","development","d76c2f64edb4e84e7ac6e5061fdf22fec50c7f64"
+"Require","/home/tmichele/R/x86_64-pc-linux-gnu-library/4.0","0.0.8",NA,NA,NA,NA
 "reshape2","/home/tmichele/R/x86_64-pc-linux-gnu-library/4.0","1.4.4",NA,NA,NA,NA
 "rex","/home/tmichele/R/x86_64-pc-linux-gnu-library/4.0","1.2.0",NA,NA,NA,NA
 "rgdal","/home/tmichele/R/x86_64-pc-linux-gnu-library/4.0","1.5-12",NA,NA,NA,NA

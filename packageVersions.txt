@@ -60,6 +60,7 @@
 "fastshp","/home/tmichele/projects/NWT/libraryNWT","0.1-2","fastshp","s-u","3e0eb833f6292013423d93c71f7c26f6dc2d70f1","3e0eb833f6292013423d93c71f7c26f6dc2d70f1"
 "ff","/home/tmichele/projects/NWT/libraryNWT","2.2-14.2",NA,NA,NA,NA
 "ffbase","/home/tmichele/projects/NWT/libraryNWT","0.12.8",NA,NA,NA,NA
+"fireSenseUtils","/home/tmichele/projects/NWT/libraryNWT","0.0.0.9028","fireSenseUtils","PredictiveEcology","NWTworking","b9f22782bea1a1836775f8529bf6b5ad14834aeb"
 "foreach","/home/tmichele/projects/NWT/libraryNWT","1.5.0",NA,NA,NA,NA
 "fpCompare","/home/tmichele/projects/NWT/libraryNWT","0.2.3",NA,NA,NA,NA
 "fs","/home/tmichele/projects/NWT/libraryNWT","1.4.2",NA,NA,NA,NA
@@ -109,6 +110,7 @@
 "knitr","/home/tmichele/projects/NWT/libraryNWT","1.29",NA,NA,NA,NA
 "kSamples","/home/tmichele/projects/NWT/libraryNWT","1.2-9",NA,NA,NA,NA
 "labeling","/home/tmichele/projects/NWT/libraryNWT","0.3",NA,NA,NA,NA
+"LandR","/home/tmichele/projects/NWT/libraryNWT","0.0.7","LandR","PredictiveEcology","NWTworking","a3944cf3ec3f1e1cae9c9ec054c47828a82ab378"
 "LandR.CS","/home/tmichele/projects/NWT/libraryNWT","0.0.2.0002","LandR.CS","ianmseddy","52a035889f1f4e929f3ce16ab52390f5e7d2d211","52a035889f1f4e929f3ce16ab52390f5e7d2d211"
 "later","/home/tmichele/projects/NWT/libraryNWT","1.1.0.1",NA,NA,NA,NA
 "latticeExtra","/home/tmichele/projects/NWT/libraryNWT","0.6-29",NA,NA,NA,NA
@@ -173,6 +175,7 @@
 "Rcpp","/home/tmichele/projects/NWT/libraryNWT","1.0.5",NA,NA,NA,NA
 "RcppArmadillo","/home/tmichele/projects/NWT/libraryNWT","0.9.900.1.0",NA,NA,NA,NA
 "RcppEigen","/home/tmichele/projects/NWT/libraryNWT","0.3.3.7.0",NA,NA,NA,NA
+"RcppParallel","/home/tmichele/projects/NWT/libraryNWT","5.0.2",NA,NA,NA,NA
 "RCurl","/home/tmichele/projects/NWT/libraryNWT","1.98-1.2",NA,NA,NA,NA
 "readr","/home/tmichele/projects/NWT/libraryNWT","1.3.1",NA,NA,NA,NA
 "recipes","/home/tmichele/projects/NWT/libraryNWT","0.1.13",NA,NA,NA,NA
@@ -201,11 +204,15 @@
 "showtextdb","/home/tmichele/projects/NWT/libraryNWT","3.0",NA,NA,NA,NA
 "sourcetools","/home/tmichele/projects/NWT/libraryNWT","0.1.7",NA,NA,NA,NA
 "sp","/home/tmichele/projects/NWT/libraryNWT","1.4-2",NA,NA,NA,NA
+"SpaDES","/home/tmichele/projects/NWT/libraryNWT","2.0.4",NA,NA,NA,NA
+"SpaDES.addins","/home/tmichele/projects/NWT/libraryNWT","0.1.2",NA,NA,NA,NA
 "SpaDES.core","/home/tmichele/projects/NWT/libraryNWT","1.0.2",NA,NA,NA,NA
+"SpaDES.experiment","/home/tmichele/projects/NWT/libraryNWT","0.0.1","SpaDES.experiment","PredictiveEcology","master","d3226a92bc70a4e8ebd5f41f76808e6c2c29361d"
 "SpaDES.tools","/home/tmichele/projects/NWT/libraryNWT","0.3.6",NA,NA,NA,NA
 "spelling","/home/tmichele/projects/NWT/libraryNWT","2.1",NA,NA,NA,NA
 "SQUAREM","/home/tmichele/projects/NWT/libraryNWT","2020.3",NA,NA,NA,NA
 "statmod","/home/tmichele/projects/NWT/libraryNWT","1.4.34",NA,NA,NA,NA
+"stringfish","/home/tmichele/projects/NWT/libraryNWT","0.14.2",NA,NA,NA,NA
 "stringi","/home/tmichele/projects/NWT/libraryNWT","1.4.6",NA,NA,NA,NA
 "stringr","/home/tmichele/projects/NWT/libraryNWT","1.4.0",NA,NA,NA,NA
 "SuppDists","/home/tmichele/projects/NWT/libraryNWT","1.1-9.5",NA,NA,NA,NA
@@ -223,6 +230,7 @@
 "TMB","/home/tmichele/projects/NWT/libraryNWT","1.7.16",NA,NA,NA,NA
 "trust","/home/tmichele/projects/NWT/libraryNWT","0.1-8",NA,NA,NA,NA
 "units","/home/tmichele/projects/NWT/libraryNWT","0.6-7",NA,NA,NA,NA
+"usefulFuns","/home/tmichele/projects/NWT/libraryNWT","0.1.0","usefulFuns","PredictiveEcology","NWTworking","a0dcfd232ebbe7ddf8ef2c1cb82196e2f271ef04"
 "usethis","/home/tmichele/projects/NWT/libraryNWT","1.6.1",NA,NA,NA,NA
 "utf8","/home/tmichele/projects/NWT/libraryNWT","1.1.4",NA,NA,NA,NA
 "uuid","/home/tmichele/projects/NWT/libraryNWT","0.1-4",NA,NA,NA,NA

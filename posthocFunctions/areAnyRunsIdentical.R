@@ -12,8 +12,8 @@ areAnyRunsIdentical <- function(outputsFolder){
   })
   names(diffScen) <- scenarios
   allBurns <- unlist(diffScen, recursive = FALSE, use.names = TRUE)
-  factorNames <- data.table(index = seq_along(names(allBurns)),
-                            scenarioRun = names(allBurns))
+  factorNames <- data.table::data.table(index = seq_along(names(allBurns)),
+                                        scenarioRun = names(allBurns))
   
   allTests <- data.table::data.table(expand.grid(simulation1Name = factorNames[["index"]],
                                                  simulation2Name = factorNames[["index"]]))

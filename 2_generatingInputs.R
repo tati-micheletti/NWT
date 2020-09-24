@@ -277,8 +277,8 @@ mixed <- structure("#D0FB84", names = "Mixed")
 sppColorVect[length(sppColorVect)+1] <- mixed
 attributes(sppColorVect)$names[length(sppColorVect)] <- "Mixed"
 
-if (!exists("times"))
-  times <- list(start = 2011, end = 2100)
+if (!exists("Times"))
+  Times <- list(start = 2011, end = 2100)
 
 #SCFM
 defaultInterval <- 1.0
@@ -352,7 +352,7 @@ parameters <- list(
   scfmSpread = list(
     "pSpread" = 0.235,
     "returnInterval" = defaultInterval,
-    "startTime" = times$start,
+    "startTime" = Times$start,
     ".plotInitialTime" = NA,
     ".plotInterval" = defaultPlotInterval,
     ".saveInitialTime" = defaultInitialSaveTime,
@@ -392,7 +392,7 @@ parameters <- list(
   ),
   Biomass_regeneration = list(
     "fireTimestep" = 1,
-    "fireInitialTime" = times$start,
+    "fireInitialTime" = Times$start,
     ".useCache" = c(".inputObjects", "init")
   ),
   gmcsDataPrep = list(
@@ -463,8 +463,8 @@ parameters <- list(
   )
 )
 
-succTS <- c(seq(times$start, times$end, 
-                by = parameters$Biomass_core$successionTimestep), times$end)
+succTS <- c(seq(Times$start, Times$end, 
+                by = parameters$Biomass_core$successionTimestep), Times$end)
 outputsLandR <- data.frame(
   objectName = rep(c("burnMap",
                      "cohortData",
@@ -480,15 +480,15 @@ lastYears <- data.frame(objectName = c("predictedCaribou", "plotCaribou",
                                        "fireRegimeRas", "speciesEcoregion", 
                                        "species", "gcsModel", "mcsModel", 
                                        "spreadPredictedProbability"),
-                        saveTime = times$end)
+                        saveTime = Times$end)
 if (length(usefulFuns::grepMulti(x = definedRun$modules, "Biomass_core")) != 0){
   clim <- data.frame(objectName = rep(c("fireSense_IgnitionPredicted", 
                                         "fireSense_EscapePredicted", "burnSummary", 
                                         "successionLayers", "activePixelIndex"), 
                                       each = 3),
-                     saveTime = rep(c(times$start, round((times$start + times$end)/2, 0), 
-                                      times$end), 
-                                    times = 1))
+                     saveTime = rep(c(Times$start, round((Times$start + Times$end)/2, 0), 
+                                      Times$end), 
+                                    Times = 1))
 } else {
   clim <- NULL
 }

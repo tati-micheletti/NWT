@@ -25,7 +25,7 @@ if (runLandR){
     Inputs <- data.frame()
   trackSeed(replic = definedRun$whichReplicate, runName = runName)
   assign(x = definedRun$whichRUN, do.call(get(spadesFun), args = alist(inputs = Inputs, 
-                                                                      times = times,
+                                                                      times = Times,
                                                                       params = parameters,
                                                                       modules = definedRun$modules,
                                                                       objects = objects,
@@ -158,7 +158,7 @@ saveRDS(sim$activePixelIndex, file = file.path(outputPath(sim), 'pixelsWithDataA
     do.call(
       get(spadesFun),
       args = alist(
-        times = times,
+        times = Times,
         params = parameters,
         modules = modules,
         objects = objects,
@@ -203,7 +203,7 @@ saveRDS(sim$activePixelIndex, file = file.path(outputPath(sim), 'pixelsWithDataA
         x = simulation,
         do.call(get(spadesFun),
                args = alist(
-                 times = times,
+                 times = Times,
                  params = parameters,
                  modules = modules,
                  objects = objects,
@@ -260,7 +260,7 @@ if (runCaribou){
          do.call(
            get(spadesFun),
            args = alist(
-             times = times,
+             times = Times,
              params = parameters,
              modules = modules,
              objects = objects,

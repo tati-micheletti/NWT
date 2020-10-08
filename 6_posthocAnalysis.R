@@ -15,8 +15,7 @@ SpaDES.core::setPaths(cachePath = posthocCache,
 #########################################################
 if (!exists("runPosthocBirds")) runPosthocBirds <- FALSE
 if (runPosthocBirds){
-  if (all(!exists("originalDateAnalysis"),
-          !(runLandR))) originalDateAnalysis <- "14AUG20" # Default if not provided
+  if (!exists("originalDateAnalysis")) originalDateAnalysis <- "SIMULATIONS" # Default if not provided 
   if (!exists("birdModelVersion")) birdModelVersion <- c("4", "6a") # Default if not provided 
   comparisons <- list(climate = c("V6a", "V4"),
                       vegetation = c("LandR.CS_", "LandR_"),
@@ -89,34 +88,19 @@ TIME <- 1
 parameters <- list(
   posthocBirdsNWT = list(
     "simulationStamp" = toupper(format(Sys.time(), "%d%b%y")),
-    "species" = Species, # To be uncommented when the tests are over
-    "years" = c(seq(2011, 2091, by = 20), 2100), # To be uncommented when the tests are over
+    "species" = Species,
+    "years" = c(seq(2011, 2091, by = 20), 2100), 
     "relativeDelta" = FALSE,
     "runs" = runs,
     "useFuture" = TRUE,
-    # "nBootReps" = 50 # To be uncommented when the tests are over
-    # "uploadPlots" = TRUE # To be uncommented when the tests are over
+    "shpFieldToUse" = "ECO3_NAM_1",
+    "eventsToSchedule" = c("makeSummary", "averageThroughTimeComparison"),
+    # "nBootReps" = 50 # To be uncommented if want bootstrapping. Not done yet.
+    # "uploadPlots" = TRUE  # To be uncommented if want uploading. Not done yet.
     "birdModels" = c("V4", "V6a")
     # , overwriteBootstrap = TRUE
     )
   )
-
-# dataFolder <- lapply(comparisons[['climateChange']], function(scenario){
-#   dataFolderRuns <- lapply(parameters[['posthocBirdsNWT']][['runs']], function(run){
-#                              birdModel <- ifelse(scenario == "LandR.CS_fS",
-#                                                  "birdPredictionsV6a", 
-#                                                  "birdPredictionsV4")
-#                              pth <- file.path(dirname(Paths$outputPath),
-#                                               originalDateAnalysis,
-#                                               scenario,
-#                                               run,
-#                                               birdModel)
-#                              return(pth)
-#   })
-#   names(dataFolderRuns) <- parameters[['posthocBirdsNWT']][['runs']]
-#   return(dataFolderRuns)
-# })
-# names(dataFolder) <- comparisons[['climateChange']]
 
 vegetationFireModels <- expand.grid(vegetation = c("LandR_", "LandR.CS_"), 
                                     fire = c("fS", "SCFM"))
@@ -140,19 +124,18 @@ dataFolder <- lapply(vegetationFireModels, function(scenario){
 })
 names(dataFolder) <- vegetationFireModels
 
-# # Loading the bird rasters I want for comparison. If I am not interested in the predictions of 
-# # V6a with LandR_SCFM, I need to do this. If I was interested in that prediction, I would just 
-# # leave the birdRasters object as NULL
-# 
-# birdRasters <- getBirdPredictedRasters(parameters = parameters, 
-#                                        predictedRastersFolder = file.path(dirname(Paths$outputPath),
-#                                                                           originalDateAnalysis))
+source("modules/posthocBirdsNWT/R/retrieveRasters.R")
+listOfRasters <- retrieveRasters(dataFolder = dataFolder,
+                                 years = c(seq(2011, 2091, by = 20), 2100),
+                                 patternsToRetrieveRasters = c("predicted", ".tif"),
+                                 species = Species)
 
 objects <- list(
   "dataFolder" = dataFolder,
   "rasterToMatch" = rasterToMatch,
   "comparisons" = comparisons,
   "studyAreaPosthoc" = shpSummary,
+  "listOfRasters" = listOfRasters,
   "predictedRastersFolder" = file.path(dirname(Paths$outputPath),
                                        originalDateAnalysis)
 )

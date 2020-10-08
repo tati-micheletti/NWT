@@ -13,11 +13,23 @@ library("ggplot2")
 SpaDES.core::setPaths(outputPath = file.path(getwd(), "outputs", originalDateAnalysis))
 
 tableCombinations <- data.table(expand.grid(vegetation = c("LandR", "LandR.CS"),
-                                fire = c("SCFM", "fS")))
+                                            fire = c("SCFM", "fS")))
+allTypeSim <- copy(tableCombinations)
+allTypeSim[, typeSim := paste(vegetation, fire, sep = "_")]
+allTypeSim <- allTypeSim$typeSim
+
+# 1. Average the biomass of runs per year and per scenario so I can use this averaged raster below
+source("functions/getSppColorVect_NWT.R")
+source("posthocFunctions/totalBiomassPerSpeciesReps.R")
+biomassTables <- lapply(allTypeSim, function(typeSim){
+  biomassTables <- totalBiomassPerSpeciesReps(dataPath = Paths$outputPath,
+                                              typeSim = typeSim,
+                                              sppColorVect = getSppColorVect_NWT())
+})
+
 source('~/projects/NWT/posthocFunctions/loadBiomassLayers.R')
 ras <- loadBiomassLayers(scenarios = tableCombinations, 
-                         path = Paths$outputPath,
-                         Run = "run10", years = c(2011, 2100))
+                         path = Paths$outputPath, years = c(2011, 2100))
 source('~/projects/NWT/posthocFunctions/fixNAsLastYear.R')
 ras <- fixNAsLastYear(rasterList = ras, years = c(2011, 2100))
 
@@ -79,7 +91,7 @@ plot(failedRegeneration_LandR_SCFM, col = "red",
                                               "totalNAto0"), " pixels"))
 par(mfrow = c(1, 1))
 
-# Fire summaries
+# Fire summaries --> NEED REDO PLOTS! See browser() in plotBurnSummaryReps [07OCT20] 
 source('~/projects/NWT/posthocFunctions/plotBurnSummaryReps.R')
 burns_LandR.CS_fS <- plotBurnSummaryReps(dataPath = Paths$outputPath, 
                                   typeSim = "LandR.CS_fS",

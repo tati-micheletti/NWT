@@ -2,18 +2,15 @@ plotBurnSummaryReps <- function(dataPath,
                              typeSim,
                              lastYear,
                              theObject = NULL,
-                             overwrite = FALSE){
+                             overwrite = FALSE,
+                             doStatsManually = FALSE){
   
   # Updated from plotBurnSummary2
-  fileName <- file.path(dataPath, paste0("burnSummary", typeSim, ".png"))
+  fileName <- file.path(dataPath, paste0("burnSummaryReps_", typeSim, ".png"))
   if (all(file.exists(fileName), !isTRUE(overwrite))){
     message("Plot exist and overwrite is FALSE. Returning plot path")
     return(fileName)
   }
-
-  # 1) Add all reps together
-  # 2) Add a third pannel with average fire size per year
-  # 3) If possible, change lm to gamm
   
   parSetup <- par()
   invisible(on.exit(par(parSetup)))
@@ -38,13 +35,18 @@ plotBurnSummaryReps <- function(dataPath,
   }
   
   # Area burned #######################
+browser() # Plot all the repetitions, and fit the model to the "raw" data, not the mean
+  # Of the area burned across all reps. Same for all the plots!
   areaB <- burnSumm[, sumABrep := sum(areaBurned), by = c("year", "repetition")]
   
   areaB <- burnSumm[, c("sumAB", "devAB") := list(mean(sumABrep),
                                                  sd(sumABrep)), 
                     by = year]
-  areaB <- data.table(year = areaB$year, val = areaB$sumAB, 
-                      var = "area_burned", dev = areaB$devAB)
+  areaB <- data.table(year = areaB$year, val = areaB$sumABrep,
+                      var = "area_burned")
+  
+  # areaB <- data.table(year = areaB$year, val = areaB$sumAB, 
+  #                     var = "area_burned", dev = areaB$devAB)
   areaB <- unique(areaB)
   areaB <- areaB[, val := val/1000] # Doing this so I can plot the axis with mostly the same limits. 
   areaB <- areaB[, dev := dev/1000] # Doing this so I can plot the axis with mostly the same limits. 
@@ -116,6 +118,36 @@ plotBurnSummaryReps <- function(dataPath,
   names(replacementNames) <- c("area_burned", "number_fires", "fire_size")
   
   dt <- rbind(areaB, nFires, fireSize)
+
+  if (doStatsManually){ # Code to fit the model to the raw data, not just average
+    browser()
+    burnSumm$centeredYear <- scale(burnSumm$year, scale = FALSE)
+    burnSumm$centeredYear2 <- scale(burnSumm$year ^2, scale = FALSE)
+    burnSummSimple <- unique(burnSumm[, c("centeredYear", "sumABrep", "centeredYear2", "year")])
+    
+    p0 <- ggplot2::ggplot(data = burnSummSimple, aes(x = year, y = sumABrep)) +
+      geom_point() +
+      stat_smooth(method = "lm", color = "darkred", fill = "red")
+    
+    tend1 <-lm(sumABrep ~ centeredYear, data = burnSummSimple)
+    tend2 <-lm(sumABrep ~ centeredYear + centeredYear2, data = burnSummSimple)
+    tend1AIC <- AIC(tend1)
+    tend2AIC <- AIC(tend2)
+    coef(tend1)
+    coef(tend2)
+    
+    require(stats)
+    coeff <- coefficients(tend1)
+    Fstats <- summary(tend)$fstatistic
+    names(Fstats) <- NULL
+    pValueA <- ifelse(pf(Fstats[1], Fstats[2], Fstats[3], lower.tail = F) < 0.05, " \n(significant)", " \n(non-significant)")
+    
+    require(stats)
+    coeff <- coefficients(tend2)
+    Fstats <- summary(tend)$fstatistic
+    names(Fstats) <- NULL
+    pValueA <- ifelse(pf(Fstats[1], Fstats[2], Fstats[3], lower.tail = F) < 0.05, " \n(significant)", " \n(non-significant)")
+  }
   
   p1 <- ggplot2::ggplot(data = dt[var == "area_burned",], aes(x = year, y = val)) +
     geom_point() +

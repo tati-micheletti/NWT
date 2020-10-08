@@ -56,21 +56,21 @@ attributes(sppColorVect)$names[length(sppColorVect)] <- "Mixed"
 
 objects <- list(
   resultsFolders = list(
-    LandR.CS_fS_run5 = file.path(getwd(), originalDateAnalysis, "LandR.CS_fS/run5"),
-    LandR.CS_fS_run10 = file.path(getwd(), originalDateAnalysis, "LandR.CS_fS/run10"),
-    LandR_SCFM_run5 = file.path(getwd(), originalDateAnalysis, "LandR_SCFM/run5"),
-    LandR_SCFM_run10 = file.path(getwd(), originalDateAnalysis, "LandR_SCFM/run10"),
-    LandR_fS_run5 = file.path(getwd(), originalDateAnalysis, "LandR_fS/run5"),
-    LandR_fS_run10 = file.path(getwd(), originalDateAnalysis, "LandR_fS/run10"),
-    LandR.CS_SCFM_run5 = file.path(getwd(), originalDateAnalysis, "LandR.CS_SCFM/run5"),
-    LandR.CS_SCFM_run10 = file.path(getwd(), originalDateAnalysis, "LandR.CS_SCFM/run10")
+    LandR.CS_fS_run1 = file.path(getwd(), "outputs", originalDateAnalysis, "LandR.CS_fS/run1"),
+    LandR.CS_fS_run2 = file.path(getwd(), originalDateAnalysis, "LandR.CS_fS/run2")
+    # LandR_SCFM_run5 = file.path(getwd(), originalDateAnalysis, "LandR_SCFM/run5"),
+    # LandR_SCFM_run10 = file.path(getwd(), originalDateAnalysis, "LandR_SCFM/run10"),
+    # LandR_fS_run5 = file.path(getwd(), originalDateAnalysis, "LandR_fS/run5"),
+    # LandR_fS_run10 = file.path(getwd(), originalDateAnalysis, "LandR_fS/run10"),
+    # LandR.CS_SCFM_run5 = file.path(getwd(), originalDateAnalysis, "LandR.CS_SCFM/run5"),
+    # LandR.CS_SCFM_run10 = file.path(getwd(), "outputs", originalDateAnalysis, "LandR.CS_SCFM/run10")
   ),
   sppColorVect = sppColorVect,
   sppEquivalencies_CA = sppEquivalencies_CA
 )
 inputs <- list()
 outputs <- list()
-
+setPaths(outputPath = '/home/tmichele/projects/NWT/outputs/PLOTS')
 posthocResultsLandR <- simInitAndSpades(times = times, 
                                         params = parameters, 
                                         modules = modules,

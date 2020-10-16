@@ -149,10 +149,6 @@ outputsBirds <- data.frame(
                      "averageTimePlot",
                      "cummEffRas"),
   saveTime = TIME)
-  
-  
-# Maybe we should apply a treatment to the predicted rasters 
-# to convert "virtual zeros" into zeros...
 
 posthocBirdsAnalysis <- simInitAndSpades(times = list(start = TIME, end = TIME),
                                          params = parameters, 

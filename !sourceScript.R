@@ -28,6 +28,10 @@
     # fitTheseFireSenseModels <- "spread"
     onlyLoadDEOptim <- TRUE
     runName <- "NWT_BCR6"
+    runPosthocBirds <- TRUE
+    originalDateAnalysis <- "SIMULATIONS"
+    
+    
     Sys.sleep(1)
     replicateNumber <- paste0("run", RUN)
     Sys.sleep(1)

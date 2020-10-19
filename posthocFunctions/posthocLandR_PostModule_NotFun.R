@@ -91,7 +91,7 @@ plot(failedRegeneration_LandR_SCFM, col = "red",
                                               "totalNAto0"), " pixels"))
 par(mfrow = c(1, 1))
 
-# Fire summaries --> NEED REDO PLOTS! See browser() in plotBurnSummaryReps [07OCT20] 
+# Fire summaries
 source('~/projects/NWT/posthocFunctions/plotBurnSummaryReps.R')
 burns_LandR.CS_fS <- plotBurnSummaryReps(dataPath = Paths$outputPath, 
                                   typeSim = "LandR.CS_fS",

@@ -34,70 +34,57 @@ plotBurnSummaryReps <- function(dataPath,
         }))
   }
   
-  # Area burned #######################
-browser() # Plot all the repetitions, and fit the model to the "raw" data, not the mean
-  # Of the area burned across all reps. Same for all the plots!
-  areaB <- burnSumm[, sumABrep := sum(areaBurned), by = c("year", "repetition")]
+  ####################### Area burned #######################
+
+  burnSumm[, sumAB := sum(areaBurned), by = c("year", "repetition")]
+  areaB <- unique(burnSumm[, c("year", "repetition", "sumAB")])
   
-  areaB <- burnSumm[, c("sumAB", "devAB") := list(mean(sumABrep),
-                                                 sd(sumABrep)), 
-                    by = year]
-  areaB <- data.table(year = areaB$year, val = areaB$sumABrep,
-                      var = "area_burned")
-  
-  # areaB <- data.table(year = areaB$year, val = areaB$sumAB, 
-  #                     var = "area_burned", dev = areaB$devAB)
-  areaB <- unique(areaB)
-  areaB <- areaB[, val := val/1000] # Doing this so I can plot the axis with mostly the same limits. 
-  areaB <- areaB[, dev := dev/1000] # Doing this so I can plot the axis with mostly the same limits. 
-  #Needs to be informed in the captions!!
-  # Could eventually implement something as: https://fishandwhistle.net/post/2018/modifying-facet-scales-in-ggplot2/
-  
-  tend <-lm(val ~ year, data = areaB)
+  # See if the trend in area burned is statistically significant
+  tend <-lm(sumAB ~ year, data = areaB)
   require(stats)
   coeff <- coefficients(tend)
   Fstats <- summary(tend)$fstatistic
   names(Fstats) <- NULL
   pValueA <- ifelse(pf(Fstats[1], Fstats[2], Fstats[3], lower.tail = F) < 0.05, " \n(significant)", " \n(non-significant)")
   
-  # N fires #######################
-  nFires <- burnSumm[, NfiresRep := length(N), by = c("year", "repetition")]
-  nFires <- burnSumm[, c("Nfires", "devNfires") := list(mean(NfiresRep),
-                                                   sd(NfiresRep)), 
-                     by = year]
-  nFires <- data.table(year = nFires$year, val = nFires$Nfires, 
-                       var = "number_fires", dev = nFires$devNfires)
-  nFires <- unique(nFires)
-  tendF <-lm(val ~ year, data = nFires)
+  areaB[, var := "area_burned"]
+  areaB[, val := sumAB/1000] # Doing this so I can plot the axis with mostly the same limits. 
+  # Could eventually implement something as: https://fishandwhistle.net/post/2018/modifying-facet-scales-in-ggplot2/
+  
+  ####################### N fires #######################
+
+  burnSumm[, Nfires := length(N), by = c("year", "repetition")]
+  nFires <- unique(burnSumm[, c("year", "repetition", "Nfires")])
+  
+  # See if the trend in fires is statistically significant
+  tendF <-lm(Nfires ~ year, data = nFires)
   require(stats)
   coeffF <- coefficients(tendF)
-  
-  # 1. See if the trend in fires is statistically significant
   Fstats <- summary(tendF)$fstatistic
   names(Fstats) <- NULL
   pValueF <- ifelse(pf(Fstats[1], Fstats[2], Fstats[3], lower.tail = F) < 0.05, " \n(significant)", " \n(non-significant)")
+  nFires[, var := "number_fires"]
+  nFires[, val := Nfires] # Doing this so I can plot the axis with mostly the same limits. 
   
-  # Fire size #######################
-  fireSize <- burnSumm[areaBurned > 6.25, fireSize := mean(areaBurned, na.rm = TRUE), 
+  ####################### Fire size #######################
+
+  burnSumm[areaBurned > 6.25, fireSize := mean(areaBurned, na.rm = TRUE), 
                        by = c("year", "repetition")]
-  fireSize <- burnSumm[, c("meanFireSize", "devFireSize") := list(mean(fireSize, na.rm = TRUE),
-                                                                  sd(fireSize, na.rm = TRUE)), 
-                     by = year]
-  fireSize <- data.table(year = fireSize$year, val = fireSize$meanFireSize, 
-                       var = "fire_size", dev = fireSize$devFireSize)
-  fireSize <- unique(fireSize)
-  fireSize <- fireSize[, val := val/10] # Doing this so I can plot the axis with mostly the same limits. 
-  fireSize <- fireSize[, dev := dev/10] # Doing this so I can plot the axis with mostly the same limits. 
+  fireSize <- na.omit(unique(burnSumm[, c("year", "repetition", "fireSize")]))
   
-  tendS <-lm(val ~ year, data = fireSize)
+  # See if the trend in fires is statistically significant
+  tendS <-lm(fireSize ~ year, data = fireSize)
   require(stats)
   coeffS <- coefficients(tendS)
-  
-  # 1. See if the trend in fires is statistically significant
   Fstats <- summary(tendS)$fstatistic
   names(Fstats) <- NULL
   pValueS <- ifelse(pf(Fstats[1], Fstats[2], Fstats[3], lower.tail = F) < 0.05, " \n(significant)", " \n(non-significant)")
   
+  fireSize[, var := "fire_size"]
+  fireSize[, val := fireSize/10] # Doing this so I can plot the axis with mostly the same limits. 
+
+  #######################   P L O T   #######################
+
   coefXA <- round(coeff[2],1)
   coefYA <- round(coeff[1],1)
   coefXF <- round(coeffF[2],1)
@@ -117,25 +104,28 @@ browser() # Plot all the repetitions, and fit the model to the "raw" data, not t
                                "x + ", ifelse(coefYS < 10000, coefYS, formatC(coefYS, format = "e", digits = 2)), pValueS))
   names(replacementNames) <- c("area_burned", "number_fires", "fire_size")
   
-  dt <- rbind(areaB, nFires, fireSize)
-
+  dt <- rbind(areaB, nFires, fireSize, use.names = FALSE)
+  # Now remove original variable. It uses the first item's nameL sumAB
+  dt[, sumAB := NULL]
+  
   if (doStatsManually){ # Code to fit the model to the raw data, not just average
     browser()
+    burnSummOriginal <- copy(burnSumm)
     burnSumm$centeredYear <- scale(burnSumm$year, scale = FALSE)
     burnSumm$centeredYear2 <- scale(burnSumm$year ^2, scale = FALSE)
-    burnSummSimple <- unique(burnSumm[, c("centeredYear", "sumABrep", "centeredYear2", "year")])
+    burnSummSimple <- unique(burnSumm[, c("centeredYear", "sumAB", "centeredYear2", "year")])
     
-    p0 <- ggplot2::ggplot(data = burnSummSimple, aes(x = year, y = sumABrep)) +
+    p0 <- ggplot2::ggplot(data = burnSummSimple, aes(x = year, y = sumAB)) +
       geom_point() +
       stat_smooth(method = "lm", color = "darkred", fill = "red")
     
-    tend1 <-lm(sumABrep ~ centeredYear, data = burnSummSimple)
-    tend2 <-lm(sumABrep ~ centeredYear + centeredYear2, data = burnSummSimple)
+    tend1 <-lm(sumAB ~ centeredYear, data = burnSummSimple)
+    tend2 <-lm(sumAB ~ centeredYear + centeredYear2, data = burnSummSimple)
     tend1AIC <- AIC(tend1)
     tend2AIC <- AIC(tend2)
     coef(tend1)
     coef(tend2)
-    
+    # HERE
     require(stats)
     coeff <- coefficients(tend1)
     Fstats <- summary(tend)$fstatistic
@@ -150,7 +140,7 @@ browser() # Plot all the repetitions, and fit the model to the "raw" data, not t
   }
   
   p1 <- ggplot2::ggplot(data = dt[var == "area_burned",], aes(x = year, y = val)) +
-    geom_point() +
+    geom_point(colour = "grey70") +
     stat_smooth(method = "lm", color = "darkred", fill = "red") +
     facet_grid(var ~ ., labeller = labeller(var = replacementNames)) +
     theme(legend.position = "none",
@@ -162,7 +152,7 @@ browser() # Plot all the repetitions, and fit the model to the "raw" data, not t
     coord_cartesian(ylim = c(100, 1500)) +
     labs(y = "ha x 10^3")
   p2 <- ggplot(data = dt[var == "number_fires",], aes(x = year, y = val, colour = "blue")) +
-    geom_point(colour = "black") +
+    geom_point(colour = "grey70") +
     stat_smooth(method = "lm", fill = "blue", color = "darkblue") +
     facet_grid(var ~ ., labeller = labeller(var = replacementNames)) +
     theme(legend.position = "none",
@@ -174,7 +164,7 @@ browser() # Plot all the repetitions, and fit the model to the "raw" data, not t
     coord_cartesian(ylim = c(0, 500)) +
     ylab(label = "no. of fires")
   p3 <- ggplot2::ggplot(data = dt[var == "fire_size",], aes(x = year, y = val)) +
-    geom_point(colour = "black") +
+    geom_point(colour = "grey70") +
     stat_smooth(method = "lm", color = "orange", fill = "orange") +
     facet_grid(var ~ ., labeller = labeller(var = replacementNames)) +
     theme(legend.position = "none",
@@ -186,7 +176,7 @@ browser() # Plot all the repetitions, and fit the model to the "raw" data, not t
   p <- gridExtra::grid.arrange(p1, p2, p3, ncol=1,
                                top = grid::textGrob(typeSim, gp = grid::gpar(fontsize = 12)))
   
-  ggsave(fileName, plot = p, dpi = 600)
+  ggsave(fileName, plot = p, width = 11, height = 8)
   
   return(list(fileLocation = fileName, model = list(areaBurned = tend, 
                                                     noFires = tendF, 

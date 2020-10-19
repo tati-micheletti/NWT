@@ -30,14 +30,11 @@
     runName <- "NWT_BCR6"
     runPosthocBirds <- TRUE
     originalDateAnalysis <- "SIMULATIONS"
-    
-    
     Sys.sleep(1)
     replicateNumber <- paste0("run", RUN)
     Sys.sleep(1)
     vegetation <- "LandR.CS"
     fire <- "fS"
-    originalDateAnalysis <- "22JUL20"
     runLandR <- FALSE
     runBirds <- TRUE
     runCaribou <- FALSE
@@ -45,12 +42,12 @@
     Sys.sleep(3)
     source("1_generalSetup.R")
     source("2_generatingInputs.R")
-    if (all(runLandR, fire != "SCFM")){
-      source("3_preamble.R")
-      source("4_fittingModules.R")
-    }
-    source("5_runningSimulations.R")
-  
+    # if (all(runLandR, fire != "SCFM")){
+    #   source("3_preamble.R")
+    #   source("4_fittingModules.R")
+    # }
+    # source("5_runningSimulations.R")
+    source("6_posthocAnalysis.R")
 # if (runOnlySimInit){
 #   factorialSimulations <- SpaDES.experiment::experiment2(
 #     # LandR.CS_fS = LandR.CS_fS,

@@ -94,7 +94,8 @@ parameters <- list(
     "runs" = runs,
     "useFuture" = TRUE,
     "shpFieldToUse" = "ECO3_NAM_1",
-    "eventsToSchedule" = c("makeSummary", "averageThroughTimeComparison"),
+    "eventsToSchedule" = c("makeSummary",
+                           "averageThroughTimeComparison"),
     # "nBootReps" = 50 # To be uncommented if want bootstrapping. Not done yet.
     # "uploadPlots" = TRUE  # To be uncommented if want uploading. Not done yet.
     "birdModels" = c("V4", "V6a")

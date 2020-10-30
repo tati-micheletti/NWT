@@ -1,16 +1,17 @@
 # PLOT 4 ####
-calcProportionPixelsLost <- function(listOfRasters,
+calcProportionPixelsLost <- function(listOfRasters = NULL,
                                      species,
-                                     comparisons,
                                      outputFolder,
+                                     noCorner,  # <~~~~~~~~ TEMPORARY!!!
                                      netChangeTable, # Needs to have the netChange column! This col is in areas 6.25*(sum(probabilities))
                                      # netChangeTable comes from plotsPaper_NotFun.R
                                      useFuture = TRUE,
                                      percentToDiscard = 0.3){
   
-  outputFolder <- checkPath(file.path(outputFolder, "colonization"), create = TRUE)
   fileNamePath <- file.path(outputFolder, "proportionPixelsChangedTable.qs")
   if (!file.exists(fileNamePath)){
+    if (is.null(listOfRasters))
+      stop("If final object does not exist. listOfRasters must be supplied")
     if (useFuture) plan("multiprocess", workers = length(species))
     allBirds <- rbindlist(future_lapply(names(listOfRasters), function(sp){ ########### future_lapply <~~~~~~~~~~~~~~~~~~~~future_
       allScenarios <- raster::stack(lapply(names(listOfRasters[[sp]]), function(scenario){
@@ -45,6 +46,15 @@ calcProportionPixelsLost <- function(listOfRasters,
         gc()
       } else {
         probPresence <- raster(paste0(fileNamePath, ".tif"))
+        
+        # TEMPORARY ####################
+        ### TODO >>>> HERE CUT THE CORNER
+        probPresence[is.na(noCorner)] <- NA # <~~~~~REMOVE
+        # SAVE AGAIN!
+        writeRaster(probPresence, 
+                    filename = fileNamePath, 
+                    overwrite = TRUE)
+        # TEMPORARY ####################
       }
       m2ExpectedArea <- sum(probPresence[], na.rm = TRUE)
       DT <- data.table(species = sp,
@@ -90,21 +100,23 @@ calcProportionPixelsLost <- function(listOfRasters,
     xlab("Expected proportion of habitat area colonized or lost due to climate change") +
     theme(legend.position = "none",
           axis.title.y = element_blank(),
-          legend.title = element_blank()) +
-    scale_color_manual(values = c("increase" = "darkgreen", 
-                                  "decrease" = "firebrick3")) + 
-    scale_fill_manual(values = c("increase" = "forestgreen", 
-                                 "decrease" = "firebrick2")) +
+          legend.title = element_blank()) + #,
+          # plot.margin = unit(c(5.5,5.5,5.5,0), "pt")) +
+    scale_color_manual(values = c("increase" = "slateblue3", 
+                                  "decrease" = "goldenrod3")) + 
+    scale_fill_manual(values = c("increase" = "slateblue1", 
+                                 "decrease" = "goldenrod1")) +
     geom_text(aes(x = labelMark, 
                   label = round(proportionOfAreaChanged, 2)), 
               size = 2.5, color = "grey10", check_overlap = TRUE) +
-    scale_x_continuous(breaks = seq(-1, 5.3, by = 0.5))
+    scale_x_continuous(breaks = seq(-1, 5.3, by = 0.5)) +
+    scale_y_discrete(position = "right")
   p4
   
   ggsave(device = "png", filename = file.path(outputFolder, "proportionalChangeInArea.png"), 
          width = 8, height = 11)
   
-  return(file.path(outputFolder, "proportionalChangeInArea.png"))
+  return(p4)
   }
 
 calcColonization <- function(rasT0Path, rasT1Path = NULL, 
@@ -140,143 +152,4 @@ calcColonization <- function(rasT0Path, rasT1Path = NULL,
   BIRDpres[CSdt[PA == TRUE, pixelID]] <- 1
   BIRDpres[CSdt[PA == FALSE, pixelID]] <- 0
   return(BIRDpres)
-}
-
-if (FALSE){
-  factorialRasters <- lapply(names(comparisons), FUN = function(eachComparison){
-    tic(paste0("Probability of colonization and extirpation calculated for ", eachComparison, 
-               " for ", sp))
-    colonizationDiffPath <- file.path(outputFolder, paste("difference", 
-                                                          eachComparison, 
-                                                          sp, "colonization", sep = "_"))
-    extirpationDiffPath <- file.path(outputFolder, paste("difference", 
-                                                         eachComparison, 
-                                                         sp, "extirpation", sep = "_"))
-    
-    if (!all(file.exists(paste0(colonizationDiffPath, ".tif")),
-             file.exists(paste0(extirpationDiffPath, ".tif")))){
-      climateGroupNames <- sort(allComparisons[grep(comparisons[[eachComparison]][1], 
-                                                    x = allComparisons)])
-      nonclimateGroupNames <- sort(allComparisons[grep(comparisons[[eachComparison]][2], 
-                                                       x = allComparisons)])
-      
-      ############### CLIMATE SENSITIVE
-      climateGroup <- raster::stack(allScenariosUnlisted[names(allScenariosUnlisted) %in% climateGroupNames])
-      propColonizationClimatePath <- file.path(outputFolder, paste("climateSensitive", 
-                                                                   eachComparison, 
-                                                                   sp, "colonization", sep = "_"))
-      propExtirpationClimatePath <- file.path(outputFolder, paste("climateSensitive", 
-                                                                  eachComparison, 
-                                                                  sp, "extirpation", sep = "_"))
-      if (!file.exists(paste0(propColonizationClimatePath, ".tif"))){
-        probColClimateGroup <- calc(x = climateGroup, fun = function(x){.meanOfSpecificValue(x, val = 1)},
-                                    filename = propColonizationClimatePath,
-                                    format = "GTiff")
-      } else probColClimateGroup <- raster::raster(paste0(propColonizationClimatePath, ".tif"))
-      if (!file.exists(paste0(propExtirpationClimatePath, ".tif"))){
-        probExtClimateGroup <- calc(x = climateGroup, fun = function(x){.meanOfSpecificValue(x, val = -1)},
-                                    filename = propExtirpationClimatePath,
-                                    format = "GTiff")
-      } else probExtClimateGroup <- raster::raster(paste0(propExtirpationClimatePath, ".tif"))
-      ############### NON CLIMATE SENSITIVE
-      nonclimateGroup <- raster::stack(allScenariosUnlisted[names(allScenariosUnlisted) %in% nonclimateGroupNames])
-      propColonizationNonClimatePath <- file.path(outputFolder, paste("nonclimateSensitive", 
-                                                                      eachComparison, 
-                                                                      sp, "colonization", sep = "_"))
-      propExtirpationNonClimatePath <- file.path(outputFolder, paste("nonclimateSensitive", 
-                                                                     eachComparison, 
-                                                                     sp, "extirpation", sep = "_"))
-      if (!file.exists(paste0(propColonizationNonClimatePath, ".tif"))){
-        probColNonclimateGroup <- calc(x = nonclimateGroup, fun = function(x){.meanOfSpecificValue(x, val = 1)},
-                                       filename = propColonizationNonClimatePath,
-                                       format = "GTiff")
-      } else probColNonclimateGroup <- raster::raster(paste0(propColonizationNonClimatePath, ".tif"))
-      if (!file.exists(paste0(propExtirpationNonClimatePath, ".tif"))){
-        probExtNonclimateGroup <- calc(x = nonclimateGroup, fun = function(x){.meanOfSpecificValue(x, val = -1)},
-                                       filename = propExtirpationNonClimatePath,
-                                       format = "GTiff")
-      } else probExtNonclimateGroup <- raster::raster(paste0(propExtirpationNonClimatePath, ".tif"))
-      toc()
-      
-      colonizationDiff <- probColClimateGroup - probColNonclimateGroup
-      writeRaster(colonizationDiff, colonizationDiffPath, format = "GTiff")
-      extirpationDiff <- probExtClimateGroup - probExtNonclimateGroup
-      writeRaster(extirpationDiff, extirpationDiffPath, format = "GTiff")
-      
-      return(list(colonizationDifference = colonizationDiff,
-                  extirpationDifference =  extirpationDiff))
-    } else {
-      return(list(colonizationDifference = raster::raster(colonizationDiffPath),
-                  extirpationDifference =  raster::raster(extirpationDiffPath)))
-    }
-  })
-  names(factorialRasters) <- names(comparisons)
-  
-  # And finally the one for the net climate effect on birds
-  tic(paste0("Probability of colonization and extirpation calculated for the net climate effect for ", sp))
-  colonizationDiffPath <- file.path(outputFolder, paste("difference", 
-                                                        "netEffect", 
-                                                        sp, "colonization", sep = "_"))
-  extirpationDiffPath <- file.path(outputFolder, paste("difference", 
-                                                       "netEffect", 
-                                                       sp, "extirpation", sep = "_"))
-  if (!all(file.exists(paste0(colonizationDiffPath, ".tif")),
-           file.exists(paste0(extirpationDiffPath, ".tif")))){
-    clim <- unlist(lapply(comparisons, `[[`, 1))
-    nonclim <- unlist(lapply(comparisons, `[[`, 2))
-    climateGroupNames <- sort(grepMulti(allComparisons, patterns = clim))
-    nonclimateGroupNames <- sort(grepMulti(allComparisons, patterns = nonclim))
-    
-    ############### CLIMATE SENSITIVE
-    climateGroup <- raster::stack(allScenariosUnlisted[names(allScenariosUnlisted) %in% climateGroupNames])
-    propColonizationClimatePath <- file.path(outputFolder, paste("climateSensitive", 
-                                                                 "netEffect", 
-                                                                 sp, "colonization", sep = "_"))
-    propExtirpationClimatePath <- file.path(outputFolder, paste("climateSensitive", 
-                                                                "netEffect", 
-                                                                sp, "extirpation", sep = "_"))
-    if (!file.exists(paste0(propColonizationClimatePath, ".tif"))){
-      probColClimateGroup <- calc(x = climateGroup, fun = function(x){.meanOfSpecificValue(x, val = 1)},
-                                  filename = propColonizationClimatePath,
-                                  format = "GTiff")
-    } else probColClimateGroup <- raster::raster(paste0(propColonizationClimatePath, ".tif"))
-    if (!file.exists(paste0(propExtirpationClimatePath, ".tif"))){
-      probExtClimateGroup <- calc(x = climateGroup, fun = function(x){.meanOfSpecificValue(x, val = -1)},
-                                  filename = propExtirpationClimatePath,
-                                  format = "GTiff")
-    } else probExtClimateGroup <- raster::raster(paste0(propExtirpationClimatePath, ".tif"))
-    ############### NON CLIMATE SENSITIVE
-    nonclimateGroup <- raster::stack(allScenariosUnlisted[names(allScenariosUnlisted) %in% nonclimateGroupNames])
-    propColonizationNonClimatePath <- file.path(outputFolder, paste("nonclimateSensitive", 
-                                                                    "netEffect", 
-                                                                    sp, "colonization", sep = "_"))
-    propExtirpationNonClimatePath <- file.path(outputFolder, paste("nonclimateSensitive", 
-                                                                   "netEffect", 
-                                                                   sp, "extirpation", sep = "_"))
-    if (!file.exists(paste0(propColonizationNonClimatePath, ".tif"))){
-      probColNonclimateGroup <- calc(x = nonclimateGroup, fun = function(x){.meanOfSpecificValue(x, val = 1)},
-                                     filename = propColonizationNonClimatePath,
-                                     format = "GTiff")
-    } else probColNonclimateGroup <- raster::raster(paste0(propColonizationNonClimatePath, ".tif"))
-    if (!file.exists(paste0(propExtirpationNonClimatePath, ".tif"))){
-      probExtNonclimateGroup <- calc(x = nonclimateGroup, fun = function(x){.meanOfSpecificValue(x, val = -1)},
-                                     filename = propExtirpationNonClimatePath,
-                                     format = "GTiff")
-    } else probExtNonclimateGroup <- raster::raster(paste0(propExtirpationNonClimatePath, ".tif"))
-    toc()
-    
-    colonizationDiff <- probColClimateGroup - probColNonclimateGroup
-    writeRaster(colonizationDiff, colonizationDiffPath, format = "GTiff")
-    extirpationDiff <- probExtClimateGroup - probExtNonclimateGroup
-    writeRaster(extirpationDiff, extirpationDiffPath, format = "GTiff")
-    
-    netEffect <- list(colonizationDifference = colonizationDiff,
-                      extirpationDifference =  extirpationDiff)
-  } else {
-    netEffect <- list(colonizationDifference = raster::raster(colonizationDiffPath),
-                      extirpationDifference =  raster::raster(extirpationDiffPath))        
-  }
-  
-  factorialRasters <- c(factorialRasters, netEffect = list(netEffect))
-  return(factorialRasters)
 }

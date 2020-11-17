@@ -791,3 +791,92 @@ finalProportionsTable <- merge(proportionsTableDCASTed, proportionArea, by = "sp
 # write.csv(finalProportionsTable, file = file.path(getwd(), "proportionsTableSUPMAT.csv"))
 # drive_upload(media = file.path(getwd(), "proportionsTableSUPMAT.csv"), as_id("17xCa7ZogxktoaTVuv7s4EIc2DVCuEq68")) # Already uploaded
 
+# LAST 2 THINGS TO DO:
+# 1. Make the probability of presence maps
+# 1.1. Get the colonization 
+folderPath <- "~/projects/NWT/outputs/posthoc/colonization"
+fileName <- "probabilityPresence_2100_LandR.CS_fS_V6a_"
+uploadFolder <- "1f8kqdiTTOtJfJIteFEcFUSaU8FQedCPR"
+library(googledrive)
+library(rasterVis)
+AT <- seq(0, 1, by = 0.2)
+pal <- colorRampPalette(c("khaki1", "greenyellow",
+                          "green3", "mediumturquoise", "blue"), 
+                        space = "Lab", 
+                        bias = 0.5)
+# Following Stralberg et al., 2015 color scheme`
+# palFun <- colorRampPalette(c("#FFFACD", "lemonchiffon","#FFF68F", 
+#                           "khaki1","#ADFF2F", "greenyellow", "#00CD00", 
+#                           "green3", "#48D1CC", "mediumturquoise", 
+#                           "#007FFF", "blue"), 
+#                         space = "Lab", bias = 0.5) #Didn't quite work...
+
+
+# source('~/projects/NWT/temp/checkColorPalette.R')
+# checkColorPalette(pal)
+# 
+probabilityOfPresenceMaps <- lapply(Species, function(sp){
+  speciesProbabilityPath <- file.path(folderPath, "probabilityPresenceMapsAPPENDIX", paste0("probabilityPresence_2100_", sp, ".png"))
+  ras <- raster::raster(file.path(folderPath, paste0(fileName,sp,".tif")))
+  png(filename = speciesProbabilityPath,
+      width = 21, height = 29,
+      units = "cm", res = 300)
+  print(levelplot(ras,
+                  sub = paste0("Probability of presence of ", sp," in 2100"),
+                  margin = FALSE,
+                  maxpixels = 6e6,
+                  colorkey = list(
+                    space = 'bottom',
+                    labels = list(at = AT, font = 4),
+                    axis.line = list(col = 'black'),
+                    width = 0.75
+                  ),
+                  par.settings = list(
+                    strip.border = list(col = 'transparent'),
+                    strip.background = list(col = 'transparent'),
+                    axis.line = list(col = 'transparent')),
+                  scales = list(draw = FALSE),
+                  col.regions = pal,
+                  par.strip.text = list(cex = 0.8,
+                                        lines = 1,
+                                        col = "black")))
+  dev.off()
+  drive_upload(speciesProbabilityPath, as_id(uploadFolder))
+  return(speciesProbabilityPath)
+})
+
+# 2. Try to compare abundance change. 
+# 2.1. abund2011 -> get predicted abundance in 2011, use the colonization 2011 cutoff, sum all
+library(data.table)
+library(tictoc)
+library(future)
+library(future.apply)
+library(usefulFuns)
+library(raster)
+source('~/projects/NWT/posthocFunctions/makeAbundanceTable.R')
+
+folderAbundance <- "~/projects/NWT/outputs/SIMULATIONS"
+folderColonization <- "~/projects/NWT/outputs/posthoc/colonization"
+abund2011 <- makeAbundanceTable(folderAbundance = folderAbundance, 
+                                folderColonization = folderColonization, 
+                                year = 2011)
+names(abund2011) <- c("species", "year", "totalAbundance2011")
+# 2.2. abund2100 -> get the abundance in 2100, use the colonization 2100 cutoff, sum all
+folderAbundance <- "~/projects/NWT/outputs/SIMULATIONS/LandR.CS_fS"
+abund2100 <- makeAbundanceTable(folderAbundance = folderAbundance, 
+                                folderColonization = folderColonization, 
+                                year = 2100)
+names(abund2100) <- c("species", "year", "totalAbundance2100")
+
+# 2.3. propChangeAbund -> (abund2100 - abund2011)/abund2011
+proportionAbundanceChangeTable <- merge(abund2011[, c("species", "totalAbundance2011")],
+                                        abund2100[, c("species", "totalAbundance2100")])
+proportionAbundanceChangeTable[, proportionalChange := (totalAbundance2100 - 
+                                                          totalAbundance2011)/totalAbundance2011]
+qs::qsave(proportionAbundanceChangeTable, file.path(folderColonization, 
+                                                    "finalAbundanceMaps",
+                                                    "proportionAbundanceChangeTable.qs"))
+# 2.4. Make another plot (p5) to add to birdsPlot
+
+
+

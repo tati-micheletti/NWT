@@ -24,8 +24,8 @@ Effect <- c("vegetation", "fire", "climate")
 Process <- c("colonization", "extirpation")
 noCorner <- raster("~/projects/NWT/inputs/NWT_BCR6/RTM_noCorner.tif") # TODO temporary
 
-############################################# PLOTS
-    ##### ~~~~ BIRD MODEL CHECK ~~~~ #####
+############################################# PLOT0
+##### ~~~~ BIRD MODEL CHECK ~~~~ #####
 
 # speciesOfInterest <- c("NOWA", "FOSP", "HOLA", "OSFL", "PISI", "SWSP", "TEWA", "WEWP", 
 #                        "WWCR", "ATSP", "BOCH", "COYE", "CAWA", "REVI", "WCSP")
@@ -112,6 +112,8 @@ p0
 # 
 
 ############################################# PLOT1 
+
+############################################# PLOT1
 #### ~~~ FULL TABLE ~~~ ####
 
 tic("Full table elapsed time:")
@@ -241,7 +243,7 @@ p1 <- ggplot(data = netChangeTable[effect != "netEffect"], aes(x = netChange/(10
                      labels = c("fire" = "Climate Effect via Fire", 
                                 "vegetation" = "Climate Effect via Vegetation", 
                                 "climate" = "Direct Climate Effect")) +
-  xlab("Expected area in ha colonized and extirpated (x 10\u2077)") +
+  xlab("Expected area in ha colonized \nand extirpated (x 10\u2077)") +
   geom_vline(xintercept = 0, color = "black") + 
   geom_text(aes(x = labelMark, 
                 label = round(totalNetEffect/(10^7), 2)), 
@@ -259,6 +261,7 @@ ggsave(device = "png", filename = file.path(folderColonization, "affectedAreaByC
 
 # Taiga Plains in the NWT = 480,493 km2 --> 48 049 300 ha --> 4,8 x 10^7 ha
 # up to 50% of the Taiga Plains within NWT could change with climate change
+#########
 
 ############################################# PLOT2 
 #### ~~~ FULL TABLE PLOT SEPARATING EFFECTS AND DIRECTION ~~~ ####
@@ -286,7 +289,7 @@ p2 <- ggplot(data = netChangeTable[effect != "netEffect"], aes(y = species,
                     labels = c("fire" = "Climate Effect via Fire", 
                                "vegetation" = "Climate Effect via Vegetation", 
                                "climate" = "Direct Climate Effect")) +
-  xlab("Expected area in ha colonized and extirpated (x 10\u2077)") +
+  xlab("Expected area in ha colonized \nand extirpated (x 10\u2077)") +
   geom_vline(xintercept = 0, color = "black") + 
   geom_vline(data = netChangeTable[effect == "climate"], 
              aes(xintercept = totalNetEffectByEffect/(64*(10^7))), 
@@ -310,6 +313,7 @@ p2 <- ggplot(data = netChangeTable[effect != "netEffect"], aes(y = species,
 p2
 ggsave(device = "png", filename = file.path(folderColonization, "affectedAreaByClimateChangePerEffect.png"), 
        width = 8, height = 11)
+##########
 
 ############################################# PLOT3
 #### ~~~ SUMMARIZED TABLE FOR PLOT (DENSITY PLOT) ~~~ ####
@@ -358,6 +362,9 @@ if (FALSE){
   ggsave(device = "png", filename = file.path(folderColonization, "climateChangeDensityPlot.png"), 
          width = 8, height = 11)
 }
+##########
+
+############################################# PLOT4 
 #### ~~~ CHANGE IN AREA (COLOZATION/EXTIRPATION PROPORTION PLOT) ~~~ ####
 
 library(raster)
@@ -375,18 +382,271 @@ p4 <- calcProportionPixelsLost(species = Species,
                                     # Needs to have the netChange column! This col is in area in ha 6.25*(sum(probabilities))
                                     # netChangeTable comes from plotsPaper_NotFun.R
                                     useFuture = TRUE)
+##########
+
+############################################# PLOT5 
+#### ~~~ CHANGE IN ABUNDANCE ~~~ ####
+
+# 1. Try to compare abundance change. 
+# 1.1. abund2011 -> get predicted abundance in 2011, use the colonization 2011 cutoff, sum all
+library(data.table)
+library(tictoc)
+library(future)
+library(future.apply)
+library(usefulFuns)
+library(raster)
+
+folderColonization <- "~/projects/NWT/outputs/posthoc/colonization"
+
+abundanceChangeTable <- file.path(folderColonization, 
+          "finalAbundanceMaps",
+          "proportionAbundanceChangeTable.qs")
+
+if (!file.exists(abundanceChangeTable)){
+  source('~/projects/NWT/posthocFunctions/makeAbundanceTable.R')
+  
+  folderAbundance <- "~/projects/NWT/outputs/SIMULATIONS"
+  abund2011 <- makeAbundanceTable(folderAbundance = folderAbundance, 
+                                  folderColonization = folderColonization, 
+                                  year = 2011)
+  names(abund2011) <- c("species", "year", "totalAbundance2011")
+  # 1.2. abund2100 -> get the abundance in 2100, use the colonization 2100 cutoff, sum all
+  folderAbundance <- "~/projects/NWT/outputs/SIMULATIONS/LandR.CS_fS"
+  abund2100 <- makeAbundanceTable(folderAbundance = folderAbundance, 
+                                  folderColonization = folderColonization, 
+                                  year = 2100)
+  names(abund2100) <- c("species", "year", "totalAbundance2100")
+  
+  # 1.3. propChangeAbund -> (abund2100 - abund2011)/abund2011
+  proportionAbundanceChangeTable <- merge(abund2011[, c("species", "totalAbundance2011")],
+                                          abund2100[, c("species", "totalAbundance2100")])
+  proportionAbundanceChangeTable[, proportionalChange := (totalAbundance2100 - 
+                                                            totalAbundance2011)/totalAbundance2011]
+  qs::qsave(proportionAbundanceChangeTable, abundanceChangeTable)
+} else {
+  proportionAbundanceChangeTable <- qs::qread(abundanceChangeTable)
+}
+
+# Make another plot (p5) to add to birdsPlot
+
+proportionAbundanceChangeTable[, species := factor(species, levels = newSortOrder)]
+proportionAbundanceChangeTable[, population := ifelse(proportionalChange > 0, 
+                                                      "increase", 
+                                                      "decrease")]
+proportionAbundanceChangeTable[, proportionalChangeFixed := 
+                                 ifelse(proportionalChange > 5, 5, 
+                                        proportionalChange)]
+# Adding label mark
+lapply(X = proportionAbundanceChangeTable$species, function(sp){
+  DT <- proportionAbundanceChangeTable[species == sp,]
+  signal <- ifelse(unique(DT[["proportionalChangeFixed"]]) > 0, "> 0", "< 0")
+  jit <- ifelse(unique(DT[["proportionalChangeFixed"]]) > 0, 0.2, -0.2)
+  S <-  sum(DT[eval(parse(text = paste0("proportionalChangeFixed", 
+                                        signal))), 
+               proportionalChangeFixed])
+  pos <- S + jit
+  proportionAbundanceChangeTable[species == sp, labelMark := pos]
+  return("OK")
+})
+
+p5 <- ggplot(data = proportionAbundanceChangeTable, 
+             mapping = aes(x = proportionalChangeFixed, y = species,
+                           fill = population, group = population,
+                           color = population)) +
+  geom_col() +
+  geom_vline(xintercept = 0, color = "black") + 
+  xlab("Expected change in boreal songbird abundance from \n2011 to 2100 with climate change") +
+  theme(legend.position = "none",
+        axis.title.y = element_blank(),
+        legend.title = element_blank()) + #,
+  # plot.margin = unit(c(5.5,5.5,5.5,0), "pt")) +
+  scale_color_manual(values = c("increase" = "turquoise3", 
+                                "decrease" = "tomato3")) + 
+  scale_fill_manual(values = c("increase" = "turquoise1", 
+                               "decrease" = "tomato1")) +
+  geom_text(aes(x = labelMark, 
+                label = round(proportionalChange, 2)), 
+            size = 2.5, color = "grey10", check_overlap = TRUE) +
+  scale_x_continuous(breaks = seq(-1, 5, by = 0.5)) +
+  scale_y_discrete(position = "right")
+p5
+
+ggsave(device = "png", filename = file.path(folderColonization, 
+                                            "proportionalAbundanceChange.png"), 
+       width = 8, height = 11)
+
+
+#################
 
 ############################################# ALL PLOTS TOGETHER!
+############################################# 
 
 # Put all three plots together in one big landscape plot
 
 birdPlots <- gridExtra::grid.arrange(p1, p2, p4, ncol = 3)
 
-ggsave(file.path(folderColonization, "birdPlot.png"), device = "png",
-       plot = birdPlots, width = 16, height = 9)
+ggsave(file.path(folderColonization, "birdPlotWithAbundance.png"), device = "png",
+       plot = birdPlots, width = 20, height = 9)
+
+######
+
+############################################# PLOT 6
+#### ~~~ CORRELATION RELATIVE INFLUENCE AND NET EFFECT ~~~ ####
+
+netChange <- unique(netChangeTable[, c("species", "totalNetEffect")])
+
+relativeInfluenceClimate <- dt0[group == "climate", c("species", "sumByGroup")]
+names(relativeInfluenceClimate) <- c("species", "Climate")
+
+# All together
+##### 
+corTable <- merge(netChange, relativeInfluenceClimate, by = "species")
+tendS <-lm(totalNetEffect ~ Climate, data = corTable)
+require(stats)
+coeffS <- coefficients(tendS)
+Fstats <- summary(tendS)$fstatistic
+names(Fstats) <- NULL
+pValueS <- ifelse(pf(Fstats[1], Fstats[2], Fstats[3], lower.tail = F) < 0.05, 
+                  " (significant)", " (non-significant)")
+coefXS <- round(coeffS[2],1)
+coefYS <- round(coeffS[1],1)
+
+SUB <- paste0("y = ", ifelse(coefXS < 10000, coefXS, formatC(coefXS, format = "e", digits = 2)),
+              "x + ", ifelse(coefYS < 10000, coefYS, formatC(coefYS, format = "e", digits = 2)),
+              pValueS)
+
+P5 <- ggplot(data = corTable, aes(x = totalNetEffect/(10^7), y = Climate)) +
+  geom_point(color = "darkblue")  +
+  geom_label_repel(aes(label = species),
+                   box.padding   = 0.5, 
+                   point.padding = 0.5,
+                   segment.color = 'grey50') +
+  stat_smooth(method = "lm", color = "blue") + 
+  theme(plot.title = element_text(hjust = 0)) +
+  ylab("Relative Influence of Climate Covariates") +
+  xlab("Total net effect of climate change (x 10\u2077)") + 
+  labs(subtitle = paste0(SUB, "\n Total Relative Influence"), 
+       title = "Total Net Effect ~ Relative Influence of Climate Covariates")
+P5
+ggsave(file.path(folderColonization, "relativeInfluencePlot.png"), 
+       device = "png",
+       plot = P5, width = 12, height = 12)
+
+#####
+
+# Two plots
+#####
+corTable <- merge(netChange, relativeInfluenceClimate, by = "species")
+corTable1 <- corTable[totalNetEffect < 0,]
+corTable2 <- corTable[totalNetEffect > 0,]
+
+tendS1 <-lm(totalNetEffect ~ Climate, data = corTable1)
+tendS2 <-lm(totalNetEffect ~ Climate, data = corTable2)
+
+require(stats)
+coeffS <- coefficients(tendS1)
+Fstats <- summary(tendS)$fstatistic
+names(Fstats) <- NULL
+pValueS <- ifelse(pf(Fstats[1], Fstats[2], Fstats[3], lower.tail = F) < 0.05, 
+                  " (significant)", " (non-significant)")
+coefXS <- round(coeffS[2],1)
+coefYS <- round(coeffS[1],1)
+SUB1 <- paste0("y = ", ifelse(coefXS < 10000, coefXS, formatC(coefXS, format = "e", digits = 2)),
+               "x + ", ifelse(coefYS < 10000, coefYS, formatC(coefYS, format = "e", digits = 2)),
+               pValueS)
+
+coeffS <- coefficients(tendS2)
+Fstats <- summary(tendS)$fstatistic
+names(Fstats) <- NULL
+pValueS <- ifelse(pf(Fstats[1], Fstats[2], Fstats[3], lower.tail = F) < 0.05, 
+                  " (significant)", " (non-significant)")
+coefXS <- round(coeffS[2],1)
+coefYS <- round(coeffS[1],1)
+SUB2 <- paste0("y = ", ifelse(coefXS < 10000, coefXS, formatC(coefXS, format = "e", digits = 2)),
+               "x + ", ifelse(coefYS < 10000, coefYS, formatC(coefYS, format = "e", digits = 2)),
+               pValueS)
 
 
-############################################# MAPS -- for each bird -- Appendix
+P51 <- ggplot(data = corTable1, aes(x = totalNetEffect/(10^7), y = Climate)) +
+  geom_point(color = "darkblue")  +
+  geom_label_repel(aes(label = species),
+                   box.padding   = 0.5, 
+                   point.padding = 0.5,
+                   segment.color = 'grey50') +
+  stat_smooth(method = "lm", color = "blue") + 
+  theme(plot.title = element_text(hjust = 0)) +
+  ylab("Relative Influence of Climate Covariates") +
+  xlab("Total net effect of climate change (x 10\u2077)") + 
+  labs(subtitle = paste0(SUB1, "\n Total Relative Influence"), 
+       title = "Total Net Effect ~ Relative Influence of Climate Covariates")
+P51
+
+P52 <- ggplot(data = corTable2, aes(x = totalNetEffect/(10^7), y = Climate)) +
+  geom_point(color = "darkblue")  +
+  geom_label_repel(aes(label = species),
+                   box.padding   = 0.5, 
+                   point.padding = 0.5,
+                   segment.color = 'grey50') +
+  stat_smooth(method = "lm", color = "blue") + 
+  theme(plot.title = element_text(hjust = 0)) +
+  ylab("Relative Influence of Climate Covariates") +
+  xlab("Total net effect of climate change (x 10\u2077)") + 
+  labs(subtitle = paste0(SUB2, "\n Total Relative Influence"), 
+       title = "Total Net Effect ~ Relative Influence of Climate Covariates")
+P52
+correlationPlots <- gridExtra::grid.arrange(P51, P52, ncol = 2)
+
+ggsave(file.path(folderColonization, "relativeInfluencePlot2.png"), 
+       device = "png",
+       plot = correlationPlots, width = 12, height = 12)
+#####
+
+# One plot, both veg and clim
+#####
+
+
+relativeInfluenceClimate2 <- dt0[, c("species", "group", "sumByGroup")]
+relativeInfluenceClimate2 <- dcast(data = relativeInfluenceClimate2, formula = species ~ group)
+corTable3 <- merge(netChange, relativeInfluenceClimate2, by = "species")
+corTable3[, totalNetEffect := totalNetEffect/(10^7)]
+# names(corTable3) <- c("Species", "Net Climate Effect", 
+#                       "Relative Climate Influence", "Relative Vegetation Influence")
+
+corTable3[, Colour := ifelse(totalNetEffect > 0, "darkgreen", "darkred")]
+corTable3[, Size := abs(round(totalNetEffect, 2))]
+
+P53 <- ggplot(data = corTable3, aes(x = climate, 
+                                    y = vegetation)) +
+  geom_point(aes(colour = Colour, 
+                 size = Size))  +
+  scale_color_manual(name = "Habitat Change",
+                     values = c("darkred" = "darkred",
+                                "darkgreen" = "darkgreen"),
+                     labels = c("Gain of habitat", 
+                                "Loss of habitat")) +
+  scale_size_binned(name = "Area in ha (x 10\u2077)") + 
+  geom_label_repel(aes(label = species),
+                   box.padding   = 0.5, 
+                   point.padding = 0.5,
+                   segment.color = 'grey50') +
+  # stat_smooth(method = "lm", color = "blue") + 
+  theme(plot.title = element_text(hjust = 0)) +
+  ylab("Relative Influence of Vegetation Covariates") +
+  xlab("Relative Influence of Climate Covariates") +
+  theme(legend.position = "bottom")
+# labs(subtitle = paste0(SUB, "\n Total Relative Influence"), 
+#      title = "Total Net Effect ~ Relative Influence of Climate Covariates")
+P53
+
+ggsave(file.path(folderColonization, "relativeInfluencePlotComplete.png"), 
+       device = "png",
+       plot = P53, width = 12, height = 12)
+
+############################################# MAP1
+
+#################
+
+############################################# MAPS -- for each bird -- Not Appendix
 #### ~~~ NET CHANGE PER EFFECT ~~~ ####
 
 folder <- "~/projects/NWT/outputs/posthoc/colonization"
@@ -460,161 +720,9 @@ allSpecies <- lapply(sp, function(species){
   return(netColonization)
 })
 names(allSpecies) <- sp
-
-############################################# PLOT 5
-#### ~~~ CORRELATION RELATIVE INFLUENCE AND NET EFFECT ~~~ ####
-
-netChange <- unique(netChangeTable[, c("species", "totalNetEffect")])
-
-relativeInfluenceClimate <- dt0[group == "climate", c("species", "sumByGroup")]
-names(relativeInfluenceClimate) <- c("species", "Climate")
-
-# All together
-##### 
-corTable <- merge(netChange, relativeInfluenceClimate, by = "species")
-tendS <-lm(totalNetEffect ~ Climate, data = corTable)
-require(stats)
-coeffS <- coefficients(tendS)
-Fstats <- summary(tendS)$fstatistic
-names(Fstats) <- NULL
-pValueS <- ifelse(pf(Fstats[1], Fstats[2], Fstats[3], lower.tail = F) < 0.05, 
-                  " (significant)", " (non-significant)")
-coefXS <- round(coeffS[2],1)
-coefYS <- round(coeffS[1],1)
-
-SUB <- paste0("y = ", ifelse(coefXS < 10000, coefXS, formatC(coefXS, format = "e", digits = 2)),
-              "x + ", ifelse(coefYS < 10000, coefYS, formatC(coefYS, format = "e", digits = 2)),
-              pValueS)
-
-P5 <- ggplot(data = corTable, aes(x = totalNetEffect/(10^7), y = Climate)) +
-  geom_point(color = "darkblue")  +
-  geom_label_repel(aes(label = species),
-                   box.padding   = 0.5, 
-                   point.padding = 0.5,
-                   segment.color = 'grey50') +
-  stat_smooth(method = "lm", color = "blue") + 
-  theme(plot.title = element_text(hjust = 0)) +
-  ylab("Relative Influence of Climate Covariates") +
-  xlab("Total net effect of climate change (x 10\u2077)") + 
-  labs(subtitle = paste0(SUB, "\n Total Relative Influence"), 
-       title = "Total Net Effect ~ Relative Influence of Climate Covariates")
-P5
-ggsave(file.path(folderColonization, "relativeInfluencePlot.png"), 
-       device = "png",
-       plot = P5, width = 12, height = 12)
-
- #####
-
-# Two plots
-#####
-corTable <- merge(netChange, relativeInfluenceClimate, by = "species")
-corTable1 <- corTable[totalNetEffect < 0,]
-corTable2 <- corTable[totalNetEffect > 0,]
-
-tendS1 <-lm(totalNetEffect ~ Climate, data = corTable1)
-tendS2 <-lm(totalNetEffect ~ Climate, data = corTable2)
-
-require(stats)
-coeffS <- coefficients(tendS1)
-Fstats <- summary(tendS)$fstatistic
-names(Fstats) <- NULL
-pValueS <- ifelse(pf(Fstats[1], Fstats[2], Fstats[3], lower.tail = F) < 0.05, 
-                  " (significant)", " (non-significant)")
-coefXS <- round(coeffS[2],1)
-coefYS <- round(coeffS[1],1)
-SUB1 <- paste0("y = ", ifelse(coefXS < 10000, coefXS, formatC(coefXS, format = "e", digits = 2)),
-              "x + ", ifelse(coefYS < 10000, coefYS, formatC(coefYS, format = "e", digits = 2)),
-              pValueS)
-
-coeffS <- coefficients(tendS2)
-Fstats <- summary(tendS)$fstatistic
-names(Fstats) <- NULL
-pValueS <- ifelse(pf(Fstats[1], Fstats[2], Fstats[3], lower.tail = F) < 0.05, 
-                  " (significant)", " (non-significant)")
-coefXS <- round(coeffS[2],1)
-coefYS <- round(coeffS[1],1)
-SUB2 <- paste0("y = ", ifelse(coefXS < 10000, coefXS, formatC(coefXS, format = "e", digits = 2)),
-              "x + ", ifelse(coefYS < 10000, coefYS, formatC(coefYS, format = "e", digits = 2)),
-              pValueS)
-
-
-P51 <- ggplot(data = corTable1, aes(x = totalNetEffect/(10^7), y = Climate)) +
-  geom_point(color = "darkblue")  +
-  geom_label_repel(aes(label = species),
-                   box.padding   = 0.5, 
-                   point.padding = 0.5,
-                   segment.color = 'grey50') +
-  stat_smooth(method = "lm", color = "blue") + 
-  theme(plot.title = element_text(hjust = 0)) +
-  ylab("Relative Influence of Climate Covariates") +
-  xlab("Total net effect of climate change (x 10\u2077)") + 
-  labs(subtitle = paste0(SUB1, "\n Total Relative Influence"), 
-       title = "Total Net Effect ~ Relative Influence of Climate Covariates")
-P51
-
-P52 <- ggplot(data = corTable2, aes(x = totalNetEffect/(10^7), y = Climate)) +
-  geom_point(color = "darkblue")  +
-  geom_label_repel(aes(label = species),
-                   box.padding   = 0.5, 
-                   point.padding = 0.5,
-                   segment.color = 'grey50') +
-  stat_smooth(method = "lm", color = "blue") + 
-  theme(plot.title = element_text(hjust = 0)) +
-  ylab("Relative Influence of Climate Covariates") +
-  xlab("Total net effect of climate change (x 10\u2077)") + 
-  labs(subtitle = paste0(SUB2, "\n Total Relative Influence"), 
-       title = "Total Net Effect ~ Relative Influence of Climate Covariates")
-P52
-correlationPlots <- gridExtra::grid.arrange(P51, P52, ncol = 2)
-
-ggsave(file.path(folderColonization, "relativeInfluencePlot2.png"), 
-       device = "png",
-       plot = correlationPlots, width = 12, height = 12)
 #####
 
-# One plot, both veg and clim
-#####
-
-
-relativeInfluenceClimate2 <- dt0[, c("species", "group", "sumByGroup")]
-relativeInfluenceClimate2 <- dcast(data = relativeInfluenceClimate2, formula = species ~ group)
-corTable3 <- merge(netChange, relativeInfluenceClimate2, by = "species")
-corTable3[, totalNetEffect := totalNetEffect/(10^7)]
-# names(corTable3) <- c("Species", "Net Climate Effect", 
-#                       "Relative Climate Influence", "Relative Vegetation Influence")
-
-corTable3[, Colour := ifelse(totalNetEffect > 0, "darkgreen", "darkred")]
-corTable3[, Size := abs(round(totalNetEffect, 2))]
-
-P53 <- ggplot(data = corTable3, aes(x = climate, 
-                                    y = vegetation)) +
-  geom_point(aes(colour = Colour, 
-                 size = Size))  +
-  scale_color_manual(name = "Habitat Change",
-                     values = c("darkred" = "darkred",
-                                "darkgreen" = "darkgreen"),
-                     labels = c("Gain of habitat", 
-                                "Loss of habitat")) +
-  scale_size_binned(name = "Area in ha (x 10\u2077)") + 
-  geom_label_repel(aes(label = species),
-                   box.padding   = 0.5, 
-                   point.padding = 0.5,
-                   segment.color = 'grey50') +
-  # stat_smooth(method = "lm", color = "blue") + 
-  theme(plot.title = element_text(hjust = 0)) +
-  ylab("Relative Influence of Vegetation Covariates") +
-  xlab("Relative Influence of Climate Covariates") +
-  theme(legend.position = "bottom")
-  # labs(subtitle = paste0(SUB, "\n Total Relative Influence"), 
-  #      title = "Total Net Effect ~ Relative Influence of Climate Covariates")
-P53
-
-ggsave(file.path(folderColonization, "relativeInfluencePlotComplete.png"), 
-       device = "png",
-       plot = P53, width = 12, height = 12)
-
-############################################# MAP1
-
+############################################# MAPS 1 -- APPENDIX
 #### ~~~ HOTSPOT OF CHANGE ~~~ ####
 
 # 0. Stack netEffect rasters, and individually each one of the effects.
@@ -687,6 +795,7 @@ lapply(names(hotspotChanges), function(eff){
     dev.off()
   }
 })
+#####################
 
 ############################################# MAP2
 #### ~~~ NET CHANGE ~~~ ####
@@ -745,51 +854,10 @@ lapply(names(speciesChanges), function(eff){
     dev.off()
   }
 })
+#####################
 
-############################################# TABLE
-#### ~~~ PROPORTION OF THE EFFECT ~~~ ####
-
-# Calculating the proportion of the effects
-proportionChangeTable <- copy(netChangeTable)
-proportionChangeTable <- proportionChangeTable[effect != "netEffect"]
-proportionChangeTable[, absoluteEffect := sum(sum(abs(netChange))), by = "species"]
-proportionChangeTable[, proportionalEffect := abs(netChange)/absoluteEffect]
-
-fireEffects <- proportionChangeTable[effect == "fire", ]
-vegetationEffects <- proportionChangeTable[effect == "vegetation", ]
-
-fireEffects[fireEffects[, .I[which.max(proportionalEffect)]]]
-vegetationEffects[vegetationEffects[, .I[which.max(proportionalEffect)]]]
-
-setkey(fireEffects, "proportionalEffect")
-fireEffects # 4 species above 50% (SAVS 91%, WEWP 82%, PIWO 75%, COYE 54%)
-
-setkey(vegetationEffects, "proportionalEffect")
-vegetationEffects # 4 species above 10% (BBWA 31%, PUFI 16%, HOLA 13%, WIWR 13%)
-
-# For all these species, expected proportion of habitat area colonized or lost due to climate change was not above
-proportionArea <- data.table(p4$data)
-proportionAreaChange <- proportionArea[species %in% c("SAVS", "WEWP", "PIWO", "COYE", 
-                                                "BBWA", "PUFI", "HOLA", "WIWR"), 
-                                 c("species", "proportionOfAreaChanged")]
-setkey(proportionAreaChange, "proportionOfAreaChanged")
-proportionAreaChange
-# In all cases, expected proportion of habitat change was below 20%
-
-# Write table for manuscript
-proportionArea
-proportionsTable <- copy(proportionChangeTable)
-proportionsTable[, labelMark := NULL]
-proportionArea[, c("colonization", "labelMark") := NULL]
-
-proportionsTableDCAST <- proportionsTable[, c("species", "effect", "colonization", "extirpation", "netChange")]
-proportionsTableMelted = melt(proportionsTableDCAST, id.vars = c("species", "effect"),
-             measure.vars = c("colonization", "extirpation", "netChange"))
-proportionsTableDCASTed <- dcast(proportionsTableMelted, species ~ effect + variable, value.var = "value")
-finalProportionsTable <- merge(proportionsTableDCASTed, proportionArea, by = "species")
-
-# write.csv(finalProportionsTable, file = file.path(getwd(), "proportionsTableSUPMAT.csv"))
-# drive_upload(media = file.path(getwd(), "proportionsTableSUPMAT.csv"), as_id("17xCa7ZogxktoaTVuv7s4EIc2DVCuEq68")) # Already uploaded
+############################################### MAP 3
+##### PROBABILITY OF PRESENCE MAP #############
 
 # LAST 2 THINGS TO DO:
 # 1. Make the probability of presence maps
@@ -845,38 +913,52 @@ probabilityOfPresenceMaps <- lapply(Species, function(sp){
   return(speciesProbabilityPath)
 })
 
-# 2. Try to compare abundance change. 
-# 2.1. abund2011 -> get predicted abundance in 2011, use the colonization 2011 cutoff, sum all
-library(data.table)
-library(tictoc)
-library(future)
-library(future.apply)
-library(usefulFuns)
-library(raster)
-source('~/projects/NWT/posthocFunctions/makeAbundanceTable.R')
-
-folderAbundance <- "~/projects/NWT/outputs/SIMULATIONS"
-folderColonization <- "~/projects/NWT/outputs/posthoc/colonization"
-abund2011 <- makeAbundanceTable(folderAbundance = folderAbundance, 
-                                folderColonization = folderColonization, 
-                                year = 2011)
-names(abund2011) <- c("species", "year", "totalAbundance2011")
-# 2.2. abund2100 -> get the abundance in 2100, use the colonization 2100 cutoff, sum all
-folderAbundance <- "~/projects/NWT/outputs/SIMULATIONS/LandR.CS_fS"
-abund2100 <- makeAbundanceTable(folderAbundance = folderAbundance, 
-                                folderColonization = folderColonization, 
-                                year = 2100)
-names(abund2100) <- c("species", "year", "totalAbundance2100")
-
-# 2.3. propChangeAbund -> (abund2100 - abund2011)/abund2011
-proportionAbundanceChangeTable <- merge(abund2011[, c("species", "totalAbundance2011")],
-                                        abund2100[, c("species", "totalAbundance2100")])
-proportionAbundanceChangeTable[, proportionalChange := (totalAbundance2100 - 
-                                                          totalAbundance2011)/totalAbundance2011]
-qs::qsave(proportionAbundanceChangeTable, file.path(folderColonization, 
-                                                    "finalAbundanceMaps",
-                                                    "proportionAbundanceChangeTable.qs"))
-# 2.4. Make another plot (p5) to add to birdsPlot
 
 
+#######################
 
+############################################# TABLE
+#### ~~~ PROPORTION OF THE EFFECT ~~~ ####
+
+# Calculating the proportion of the effects
+proportionChangeTable <- copy(netChangeTable)
+proportionChangeTable <- proportionChangeTable[effect != "netEffect"]
+proportionChangeTable[, absoluteEffect := sum(sum(abs(netChange))), by = "species"]
+proportionChangeTable[, proportionalEffect := abs(netChange)/absoluteEffect]
+
+fireEffects <- proportionChangeTable[effect == "fire", ]
+vegetationEffects <- proportionChangeTable[effect == "vegetation", ]
+
+fireEffects[fireEffects[, .I[which.max(proportionalEffect)]]]
+vegetationEffects[vegetationEffects[, .I[which.max(proportionalEffect)]]]
+
+setkey(fireEffects, "proportionalEffect")
+fireEffects # 4 species above 50% (SAVS 91%, WEWP 82%, PIWO 75%, COYE 54%)
+
+setkey(vegetationEffects, "proportionalEffect")
+vegetationEffects # 4 species above 10% (BBWA 31%, PUFI 16%, HOLA 13%, WIWR 13%)
+
+# For all these species, expected proportion of habitat area colonized or lost due to climate change was not above
+proportionArea <- data.table(p4$data)
+proportionAreaChange <- proportionArea[species %in% c("SAVS", "WEWP", "PIWO", "COYE", 
+                                                      "BBWA", "PUFI", "HOLA", "WIWR"), 
+                                       c("species", "proportionOfAreaChanged")]
+setkey(proportionAreaChange, "proportionOfAreaChanged")
+proportionAreaChange
+# In all cases, expected proportion of habitat change was below 20%
+
+# Write table for manuscript
+proportionArea
+proportionsTable <- copy(proportionChangeTable)
+proportionsTable[, labelMark := NULL]
+proportionArea[, c("colonization", "labelMark") := NULL]
+
+proportionsTableDCAST <- proportionsTable[, c("species", "effect", "colonization", "extirpation", "netChange")]
+proportionsTableMelted = melt(proportionsTableDCAST, id.vars = c("species", "effect"),
+                              measure.vars = c("colonization", "extirpation", "netChange"))
+proportionsTableDCASTed <- dcast(proportionsTableMelted, species ~ effect + variable, value.var = "value")
+finalProportionsTable <- merge(proportionsTableDCASTed, proportionArea, by = "species")
+
+# write.csv(finalProportionsTable, file = file.path(getwd(), "proportionsTableSUPMAT.csv"))
+# drive_upload(media = file.path(getwd(), "proportionsTableSUPMAT.csv"), as_id("17xCa7ZogxktoaTVuv7s4EIc2DVCuEq68")) # Already uploaded
+####################

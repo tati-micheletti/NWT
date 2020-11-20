@@ -31,6 +31,8 @@ if (runLandR){
                                                                       objects = objects,
                                                                       paths = Paths,
                                                                       loadOrder = unlist(definedRun$modules),
+                                                                      debug = list(file = list(file = file.path(Paths$outputPath, "sim.log"),
+                                                                                       append = TRUE), debug = 1),
                                                                       outputs = outputsLandR)))
   t2 <- Sys.time()
   message(crayon::green(paste0("Finished ", ifelse(runOnlySimInit, "simInit", "simulations")," for ", 

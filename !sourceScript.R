@@ -16,7 +16,7 @@
 
 # usrEmail <- "your.email@gmail.com" # Your e.mail for GDrive authorization
 
-  RUN <- 1
+  RUN <- "TEST"
     usrEmail <- "tati.micheletti@gmail.com" # Your e.mail for GDrive authorization
     hostIp <- 68 # Specify which machine this is running for
     updateCRAN <- FALSE
@@ -28,26 +28,26 @@
     # fitTheseFireSenseModels <- "spread"
     onlyLoadDEOptim <- TRUE
     runName <- "NWT_BCR6"
-    runPosthocBirds <- TRUE
+    runPosthocBirds <- FALSE
     originalDateAnalysis <- "SIMULATIONS"
     Sys.sleep(1)
     replicateNumber <- paste0("run", RUN)
     Sys.sleep(1)
     vegetation <- "LandR.CS"
     fire <- "fS"
-    runLandR <- FALSE
-    runBirds <- TRUE
+    runLandR <- TRUE
+    runBirds <- FALSE
     runCaribou <- FALSE
     birdModelVersion <- c(4, 6)
     Sys.sleep(3)
     source("1_generalSetup.R")
     source("2_generatingInputs.R")
-    # if (all(runLandR, fire != "SCFM")){
-    #   source("3_preamble.R")
-    #   source("4_fittingModules.R")
-    # }
-    # source("5_runningSimulations.R")
-    source("6_posthocAnalysis.R")
+    if (all(runLandR, fire != "SCFM")){
+      source("3_preamble.R")
+      source("4_fittingModules.R")
+    }
+    source("5_runningSimulations.R")
+    # source("6_posthocAnalysis.R")
 # if (runOnlySimInit){
 #   factorialSimulations <- SpaDES.experiment::experiment2(
 #     # LandR.CS_fS = LandR.CS_fS,

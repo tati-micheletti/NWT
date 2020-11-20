@@ -16,6 +16,7 @@ library("data.table")
 library("usefulFuns")
 speciesExample <- c("COYE", "CAWA", "REVI", "WCSP")
 modsPath <- "~/projects/NWT/outputs/SIMULATIONS/birdCovariates.qs"
+
 if (!file.exists(modsPath)){
   mods <- lapply(species, FUN = function(sp){
     MOD <- get(load(paste0("~/projects/NWT/modules/birdsNWT/data/models/", sp,
@@ -65,20 +66,33 @@ orderSpecies <- as.character(dt3$species)
 dt[, species := factor(species, levels = orderSpecies)]
 dt[, group := factor(group, levels = c("climate", "topographic", "vegetation"))]
 
-p <- ggplot(dt, aes(x = species, y = sumByGroup, 
+
+dt0 <- dt[group != "topographic"]
+dt0[, totalSum := sum(sumByGroup), by = "species"]
+dt0[, proportion := sumByGroup/totalSum]
+speciesOrder <- dt0[group == "climate", c("species", "proportion")]
+setkey(speciesOrder, "proportion")
+speciesOrder <- as.character(speciesOrder[,species])
+dt0[, species := factor(species, levels = speciesOrder)]
+
+p0 <- ggplot(dt0, aes(x = proportion, y = species, 
                              fill = group)) +
   geom_bar(position = "stack", stat = "identity") +
-  scale_fill_manual(values = c("darkred", "blue", "darkgreen"))
-p
-p1 <- ggplot(dt[species %in% speciesOfInterest], aes(x = species, y = sumByGroup, 
-                     fill = group)) +
-  geom_bar(position = "stack", stat = "identity") +
-  scale_fill_manual(values = c("darkred", "blue", "darkgreen"))
-p1
-p2 <- ggplot(dt[species %in% speciesExample], aes(x = species, y = sumByGroup, 
-                                                     fill = group)) +
-  geom_bar(position = "stack", stat = "identity") +
-  scale_fill_manual(values = c("darkred", "blue", "darkgreen"))
-p2
+  scale_fill_manual(values = c("blue", "darkgreen")) +
+  theme(axis.title.y = element_blank(),
+        legend.position = "bottom",
+        legend.title = element_blank())
+p0
 
+# p1 <- ggplot(dt[species %in% speciesOfInterest], aes(x = species, y = sumByGroup, 
+#                      fill = group)) +
+#   geom_bar(position = "stack", stat = "identity") +
+#   scale_fill_manual(values = c("darkred", "blue", "darkgreen"))
+# p1
+# p2 <- ggplot(dt[species %in% speciesExample], aes(x = species, y = sumByGroup, 
+#                                                      fill = group)) +
+#   geom_bar(position = "stack", stat = "identity") +
+#   scale_fill_manual(values = c("darkred", "blue", "darkgreen"))
+# p2
+# 
 

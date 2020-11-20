@@ -104,12 +104,18 @@ rstLCC <- Cache(prepInputs, url = paste0("ftp://ftp.ccrs.nrcan.gc.ca/ad/NLCCLand
 # Rocks = 33
 # Urban = 36
 
-nonFlammClass <- c(33, 36:39)
-flammableRTM <- rasterToMatch
-# Remove LCC non flammable classes first
-flammableRTM[rstLCC[] %in% nonFlammClass] <- NA
-# Remove more detailed water from DUCKS layer
-flammableRTM[waterRaster[] == 1] <- NA
+flammableRTMPath <- file.path(Paths$inputPath, "flammableRTM")
+if (!file.exists(paste0(flammableRTMPath, ".tif"))){
+  nonFlammClass <- c(33, 36:39)
+  flammableRTM <- rasterToMatch
+  # Remove LCC non flammable classes first
+  flammableRTM[rstLCC[] %in% nonFlammClass] <- NA
+  # Remove more detailed water from DUCKS layer
+  flammableRTM[waterRaster[] == 1] <- NA
+  writeRaster(flammableRTM, flammableRTMPath, format = "GTiff")
+} else {
+  flammableRTM <- raster::raster(paste0(flammableRTMPath, ".tif"))
+}
 
 # fire ~~~~~~~~~~~~~~~~~~~~~~~~
 

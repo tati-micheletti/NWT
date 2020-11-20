@@ -1,5 +1,6 @@
 # PLOT 4 ####
 calcProportionPixelsLost <- function(listOfRasters = NULL,
+                                     newSortOrder,
                                      species,
                                      outputFolder,
                                      noCorner,  # <~~~~~~~~ TEMPORARY!!!
@@ -42,19 +43,20 @@ calcProportionPixelsLost <- function(listOfRasters = NULL,
         probPresence <- calc(x = allScenarios, fun = mean, na.rm = TRUE,
                              filename = fileNamePath,
                              format = "GTiff")
+        # TEMPORARY ####################
+        # ### TODO >>>> HERE CUT THE CORNER
+        # probPresence[is.na(noCorner)] <- NA # <~~~~~REMOVE
+        # # SAVE AGAIN!
+        # writeRaster(probPresence, 
+        #             filename = fileNamePath, 
+        #             overwrite = TRUE, format = "GTiff")
+        # message(crayon::green(paste0("Corner removed for ", sp)))
+        # TEMPORARY ####################
         rm(allScenarios)
         gc()
       } else {
         probPresence <- raster(paste0(fileNamePath, ".tif"))
-        
-        # TEMPORARY ####################
-        ### TODO >>>> HERE CUT THE CORNER
-        probPresence[is.na(noCorner)] <- NA # <~~~~~REMOVE
-        # SAVE AGAIN!
-        writeRaster(probPresence, 
-                    filename = fileNamePath, 
-                    overwrite = TRUE)
-        # TEMPORARY ####################
+
       }
       m2ExpectedArea <- sum(probPresence[], na.rm = TRUE)
       DT <- data.table(species = sp,
@@ -70,8 +72,6 @@ calcProportionPixelsLost <- function(listOfRasters = NULL,
   } else {
     allBirds <- qs::qread(fileNamePath)
   }
-  # Now the plot
-  allBirds[, species := factor(species, levels = levels(netChangeTable$species))]
   
   library("ggplot2")
   library("data.table")
@@ -79,8 +79,8 @@ calcProportionPixelsLost <- function(listOfRasters = NULL,
   library("tictoc")
   
   allBirds[, colonization := ifelse(proportionOfAreaChanged > 0, "increase", "decrease")]
-  
-  lapply(X = Species, function(sp){
+
+  lapply(X = species, function(sp){
     DT <- allBirds[species == sp,]
     signal <- ifelse(unique(DT[["proportionOfAreaChanged"]]) > 0, "> 0", "< 0")
     jit <- ifelse(unique(DT[["proportionOfAreaChanged"]]) > 0, 0.2, -0.2)
@@ -92,15 +92,20 @@ calcProportionPixelsLost <- function(listOfRasters = NULL,
     return("OK")
   })
   
+  # Now the plot
+  allBirds[, species := factor(species, levels = newSortOrder)]
+  
   p4 <- ggplot(data = allBirds, mapping = aes(x = proportionOfAreaChanged, y = species, 
                                               fill = colonization, group = colonization,
                                               color = colonization)) +
     geom_col() +
     geom_vline(xintercept = 0, color = "black") + 
-    xlab("Expected proportion of habitat area colonized or lost due to climate change") +
+    xlab("Expected proportion of habitat area \ncolonized or lost due to climate change") +
     theme(legend.position = "none",
           axis.title.y = element_blank(),
-          legend.title = element_blank()) + #,
+          axis.text.y = element_blank(),
+          legend.title = element_blank(),
+          axis.ticks.y = element_blank()) + #,
           # plot.margin = unit(c(5.5,5.5,5.5,0), "pt")) +
     scale_color_manual(values = c("increase" = "slateblue3", 
                                   "decrease" = "goldenrod3")) + 

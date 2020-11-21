@@ -45,7 +45,7 @@ plotBurnSummaryReps <- function(dataPath,
   coeff <- coefficients(tend)
   Fstats <- summary(tend)$fstatistic
   names(Fstats) <- NULL
-  pValueA <- ifelse(pf(Fstats[1], Fstats[2], Fstats[3], lower.tail = F) < 0.05, " \n(significant)", " \n(non-significant)")
+  pValueA <- ifelse(pf(Fstats[1], Fstats[2], Fstats[3], lower.tail = F) < 0.01, " \n(significant)", " \n(non-significant)")
   
   areaB[, var := "area_burned"]
   areaB[, val := sumAB/1000] # Doing this so I can plot the axis with mostly the same limits. 
@@ -62,7 +62,7 @@ plotBurnSummaryReps <- function(dataPath,
   coeffF <- coefficients(tendF)
   Fstats <- summary(tendF)$fstatistic
   names(Fstats) <- NULL
-  pValueF <- ifelse(pf(Fstats[1], Fstats[2], Fstats[3], lower.tail = F) < 0.05, " \n(significant)", " \n(non-significant)")
+  pValueF <- ifelse(pf(Fstats[1], Fstats[2], Fstats[3], lower.tail = F) < 0.01, " \n(significant)", " \n(non-significant)")
   nFires[, var := "number_fires"]
   nFires[, val := Nfires] # Doing this so I can plot the axis with mostly the same limits. 
   
@@ -78,7 +78,7 @@ plotBurnSummaryReps <- function(dataPath,
   coeffS <- coefficients(tendS)
   Fstats <- summary(tendS)$fstatistic
   names(Fstats) <- NULL
-  pValueS <- ifelse(pf(Fstats[1], Fstats[2], Fstats[3], lower.tail = F) < 0.05, " \n(significant)", " \n(non-significant)")
+  pValueS <- ifelse(pf(Fstats[1], Fstats[2], Fstats[3], lower.tail = F) < 0.01, " \n(significant)", " \n(non-significant)")
   
   fireSize[, var := "fire_size"]
   fireSize[, val := fireSize/10] # Doing this so I can plot the axis with mostly the same limits. 
@@ -150,7 +150,7 @@ plotBurnSummaryReps <- function(dataPath,
           axis.ticks.x = element_blank(),
           plot.margin = unit(c(0.2, 0.2, -0.01, 0.2), "cm")) +
     coord_cartesian(ylim = c(100, 1500)) +
-    labs(y = "ha x 10^3")
+    labs(y = expression(paste("ha x ", 10^{3}))) 
   p2 <- ggplot(data = dt[var == "number_fires",], aes(x = year, y = val, colour = "blue")) +
     geom_point(colour = "grey70") +
     stat_smooth(method = "lm", fill = "blue", color = "darkblue") +

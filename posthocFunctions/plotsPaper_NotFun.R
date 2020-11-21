@@ -110,8 +110,7 @@ p0
 #   scale_fill_manual(values = c("darkred", "blue", "darkgreen"))
 # p2
 # 
-
-############################################# PLOT1 
+#####
 
 ############################################# PLOT1
 #### ~~~ FULL TABLE ~~~ ####
@@ -856,8 +855,8 @@ lapply(names(speciesChanges), function(eff){
 })
 #####################
 
-############################################### MAP 3
-##### PROBABILITY OF PRESENCE MAP #############
+############################################### MAP3 -- Paper 2
+##### PROBABILITY OF PRESENCE STRALBERG COLOR SCHEME ######
 
 # LAST 2 THINGS TO DO:
 # 1. Make the probability of presence maps
@@ -917,6 +916,354 @@ probabilityOfPresenceMaps <- lapply(Species, function(sp){
 
 #######################
 
+############################################### MAPX -- Paper 2
+##### PROBABILITY OF PRESENCE  #######
+runName <- "NWT_BCR6"
+originalDateAnalysis <- "SIMULATIONS"
+source("1_generalSetup.R")
+source("2_generatingInputs.R")
+stepCacheTag <- c(paste0("cache:6_posthocAnalysis"), 
+                  paste0("runName:", runName))
+
+SpaDES.core::setPaths(cachePath = posthocCache,
+                      outputPath = checkPath(file.path(getwd(), "outputs",
+                                                       "posthoc"),
+                                             create = TRUE))
+library(raster)
+library(tictoc)
+library(data.table)
+library(reproducible)
+noCorner <- raster("~/projects/NWT/inputs/NWT_BCR6/RTM_noCorner.tif")
+Species <- c("ALFL", "AMCR", "AMRE", "AMRO", "ATSP", "BAWW", "BBWA", "BBWO",
+             "BCCH", "BHCO", "BHVI", "BLPW", "BOCH", "BRBL", "BRCR", "BTNW",
+             "CAWA", "CHSP", "CORA", "COYE", "DEJU", "EAKI", "EAPH", "FOSP",
+             "GRAJ", "HETH", "HOLA", "LCSP", "LEFL", "LISP", "MAWA", "NOFL",
+             "NOWA", "OCWA", "OSFL", "OVEN", "PAWA", "PISI", "PIWO", "PUFI",
+             "RBGR", "RBNU", "RCKI", "REVI", "RUGR", "RWBL", "SAVS", "SOSP",
+             "SWSP", "SWTH", "TEWA", "TRES", "WAVI", "WCSP", "WETA", "WEWP",
+             "WIWA", "WIWR", "WTSP", "WWCR", "YBFL", "YBSA", "YEWA", "YRWA")
+
+vegetationFireModels <- expand.grid(vegetation = c("LandR_", "LandR.CS_"), 
+                                    fire = c("fS", "SCFM"))
+vegetationFireModels <- paste0(vegetationFireModels$vegetation, vegetationFireModels$fire)
+
+
+dataFolder <- lapply(vegetationFireModels, function(scenario){
+  dataFolderRuns <- lapply(c("V4", "V6a"), function(birdModel){
+    dataFolderRuns <- lapply(paste0("run", 1:10), function(run){
+      pth <- file.path(dirname(Paths$outputPath),
+                       originalDateAnalysis,
+                       scenario,
+                       run,
+                       paste0("birdPredictions", birdModel))
+      return(pth)
+    })
+    names(dataFolderRuns) <- paste0("run", 1:10)
+    return(dataFolderRuns)
+  })
+  names(dataFolderRuns) <- c("V4", "V6a")
+  return(dataFolderRuns)
+})
+names(dataFolder) <- vegetationFireModels
+
+source("modules/posthocBirdsNWT/R/retrieveRasters.R")
+listOfRasters <- retrieveRasters(dataFolder = dataFolder,
+                                 years = 2100,
+                                 patternsToRetrieveRasters = c("predicted", ".tif"),
+                                 species = Species)
+
+flammableRTMPath <- file.path(Paths$inputPath, "flammableRTM")
+source('~/projects/NWT/temp/makeProbabilityPresenceRaster.R')
+flammableRTM <- raster::raster(paste0(flammableRTMPath, ".tif"))
+colRas2100 <- makeProbabilityPresenceRaster(species = Species,
+                                            yearOfAnalysis = 2100,
+                                            flammableRTM = flammableRTM,
+                                            listOfRasters = listOfRasters,
+                                            noCorner = noCorner,  # <~~~~~~~~ TEMPORARY!!!
+                                            outputFolder = "~/projects/NWT/outputs/posthoc/colonization",
+                                            useFuture = TRUE)
+########
+
+############################################### MAPX -- Paper 2
+##### DENSITY CURRENT / FUTURE #############
+runName <- "NWT_BCR6"
+originalDateAnalysis <- "SIMULATIONS"
+source("1_generalSetup.R")
+source("2_generatingInputs.R")
+stepCacheTag <- c(paste0("cache:6_posthocAnalysis"), 
+                  paste0("runName:", runName))
+
+SpaDES.core::setPaths(cachePath = posthocCache,
+                      outputPath = checkPath(file.path(getwd(), "outputs",
+                                                       "posthoc"),
+                                             create = TRUE))
+library(raster)
+library(tictoc)
+library(data.table)
+library(reproducible)
+
+Species <- c("CAWA", "BLPW", "OSFL")
+
+source('~/projects/NWT/posthocFunctions/makeProbabilityPresenceRaster.R')
+source('~/projects/NWT/posthocFunctions/calcColonization.R')
+source("modules/posthocBirdsNWT/R/retrieveRasters.R")
+
+uploadFolder <- "1f8kqdiTTOtJfJIteFEcFUSaU8FQedCPR"
+library(googledrive)
+library(rasterVis)
+
+vegetationFireModels <- "LandR.CS_fS"
+dataFolder <- lapply(vegetationFireModels, function(scenario){
+  dataFolderRuns <- lapply("V6a", function(birdModel){
+    dataFolderRuns <- lapply(paste0("run", 1:10), function(run){
+      pth <- file.path(dirname(Paths$outputPath),
+                       originalDateAnalysis,
+                       scenario,
+                       run,
+                       paste0("birdPredictions", birdModel))
+      return(pth)
+    })
+    names(dataFolderRuns) <- paste0("run", 1:10)
+    return(dataFolderRuns)
+  })
+  names(dataFolderRuns) <- "V6a"
+  return(dataFolderRuns)
+})
+names(dataFolder) <- vegetationFireModels
+
+yearsToGenerateDensityMaps <- c(2011, 2100)
+mps <- lapply(yearsToGenerateDensityMaps, function(ys){
+  listOfRasters <- retrieveRasters(dataFolder = dataFolder,
+                                   years = ys,
+                                   patternsToRetrieveRasters = c("predicted", ".tif"),
+                                   species = Species)
+  
+  densityRasters <- makeProbabilityPresenceRaster(species = Species,
+                                              yearOfAnalysis = ys,
+                                              flammableRTM = flammableRTM,
+                                              listOfRasters = listOfRasters,
+                                              noCorner = noCorner,  # <~~~~~~~~ TEMPORARY!!!
+                                              outputFolder = "~/projects/NWT/outputs/posthoc/colonization",
+                                              useFuture = FALSE,
+                                              typeOfAnalysis = "density")
+  return(densityRasters)
+})
+names(mps) <- paste0("Year", yearsToGenerateDensityMaps)
+# Make the delta maps.  Just need to select these from mps
+deltaMaps <- lapply(Species, function(sp){
+  message(paste0("Making delta maps for ", sp))
+  rasT0 <- mps[[paste0("Year", yearsToGenerateDensityMaps[1])]][[sp]][["LandR.CS_fS"]][["V6a"]][["ras"]]
+  rasT1 <- mps[[paste0("Year", yearsToGenerateDensityMaps[length(yearsToGenerateDensityMaps)])]][[sp]][["LandR.CS_fS"]][["V6a"]][["ras"]]
+  delta <- rasT1-rasT0
+  library(viridis)
+  pal <- pals::brewer.rdylbu(100)
+  deltaMapPath <- file.path("~/projects/NWT/outputs/posthoc/deltaMaps", paste0("deltaMap_", sp, 
+                                                    ".png"))
+  # Center the data
+  delta[] <- round(delta[], 5)
+  deltaDT <- na.omit(data.table::data.table(pixelID = 1:ncell(delta), 
+                                                   val = getValues(delta)))
+  setkey(deltaDT, val)
+  # NEGATIVE
+  nD <- deltaDT[val < 0,]
+  nD[, CUM := cumsum(val)]
+  nD[, CUMstd := CUM/sum(val)]
+  nD[, PA := CUMstd > 0.05]
+  nD[PA == FALSE, PA0 := "low"]
+  delta[nD[PA0 == "low", pixelID]] <- nD[PA0 == "low", mean(val)]
+  
+  # POSITIVE
+  pD <- deltaDT[val > 0,]
+  pD[, CUM := cumsum(val)]
+  pD[, CUMstd := CUM/sum(val)]
+  pD[, PA := CUMstd < 0.95]
+  pD[PA == FALSE, PA0 := "high"]
+  delta[pD[PA0 == "high", pixelID]] <- pD[PA0 == "high", mean(val)]
+  
+  library(plyr)
+  
+  negSeq <- seq(round_any(minValue(delta), 0.001, f = floor), 0, length.out = 5)
+  posSeq <- seq(0, round_any(maxValue(delta), 0.001, f = ceiling), length.out = 5)
+  AT <- round(c(negSeq[-length(negSeq)], 0, posSeq[-1]), 
+              digits = 3)
+  ATlabel <- AT
+  ATlabel <- round(ATlabel, 2)
+  colKey <- list(at = ATlabel, ## where the colors change
+                 labels = list(
+                   labels = c(paste0("< ", ATlabel[1]),
+                              ATlabel[-c(1, length(ATlabel))], 
+                              paste0("> ", ATlabel[length(ATlabel)])), ## labels
+                   at = ATlabel ## where to print labels
+                 ),
+                 space = 'bottom',
+                 axis.line = list(col = 'black'),
+                 width = 0.75,
+                 height = 1.3)
+    png(filename = deltaMapPath,
+        width = 29, height = 29,
+        units = "cm", res = 300)
+    print(levelplot(delta,
+                    sub = paste0("Difference in density from 2011 to 2100 for ", sp),
+                    margin = FALSE,
+                    maxpixels = 6e6,
+                    at = ATlabel,
+                    colorkey = colKey,
+                    par.settings = list(
+                      strip.border = list(col = 'transparent'),
+                      strip.background = list(col = 'transparent'),
+                      axis.line = list(col = 'transparent')),
+                    scales = list(draw = FALSE),
+                    col.regions = pal, #pals::kovesi.rainbow(nlev), #viridis_pal(option = "D")(nlev),
+                    par.strip.text = list(cex = 0.8,
+                                          lines = 1,
+                                          col = "black")))
+    dev.off()
+    return(deltaMapPath)
+})
+
+########
+
+############################################### MAPX -- Paper 2
+##### PROBABILITY OF MOVEMENT  #######
+
+# MAKE ANOTHER FUNCTION TO USE THIS BELOW WITHIN EACH ONE OF THE SPECIES/SCENARIOS I NEED
+# speciesForPlot <- c("EAPH", "PISI", "BBWA", "OSFL", "ATSP", "WCSP")
+source('~/projects/NWT/posthocFunctions/probabilityOfColonizationWithPresence.R')
+speciesForPlot <- c("CAWA", "BLPW")
+scenarioForPlot <- "LandR.CS_fS_V6a"
+
+allMaps <- lapply(speciesForPlot, function(sp){
+  allScenarios <- lapply(scenarioForPlot, function(scen){
+    spScen <- probabilityOfColonizationWithPresence(species = sp,
+                                                    flammableRTM = flammableRTM,
+                                                    scenarioName = scen,
+                                                    folder = "~/projects/NWT/outputs/posthoc/colonization",
+                                                    patternsT0 = c(sp, "probabilityPresence_", "2011"),
+                                                    patternsT1 = c(sp, scen, "probabilityPresence_", "2100"))
+  })
+  names(allScenarios) <- scenarioForPlot
+  return(allScenarios)
+})
+names(allMaps) <- speciesForPlot
+
+# to Upload
+folderHosting <- "~/projects/NWT/outputs/posthoc/colonization"
+folderToUpload <- "1t56m8O3EGfyeJIOrSQwg1bp8EzM7vgsT"
+
+fl <- list.files(folderHosting, pattern = "probabilityMovement2100", full.names = TRUE)
+fl <- c(fl, unlist(allMaps, use.names = FALSE))
+library(googledrive)
+lapply(fl, drive_upload, as_id(folderToUpload))
+
+#####
+
+############################################### PLOTX -- Paper 1
+##### VEGETATION PLOTS #############
+source('~/projects/NWT/posthocFunctions/vegetationBiomassPlot.R')
+pal <- c("#27408B", "#8B7D6B", "#CD0000", "#EEB422", "#9A32CD", "#006400",
+         "#A6BFFF", "#F1E3D1", "#FF7F7F", "#FFDC66", "#FFB1FF", "#7FE37F")
+
+vegPlotsLandRCS_SCFM <- vegetationBiomassPlot(pathData = "~/projects/NWT/outputs/SIMULATIONS",
+                                              pathOutputs = reproducible::checkPath(
+                                                path = "~/projects/NWT/outputs/posthoc/vegetationResults", 
+                                                create = TRUE),
+                                              typeSim = "LandR.CS_SCFM", # <~~~~ REMOVE LATER!
+                                              years = 2100,
+                                              pal = pal, # Order: all species first, mixed with leading after
+                                              flammableRTM = flammableRTM) 
+
+# For biomass change in function of climate only
+totBiom_LandR_fS <- raster::raster("~/projects/NWT/outputs/posthoc/vegetationResults/totalBiomass_LandR_fS_2100.tif")
+totBiom_LandR.CS_fS <- raster::raster("~/projects/NWT/outputs/posthoc/vegetationResults/totalBiomass_LandR.CS_fS_2100.tif")
+totBiom_LandR_SCFM <- raster::raster("~/projects/NWT/outputs/posthoc/vegetationResults/totalBiomass_LandR_SCFM_2100.tif")
+totBiom_LandR.CS_SCFM <- raster::raster("~/projects/NWT/outputs/posthoc/vegetationResults/totalBiomass_LandR.CS_SCFM_2100.tif")
+
+diffRas <- totBiom_LandR.CS_fS-totBiom_LandR_fS # Vegetation
+diffRas2 <- totBiom_LandR.CS_fS-totBiom_LandR_SCFM # Fire and Vegetation
+diffRas3 <- totBiom_LandR.CS_fS-totBiom_LandR.CS_SCFM # Fire
+
+# Make a plot of the number of pixel by the values in change of total biomass
+directEffect <- diffRas
+indirectEffect <- diffRas3
+fullEffect <- diffRas2
+
+library(plyr)
+
+# Direct effect
+directEffectTB <- table(round_any(directEffect[], 100))
+directEffectDT <- na.omit(data.table(val = round_any(getValues(directEffect), 100),
+                                     effectType = "Direct Effect"))
+# Indirect effect
+indirectEffectTB <- table(round_any(indirectEffect[], 100))
+indirectEffectDT <- na.omit(data.table(val = round_any(getValues(indirectEffect), 100),
+                                       effectType = "Indirect Effect"))
+
+# Full effect
+fullEffectTB <- table(round_any(fullEffect[], 100))
+fullEffectDT <- na.omit(data.table(val = round_any(getValues(fullEffect), 100),
+                                   effectType = "Full Effect"))
+
+plotDT <- rbindlist(list(directEffectDT, fullEffectDT, indirectEffectDT), use.names = TRUE)
+plotDT[, average0 := round(mean(val), 0), by = "effectType"]
+plotDT[val != 0, average := round(mean(val), 0), by = "effectType"]
+plotDT[, Median0 := round(median(val), 0), by = "effectType"]
+plotDT[val != 0, Median := round(median(val), 0), by = "effectType"]
+plotDT[, Count := .N, by = c("effectType", "val")]
+
+library("ggplot2")
+pVeg <- ggplot(data = unique(plotDT[val != 0,]), aes(x = val, 
+                                                     y = Count*6.25,
+                                                     group = effectType,
+                                                     color = effectType,
+                                                     fill = effectType))+
+  # geom_area(alpha = 0.5, position = position_stack()) +
+  geom_line() +
+  scale_color_manual(breaks = c("Full Effect", "Direct Effect", "Indirect Effect"),
+                     values = c("blue", "green", "red")) +
+  geom_vline(xintercept = na.omit(unique(plotDT[effectType == "Full Effect", Median])), 
+             colour = "blue", linetype = "dashed") + 
+  geom_vline(xintercept = na.omit(unique(plotDT[effectType == "Direct Effect", Median])), 
+             colour = "green", linetype = "dashed") +
+  geom_vline(xintercept = na.omit(unique(plotDT[effectType == "Indirect Effect", Median])), 
+             colour = "red", linetype = "dashed") +
+  theme(legend.position = "bottom",
+        legend.title = element_blank()) +
+  xlim(-5000, 5000) +
+  xlab("Change in total biomass due to climate effects") +
+  ylab("Area (ha)")
+
+ggsave(plot = pVeg, device = "png", filename = file.path("~/projects/NWT/outputs/posthoc/vegetationResults", 
+                                                         "biomassAffectedByClimateChange.png"), 
+       width = 8, height = 11)
+# library(viridis)
+# pal <- pals::brewer.rdylbu(100)
+# totalBiomassPath <- file.path("~/projects/NWT/outputs/posthoc/vegetationResults", paste0("totalBiomass_CCvsnoCC2.png"))
+# diffRas2[is.na(flammableRTM)] <- NA
+#   png(filename = totalBiomassPath,
+#       width = 21, height = 29,
+#       units = "cm", res = 300)
+#   print(levelplot(diffRas2,
+#                   sub = paste0("Difference in biomass in 2100 due to ",
+#                                "climate effect on vegetation succession and fire"),
+#                   margin = FALSE,
+#                   maxpixels = 6e6,
+#                   colorkey = list(
+#                     space = 'bottom',
+#                     axis.line = list(col = 'black'),
+#                     width = 0.75
+#                   ),
+#                   par.settings = list(
+#                     strip.border = list(col = 'transparent'),
+#                     strip.background = list(col = 'transparent'),
+#                     axis.line = list(col = 'transparent')),
+#                   scales = list(draw = FALSE),
+#                   col.regions = pal, #pals::kovesi.rainbow(nlev), #viridis_pal(option = "D")(nlev),
+#                   par.strip.text = list(cex = 0.8,
+#                                         lines = 1,
+#                                         col = "black")))
+#   dev.off()
+#####
+
 ############################################# TABLE
 #### ~~~ PROPORTION OF THE EFFECT ~~~ ####
 
@@ -962,3 +1309,4 @@ finalProportionsTable <- merge(proportionsTableDCASTed, proportionArea, by = "sp
 # write.csv(finalProportionsTable, file = file.path(getwd(), "proportionsTableSUPMAT.csv"))
 # drive_upload(media = file.path(getwd(), "proportionsTableSUPMAT.csv"), as_id("17xCa7ZogxktoaTVuv7s4EIc2DVCuEq68")) # Already uploaded
 ####################
+

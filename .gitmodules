@@ -66,10 +66,6 @@
 	path = modules/Biomass_borealDataPrep
 	url = git@github.com:PredictiveEcology/Biomass_borealDataPrep.git
 	branch = master
-[submodule "modules/fireSense_SizePredict"]
-	path = modules/fireSense_SizePredict
-	url = git@github.com:PredictiveEcology/fireSense_SizePredict.git
-	branch = master
 [submodule "modules/priorityPlaces"]
 	path = modules/priorityPlaces
 	url = git@github.com:PredictiveEcology/priorityPlaces.git
@@ -77,10 +73,6 @@
 [submodule "modules/priorityPlaces_DataPrep"]
 	path = modules/priorityPlaces_DataPrep
 	url = git@github.com:PredictiveEcology/priorityPlaces_DataPrep.git
-	branch = master
-[submodule "modules/fireSense_SizeFit"]
-	path = modules/fireSense_SizeFit
-	url = git@github.com:PredictiveEcology/fireSense_SizeFit.git
 	branch = master
 [submodule "modules/Biomass_speciesParameters"]
 	path = modules/Biomass_speciesParameters

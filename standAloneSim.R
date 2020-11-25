@@ -13,7 +13,8 @@ pkgPath <- "./packages"
 
 Require(packageVersionFile = "./packageVersions.txt",
         libPaths = pkgPath,
-        standAlone = TRUE) ## may need to be run twice?
+        require = FALSE,
+        standAlone = TRUE)
 
 library("googledrive")
 library("qs")

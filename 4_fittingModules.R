@@ -142,26 +142,56 @@ if (is(runNamesList()[RunName == runName, fireSenseSpreadFitted], "character")){
     library("googledrive")
     lapply(c(file.path(Paths$inputPath, "fireSense_SpreadFitted_year2011.rds"),
              file.path(Paths$inputPath, "covMinMax_year2011.rds")), 
-           drive_upload, as_id(runNamesList()[RunName == runName, fireSenseFolder]), overwrite = TRUE)
+           drive_upload, as_id(runNamesList()[RunName == runName, fireSenseFolder]))
   }
   }
 
 ##################################### LOAD FIRE INPUTS
 } # End of is.null(fitTheseFireSenseModels)
 
-  Inputs <- data.frame(
+Inputs <- data.frame(
     files = c(file.path(Paths$inputPath, "fireSense_IgnitionFitted_year2011.rds"),
               file.path(Paths$inputPath, "fireSense_EscapeFitted_year2011.rds"),
               file.path(Paths$inputPath, "fireSense_SpreadFitted_year2011.rds")),
     functions = "base::readRDS",
     stringsAsFactors = FALSE
-  )
-  message("Following Inputs Loaded:")
-  print(Inputs)
+    )
+message("Following Inputs Loaded:")
+print(Inputs)
 
   # Update other objects for fireSense
-  objects <- c(objects, list(
+objects <- c(objects, list(
     "kNN_SpeciesCoverPc" = objects[["speciesLayers"]],
     "covMinMax" = readRDS(file.path(Paths$inputPath, "covMinMax_year2011.rds"))
-  ))
+))
+  
+objectsToSave <- lapply(names(objects), function(OBJ) {
+    curObj <- objects[[OBJ]]
+    if (is(curObj, "Raster")){
+      message("Bringing ", OBJ)
+      curObj[] <- curObj[]
+    }
+    return(curObj)
+  })
+names(objectsToSave) <- names(objects)
+objName <- file.path(Paths$outputPath, "objects.qs")
+
+dput(Times)
+dput(parameters)
+dput(Paths)
+dput(definedRun$modules)
+
+folderID <- "1zM7A-dJz9WPtYDgVAvipw1GbBQIMg_7Z"
+
+lapply(c(file.path(Paths$inputPath, "fireSense_IgnitionFitted_year2011.rds"),
+         file.path(Paths$inputPath, "fireSense_EscapeFitted_year2011.rds"),
+         file.path(Paths$inputPath, "fireSense_SpreadFitted_year2011.rds")), 
+       googledrive::drive_upload, 
+       path = googledrive::as_id(folderID))
+
+googledrive::drive_upload(objName, googledrive::as_id(folderID))
+
+
+
+
   

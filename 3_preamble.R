@@ -124,4 +124,3 @@ objects <- c(objects, list(
   "pixelGroupMap2001" = pixelGroupMap2001,
   "pixelGroupMap2011" = pixelGroupMap2011)
 )
-

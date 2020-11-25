@@ -10,6 +10,8 @@ makeAbundanceTable <- function(Species = c("ALFL", "AMCR", "AMRE", "AMRO", "ATSP
                                folderColonization, 
                                year, 
                                useFuture = TRUE){
+  
+  # NEEDS SOME REVIEW FOR THE SECOND PAPER [TM 24NOV20]
   fullTablePath <- file.path(folderColonization, "finalAbundanceMaps", 
                              paste0("abundanceTable_", year,".qs"))
   if (!file.exists(fullTablePath)){
@@ -23,7 +25,7 @@ makeAbundanceTable <- function(Species = c("ALFL", "AMCR", "AMRE", "AMRO", "ATSP
       if (!file.exists(fileNameFinalMap)){
         stkPredictedFiles <- raster::stack(lapply(grepMulti(list.files(folderAbundance, full.names = TRUE, 
                                                                        pattern = sp, recursive = TRUE), 
-                                                            patterns = c(year, ifelse(year == 2100, "V6a", "V"))),
+                                                            patterns = c(year, ifelse(year == 2100, "V6a", "V4"))),
                                                   raster::raster))
         tic(paste0("Time elapsed calculate mean predicted values for ", sp, " for year ", year))
         averagedStk <- raster::calc(x = stkPredictedFiles, fun = mean, na.rm = TRUE)
@@ -31,7 +33,8 @@ makeAbundanceTable <- function(Species = c("ALFL", "AMCR", "AMRE", "AMRO", "ATSP
         probabilityPresence <- raster::raster(file.path(folderColonization,
                                                         paste0("probabilityPresence_", year,"_", 
                                                                ifelse(year == 2100,
-                                                                      "LandR_SCFM_V6a_", ""), sp,".tif")))
+                                                                      "LandR_SCFM_V6a_", 
+                                                                      "LandR_SCFM_V4_"), sp,".tif"))) # To compare
         predAbund <- probabilityPresence*averagedStk
         writeRaster(predAbund, fileNameFinalMap, format = "GTiff")
       } else {

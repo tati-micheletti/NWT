@@ -1,3 +1,4 @@
+wantDevVersionOfRequire <- FALSE
 options(repos = c(CRAN = "https://cloud.r-project.org")) ## issues with RSPM
 options("Require.RPackageCache" = "~/binaryRPackages")
 if (!require("Require")) install.packages("Require")

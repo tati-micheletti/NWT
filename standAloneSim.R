@@ -1,19 +1,14 @@
 options(repos = c(CRAN = "https://cloud.r-project.org")) ## issues with RSPM
-
-if (!requireNamespace("devtools", quietly = TRUE))
-  install.packages("devtools")
-
-devtools::install_github("PredictiveEcology/Require@development")
-
-# 0. Install working packages
-library("Require")
-
+options("Require.RPackageCache" = "~/binaryRPackages")
+if (!require("Require")) install.packages("Require")
 pkgPath <- "./packages"
-#if (!dir.exists(pkgPath)) dir.create(pkgPath)
+setLibPaths(pkgPath)
 
-Require(packageVersionFile = "./packageVersions.txt",
-        libPaths = pkgPath,
-        require = FALSE,
+if (wantDevVersionOfRequire)
+  Require::Require("PredictiveEcology/Require@tmp1", lib = pkgPath,
+                 require = FALSE, install = "force")
+
+Require::Require(packageVersionFile = "./packageVersions.txt",
         standAlone = TRUE)
 
 library("googledrive")

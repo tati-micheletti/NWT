@@ -3,7 +3,8 @@ options(repos = c(CRAN = "https://cloud.r-project.org")) ## issues with RSPM
 if (!requireNamespace("devtools", quietly = TRUE))
   install.packages("devtools")
 
-devtools::install_github("PredictiveEcology/Require@development")
+#devtools::install_github("PredictiveEcology/Require@development")
+## RESTART R AFTER INSTALLING THE PACKAGE !!
 
 # 0. Install working packages
 library("Require")

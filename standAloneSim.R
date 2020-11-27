@@ -9,9 +9,6 @@ if (!requireNamespace("devtools", quietly = TRUE))
 if (!requireNamespace("Require", quietly = TRUE))
   install.packages("Require")
 
-#devtools::install_github("PredictiveEcology/Require@development")
-## RESTART R AFTER INSTALLING THE PACKAGE !!
-
 # 0. Install working packages
 library("Require")
 

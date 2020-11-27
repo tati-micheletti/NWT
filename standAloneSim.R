@@ -1,7 +1,13 @@
-options(repos = c(CRAN = "https://cloud.r-project.org")) ## issues with RSPM
+wantDevVersionOfRequire <- FALSE
+
+options(repos = c(CRAN = "https://cloud.r-project.org"),  ## issues with RSPM
+        Require.RPackageCache = "~/binaryRPackages")      ## change this to your tastes
 
 if (!requireNamespace("devtools", quietly = TRUE))
   install.packages("devtools")
+
+if (!requireNamespace("Require", quietly = TRUE))
+  install.packages("Require")
 
 #devtools::install_github("PredictiveEcology/Require@development")
 ## RESTART R AFTER INSTALLING THE PACKAGE !!
@@ -10,12 +16,13 @@ if (!requireNamespace("devtools", quietly = TRUE))
 library("Require")
 
 pkgPath <- "./packages"
-#if (!dir.exists(pkgPath)) dir.create(pkgPath)
+setLibPaths(pkgPath)
 
-Require(packageVersionFile = "./packageVersions.txt",
-        libPaths = pkgPath,
-        require = FALSE,
-        standAlone = TRUE)
+if (wantDevVersionOfRequire)
+  Require::Require("PredictiveEcology/Require@tmp1", lib = pkgPath,
+                   require = FALSE, install = "force")
+
+Require::Require(packageVersionFile = "./packageVersions.txt", standAlone = TRUE)
 
 library("googledrive")
 library("qs")

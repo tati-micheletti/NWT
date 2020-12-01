@@ -23,21 +23,6 @@ Times <- list(start = 2011, end = 2100)
 # SAVE THE PARAMETERS AS qs
 
 Parameters <- list(
-  Biomass_speciesParameters = list(
-    .useCache = c(".inputObjects",  "init"),
-    sppEquivCol = "NWT_BCR6",
-    GAMMiterations = 2,
-    GAMMknots = list(Betu_Pap = 3, Lari_Lar = 4, Pice_Gla = 3, Pice_Mar = 4, Pinu_Ban = 3, Popu_Tre = 4),
-    minimumPlotsPerGamm = 40,
-    constrainMortalityShape = list(
-      Betu_Pap = c(15, 25),
-      Lari_Lar = c(20, 25),
-      Pice_Gla = c(15, 25),
-      Pice_Mar = c(15, 25),
-      Pinu_Ban = c(15, 25),
-      Popu_Tre = c(15, 25)
-    ),
-    quantileAgeSubset = list(Betu_Pap = 95, Lari_Lar = 95, Pice_Gla = 95, Pice_Mar = 95, Pinu_Ban = 95, Popu_Tre = 99)),
   Biomass_core = list(successionTimestep = 10, .plotInitialTime = NA,
                       .saveInitialTime = NA, .useCache = c(".inputObjects", "init"),
                       seedingAlgorithm = "wardDispersal", initialBiomassSource = "cohortData",
@@ -86,7 +71,7 @@ Parameters <- list(
   )
 )
 
-Modules <- c("Biomass_borealDataPrep", "Biomass_speciesParameters",
+Modules <- c("Biomass_borealDataPrep",
              "Biomass_regeneration", "Biomass_core", "fireSense_dataPrep",
              "fireSense_IgnitionPredict", "fireSense_EscapePredict", "fireSense_SpreadPredict",
              "LBMR2LCC_DataPrep", "fireSense")

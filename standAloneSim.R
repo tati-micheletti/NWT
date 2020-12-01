@@ -1,13 +1,11 @@
-wantDevVersionOfRequire <- FALSE
-
 options(repos = c(CRAN = "https://cloud.r-project.org"),  ## issues with RSPM
         Require.RPackageCache = "~/binaryRPackages")      ## change this to your tastes
 
-if (!requireNamespace("devtools", quietly = TRUE))
-  install.packages("devtools")
+#if (!requireNamespace("devtools", quietly = TRUE))
+#  install.packages("devtools")
 
-if (!requireNamespace("Require", quietly = TRUE))
-  install.packages("Require")
+#if (!requireNamespace("Require", quietly = TRUE))
+install.packages("Require") # use version 0.0.9
 
 # 0. Install working packages
 library("Require")
@@ -15,9 +13,8 @@ library("Require")
 pkgPath <- "./packages"
 setLibPaths(pkgPath)
 
-if (wantDevVersionOfRequire)
-  Require::Require("PredictiveEcology/Require@development", lib = pkgPath,
-                   require = FALSE, install = "force")
+Require::Require("PredictiveEcology/Require@tmp1", lib = pkgPath,
+                 require = FALSE, install = "force")
 
 Require::Require(packageVersionFile = "./packageVersions.txt", standAlone = TRUE)
 

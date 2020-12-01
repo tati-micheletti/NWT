@@ -16,7 +16,7 @@ pkgPath <- "./packages"
 setLibPaths(pkgPath)
 
 if (wantDevVersionOfRequire)
-  Require::Require("PredictiveEcology/Require@tmp1", lib = pkgPath,
+  Require::Require("PredictiveEcology/Require@development", lib = pkgPath,
                    require = FALSE, install = "force")
 
 Require::Require(packageVersionFile = "./packageVersions.txt", standAlone = TRUE)

@@ -65,21 +65,73 @@ watersValsToChange[!is.na(watersValsToChange) & watersValsToChange != 3] <- NA
 watersValsToChange[watersValsToChange == 3] <- 1
 uplandsRaster <- raster::setValues(x = watersRaster, watersValsToChange)
 
-rstLCC <- Cache(prepInputs, url = paste0("ftp://ftp.ccrs.nrcan.gc.ca/ad/NLCCLandCover/",
-                             "LandcoverCanada2005_250m/LandCoverOfCanada2005_V1_4.zip"),
-                targetFile = file.path(Paths$inputPath, "LCC2005_V1_4a.tif"),
-                archive = asPath("LandCoverOfCanada2005_V1_4.zip"),
-                destinationPath = Paths$inputPath,
+# rstLCC <- Cache(prepInputs, url = paste0("ftp://ftp.ccrs.nrcan.gc.ca/ad/NLCCLandCover/",
+#                              "LandcoverCanada2005_250m/LandCoverOfCanada2005_V1_4.zip"),
+#                 targetFile = file.path(Paths$inputPath, "LCC2005_V1_4a.tif"),
+#                 archive = asPath("LandCoverOfCanada2005_V1_4.zip"),
+#                 destinationPath = Paths$inputPath,
+#                 studyArea = studyArea,
+#                 rasterToMatch = rasterToMatch,
+#                 maskWithRTM = TRUE,
+#                 method = "bilinear",
+#                 datatype = "INT2U",
+#                 filename2 = TRUE,
+#                 userTags = c(stepCacheTag,
+#                              "objectName:rstLCC", "prepInputsrstLCC_rtm",
+#                              "outFun:Cache"),
+#                 omitArgs = c("destinationPath", "filename2"))
+
+
+# The original file "EOSD_2000_2007_combined.zip/EOSD_Mosaic.gdb" was manually converted to 
+# TIFF in arcMap and uploaded GoogleDrive
+
+rstLCC <- Cache(prepInputs, targetFile = "EOSD_covType.tif",
+                archive = "EOSD_covType.zip",
+                alsoExtract = "similar",
+                url = "https://drive.google.com/file/d/19Sk6F_UaAt__4fvNjPZYb3lxJtVhblCD/view?usp=sharing",
                 studyArea = studyArea,
+                destinationPath = Paths$inputPath,
+                filename2 = "EOSD_BCR6",
                 rasterToMatch = rasterToMatch,
-                maskWithRTM = TRUE,
-                method = "bilinear",
-                datatype = "INT2U",
-                filename2 = TRUE,
+                fun = "raster::raster",
                 userTags = c(stepCacheTag,
-                             "objectName:rstLCC", "prepInputsrstLCC_rtm",
-                             "outFun:Cache"),
-                omitArgs = c("destinationPath", "filename2"))
+                             "outFun:Cache", "step:prepEOSD"))
+
+# NECESSARY DUE TO A BUG IN postProcess. Should be fine with
+# the next version of it
+rstLCC <- Cache(postProcess, 
+                x = rstLCC, 
+                destinationPath = Paths$inputPath,
+                rasterToMatch = rasterToMatch,
+                userTags = c(stepCacheTag,
+                             "outFun:Cache", "step:reampleEOSD"))
+# LCC05
+# Ice/snow = 39
+# Water (LCC05) = 37:38
+# Rocks = 33
+# Urban = 36
+
+# EOSD
+caribouRSFTable <- Cache(prepInputs, url = paste0("https://drive.google.com",
+                                                      "/file/d/19ex5N5Z0Ow8fXPW",
+                                                      "TXJuSU8A3zvFd69vK/view?u",
+                                                      "sp=sharing"),
+                             destinationPath = Paths$inputPath,
+                             fun = "data.table::fread", 
+                             userTags = "tableRSF")
+
+# Reclassify EOSD with LCC05 code
+reclassTB <- Cache(prepInputs, url = paste0("https://drive.google.com/file/d/",
+                                            "1YUXcx8Gc6dI4vy76l2k_P6tUm6X2m7M",
+                                            "G/view?usp=sharing"),
+                   destinationPath = Paths$inputPath,
+                   fun = "data.table::fread", 
+                   userTags = "conversionEOSD_LCC05")
+
+reclassMatrix <- usefulFuns::makeReclassifyMatrix(table = reclassTB, 
+                                                  originalCol = "EOSD_Class", 
+                                                  reclassifiedTo = "LCC05_Class")
+rstLCC <- raster::reclassify(x = rstLCC, rcl = reclassMatrix[,-1])
 
 # ===================================================================
 # WHEN MOVING TO 2011 LAYERS: we could do that because all data for climate sensitive stuff anyway
@@ -99,23 +151,18 @@ rstLCC <- Cache(prepInputs, url = paste0("ftp://ftp.ccrs.nrcan.gc.ca/ad/NLCCLand
 #                                             "objectName:rstLCC", "prepInputsrstLCC_rtm"))
 # ===================================================================
 
-# Ice/snow = 39
-# Water (LCC05) = 37:38
-# Rocks = 33
-# Urban = 36
-
-flammableRTMPath <- file.path(Paths$inputPath, "flammableRTM")
-if (!file.exists(paste0(flammableRTMPath, ".tif"))){
+# flammableRTMPath <- file.path(Paths$inputPath, "flammableRTM")
+# if (!file.exists(paste0(flammableRTMPath, ".tif"))){
   nonFlammClass <- c(33, 36:39)
   flammableRTM <- rasterToMatch
   # Remove LCC non flammable classes first
   flammableRTM[rstLCC[] %in% nonFlammClass] <- NA
   # Remove more detailed water from DUCKS layer
   flammableRTM[waterRaster[] == 1] <- NA
-  writeRaster(flammableRTM, flammableRTMPath, format = "GTiff")
-} else {
-  flammableRTM <- raster::raster(paste0(flammableRTMPath, ".tif"))
-}
+  # writeRaster(flammableRTM, flammableRTMPath, format = "GTiff")
+# } else {
+  # flammableRTM <- raster::raster(paste0(flammableRTMPath, ".tif"))
+# }
 
 # fire ~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -485,7 +532,8 @@ outputsLandR <- data.frame(
 lastYears <- data.frame(objectName = c("predictedCaribou", "plotCaribou", 
                                        "fireRegimeRas", "speciesEcoregion", 
                                        "species", "gcsModel", "mcsModel", 
-                                       "spreadPredictedProbability"),
+                                       "spreadPredictedProbability", 
+                                       "rstCurrentBurnList"),
                         saveTime = Times$end)
 if (length(usefulFuns::grepMulti(x = definedRun$modules, "Biomass_core")) != 0){
   clim <- data.frame(objectName = rep(c("fireSense_IgnitionPredicted", 
@@ -521,11 +569,11 @@ objects <- list(
   "uplandsRaster" = uplandsRaster,
   "wetLCC" = watersRaster,
   "rstLCC" = rstLCC,
-  "anthropogenicLayer" = anthropogenicLayer,
+  "anthropogenicLayers" = anthropogenicLayers,
   "caribouArea1" = caribouArea1,
   "caribouArea2" = caribouArea2,
   "Edehzhie" = Edehzhie,
-  "roadDensity" = roadDensity,
+  # "roadDensity" = roadDensity,
   "firePolys" = firePolys,
   "firePoints" = firePoints,
   "listSACaribou" = listSACaribou

@@ -21,6 +21,10 @@
 #               NWT + Alberta.
 # ecoRegionRAS: Raster of ecoregions to parameterize both LandR.CS and fire models (i.e. SCFM)
 
+
+if (!exists("Times"))
+  Times <- list(start = 2011, end = 2100)
+
 stepCacheTag <- c(paste0("cache:2_simulationSetup"), 
                   paste0("runName:", runName))
 
@@ -85,14 +89,14 @@ uplandsRaster <- raster::setValues(x = watersRaster, watersValsToChange)
 # The original file "EOSD_2000_2007_combined.zip/EOSD_Mosaic.gdb" was manually converted to 
 # TIFF in arcMap and uploaded GoogleDrive
 
-rstLCC <- Cache(prepInputs, targetFile = "EOSD_covType.tif",
-                archive = "EOSD_covType.zip",
+rstLCC <- Cache(prepInputs, targetFile = "EOSD_NT1_BCR6_250m_caribou.tif",
+                archive = "EOSD_NT1_BCR6_250m_caribou.zip", # <== Check this layer
                 alsoExtract = "similar",
-                url = "https://drive.google.com/file/d/19Sk6F_UaAt__4fvNjPZYb3lxJtVhblCD/view?usp=sharing",
+                url = "https://drive.google.com/file/d/1VMIpeUb2ZTcC9NpQ83YKaWq2sDwwKI8d/view?usp=sharing",
                 studyArea = studyArea,
-                destinationPath = Paths$inputPath,
-                filename2 = "EOSD_BCR6",
                 rasterToMatch = rasterToMatch,
+                destinationPath = Paths$inputPath,
+                filename2 = "EOSD_NT1_BCR6_250m_caribou",
                 fun = "raster::raster",
                 userTags = c(stepCacheTag,
                              "outFun:Cache", "step:prepEOSD"))
@@ -132,6 +136,9 @@ reclassMatrix <- usefulFuns::makeReclassifyMatrix(table = reclassTB,
                                                   originalCol = "EOSD_Class", 
                                                   reclassifiedTo = "LCC05_Class")
 rstLCC <- raster::reclassify(x = rstLCC, rcl = reclassMatrix[,-1])
+
+# Improve water classification of the rstLCC with the waterRaster from DUCKS
+rstLCC[waterRaster == 1] <- 37 # 37 is LCC05 classification for water
 
 # ===================================================================
 # WHEN MOVING TO 2011 LAYERS: we could do that because all data for climate sensitive stuff anyway
@@ -227,6 +234,26 @@ if (useCentroids) {
                         )
   }
   
+# For Caribou --> Need fires older than what we have for fireSense
+historicalFires <- Cache(prepInputs, url = "https://drive.google.com/file/d/1WPfNrB-nOejOnIMcHFImvnbouNFAHFv7",
+                         alsoExtract = "similar",
+                         destinationPath = Paths$inputPath,
+                         studyArea = studyArea,
+                         userTags = c("objectName:historicalFires", "extension:BCR6_NWT",
+                                      stepCacheTag, "outFun:Cache"))
+# simplifying
+historicalFiresS <- historicalFires[, names(historicalFires) %in% c("YEAR", "DECADE")]
+historicalFiresDT <- data.table(historicalFiresS@data)
+historicalFiresDT[, decadeYear := 5+(as.numeric(unlist(lapply(strsplit(historicalFiresDT$DECADE, split = "-"), `[[`, 1))))]
+historicalFiresDT[, fireYear := ifelse(YEAR == -9999, decadeYear, YEAR)]
+historicalFiresS$fireYear <- historicalFiresDT$fireYear
+historicalFires <- historicalFiresS[, "fireYear"]
+historicalFiresReproj <- projectInputs(historicalFires, targetCRS = as.character(crs(studyArea)))
+
+# Discard fires with more than 60 from starting time
+olderstFireYear <- Times$start-60
+historicalFires <- historicalFiresReproj[historicalFiresReproj$fireYear >= olderstFireYear,]
+
 studyAreaPSP <- Cache(prepInputs, url = runNamesList()[RunName == runName, studyAreaPSP],
                       alsoExtract = "similar",
                       destinationPath = Paths$inputPath,
@@ -253,19 +280,23 @@ anthropogenicLayer <- Cache(prepInputs, targetFile = "bufferMap_v0.1.0_m_r500_t0
                                  userTags = c(stepCacheTag,
                                               "step:prepAnthropogenicLayer", "outFun:Cache"))
 
+# Older version of road density. To update it, a 10km buffered layer still needs to be
+# created. The current one used for the DeMars et al., 2019 model for NWT is 1km density.
 roadDensity <- Cache(prepInputs, targetFile = "roadDensity_BCR6_NWT_t0.tif",
                           url = "https://drive.google.com/open?id=1C0Y0z1cgQKwa3_-X2qWrhNIzEHIl9m5e",
-                          destinationPath = Paths$inputPath, 
+                          destinationPath = Paths$inputPath,
                           studyArea = studyArea,
                           rasterToMatch = rasterToMatch,
                           userTags = c(stepCacheTag,
                                        "step:prepRoadDensity",
-                                       "objectName:roadDensity", 
+                                       "objectName:roadDensity",
                                        "outFun:Cache"))
 
 caribouArea1 <- Cache(prepInputs, url = "https://drive.google.com/open?id=1Qbt2pOvC8lGg25zhfMWcc3p6q3fZtBtO",
                            targetFile = "NWT_Regions_2015_LCs_DC_SS_combined_NT1_clip_inc_Yukon.shp",
                            destinationPath = Paths$inputPath,
+                           alsoExtract = "similar", .useCache = "overwrite",
+                           rasterToMatch = rasterToMatch,
                            userTags = c(stepCacheTag,
                                         "step:prepCaribouArea1", 
                                         "outFun:Cache"))
@@ -273,6 +304,8 @@ caribouArea1 <- Cache(prepInputs, url = "https://drive.google.com/open?id=1Qbt2p
 caribouArea2 <- Cache(prepInputs, url = "https://drive.google.com/open?id=1Vqny_ZMoksAjji4upnr3OiJl2laGeBGV",
                       targetFile = "NT1_BOCA_spatial_units_for_landscape_projections.shp",
                       destinationPath = Paths$inputPath,
+                      alsoExtract = "similar",
+                      rasterToMatch = rasterToMatch,
                       userTags = c(stepCacheTag,
                                    "step:prepCaribouArea2", 
                                    "outFun:Cache"))
@@ -292,6 +325,43 @@ Edehzhie$Name <- Edehzhie$NAME_1
 
 listSACaribou <- list(caribouArea1, caribouArea2, Edehzhie)
 names(listSACaribou) <- c("caribouArea1", "caribouArea2", "Edehzhie")
+
+# ~~~~~~~~~~~~~~~~~~~~ FOR CARIBOU
+
+studyAreaCaribou <- Cache(prepInputs, targetFile = "NT1_BCR6.shp",
+                          archive = "NT1_BCR6.zip",
+                          alsoExtract = "similar",
+                          url = "https://drive.google.com/file/d/1RPfDeHujm-rUHGjmVs6oYjLKOKDF0x09/view?usp=sharing",
+                          destinationPath = Paths$inputPath,
+                          rasterToMatch = rasterToMatch,
+                          filename2 = "NT1_BCR6",
+                          fun = "raster::shapefile",
+                          userTags = c(stepCacheTag,
+                                       "outFun:Cache", "step:prepCaribouSA"))
+
+caribouLCC <- Cache(prepInputs, targetFile = "EOSD_NT1_BCR6_250m_caribou.tif",
+                    archive = "EOSD_NT1_BCR6_250m_caribou.zip", # <== Check this layer
+                    alsoExtract = "similar",
+                    url = "https://drive.google.com/file/d/1VMIpeUb2ZTcC9NpQ83YKaWq2sDwwKI8d/view?usp=sharing",
+                    studyArea = studyAreaCaribou,
+                    destinationPath = Paths$inputPath,
+                    filename2 = "EOSD_NT1_BCR6_250m_caribou",
+                    fun = "raster::raster",
+                    userTags = c(stepCacheTag,
+                                 "outFun:Cache", "step:prepEOSDcaribou"))
+
+anthropogenicLayers <- Cache(prepInputs, targetFile = "anthropogenicDisturbanceLayers_NT1_BCR6.grd",
+                             archive = "anthropogenicDisturbanceLayers_NT1_BCR6.zip",
+                             alsoExtract = "similar",
+                             url = "https://drive.google.com/file/d/1npwXsabARoLeGKNKhdC_7j-OJSKCOJdC/view?usp=sharing",
+                             destinationPath = Paths$inputPath,
+                             studyArea = studyAreaCaribou,
+                             rasterToMatch = caribouLCC,
+                             fun = "raster::stack",
+                             userTags = c("FUN:Cache",
+                                          "object:anthropogenicLayersNT1BCR6"))
+# ~~~~~~~~~~~~~~~~~~~~ 
+
 
 if (!exists("climateModel")) climateModel <- "CCSM4_85" # Default if not provided
 if (!climateModel %in% c("CCSM4_85", "CCSM4_45")) 
@@ -329,9 +399,6 @@ sppColorVect <- LandR::sppColors(sppEquiv = sppEquivalencies_CA,
 mixed <- structure("#D0FB84", names = "Mixed")
 sppColorVect[length(sppColorVect)+1] <- mixed
 attributes(sppColorVect)$names[length(sppColorVect)] <- "Mixed"
-
-if (!exists("Times"))
-  Times <- list(start = 2011, end = 2100)
 
 #SCFM
 defaultInterval <- 1.0
@@ -549,7 +616,7 @@ if (length(usefulFuns::grepMulti(x = definedRun$modules, "Biomass_core")) != 0){
 
 outputsLandR <- unique(rbind(outputsLandR, lastYears, clim))
 
-objects <- list(
+Objects <- list(
   "studyAreaPSP" = studyAreaPSP,
   "rasterToMatchLarge" = rasterToMatch,
   "rasterToMatch" = rasterToMatch,
@@ -569,14 +636,17 @@ objects <- list(
   "uplandsRaster" = uplandsRaster,
   "wetLCC" = watersRaster,
   "rstLCC" = rstLCC,
-  "anthropogenicLayers" = anthropogenicLayers,
+  "anthropogenicLayer" = anthropogenicLayer, # Buffered disturbances 500m
+  "anthropogenicLayers" = anthropogenicLayers, # New RSF anthropogenic layers for NT1+BCR6 (exp_dist_sett, exp_maj_rod, etc)
   "caribouArea1" = caribouArea1,
   "caribouArea2" = caribouArea2,
+  "caribouLCC" = caribouLCC,
   "Edehzhie" = Edehzhie,
-  # "roadDensity" = roadDensity,
+  "roadDensity" = roadDensity,
   "firePolys" = firePolys,
   "firePoints" = firePoints,
-  "listSACaribou" = listSACaribou
+  "listSACaribou" = listSACaribou,
+  "historicalFires" = historicalFires
 )
 
 data.table::setDTthreads(2) # Data.table has all threads by default, 

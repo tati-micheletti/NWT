@@ -246,16 +246,19 @@ if (runCaribou){
     }
   }
   
-  invisible(sapply(X = list.files(file.path(Paths$modulePath, "caribouRSF/R/"), 
+  invisible(sapply(X = list.files(file.path(Paths$modulePath, "caribouRSF_NT/R/"), 
                                   full.names = TRUE), FUN = source))
+  Times <- list(start = 2011, end = 2020)
   parameters <- list(
-    caribouRSF = list(
+    caribouRSF_NT = list(
       "decidousSp" = c("Betu_Pap", "Popu_Tre", "Popu_Bal"),
-      "predictionInterval" = 20,
+      "predictionInterval" = 1,
+      "simulationProcess" = "static",
       plotTime = NA
     )
   )
-  modules <- list("caribouRSF")
+  objects$rasterToMatch <- objects$caribouLCC
+  modules <- list("caribouRSF_NT")
   simulationBoo <- paste0(definedRun$whichRUN, "_caribou")
   trackSeed(replic = definedRun$whichReplicate, runName = runName)
   assign(x = simulationBoo,

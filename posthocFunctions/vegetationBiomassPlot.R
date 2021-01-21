@@ -108,6 +108,9 @@ vegetationBiomassPlot <- function(years = c(2011, 2100),
       }
       levels(leadingSpeciesRaster) <- rat
       
+      raster::writeRaster(leadingSpeciesRaster, file.path(pathOutputs, paste0("leadingSpeciesRaster_", 
+                                                                              sim, "_", y,
+                                                                              ".tif")))
       library(viridis)
       library(RColorBrewer)
       if (any(is.null(pal), length(pal) != 2*length(treeSpecies))){

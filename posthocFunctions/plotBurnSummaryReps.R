@@ -177,7 +177,7 @@ plotBurnSummaryReps <- function(dataPath,
                                top = grid::textGrob(typeSim, gp = grid::gpar(fontsize = 12)))
   
   ggsave(fileName, plot = p, width = 11, height = 8)
-  
+  qs::qsave(dt, file.path(dataPath, paste0("burnSummaryTable", typeSim,".qs")))
   return(list(fileLocation = fileName, model = list(areaBurned = tend, 
                                                     noFires = tendF, 
                                                     fireSize = tendS)))

@@ -103,12 +103,12 @@ if (is(runNamesList()[RunName == runName, fireSenseSpreadFitted], "character")){
     })
 
     if (!isTRUE(fitSpread)){
-      tryCatch({
-        covMinMax <- readRDS(file.path(Paths$inputPath, "covMinMax_year2011.rds"))
+      covMinMax <- tryCatch({
+        readRDS(file.path(Paths$inputPath, "covMinMax_year2011.rds"))
       }, error = function(e){
-        fitSpread <- TRUE
+        fitSpread <<- TRUE
+         return(NULL)
       })
-      if (!exists("covMinMax")) fitSpread <- TRUE 
     }
     if ("spread" %in% fitTheseFireSenseModels)
       fitSpread <- TRUE

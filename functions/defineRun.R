@@ -32,5 +32,5 @@ defineRun <- function(replicateNumber = NULL, vegetation = "LandR.CS", fire = "f
   return(list(whichRUN = paste(vegetation, fire, sep = "_"),
               whichReplicate = replicateNumber,
               growthAndMortalityDrivers = vegetation,  
-              modules = c(get(vegetation), get(fire), "caribouPopGrowthModel")))
+              modules = c(get(vegetation), get(fire))))
 }

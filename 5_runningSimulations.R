@@ -31,22 +31,15 @@ if (runLandR){
                                                                       objects = objects,
                                                                       paths = Paths,
                                                                       loadOrder = unlist(definedRun$modules),
-                                                                      debug = list(file = list(file = file.path(Paths$outputPath, "sim.log"),
-                                                                                       append = TRUE), debug = 1),
+                                                                      debug = list(file = list(
+                                                                        file = file.path(Paths$outputPath, 
+                                                                                         "sim.log"),
+                                                                                       append = TRUE), 
+                                                                        debug = 1),
                                                                       outputs = outputsLandR)))
   t2 <- Sys.time()
   message(crayon::green(paste0("Finished ", ifelse(runOnlySimInit, "simInit", "simulations")," for ", 
                                definedRun$whichRUN, ". Elapsed time: ", t2-t1)))
-  if (!runOnlySimInit){
-    qs::qsave(x = get(definedRun$whichRUN),
-              file = file.path(Paths$outputPath, paste0(definedRun$whichRUN,
-                                                        toupper(format(Sys.time(),
-                                                                       "%d%b%y_%Hh%Mm%Ss")))))
-    message(crayon::magenta(paste0("Saved simulations for ", definedRun$whichRUN, ". Elapsed time: "
-                                   , Sys.time()-t2)))
-    rm(list = definedRun$whichRUN)
-    gc()
-  } # End !runOnlySimInit
 } # End runLandR
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ BIRDS MODEL 1
@@ -167,7 +160,6 @@ saveRDS(sim$activePixelIndex, file = file.path(outputPath(sim), 'pixelsWithDataA
         paths = Paths,
         loadOrder = unlist(modules),
         outputs = outputsLandR)))
-  rm(simulation)
   } # ENd for-loop GROUPS
   
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ BIRDS MODEL 2
@@ -214,7 +206,6 @@ saveRDS(sim$activePixelIndex, file = file.path(outputPath(sim), 'pixelsWithDataA
                  outputs = outputsLandR
                )
              ))
-      rm(simulation)
     } # ENd for-loop GROUPS
   } # End of second bird model
 } # End of run birds
@@ -248,13 +239,13 @@ if (runCaribou){
   
   invisible(sapply(X = list.files(file.path(Paths$modulePath, "caribouRSF_NT/R/"), 
                                   full.names = TRUE), FUN = source))
-  Times <- list(start = 2011, end = 2020)
   parameters <- list(
     caribouRSF_NT = list(
       "decidousSp" = c("Betu_Pap", "Popu_Tre", "Popu_Bal"),
       "predictionInterval" = 1,
-      "simulationProcess" = "static",
-      plotTime = NA
+      "simulationProcess" = "dynamic",
+      plotTime = NA,
+      cropRSFToShp = FALSE
     )
   )
   objects$rasterToMatch <- objects$caribouLCC
@@ -275,8 +266,14 @@ if (runCaribou){
              debug = 1
            )
          ))
-  rm(simulationBoo)
 }
 
+#   # Caribou Population Growth Parameters!! <- Caribou popGrowth removed from the main simulation! Needs update
+# caribouPopGrowthModel = list(
+#   ".plotInitialTime" = NULL,
+#   "recoveryTime" = 40,
+#   ".useCache" = c(".inputObjects"),
+#   ".useDummyData" = FALSE,
+#   ".growthInterval" = 10)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

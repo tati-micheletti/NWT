@@ -94,6 +94,11 @@ source("functions/getFirePoints_NFDB_V2.R")
 source("functions/makeIpsForClusters.R")
 source("functions/getBirdPredictedRasters.R")
 source("functions/trackSeed.R")
+source("functions/getFirePolys.R")
+source("functions/getAnnualClimateZipURL.R")
+source("functions/makeCMIandATA.R")
+source('functions/runSquarenessTest.R')
+source('functions/checkRasterStackIsInMemory.R')
 
 if (!exists("vegetation")) vegetation <- "LandR" # Default if not provided
 if (!exists("fire")) fire <- "SCFM" # Default if not provided
@@ -114,7 +119,7 @@ if (!exists("runName")) stop("You need to provide runName. This is the study are
                              simulation should run for. To see all available study areas, use 
                              runNamesList(printTable = TRUE)")
 
-paths <- list(inputPath = checkPath(file.path(getwd(), "inputs", runName)),
+paths <- list(inputPath = checkPath(file.path(getwd(), "inputs", runName), create = TRUE),
               modulePath = file.path(getwd(), "modules"),
               outputPath = checkPath(file.path(getwd(), "outputs",
                                                toupper(format(Sys.time(), "%d%b%y")),

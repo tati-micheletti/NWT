@@ -178,6 +178,7 @@ opts <- options(
   "reproducible.cachePath" = Paths$cachePath,
   "reproducible.showSimilar" = TRUE,
   "reproducible.useCloud" = FALSE,
+  "reproducible.polygonShortcut" = FALSE, # As of 26JAN21 this is not working for Alex
   "spades.moduleCodeChecks" = FALSE, # Turn off all module's code checking
   "spades.useRequire" = FALSE, # assuming all pkgs installed correctly # CHANGED on 31AUG20 
   # --> Eliot is working on it. Its returning an error: Error: invalid version specification ‘	3.3-13’

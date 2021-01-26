@@ -24,7 +24,6 @@
   # climateModel <- "CSIRO-Mk3-6-0_RCP85" :: OK
   # climateModel <- "INM-CM4_RCP85" # :: OK
   # climateModel <- "CNRM-CM5_RCP85" # :: OK
-  Times <- list(start = 2017, end = 2017)
     usrEmail <- "tati.micheletti@gmail.com" # Your e.mail for GDrive authorization
     hostIp <- 68 # Specify which machine this is running for
     updateCRAN <- FALSE

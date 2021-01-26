@@ -36,15 +36,15 @@
     onlyLoadDEOptim <- TRUE
     runName <- "NWT_NT1_BCR6" #"NWT_BCR6"
     runPosthocBirds <- FALSE
-    originalDateAnalysis <- "21JAN21"
+    # originalDateAnalysis <- "21JAN21"
     Sys.sleep(1)
     replicateNumber <- paste0("run", RUN)
     Sys.sleep(1)
     vegetation <- "LandR.CS"
     fire <- "fS"
-    runLandR <- FALSE
+    runLandR <- TRUE
     runBirds <- FALSE
-    runCaribou <- TRUE
+    runCaribou <- FALSE
     birdModelVersion <- c(4, 6)
     Sys.sleep(3)
     source("1_generalSetup.R")
@@ -53,6 +53,7 @@
       source("3_preamble.R")
       source("4_fittingModules.R")
     }
+    debugonce(LandR::loadKNNSpeciesLayers)
     source("5_runningSimulations.R")
     # source("6_posthocAnalysis.R")
 # if (runOnlySimInit){

@@ -379,7 +379,7 @@ ecoRegionRAS <- fasterize::fasterize(sf = ecoRegionSF,
                                      raster = caribouLCC, 
                                      field = "ECOREGION")
   
-# NWT/BCR6 ecoregions raster
+# NWT/BCR6 ecoregions raster: older version
 # ecoRegionRAS <- Cache(prepInputs, targetFile = "ecoRegionRAS.rds",
 #                       url = runNamesList()[RunName == runName, ecoRegionRaster],
 #                       alsoExtract = "similar",
@@ -390,16 +390,27 @@ ecoRegionRAS <- fasterize::fasterize(sf = ecoRegionSF,
 #                                    "step:prepInputsEcoRegion"),
 #                       omitArgs = c("destinationPath", "filename2", "outFun:Cache"))
 
-anthropogenicLayer <- Cache(prepInputs, targetFile = "bufferMap_v0.1.0_m_r500_t0_anthrDisturb.grd",
-                                 archive = "bufferMap_v0.1.0_m_r500_t0_anthrDisturb.zip",
+bufferedAnthropogenicDisturbance500m <- Cache(prepInputs, targetFile = "buffered500mDisturbancesUnified_NT1_BCR6.shp",
+                                 archive = "buffered500mDisturbancesUnified_NT1_BCR6.zip",
                                  alsoExtract = "similar",
-                                 url = "https://drive.google.com/open?id=1GhnIjmKsZ3JoxTjefeeBUb02iiEcV_qD",
+                                 url = "https://drive.google.com/file/d/1yz39dGW4XMJk5ox6TuVUOMrU4q3mhfhU/view?usp=sharing",
                                  destinationPath = Paths$inputPath, 
                                  studyArea = studyArea,
                                  rasterToMatch = rasterToMatch,
                                  userTags = c(stepCacheTag,
-                                              "step:prepAnthropogenicLayer", "outFun:Cache"))
-
+                                              "step:prepAnthropogenicDistLayer", "outFun:Cache"))
+bufferedAnthropogenicDisturbance500mSF <- sf::st_as_sf(bufferedAnthropogenicDisturbance500m)
+bufferedAnthropogenicDisturbance500mSF$fieldSF <- 1
+bufferedAnthropogenicDisturbance500m <- fasterize::fasterize(sf = bufferedAnthropogenicDisturbance500mSF,
+                                                             raster = rasterToMatch, field = "fieldSF", 
+                                                             background = 0)
+buffAnthroDist500m <- Cache(postProcess, x = bufferedAnthropogenicDisturbance500m,
+                                  destinationPath = Paths$inputPath, 
+                                  studyArea = studyArea,
+                                  rasterToMatch = rasterToMatch,
+                                  userTags = c(stepCacheTag,
+                                               "step:maskAnthropogenicDistLayer", "outFun:Cache"))
+ 
 # Older version of road density. To update it, a 10km buffered layer still needs to be
 # created. The current one used for the DeMars et al., 2019 model for NWT is 1km density.
 roadDensity <- Cache(prepInputs, targetFile = "roadDensity_BCR6_NWT_t0.tif",
@@ -619,8 +630,7 @@ parameters <- list(
     "sppEquivCol" = sppEquivCol,
     "successionTimestep" = 10,
     "pixelGroupAgeClass" = 20,
-    ".useCache" = c(".inputObjects", "init"), # <~~~~~~~~~~~~~~~~~~~~~~ TURN BACK ON AFTER ONE FULL RUN
-    # ".useCache" = "overwrite",
+    ".useCache" = c(".inputObjects", "init"),
     "subsetDataBiomassModel" = 50,
     "exportModels" = "all"
   ),
@@ -750,13 +760,13 @@ objects <- list(
   "flammableRTM" = flammableRTM,
   "uplandsRaster" = uplandsRaster,
   "rstLCC" = rstLCC,
-  "anthropogenicLayer" = anthropogenicLayer, # Buffered disturbances 500m
+  "bufferedAnthropogenicDisturbance500m" = buffAnthroDist500m, # Buffered disturbances 500m
   "anthropogenicLayers" = raster::stack(anthropogenicLayers), # New RSF anthropogenic layers for NT1+BCR6 (exp_dist_sett, exp_maj_rod, etc)
-  "caribouArea1" = caribouArea1,
-  "caribouArea2" = caribouArea2,
+  # "caribouArea1" = caribouArea1,
+  # "caribouArea2" = caribouArea2,
   "caribouLCC" = caribouLCC,
-  "Edehzhie" = Edehzhie,
-  "roadDensity" = roadDensity,
+  # "Edehzhie" = Edehzhie,
+  # "roadDensity" = roadDensity, # Used only in the older caribouRSF module
   "firePolys" = firePolys,
   "firePoints" = firePoints,
   "listSACaribou" = listSACaribou,

@@ -53,7 +53,6 @@
       source("3_preamble.R")
       source("4_fittingModules.R")
     }
-    debugonce(LandR::loadKNNSpeciesLayers)
     source("5_runningSimulations.R")
     # source("6_posthocAnalysis.R")
 # if (runOnlySimInit){

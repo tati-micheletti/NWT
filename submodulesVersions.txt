@@ -1,4 +1,33 @@
 # SHA, submodule, branch
+
+########## Version 2.5 -- Working version before updating Biomass Stuff
+155d64848ffca931ced4dcc2b02b3ba15e6d08f9 modules/Biomass_borealDataPrep (heads/master)
+cc836d3c5c6e5ae1dc43767aaf4397389a0ec0c6 modules/Biomass_core (v1.3.2-119-gcc836d3)
+0fe308509988b50ab7809157a1776121e7224053 modules/Biomass_regeneration (LIM_AIreport-7-g0fe3085)
+f1b6c6391bb1dd59252a33c8c86a0a334aaeb08a modules/Biomass_speciesParameters (heads/master)
+87c472396d2e0b44d9fa1d28aead7e7b7833771b modules/LBMR2LCC_DataPrep (V.2.0_NWT-1-g87c4723)
+873d5ebbfc51de28e85ceb33cc9f49df213dacf5 modules/PSP_Clean (heads/master)
+e34cc74df5a29b11dd99d961e646d98c1f4177eb modules/birdsNWT (heads/master)
+7829bad6198b947b9ffa87713d7e78214320c6a5 modules/caribouCIP (heads/master)
+a862a6f3757c4fb1eb8e233f7c44974fde55cc75 modules/caribouIK (heads/master)
+c1a5c146808fa59a5109be4f3e4af041a3ff1ffe modules/caribouPopGrowthModel (V.2.0_NWT-3-gc1a5c14)
+17b02e8b5a3dd1d7176a33f9c0dc75be07ebfab9 modules/caribouRSF (V.2.0_NWT-1-g17b02e8)
+07a39ccb1b6847884b811aba4f62a51a099ad73c modules/caribouRSF_NT (heads/main)
+962e6b93d037cbaf43dc5b174f12e106a99426bd modules/fireSense (heads/master)
+c57e6626035a49f5465e2e3ea81cd530dbc1cf71 modules/fireSense_EscapeFit (heads/master)
+ac691c8ef4f4fcc401c9fef8b12f99977335f32d modules/fireSense_EscapePredict (heads/master)
+8ea03bc4557b8136c3797f0711ff16601a26fd4e modules/fireSense_IgnitionFit (heads/master)
+cc17b15e10b843381b23d64ec24b11464ba1d482 modules/fireSense_IgnitionPredict (heads/master)
+6dc801feaf5d3aef0c5f7ec2babfda2530812f39 modules/fireSense_SpreadFit (heads/master)
+7d59a3a5b2470dcb37399e7af43181c22f48be65 modules/fireSense_SpreadPredict (heads/master)
+e8d64dc1e63da9717dd70aecda7aef3f82dda2f9 modules/fireSense_dataPrep (V.2.0_NWT-1-ge8d64dc)
+d1e6fdd408c193e7c8219e64c9c4f76c39a80f40 modules/gmcsDataPrep (V.2.0_NWT-1-gd1e6fdd)
+e94544120feafa289c451d441c08dd9298bc4531 modules/posthocBirdsNWT (heads/master)
+eb542cbe04ea6aae702679a0be26497c0a3f4554 modules/priorityPlaces (heads/master)
+186b91f97f57b10b42f51e5c0dbf7bfd3c2d9602 modules/priorityPlaces_DataPrep (heads/master)
+fe2f8df87d84ab0023a35e836ce152f9befee2cd modules/scfm (heads/stable)
+
+########## Version 2.0 -- Working
  155d64848ffca931ced4dcc2b02b3ba15e6d08f9 modules/Biomass_borealDataPrep (heads/master)
  cc836d3c5c6e5ae1dc43767aaf4397389a0ec0c6 modules/Biomass_core (v1.3.2-119-gcc836d3)
  0fe308509988b50ab7809157a1776121e7224053 modules/Biomass_regeneration (LIM_AIreport-7-g0fe3085)

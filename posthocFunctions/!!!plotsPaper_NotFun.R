@@ -11,7 +11,8 @@ library("pals")
 library("gbm")
 library("ggrepel")
 
-folderColonization <- "~/projects/NWT/outputs/posthoc/colonization"
+# folderColonization <- "~/projects/NWT/outputs/posthoc/colonization"
+folderColonization <- "/mnt/SpaDES/data/Micheletti/NWT_Outputs/PAPER_EffectsOfClimateChange/posthoc/colonization" # After moving to archive
 Species <- c("ALFL", "AMCR", "AMRE", "AMRO", "ATSP", "BAWW", "BBWA", "BBWO", 
              "BCCH", "BHCO", "BHVI", "BLPW", "BOCH",  "BRBL","BRCR", "BTNW", 
              "CAWA", "CHSP", "CORA", "COYE", "DEJU", "EAKI", "EAPH", "FOSP", 
@@ -34,7 +35,7 @@ noCorner <- raster("~/projects/NWT/inputs/NWT_BCR6/RTM_noCorner.tif") # TODO tem
 modsPath <- "~/projects/NWT/outputs/SIMULATIONS/birdCovariates.qs"
 
 if (!file.exists(modsPath)){
-  mods <- lapply(species, FUN = function(sp){
+  mods <- lapply(Species, FUN = function(sp){
     MOD <- get(load(paste0("~/projects/NWT/modules/birdsNWT/data/models/", sp,
                            "brt6a.R")))
     MODsum <- data.table(summary(MOD))
@@ -43,7 +44,6 @@ if (!file.exists(modsPath)){
     MODsum[, Rank := 1:NROW(MODsum)]
     return(MODsum)
   })
-  names(mods) <- species
   allMods <- rbindlist(mods)  
   qs::qsave(allMods, modsPath)
 } else {
@@ -62,6 +62,9 @@ allMods[, group := factor(group, levels = c("climate", "vegetation", "topographi
 allMods[, sumByGroup := sum(rel.inf), by = c("species", "group")]
 allModsSimp <- unique(allMods[, c("species", "group", "sumByGroup")])
 
+setkey(allModsSimp, sumByGroup)
+allModsSimp[group == "vegetation", ]
+
 library("ggplot2")
 setkey(allModsSimp, "sumByGroup")
 setkey(allModsSimp, "group")
@@ -75,14 +78,15 @@ setkey(veg, "sumByGroup")
 dt <- rbind(clim, topo, veg)
 
 dt2 <- copy(dt)
-dt2 <- dcast(dt2, species ~ group, value.var = "sumByGroup")
+dt2 <- data.table(dcast(dt2, species ~ group, value.var = "sumByGroup"))
 dt3 <- dt2[order(rank(vegetation), -rank(climate))]
 orderSpecies <- as.character(dt3$species)
 
 dt[, species := factor(species, levels = orderSpecies)]
 dt[, group := factor(group, levels = c("climate", "topographic", "vegetation"))]
 
-dt0 <- dt[group != "topographic"]
+dt0 <- dt # This to make a full plot
+# dt0 <- dt[group != "topographic"] # or this to make proportional to just climate and vegetation
 dt0[, totalSum := sum(sumByGroup), by = "species"]
 dt0[, proportion := sumByGroup/totalSum]
 speciesOrder <- dt0[group == "climate", c("species", "proportion")]
@@ -93,11 +97,19 @@ dt0[, species := factor(species, levels = speciesOrder)]
 p0 <- ggplot(dt0, aes(x = proportion, y = species, 
                       fill = group)) +
   geom_bar(position = "stack", stat = "identity") +
-  scale_fill_manual(values = c("blue", "darkgreen")) +
+  scale_fill_manual(values = c("blue", "darkgoldenrod2", "darkgreen")) +
   theme(axis.title.y = element_blank(),
         legend.position = "bottom",
-        legend.title = element_blank())
+        legend.title = element_blank()) +
+  coord_cartesian(xlim = c(0, 1), expand = FALSE) +
+  xlab("Proportional relative influence of climate sensitive landbird models' covariates")
 p0
+
+ggsave(plot = p0, 
+       device = "png", 
+       filename = file.path(dirname(modsPath),
+                            "relativeInfluenceOfCovariates.png"), 
+       width = 10, height = 10)
 
 # p1 <- ggplot(dt[species %in% speciesOfInterest], aes(x = species, y = sumByGroup, 
 #                      fill = group)) +
@@ -1162,6 +1174,7 @@ lapply(fl, drive_upload, as_id(folderToUpload))
 ############################################### PLOTX -- Paper 1
 ##### VEGETATION PLOTS #############
 source('~/projects/NWT/posthocFunctions/vegetationBiomassPlot.R')
+posthocFolder <- dirname(folderColonization)
 pal <- c("#27408B", "#8B7D6B", "#CD0000", "#EEB422", "#9A32CD", "#006400",
          "#A6BFFF", "#F1E3D1", "#FF7F7F", "#FFDC66", "#FFB1FF", "#7FE37F")
 
@@ -1251,7 +1264,7 @@ pVeg <- ggplot(data = unique(plotDT[val != 0,]), aes(x = val,
   xlab("Change in total biomass due to climate effects") +
   ylab("Area (ha)")
 
-ggsave(plot = pVeg, device = "png", filename = file.path("~/projects/NWT/outputs/posthoc/vegetationResults", 
+ggsave(plot = pVeg, device = "png", filename = file.path(posthocFolder, "vegetationResults", 
                                                          "biomassAffectedByClimateChange.png"), 
        width = 8, height = 11)
 # library(viridis)
@@ -1391,3 +1404,16 @@ percChangesPathways <- rbindlist(lapply(pathways, function(eff){
                     changeInPerc = averagePropChange))
 }))
 percChangesPathways
+
+############### FIRE
+############### 
+# Fire summaries
+source('~/projects/NWT/posthocFunctions/plotAreaBurnReps.R')
+# outPath <- Paths$outputPath
+library(ggplot2)
+library(gridExtra)
+outPath <-"~/projects/NWT/outputs/SIMULATIONS"
+burnPlot <- plotAreaBurnReps(dataPath = outPath, 
+                                         typeSim = c("LandR.CS_fS", "LandR_SCFM"),
+                                         lastYear = 2100, 
+                                      overwrite = TRUE)

@@ -3,7 +3,10 @@
 #    I n  i t i a l     S e t u p          #  
 ############################################
 ############################################
+library("Require")
+Require::setLibPaths(libPaths = file.path(getwd(), "libraryNWT"))
 
+Require("PredictiveEcology/pemisc@development")
 # Authorize GDrive
 if (!exists("usrEmail"))
   usrEmail <- if (pemisc::user() %in% c("tmichele", "Tati")) "tati.micheletti@gmail.com" else 
@@ -32,14 +35,19 @@ if (updateCRAN)
 if (updateGithubPackages){
   if (pemisc::user() %in% c("emcintir", "tmichele")) Sys.setenv("R_REMOTES_UPGRADE"="never")
   Pkg <- c("PredictiveEcology/Require@master",
-           "PredictiveEcology/pemisc@development",
-              "PredictiveEcology/LandR@master",
-           ifelse(pemisc::user() %in% "tmichele", # <~~~~~~~~~~~~~~~~~~~~~~~~ HERE
-                  "tati-micheletti/usefulFuns@fileMystery",
-                  "PredictiveEcology/usefulFuns@development"),
-              "ianmseddy/LandR.CS@master",
-              "PredictiveEcology/fireSenseUtils@iterative",
-              "PredictiveEcology/SpaDES@development")
+           # 26JAN21 :: Bug fixes not implemented in LandR@master yet
+           # [cc59e2f648695b54bcfcc2878ab519cd1e5de678]
+           "PredictiveEcology/LandR@development", 
+           # 26JAN21 :: Bug fixes not implemented in LandR@master yet
+           #  [215c6e2c6ffba0d16952090706431b1a909834eb]
+           "ianmseddy/LandR.CS@master",
+           "PredictiveEcology/fireSenseUtils@V.2.0_NWT")
+  if (pemisc::user() %in% "tmichele") {
+    Pkg <- c(Pkg, "tati-micheletti/usefulFuns@fileMystery")
+  } else {
+    Pkg <- c(Pkg, "PredictiveEcology/usefulFuns@master")
+  }
+  
   pkg <- lapply(Pkg, function(p){
     capture.output(devtools::install_github(p))
     })
@@ -53,8 +61,6 @@ if (updateGithubPackages){
                                    "Your setup will continue.")))
   }
 }
-
-library("Require")
 
 if (!exists("updateSpaDES")) updateSpaDES <- FALSE
 if (updateSpaDES){
@@ -94,6 +100,11 @@ source("functions/getFirePoints_NFDB_V2.R")
 source("functions/makeIpsForClusters.R")
 source("functions/getBirdPredictedRasters.R")
 source("functions/trackSeed.R")
+source("functions/getFirePolys.R")
+source("functions/getAnnualClimateZipURL.R")
+source("functions/makeCMIandATA.R")
+source('functions/runSquarenessTest.R')
+source('functions/checkRasterStackIsInMemory.R')
 
 if (!exists("vegetation")) vegetation <- "LandR" # Default if not provided
 if (!exists("fire")) fire <- "SCFM" # Default if not provided
@@ -114,7 +125,7 @@ if (!exists("runName")) stop("You need to provide runName. This is the study are
                              simulation should run for. To see all available study areas, use 
                              runNamesList(printTable = TRUE)")
 
-paths <- list(inputPath = checkPath(file.path(getwd(), "inputs", runName)),
+paths <- list(inputPath = checkPath(file.path(getwd(), "inputs", runName), create = TRUE),
               modulePath = file.path(getwd(), "modules"),
               outputPath = checkPath(file.path(getwd(), "outputs",
                                                toupper(format(Sys.time(), "%d%b%y")),
@@ -173,6 +184,7 @@ opts <- options(
   "reproducible.cachePath" = Paths$cachePath,
   "reproducible.showSimilar" = TRUE,
   "reproducible.useCloud" = FALSE,
+  "reproducible.polygonShortcut" = FALSE, # As of 26JAN21 this is not working for Alex
   "spades.moduleCodeChecks" = FALSE, # Turn off all module's code checking
   "spades.useRequire" = FALSE, # assuming all pkgs installed correctly # CHANGED on 31AUG20 
   # --> Eliot is working on it. Its returning an error: Error: invalid version specification ‘	3.3-13’

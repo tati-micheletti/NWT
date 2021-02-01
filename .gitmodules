@@ -89,8 +89,11 @@
 [submodule "modules/fireSense_dataPrep"]
 	path = modules/fireSense_dataPrep
 	url = git@github.com:PredictiveEcology/fireSense_dataPrep.git
-	branch = master
+	branch = fileMystery
 
 [submodule "modules/posthocBirdsNWT"]
 	path = modules/posthocBirdsNWT
 	url = git@github.com:tati-micheletti/posthocBirdsNWT.git
+[submodule "modules/caribouRSF_NT"]
+	path = modules/caribouRSF_NT
+	url = git@github.com:tati-micheletti/caribouRSF_NT.git

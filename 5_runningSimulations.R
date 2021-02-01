@@ -23,6 +23,7 @@ if (runLandR){
   t1 <- Sys.time()
   if (!exists("Inputs"))
     Inputs <- data.frame()
+  parameters[["fireSense_dataPrep"]][["skipMDCprep"]] <- TRUE
   trackSeed(replic = definedRun$whichReplicate, runName = runName)
   assign(x = definedRun$whichRUN, do.call(get(spadesFun), args = alist(inputs = Inputs, 
                                                                       times = Times,
@@ -31,22 +32,15 @@ if (runLandR){
                                                                       objects = objects,
                                                                       paths = Paths,
                                                                       loadOrder = unlist(definedRun$modules),
-                                                                      debug = list(file = list(file = file.path(Paths$outputPath, "sim.log"),
-                                                                                       append = TRUE), debug = 1),
+                                                                      debug = list(file = list(
+                                                                        file = file.path(Paths$outputPath, 
+                                                                                         "sim.log"),
+                                                                                       append = TRUE), 
+                                                                        debug = 1),
                                                                       outputs = outputsLandR)))
   t2 <- Sys.time()
   message(crayon::green(paste0("Finished ", ifelse(runOnlySimInit, "simInit", "simulations")," for ", 
                                definedRun$whichRUN, ". Elapsed time: ", t2-t1)))
-  if (!runOnlySimInit){
-    qs::qsave(x = get(definedRun$whichRUN),
-              file = file.path(Paths$outputPath, paste0(definedRun$whichRUN,
-                                                        toupper(format(Sys.time(),
-                                                                       "%d%b%y_%Hh%Mm%Ss")))))
-    message(crayon::magenta(paste0("Saved simulations for ", definedRun$whichRUN, ". Elapsed time: "
-                                   , Sys.time()-t2)))
-    rm(list = definedRun$whichRUN)
-    gc()
-  } # End !runOnlySimInit
 } # End runLandR
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ BIRDS MODEL 1
@@ -167,7 +161,6 @@ saveRDS(sim$activePixelIndex, file = file.path(outputPath(sim), 'pixelsWithDataA
         paths = Paths,
         loadOrder = unlist(modules),
         outputs = outputsLandR)))
-  rm(simulation)
   } # ENd for-loop GROUPS
   
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ BIRDS MODEL 2
@@ -214,7 +207,6 @@ saveRDS(sim$activePixelIndex, file = file.path(outputPath(sim), 'pixelsWithDataA
                  outputs = outputsLandR
                )
              ))
-      rm(simulation)
     } # ENd for-loop GROUPS
   } # End of second bird model
 } # End of run birds
@@ -246,16 +238,19 @@ if (runCaribou){
     }
   }
   
-  invisible(sapply(X = list.files(file.path(Paths$modulePath, "caribouRSF/R/"), 
+  invisible(sapply(X = list.files(file.path(Paths$modulePath, "caribouRSF_NT/R/"), 
                                   full.names = TRUE), FUN = source))
   parameters <- list(
-    caribouRSF = list(
+    caribouRSF_NT = list(
       "decidousSp" = c("Betu_Pap", "Popu_Tre", "Popu_Bal"),
-      "predictionInterval" = 20,
-      plotTime = NA
+      "predictionInterval" = 1,
+      "simulationProcess" = "dynamic",
+      plotTime = NA,
+      cropRSFToShp = FALSE
     )
   )
-  modules <- list("caribouRSF")
+  objects$rasterToMatch <- objects$caribouLCC
+  modules <- list("caribouRSF_NT")
   simulationBoo <- paste0(definedRun$whichRUN, "_caribou")
   trackSeed(replic = definedRun$whichReplicate, runName = runName)
   assign(x = simulationBoo,
@@ -272,8 +267,14 @@ if (runCaribou){
              debug = 1
            )
          ))
-  rm(simulationBoo)
 }
 
+#   # Caribou Population Growth Parameters!! <- Caribou popGrowth removed from the main simulation! Needs update
+# caribouPopGrowthModel = list(
+#   ".plotInitialTime" = NULL,
+#   "recoveryTime" = 40,
+#   ".useCache" = c(".inputObjects"),
+#   ".useDummyData" = FALSE,
+#   ".growthInterval" = 10)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

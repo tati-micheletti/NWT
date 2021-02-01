@@ -95,15 +95,17 @@ par(mfrow = c(1, 1))
 
 # Fire summaries
 source('~/projects/NWT/posthocFunctions/plotBurnSummaryReps.R')
-burns_LandR.CS_fS <- plotBurnSummaryReps(dataPath = Paths$outputPath, 
+# outPath <- Paths$outputPath
+outPath <-"~/projects/NWT/outputs/SIMULATIONS"
+burns_LandR.CS_fS <- plotBurnSummaryReps(dataPath = outPath, 
                                   typeSim = "LandR.CS_fS",
                                   lastYear = 2100, overwrite = TRUE)
-burns_LandR_fS <- plotBurnSummaryReps(dataPath = Paths$outputPath,
+burns_LandR_fS <- plotBurnSummaryReps(dataPath = outPath,
                                 typeSim = "LandR_fS",
                                 lastYear = 2100, overwrite = TRUE)
-burns_LandR.CS_SCFM <- plotBurnSummaryReps(dataPath = Paths$outputPath, 
+burns_LandR.CS_SCFM <- plotBurnSummaryReps(dataPath = outPath, 
                                   typeSim = "LandR.CS_SCFM",
                                   lastYear = 2100, overwrite = TRUE)
-burns_LandR_SCFM <- plotBurnSummaryReps(dataPath = Paths$outputPath,
+burns_LandR_SCFM <- plotBurnSummaryReps(dataPath = outPath,
                                 typeSim = "LandR_SCFM",
                                 lastYear = 2100, overwrite = TRUE)

@@ -16,7 +16,14 @@
 
 # usrEmail <- "your.email@gmail.com" # Your e.mail for GDrive authorization
 
-  RUN <- "TEST"
+  RUN <- "CCSM4"
+# RUN <- "CanESM2"
+  climateModel <- "CCSM4_RCP85" # :: OK
+  # climateModel <- "CanESM2_RCP85" # :: OK
+  # climateModel <- "ACCESS1-0_RCP85" # :: OK
+  # climateModel <- "CSIRO-Mk3-6-0_RCP85" :: OK
+  # climateModel <- "INM-CM4_RCP85" # :: OK
+  # climateModel <- "CNRM-CM5_RCP85" # :: OK
     usrEmail <- "tati.micheletti@gmail.com" # Your e.mail for GDrive authorization
     hostIp <- 68 # Specify which machine this is running for
     updateCRAN <- FALSE
@@ -27,9 +34,9 @@
     runOnlySimInit <- FALSE # TRUE to run experiment, FALSE to run simulations individually
     # fitTheseFireSenseModels <- "spread"
     onlyLoadDEOptim <- TRUE
-    runName <- "NWT_BCR6"
+    runName <- "NWT_NT1_BCR6" #"NWT_BCR6"
     runPosthocBirds <- FALSE
-    originalDateAnalysis <- "SIMULATIONS"
+    # originalDateAnalysis <- "21JAN21"
     Sys.sleep(1)
     replicateNumber <- paste0("run", RUN)
     Sys.sleep(1)

@@ -76,7 +76,83 @@ vegetationBiomassPlot <- function(years = c(2011, 2100),
       } else {
         totalBiomass <- raster::raster(paste0(totalBiomassFilePath, ".tif"))
       }
+
       return(list(biomassRaster = totalBiomass))
+      
+      #  ~~~ LEADING SPECIES
+      averageDT <- data.table(pixelID = 1:raster::ncell(averageBiomass), 
+                                      raster::getValues(averageBiomass))
+      averageDT[, totalBiomass := rowSums(.SD, na.rm = TRUE), .SDcols = names(averageDT)[names(averageDT) != "pixelID"]]
+      averageDT <- averageDT[totalBiomass != 0,]
+      averageDT[, leading := apply(.SD, 1, .defineLeading, 
+                                   leadingPercentage = leadingPercentage, 
+                                   totalCol = "totalBiomass"), 
+                .SDcols = names(averageDT)[names(averageDT) != "pixelID"]]
+      allPixels <- data.table(pixelID = 1:raster::ncell(averageBiomass))
+      averageDTfilled <- merge(allPixels, averageDT, all.x = TRUE, by = "pixelID")
+      leadingSpeciesRaster <- raster::setValues(raster(averageBiomass), 
+                                                averageDTfilled$leading)
+      leadingSpeciesRaster <- ratify(leadingSpeciesRaster)
+      rat <- levels(leadingSpeciesRaster)[[1]]
+      # Remove levels if not available in the final raster!
+      if (2*length(as.character(treeSpecies)) != NROW(rat)){
+        allexpected <- c(seq_along(treeSpecies), paste0(length(treeSpecies)+1, seq_along(treeSpecies)))
+        toExclude <- setdiff(allexpected, as.character(rat[["ID"]]))
+        whichToExclude <- which(allexpected %in% toExclude)
+        lc <- c(as.character(treeSpecies), 
+                           paste0("Mixed_", as.character(treeSpecies)))
+        lc <- lc[-whichToExclude]
+        rat$landcover <- lc
+      } else {
+        rat$landcover <- c(as.character(treeSpecies), 
+                           paste0("Mixed_", as.character(treeSpecies)))
+      }
+      levels(leadingSpeciesRaster) <- rat
+      
+      raster::writeRaster(leadingSpeciesRaster, file.path(pathOutputs, paste0("leadingSpeciesRaster_", 
+                                                                              sim, "_", y,
+                                                                              ".tif")))
+      library(viridis)
+      library(RColorBrewer)
+      if (any(is.null(pal), length(pal) != 2*length(treeSpecies))){
+        if (length(pal) != 2*length(treeSpecies))
+          message("pal does not match number of species (x2 -- for Mixed leading types). Ignoring provided parameter")
+        pal <- brewer.pal(length(na.omit(unique(leadingSpeciesRaster[]))), "Paired")
+        Lead <- pal[c(FALSE, TRUE)]
+        Mixed <- pal[c(TRUE, FALSE)]
+        pal <- c(Lead, Mixed)
+      }
+      
+      leadingSpeciesBiomassPath <- file.path(pathOutputs, paste0("leadingSp_", sim, 
+                                                         "_", y, ".png"))
+      if (any(!file.exists(leadingSpeciesBiomassPath), overwritePlots)){
+        png(filename = leadingSpeciesBiomassPath,
+            width = 21, height = 29,
+            units = "cm", res = 300)
+        print(levelplot(leadingSpeciesRaster,
+                        att = "landcover",
+                        sub = paste0("Leading species in ", y," for ", sim),
+                        margin = FALSE,
+                        maxpixels = 6e6,
+                        colorkey = list(
+                          space = 'right',
+                          axis.line = list(col = 'black'),
+                          width = 0.75
+                        ),
+                        par.settings = list(
+                          strip.border = list(col = 'transparent'),
+                          strip.background = list(col = 'transparent'),
+                          axis.line = list(col = 'transparent')),
+                        scales = list(draw = FALSE),
+                        col.regions = pal, #pals::kovesi.rainbow(nlev), #viridis_pal(option = "D")(nlev),
+                        par.strip.text = list(cex = 0.8,
+                                              lines = 1,
+                                              col = "black")))
+        dev.off()
+      }
+      
+      return(list(biomassRaster = totalBiomass, leadingSpRaster = leadingSpeciesBiomassPath))
+>>>>>>> 2096fbe9d29371c325298a39af6638017518fbca
     })
     names(cohorDataListAll) <- paste0("year", years)
     # --> need to subtract total biomass 2100 - 2011 to present the difference!

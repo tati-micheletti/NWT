@@ -91,19 +91,20 @@ calcProportionPixelsLost <- function(listOfRasters = NULL,
     allBirds[species == sp, labelMark := pos]
     return("OK")
   })
+  # Cleanup based on species
+  allBirds <- na.omit(allBirds)
   
   # Now the plot
   allBirds[, species := factor(species, levels = newSortOrder)]
-  
   p4 <- ggplot(data = allBirds, mapping = aes(x = proportionOfAreaChanged, y = species, 
                                               fill = colonization, group = colonization,
                                               color = colonization)) +
     geom_col() +
     geom_vline(xintercept = 0, color = "black") + 
-    xlab("Expected proportion of habitat area \ncolonized or lost due to climate change") +
+    xlab("(C) Expected proportion of habitat area \ncolonized or lost due to climate change") +
     theme(legend.position = "none",
           axis.title.y = element_blank(),
-          axis.text.y = element_blank(),
+          # axis.text.y = element_blank(),
           legend.title = element_blank(),
           axis.ticks.y = element_blank()) + #,
           # plot.margin = unit(c(5.5,5.5,5.5,0), "pt")) +
@@ -118,7 +119,8 @@ calcProportionPixelsLost <- function(listOfRasters = NULL,
     scale_y_discrete(position = "right")
   p4
   
-  ggsave(device = "png", filename = file.path(outputFolder, "proportionalChangeInArea.png"), 
+  ggsave(device = "png", filename = file.path(outputFolder, 
+                                              "proportionalChangeInArea.png"), 
          width = 8, height = 11)
   
   return(p4)

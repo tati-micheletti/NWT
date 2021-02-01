@@ -207,7 +207,7 @@ totalBiomassPerSpeciesReps <- function(dataPath,
     fl <- file.path(dataPath, paste0("biomassMapStackReps_", typeSim, prop, overS, ".png"))
     plot2
     ggsave(filename = fl,
-        height = 600)
+        height = 8)
     
     dev.off()
   }

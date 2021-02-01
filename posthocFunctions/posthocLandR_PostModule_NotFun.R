@@ -5,15 +5,17 @@
 ############################################
 
 runName <- "NWT_BCR6"
-originalDateAnalysis <- "SIMULATIONS"
+# originalDateAnalysis <- "SIMULATIONS"
 source("1_generalSetup.R")
 library("data.table")
 library("ggplot2")
 
 SpaDES.core::setPaths(outputPath = file.path(getwd(), "outputs", originalDateAnalysis))
 
-tableCombinations <- data.table(expand.grid(vegetation = c("LandR", "LandR.CS"),
-                                            fire = c("SCFM", "fS")))
+tableCombinations <- data.table(expand.grid(vegetation = c("LandR.CS"),
+                                            fire = c("fS")))
+# tableCombinations <- data.table(expand.grid(vegetation = c("LandR", "LandR.CS"),
+#                                             fire = c("SCFM", "fS")))
 allTypeSim <- copy(tableCombinations)
 allTypeSim[, typeSim := paste(vegetation, fire, sep = "_")]
 allTypeSim <- allTypeSim$typeSim
@@ -29,7 +31,7 @@ biomassTables <- lapply(allTypeSim, function(typeSim){
 
 source('~/projects/NWT/posthocFunctions/loadBiomassLayers.R')
 ras <- loadBiomassLayers(scenarios = tableCombinations, 
-                         path = Paths$outputPath, years = c(2011, 2100))
+                         path = Paths$outputPath, years = c(2100))
 source('~/projects/NWT/posthocFunctions/fixNAsLastYear.R')
 ras <- fixNAsLastYear(rasterList = ras, years = c(2011, 2100))
 

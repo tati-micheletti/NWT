@@ -13,7 +13,7 @@ library("ggrepel")
 
 folderColonization <- "~/projects/NWT/outputs/posthoc/colonization"
 Species <- c("ALFL", "AMCR", "AMRE", "AMRO", "ATSP", "BAWW", "BBWA", "BBWO", 
-             "BCCH", "BHCO", "BHVI", "BLPW", "BOCH", "BRBL", "BRCR", "BTNW", 
+             "BCCH", "BHCO", "BHVI", "BLPW", "BOCH",  "BRBL","BRCR", "BTNW", 
              "CAWA", "CHSP", "CORA", "COYE", "DEJU", "EAKI", "EAPH", "FOSP", 
              "GRAJ", "HETH", "HOLA", "LCSP", "LEFL", "LISP", "MAWA", "NOFL", 
              "NOWA", "OCWA", "OSFL", "OVEN", "PAWA", "PISI", "PIWO", "PUFI", 
@@ -197,7 +197,7 @@ if (!file.exists(netChangeTablePath)){
 }
 toc()
 
-netEffTable <- netChangeTable[effect == "netEffect", c("species", "netChange")]
+netEffTable <- netChangeTable[effect == "netEffect", c("species", "netChange")] # <~~~~~~~~~~~~~~~~~~~~~~~ REMOVE BRBL
 names(netEffTable) <- c("species", "totalNetEffect")
 netChangeTable <- merge(netChangeTable, netEffTable, by = "species")
 lapply(X = Species, function(sp){
@@ -242,20 +242,21 @@ p1 <- ggplot(data = netChangeTable[effect != "netEffect"], aes(x = netChange/(10
                      labels = c("fire" = "Climate Effect via Fire", 
                                 "vegetation" = "Climate Effect via Vegetation", 
                                 "climate" = "Direct Climate Effect")) +
-  xlab("Expected area in ha colonized \nand extirpated (x 10\u2077)") +
+  xlab("(A) Expected area in ha colonized \nand extirpated (x 10\u2077)") +
   geom_vline(xintercept = 0, color = "black") + 
   geom_text(aes(x = labelMark, 
                 label = round(totalNetEffect/(10^7), 2)), 
             size = 2.5, color = "grey10", check_overlap = TRUE) + # check_overlap = TRUE
   geom_vline(xintercept = sum(unique(netChangeTable[, totalNetEffect]))/(64*(10^7)), 
              color = "grey40", linetype = "dotdash") +
-  geom_text(aes(x = ifelse(species == netChangeTable[["species"]][(NROW(netChangeTable)-7)], -0.8, NA), 
-                label = paste0("Expected average area",
+  geom_text(aes(x = ifelse(species == netChangeTable[["species"]][(NROW(netChangeTable)-7)], -1.1, NA), 
+                label = paste0("Expected net area across species",
                                "\naffected by climate change")),
              color = "grey40", fill = "white", size = 2.8, check_overlap = TRUE)
 
 p1
-ggsave(device = "png", filename = file.path(folderColonization, "affectedAreaByClimateChange.png"), 
+ggsave(device = "png", filename = file.path(folderColonization, 
+                                            "affectedAreaByClimateChange.png"), 
        width = 8, height = 11)
 
 # Taiga Plains in the NWT = 480,493 km2 --> 48 049 300 ha --> 4,8 x 10^7 ha
@@ -288,7 +289,7 @@ p2 <- ggplot(data = netChangeTable[effect != "netEffect"], aes(y = species,
                     labels = c("fire" = "Climate Effect via Fire", 
                                "vegetation" = "Climate Effect via Vegetation", 
                                "climate" = "Direct Climate Effect")) +
-  xlab("Expected area in ha colonized \nand extirpated (x 10\u2077)") +
+  xlab("(B) Expected area in ha colonized \nand extirpated (x 10\u2077)") +
   geom_vline(xintercept = 0, color = "black") + 
   geom_vline(data = netChangeTable[effect == "climate"], 
              aes(xintercept = totalNetEffectByEffect/(64*(10^7))), 
@@ -310,7 +311,8 @@ p2 <- ggplot(data = netChangeTable[effect != "netEffect"], aes(y = species,
         legend.position = "none",
         legend.title = element_blank())
 p2
-ggsave(device = "png", filename = file.path(folderColonization, "affectedAreaByClimateChangePerEffect.png"), 
+ggsave(device = "png", filename = file.path(folderColonization, 
+                                            "affectedAreaByClimateChangePerEffect.png"), 
        width = 8, height = 11)
 ##########
 
@@ -1163,20 +1165,28 @@ source('~/projects/NWT/posthocFunctions/vegetationBiomassPlot.R')
 pal <- c("#27408B", "#8B7D6B", "#CD0000", "#EEB422", "#9A32CD", "#006400",
          "#A6BFFF", "#F1E3D1", "#FF7F7F", "#FFDC66", "#FFB1FF", "#7FE37F")
 
-vegPlotsLandRCS_SCFM <- vegetationBiomassPlot(pathData = "~/projects/NWT/outputs/SIMULATIONS",
-                                              pathOutputs = reproducible::checkPath(
-                                                path = "~/projects/NWT/outputs/posthoc/vegetationResults", 
-                                                create = TRUE),
-                                              typeSim = "LandR.CS_SCFM", # <~~~~ REMOVE LATER!
-                                              years = 2100,
+vegPlotsLandRCS_SCFM <- vegetationBiomassPlot(pathData = "/mnt/SpaDES/data/Micheletti/NWT_Outputs/PAPER_EffectsOfClimateChange/SIMULATIONS",
+                                              # pathOutputs = reproducible::checkPath(
+                                              #   path = "~/projects/NWT/outputs/posthoc/vegetationResults", 
+                                              #   create = TRUE),
+                                              pathOutputs = "/mnt/SpaDES/data/Micheletti/NWT_Outputs/PAPER_EffectsOfClimateChange/posthoc/vegetationResults",
+                                              typeSim = c("LandR.CS_fS", "LandR.CS_SCFM", "LandR_fS", "LandR_SCFM"),
+                                              years = c(2011, 2100),
                                               pal = pal, # Order: all species first, mixed with leading after
-                                              flammableRTM = flammableRTM) 
+                                              flammableRTM = flammableRTM)
+
+
 
 # For biomass change in function of climate only
-totBiom_LandR_fS <- raster::raster("~/projects/NWT/outputs/posthoc/vegetationResults/totalBiomass_LandR_fS_2100.tif")
-totBiom_LandR.CS_fS <- raster::raster("~/projects/NWT/outputs/posthoc/vegetationResults/totalBiomass_LandR.CS_fS_2100.tif")
-totBiom_LandR_SCFM <- raster::raster("~/projects/NWT/outputs/posthoc/vegetationResults/totalBiomass_LandR_SCFM_2100.tif")
-totBiom_LandR.CS_SCFM <- raster::raster("~/projects/NWT/outputs/posthoc/vegetationResults/totalBiomass_LandR.CS_SCFM_2100.tif")
+# totBiom_LandR_fS <- raster::raster("~/projects/NWT/outputs/posthoc/vegetationResults/totalBiomass_LandR_fS_2100.tif")
+# totBiom_LandR.CS_fS <- raster::raster("~/projects/NWT/outputs/posthoc/vegetationResults/totalBiomass_LandR.CS_fS_2100.tif")
+# totBiom_LandR_SCFM <- raster::raster("~/projects/NWT/outputs/posthoc/vegetationResults/totalBiomass_LandR_SCFM_2100.tif")
+# totBiom_LandR.CS_SCFM <- raster::raster("~/projects/NWT/outputs/posthoc/vegetationResults/totalBiomass_LandR.CS_SCFM_2100.tif")
+
+totBiom_LandR_fS <- raster::raster("/mnt/SpaDES/data/Micheletti/NWT_Outputs/PAPER_EffectsOfClimateChange/posthoc/vegetationResults/totalBiomass_LandR_fS_2100.tif")
+totBiom_LandR.CS_fS <- raster::raster("/mnt/SpaDES/data/Micheletti/NWT_Outputs/PAPER_EffectsOfClimateChange/posthoc/vegetationResults/totalBiomass_LandR.CS_fS_2100.tif")
+totBiom_LandR_SCFM <- raster::raster("/mnt/SpaDES/data/Micheletti/NWT_Outputs/PAPER_EffectsOfClimateChange/posthoc/vegetationResults/totalBiomass_LandR_SCFM_2100.tif")
+totBiom_LandR.CS_SCFM <- raster::raster("/mnt/SpaDES/data/Micheletti/NWT_Outputs/PAPER_EffectsOfClimateChange/posthoc/vegetationResults/totalBiomass_LandR.CS_SCFM_2100.tif")
 
 diffRas <- totBiom_LandR.CS_fS-totBiom_LandR_fS # Vegetation
 diffRas2 <- totBiom_LandR.CS_fS-totBiom_LandR_SCFM # Fire and Vegetation
@@ -1209,6 +1219,15 @@ plotDT[val != 0, average := round(mean(val), 0), by = "effectType"]
 plotDT[, Median0 := round(median(val), 0), by = "effectType"]
 plotDT[val != 0, Median := round(median(val), 0), by = "effectType"]
 plotDT[, Count := .N, by = c("effectType", "val")]
+plotDT[, CountTot := .N, by = c("effectType")]
+plotDT[val != 0, CountTot := sqrt(ifelse(effectType == "Direct Effect",
+                                                     222,293
+                                                     )), by = "effectType"]
+plotDT[val != 0, stdDev := round(sd(val), 0), by = "effectType"]
+plotDT[val != 0, stdErr := stdDev/CountTot, by = "effectType"]
+
+DTveg <- unique(plotDT[val != 0,])
+DTvegSimple <- unique(DTveg[, c("effectType", "Median", "stdDev", "stdErr")])
 
 library("ggplot2")
 pVeg <- ggplot(data = unique(plotDT[val != 0,]), aes(x = val, 
@@ -1310,3 +1329,65 @@ finalProportionsTable <- merge(proportionsTableDCASTed, proportionArea, by = "sp
 # drive_upload(media = file.path(getwd(), "proportionsTableSUPMAT.csv"), as_id("17xCa7ZogxktoaTVuv7s4EIc2DVCuEq68")) # Already uploaded
 ####################
 
+library("tictoc")
+tic("Total time elapsed for biomass plots: ")
+source('~/projects/NWT/posthocFunctions/biomassPlots.R')
+pl <- biomassPlots(years = c(2011, 2100),
+                   pathData = "/mnt/SpaDES/data/Micheletti/NWT_Outputs/PAPER_EffectsOfClimateChange/SIMULATIONS/",
+                   pathOutputs = "/mnt/SpaDES/data/Micheletti/NWT_Outputs/PAPER_EffectsOfClimateChange/posthoc/vegetationResults",
+                   Scenarios = c("LandR_SCFM", "LandR.CS_SCFM", 
+                                 "LandR_fS", "LandR.CS_fS"),
+                   runs = paste0("run", 1:10),
+                   flammableRTM = rasterToMatch)
+toc()
+
+tic("Total time elapsed for biomass plots: ")
+source('~/projects/NWT/posthocFunctions/leadingSpPlots.R')
+pl2 <- leadingSpPlots(leadingPercentage = 0.8,
+                      years = c(2011, 2100),
+                      pathData = "/mnt/SpaDES/data/Micheletti/NWT_Outputs/PAPER_EffectsOfClimateChange/SIMULATIONS/",
+                      pathOutputs = "/mnt/SpaDES/data/Micheletti/NWT_Outputs/PAPER_EffectsOfClimateChange/posthoc/vegetationResults",
+                      Scenarios = c("LandR_SCFM", "LandR.CS_SCFM", 
+                                    "LandR_fS", "LandR.CS_fS"),
+                      runs = paste0("run", 1:10),
+                      rasterToMatch = rasterToMatch,
+                      flammableRTM = flammableRTM)
+toc()
+
+# Proportions ############### for the paper
+
+source('~/projects/NWT/posthocFunctions/biomassPlotDenominator.R')
+pl <- biomassPlotDenominator(year = 2011,
+                   pathData = "/mnt/SpaDES/data/Micheletti/NWT_Outputs/PAPER_EffectsOfClimateChange/SIMULATIONS",
+                   pathOutputs = "/mnt/SpaDES/data/Micheletti/NWT_Outputs/PAPER_EffectsOfClimateChange/posthoc/vegetationResults",
+                   Scenarios = c("LandR_SCFM", "LandR.CS_SCFM",
+                                 "LandR_fS", "LandR.CS_fS"),
+                   runs = paste0("run", 1:10),
+                   flammableRTM = rasterToMatch)
+
+pathways <- c("fire", "vegetation", "netEffect")
+percChangesPathways <- rbindlist(lapply(pathways, function(eff){
+  EffectRas <- raster(paste0("/mnt/SpaDES/data/Micheletti/NWT_Outputs/",
+                             "PAPER_EffectsOfClimateChange/posthoc/vegetationResults/",
+                             "vegetationPlots/difference_", eff,"_Biomass.tif"))
+
+  # for each one of the 3 effects and divide by the 
+  EffRasDenom <- raster(paste0("/mnt/SpaDES/data/Micheletti/NWT_Outputs/",
+                               "PAPER_EffectsOfClimateChange/posthoc/",
+                               "vegetationResults/vegetationPlots/",
+                               "difference_", eff,"_BiomassDenominator.tif"))
+  # And take the mean for the % of change in function of 2011
+  # Q <- quantile(EffectRas[], probs=c(.05, .95), na.rm = FALSE)
+  # iqr <- IQR(EffectRas[])  
+  #   up <-  Q[2]+1.5*iqr # Upper Range  
+  #   low<- Q[1]-1.5*iqr # Lower Range
+  # EffectNoOuts <- subset(EffectRas[], EffectRas[] > low & EffectRas[] < up)
+  meanEff <- mean(EffectRas[], na.rm = TRUE)
+  meanDenom <- mean(EffRasDenom[], na.rm = TRUE)
+  averagePropChange <- 100*(meanEff/meanDenom)
+  return(data.table(effect = eff,
+                    meanEffectDifference = meanEff,
+                    meanInitialBiomass = meanDenom,
+                    changeInPerc = averagePropChange))
+}))
+percChangesPathways

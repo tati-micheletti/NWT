@@ -23,6 +23,7 @@ if (runLandR){
   t1 <- Sys.time()
   if (!exists("Inputs"))
     Inputs <- data.frame()
+  parameters[["fireSense_dataPrep"]][["skipMDCprep"]] <- TRUE
   trackSeed(replic = definedRun$whichReplicate, runName = runName)
   assign(x = definedRun$whichRUN, do.call(get(spadesFun), args = alist(inputs = Inputs, 
                                                                       times = Times,

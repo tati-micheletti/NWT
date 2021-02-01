@@ -3,7 +3,10 @@
 #    I n  i t i a l     S e t u p          #  
 ############################################
 ############################################
+library("Require")
+Require::setLibPaths(libPaths = file.path(getwd(), "libraryNWT"))
 
+Require("PredictiveEcology/pemisc@development")
 # Authorize GDrive
 if (!exists("usrEmail"))
   usrEmail <- if (pemisc::user() %in% c("tmichele", "Tati")) "tati.micheletti@gmail.com" else 
@@ -32,14 +35,19 @@ if (updateCRAN)
 if (updateGithubPackages){
   if (pemisc::user() %in% c("emcintir", "tmichele")) Sys.setenv("R_REMOTES_UPGRADE"="never")
   Pkg <- c("PredictiveEcology/Require@master",
-           "PredictiveEcology/pemisc@development",
-              "PredictiveEcology/LandR@master",
-           ifelse(pemisc::user() %in% "tmichele", # <~~~~~~~~~~~~~~~~~~~~~~~~ HERE
-                  "tati-micheletti/usefulFuns@fileMystery",
-                  "PredictiveEcology/usefulFuns@development"),
-              "ianmseddy/LandR.CS@master",
-              "PredictiveEcology/fireSenseUtils@iterative",
-              "PredictiveEcology/SpaDES@development")
+           # 26JAN21 :: Bug fixes not implemented in LandR@master yet
+           # [cc59e2f648695b54bcfcc2878ab519cd1e5de678]
+           "PredictiveEcology/LandR@development", 
+           # 26JAN21 :: Bug fixes not implemented in LandR@master yet
+           #  [215c6e2c6ffba0d16952090706431b1a909834eb]
+           "ianmseddy/LandR.CS@master",
+           "PredictiveEcology/fireSenseUtils@V.2.0_NWT")
+  if (pemisc::user() %in% "tmichele") {
+    Pkg <- c(Pkg, "tati-micheletti/usefulFuns@fileMystery")
+  } else {
+    Pkg <- c(Pkg, "PredictiveEcology/usefulFuns@master")
+  }
+  
   pkg <- lapply(Pkg, function(p){
     capture.output(devtools::install_github(p))
     })
@@ -53,8 +61,6 @@ if (updateGithubPackages){
                                    "Your setup will continue.")))
   }
 }
-
-library("Require")
 
 if (!exists("updateSpaDES")) updateSpaDES <- FALSE
 if (updateSpaDES){

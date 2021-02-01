@@ -411,17 +411,17 @@ buffAnthroDist500m <- Cache(postProcess, x = bufferedAnthropogenicDisturbance500
                                   userTags = c(stepCacheTag,
                                                "step:maskAnthropogenicDistLayer", "outFun:Cache"))
  
-# Older version of road density. To update it, a 10km buffered layer still needs to be
+# Older version of road density for ECCC 2011 RSF. To update it, a 10km buffered layer still needs to be
 # created. The current one used for the DeMars et al., 2019 model for NWT is 1km density.
-roadDensity <- Cache(prepInputs, targetFile = "roadDensity_BCR6_NWT_t0.tif",
-                          url = "https://drive.google.com/open?id=1C0Y0z1cgQKwa3_-X2qWrhNIzEHIl9m5e",
-                          destinationPath = Paths$inputPath,
-                          studyArea = studyArea,
-                          rasterToMatch = rasterToMatch,
-                          userTags = c(stepCacheTag,
-                                       "step:prepRoadDensity",
-                                       "objectName:roadDensity",
-                                       "outFun:Cache"))
+# roadDensity <- Cache(prepInputs, targetFile = "roadDensity_BCR6_NWT_t0.tif",
+#                           url = "https://drive.google.com/open?id=1C0Y0z1cgQKwa3_-X2qWrhNIzEHIl9m5e",
+#                           destinationPath = Paths$inputPath,
+#                           studyArea = studyArea,
+#                           rasterToMatch = rasterToMatch,
+#                           userTags = c(stepCacheTag,
+#                                        "step:prepRoadDensity",
+#                                        "objectName:roadDensity",
+#                                        "outFun:Cache"))
 
 caribouArea1 <- Cache(prepInputs, url = "https://drive.google.com/open?id=1Qbt2pOvC8lGg25zhfMWcc3p6q3fZtBtO",
                            targetFile = "NWT_Regions_2015_LCs_DC_SS_combined_NT1_clip_inc_Yukon.shp",
@@ -523,7 +523,6 @@ attributes(sppColorVect)$names[length(sppColorVect)] <- "Mixed"
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ MODULES' PARAMETERS ~~~~~~~~~~~~~~~~~~~~~~~~
-
 
 #SCFM
 defaultInterval <- 1.0
@@ -703,6 +702,7 @@ parameters <- list(
 
 succTS <- c(seq(Times$start, Times$end, 
                 by = parameters$Biomass_core$successionTimestep), Times$end)
+succTS <- sort(c(2017, succTS))
 outputsLandR <- data.frame(
   objectName = rep(c("burnMap",
                      "cohortData",

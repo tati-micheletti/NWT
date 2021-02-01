@@ -631,7 +631,11 @@ parameters <- list(
     "pixelGroupAgeClass" = 20,
     ".useCache" = c(".inputObjects", "init"),
     "subsetDataBiomassModel" = 50,
-    "exportModels" = "all"
+    "exportModels" = "all" #, [01FEB21: TM -- This below was in 213 but not here. It might be needed 
+    #                         when running directly from EOSD layer instead of converting to LCC05 as
+    #                         I am doing now.]
+    # "LCCClassesToReplaceNN" = 11:12, #Cloud/Shadow
+    # "forestedLCCClasses" = forestedClasses
   ),
   Biomass_regeneration = list(
     "fireTimestep" = 1,
@@ -693,7 +697,12 @@ parameters <- list(
                                   DEoptimCache], # This is NWT DEoptim Cache
     "cloudFolderID_DE" = "1kUZczPyArGIIkbl-4_IbtJWBhVDveZFZ",
     "useCloud_DE" = TRUE
-  )
+  )#, [01FEB21: TM -- This below was in 213 but not here. It is needed 
+  #                         when running directly from EOSD layer instead of converting to LCC05 as
+  #                         I am doing now. But might (most likele will) be useless when we actually have the 
+  #                         whole fireSense scheme working.]
+  # LBMR2LCC_DataPrep = list(
+  # "trainingAndMappingFuns" = c("trainXGBModel_EOSD", "MapBiomassToLCC_EOSD"))
 )
 
 

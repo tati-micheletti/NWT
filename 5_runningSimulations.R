@@ -247,12 +247,31 @@ if (runCaribou){
       "simulationProcess" = "dynamic",
       plotTime = NA,
       cropRSFToShp = FALSE
-    )
+    ),
+    caribouPopGrowthModel = list(
+      ".plotInitialTime" = NULL,
+      "recoveryTime" = 40,
+      ".useDummyData" = FALSE,
+      ".growthInterval" = 10,
+      "recruitmentModelVersion" = "Johnson", # Johnson or ECCC
+      "recruitmentModelNumber" = "M4",
+      "femaleSurvivalModelNumber" = c("M1", "M4") # M1:M5 --> best models: M1, M4
+    ) 
+    # ATTENTION: recruitmentModelNumber and recruitmentModelVersion need to be paired. ie.
+    # if you want to run M3 from ECCC and M1 and M4 from Johnson you should put these as
+    #     "recruitmentModelVersion" = c("ECCC", "Johnson", "Johnson"),
+    #     "recruitmentModelNumber" = c("M3", "M1", "M4"), 
+    # otherwise it will repeat the recruitmentModelVersion for all recruitmentModelNumber
   )
-  objects$rasterToMatch <- objects$caribouLCC
-  modules <- list("caribouRSF_NT")
+  # objects$rasterToMatch <- objects$caribouLCC # WHY WAS THIS HERE? This is not the right thing to do
+  # maybe it was a leftover from trying to work out the pixels' problem?!
+  modules <- list("caribouRSF_NT", "caribouPopGrowthModel")
   simulationBoo <- paste0(definedRun$whichRUN, "_caribou")
   trackSeed(replic = definedRun$whichReplicate, runName = runName)
+  rstCurrentBurnList <- readRDS(file.path(Paths$inputPath, 
+                                          "rstCurrentBurnList_year2100.rds"))
+  objects <- c(objects, list("rstCurrentBurnList" = rstCurrentBurnList,
+                             "runName" = runName))
   assign(x = simulationBoo,
          do.call(
            get(spadesFun),
@@ -268,13 +287,5 @@ if (runCaribou){
            )
          ))
 }
-
-#   # Caribou Population Growth Parameters!! <- Caribou popGrowth removed from the main simulation! Needs update
-# caribouPopGrowthModel = list(
-#   ".plotInitialTime" = NULL,
-#   "recoveryTime" = 40,
-#   ".useCache" = c(".inputObjects"),
-#   ".useDummyData" = FALSE,
-#   ".growthInterval" = 10)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

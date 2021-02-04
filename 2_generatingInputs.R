@@ -86,6 +86,7 @@ anthropogenicLayers <- Cache(prepInputs, targetFile = "anthropogenicDisturbanceL
                                           "object:anthropogenicLayersNT1BCR6"))
 # [UPDATE 12JAN21]: One of the layers got named wrongly, so I will fix here:
 names(anthropogenicLayers)[names(anthropogenicLayers) == "lineDen1000"] <- "lden1000_2015"
+names(anthropogenicLayers)[names(anthropogenicLayers) == "exp_sett"] <- "exp_settle"
 
 # ~~~~~~~~~~~~~~~~~~~~ 
 
@@ -230,9 +231,11 @@ caribouRSFTable <- Cache(prepInputs, url = paste0("https://drive.google.com",
 reclassTB <- Cache(prepInputs, url = paste0("https://drive.google.com/file/d/",
                                             "1YUXcx8Gc6dI4vy76l2k_P6tUm6X2m7M",
                                             "G/view?usp=sharing"),
+                   targetFile = "EOSD_LCC05_ConversionTable.csv",
                    destinationPath = Paths$inputPath,
                    fun = "data.table::fread", 
-                   userTags = "conversionEOSD_LCC05")
+                   userTags = c("version:noSparse", 
+                                "conversionEOSD_LCC05"))
 
 reclassMatrix <- usefulFuns::makeReclassifyMatrix(table = reclassTB, 
                                                   originalCol = "EOSD_Class", 
@@ -454,8 +457,22 @@ Edehzhie <- Cache(prepInputs, targetFile = "Edehzhie.shp",
                                "step:prepEdehzhie"))
 Edehzhie$Name <- Edehzhie$NAME_1
 
-listSACaribou <- list(caribouArea1, caribouArea2, Edehzhie)
-names(listSACaribou) <- c("caribouArea1", "caribouArea2", "Edehzhie")
+
+metaHeards <- Cache(prepInputs, 
+                       targetFile = "Enhanced_MetaHerds_20191029.shp",
+                       archive = "Johnsonetal2020_studyareas.zip",
+                       alsoExtract = "similar",
+                       url = "https://drive.google.com/file/d/1lH_Oy2pEHv9dtSsAXn-UrDHrW1aJOOCd",
+                       studyArea = studyArea,
+                       destinationPath = Paths$inputPath,
+                       filename2 = NULL,
+                       rasterToMatch = rasterToMatch,
+                       userTags = c(stepCacheTag, 
+                                    "outFun:Cache",
+                                    "step:prepHeardsPoly"))
+  
+listSACaribou <- list(caribouArea1, caribouArea2, Edehzhie, metaHeards)
+names(listSACaribou) <- c("caribouArea1", "caribouArea2", "Edehzhie", "metaHeards")
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ CLIMATE ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -727,7 +744,8 @@ lastYears <- data.frame(objectName = c("predictedCaribou", "plotCaribou",
                                        "fireRegimeRas", "speciesEcoregion", 
                                        "species", "gcsModel", "mcsModel", 
                                        "spreadPredictedProbability", 
-                                       "rstCurrentBurnList"),
+                                       "rstCurrentBurnList",
+                                       "caribouPredictions"),
                         saveTime = Times$end)
 if (length(usefulFuns::grepMulti(x = definedRun$modules, "Biomass_core")) != 0){
   clim <- data.frame(objectName = rep(c("fireSense_IgnitionPredicted", 

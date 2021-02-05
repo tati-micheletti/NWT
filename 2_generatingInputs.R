@@ -745,7 +745,7 @@ lastYears <- data.frame(objectName = c("predictedCaribou", "plotCaribou",
                                        "species", "gcsModel", "mcsModel", 
                                        "spreadPredictedProbability", 
                                        "rstCurrentBurnList",
-                                       "caribouPredictions"),
+                                       "caribouPredictions", "disturbances"),
                         saveTime = Times$end)
 if (length(usefulFuns::grepMulti(x = definedRun$modules, "Biomass_core")) != 0){
   clim <- data.frame(objectName = rep(c("fireSense_IgnitionPredicted", 

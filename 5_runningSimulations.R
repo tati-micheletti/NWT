@@ -47,6 +47,7 @@ if (runLandR){
 
 if (!exists("runBirds")) runBirds <- FALSE # Default if not provided
 if (runBirds){
+  tryCatch(rm(definedRun$whichRUN), error = function(e) warning("LandR run not found to remove"))
   source("functions/birdPredictionCoresCalc.R")
   if (!exists("birdModelVersion")) birdModelVersion <- c("4", "6a") # Default if not provided
   predictionInterval <- 20
@@ -141,7 +142,7 @@ saveRDS(sim$activePixelIndex, file = file.path(outputPath(sim), 'pixelsWithDataA
   
   objects <- c(objects, list(
     "uplandsRaster" = uplandsRaster,
-    "climateDataFolder" = file.path(originalInputsPath, climateModel, "CCSM4_RCP85_annual"),
+    "climateDataFolder" = file.path(originalInputsPath, climateModel, "CCSM4_RCP85_annual"), # <~~~~~~~~~~~~ FIX THIS FOR BIRDS!
     "pixelsWithDataAtInitialization" = pixelsWithDataAtInitialization
   ))
   for (GROUP in 1:length(cores$birdSpecies)) {
@@ -166,6 +167,7 @@ saveRDS(sim$activePixelIndex, file = file.path(outputPath(sim), 'pixelsWithDataA
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ BIRDS MODEL 2
   
   if (length(birdModelVersion) > 1){ # Run a second bird model
+    tryCatch(rm(definedRun$whichRUN), error = function(e) warning("LandR run not found to remove"))
     bMod <- birdModelVersion[2]
     parameters[["birdsNWT"]][["version"]] <- bMod
     birdOutPath <- checkPath(file.path(dirname(Paths$outputPath), 
@@ -215,6 +217,7 @@ saveRDS(sim$activePixelIndex, file = file.path(outputPath(sim), 'pixelsWithDataA
 
 if (!exists("runCaribou")) runCaribou <- FALSE # Default if not provided
 if (runCaribou){
+  tryCatch(rm(definedRun$whichRUN), error = function(e) warning("LandR run not found to remove"))
   message(crayon::white(paste0("Starting simulations for CARIBOUS using ", definedRun$whichRUN, " ", 
                                definedRun$whichReplicate, " for ", runName)))
   if (all(runLandR == FALSE, runBirds == FALSE)){
@@ -229,10 +232,10 @@ if (runCaribou){
              outputPath = file.path(newOutputPath, "caribouPredictions"))
   } else {
     if (runBirds == TRUE){ # input path is correct, independently if I ran LandR before birds
-      caribouOutPath <- checkPath(file.path(dirname(Paths$outputPath), "caribouPredictions"), create = TRUE)
+      caribouOutPath <- checkPath(file.path(Paths$outputPath, "caribouPredictions"), create = TRUE)
       setPaths(outputPath = caribouOutPath)
     } else { # only if I didn't run birds, only LandR
-      caribouOutPath <- checkPath(file.path(dirname(Paths$outputPath), "caribouPredictions"), create = TRUE)
+      caribouOutPath <- checkPath(file.path(Paths$outputPath, "caribouPredictions"), create = TRUE)
       setPaths(inputPath = Paths$outputPath,
                outputPath = caribouOutPath)
     }
@@ -243,10 +246,11 @@ if (runCaribou){
   parameters <- list(
     caribouRSF_NT = list(
       "decidousSp" = c("Betu_Pap", "Popu_Tre", "Popu_Bal"),
-      "predictionInterval" = 1,
+      "predictionInterval" = 10,
       "simulationProcess" = "dynamic",
       plotTime = NA,
-      cropRSFToShp = FALSE
+      cropRSFToShp = FALSE,
+      makeAssertions = FALSE
     ),
     caribouPopGrowthModel = list(
       ".plotInitialTime" = NULL,
@@ -263,8 +267,6 @@ if (runCaribou){
     #     "recruitmentModelNumber" = c("M3", "M1", "M4"), 
     # otherwise it will repeat the recruitmentModelVersion for all recruitmentModelNumber
   )
-  # objects$rasterToMatch <- objects$caribouLCC # WHY WAS THIS HERE? This is not the right thing to do
-  # maybe it was a leftover from trying to work out the pixels' problem?!
   modules <- list("caribouRSF_NT", "caribouPopGrowthModel")
   simulationBoo <- paste0(definedRun$whichRUN, "_caribou")
   trackSeed(replic = definedRun$whichReplicate, runName = runName)

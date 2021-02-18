@@ -105,6 +105,7 @@ source("functions/getAnnualClimateZipURL.R")
 source("functions/makeCMIandATA.R")
 source('functions/runSquarenessTest.R')
 source('functions/checkRasterStackIsInMemory.R')
+source('functions/adjustSpeciesLayersWithEOSD.R')
 
 if (!exists("vegetation")) vegetation <- "LandR" # Default if not provided
 if (!exists("fire")) fire <- "SCFM" # Default if not provided

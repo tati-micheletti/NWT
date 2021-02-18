@@ -728,7 +728,8 @@ parameters <- list(
 
 succTS <- c(seq(Times$start, Times$end, 
                 by = parameters$Biomass_core$successionTimestep), Times$end)
-succTS <- sort(c(2017, succTS))
+if (Times$end > 2017)
+  succTS <- sort(c(2017, succTS))
 outputsLandR <- data.frame(
   objectName = rep(c("burnMap",
                      "cohortData",
@@ -789,16 +790,14 @@ objects <- list(
   "rstLCC" = rstLCC,
   "bufferedAnthropogenicDisturbance500m" = buffAnthroDist500m, # Buffered disturbances 500m
   "anthropogenicLayers" = raster::stack(anthropogenicLayers), # New RSF anthropogenic layers for NT1+BCR6 (exp_dist_sett, exp_maj_rod, etc)
-  # "caribouArea1" = caribouArea1,
-  # "caribouArea2" = caribouArea2,
   "caribouLCC" = caribouLCC,
-  # "Edehzhie" = Edehzhie,
   # "roadDensity" = roadDensity, # Used only in the older caribouRSF module
   "firePolys" = firePolys,
   "firePoints" = firePoints,
   "listSACaribou" = listSACaribou,
   "historicalFires" = historicalFires,
-  "NT1shapefile" = caribouArea2
+  "NT1shapefile" = caribouArea2,
+  ".studyAreaName" = runName
 )
 
 data.table::setDTthreads(2) # Data.table has all threads by default, 

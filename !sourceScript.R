@@ -18,13 +18,13 @@
 
 RUN <- "1"
 # Sys.sleep(600*(as.numeric(RUN)-1))
-climateModel <- "CCSM4_RCP85" # :: DONE
-  # climateModel <- "CanESM2_RCP85" # :: DONE
-  # climateModel <- "ACCESS1-0_RCP85" # :: DONE
-  # climateModel <- "CSIRO-Mk3-6-0_RCP85" :: DONE  
-  # climateModel <- "INM-CM4_RCP85" # :: NEXT
+climateModel <- "CCSM4_RCP85" # :: Running...
+  # climateModel <- "CanESM2_RCP85" # :: NEXT
+  # climateModel <- "ACCESS1-0_RCP85" # :: 
+  # climateModel <- "CSIRO-Mk3-6-0_RCP85" ::   
+  # climateModel <- "INM-CM4_RCP85" # :: 
   # climateModel <- "CNRM-CM5_RCP85" # :: 
-Times <- list(start = 2017, end = 2017)
+Times <- list(start = 2011, end = 2100)
     usrEmail <- "tati.micheletti@gmail.com" # Your e.mail for GDrive authorization
     hostIp <- 68 # Specify which machine this is running for
     updateCRAN <- FALSE
@@ -35,23 +35,23 @@ Times <- list(start = 2017, end = 2017)
     runOnlySimInit <- FALSE # TRUE to run experiment, FALSE to run simulations individually
     # fitTheseFireSenseModels <- "spread"
     onlyLoadDEOptim <- TRUE
-    runName <- "NWT_NT1_BCR6" #"NWT_BCR6"
+    runName <- "NWT_NT1_BCR6_2011" #"NWT_BCR6"
     runPosthocBirds <- FALSE
-    originalDateAnalysis <- "landscapeRuns"
+    # originalDateAnalysis <- "10FEB21"
     Sys.sleep(1)
     replicateNumber <- paste(strsplit(climateModel, split = "_")[[1]][1], 
                              paste0("run", RUN), sep = "_")
     Sys.sleep(1)
     vegetation <- "LandR.CS"
     fire <- "fS"
-    runLandR <- FALSE
-    runBirds <- FALSE
+    runLandR <- TRUE
+    runBirds <- TRUE
     runCaribou <- TRUE
     birdModelVersion <- 8
     Sys.sleep(3)
     source("1_generalSetup.R")
     source("2_generatingInputs.R")
-    source("3_preamble.R")
+    source("3_preamble_2011layers.R")
     source("4_fittingModules.R")
     source("5_runningSimulations.R")
     

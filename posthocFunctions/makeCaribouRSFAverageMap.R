@@ -260,6 +260,9 @@ makeCaribouRSFAverageMap <- function(resultsFolder,
   finalMapsPath <- rbindlist(list(allRepsFilepath, bothMapsAllCS))
   meanRSFPoly <- rbindlist(lapply(booMaps, `[[`, "meanRSFPoly"))
   
+  qs::qsave(x = meanRSFPoly, 
+            file = file.path(outputsPath, "meanRSFperPolygon.qs"))
+  
   return(list(meanRSFPoly = meanRSFPoly,
               mapsFilePaths = finalMapsPath))
 }

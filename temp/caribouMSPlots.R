@@ -41,13 +41,17 @@ booRSF <- makeCaribouRSFAverageMap(resultsFolder = resultsFolder,
                                    lastYear = 2100)
 
 
-# To be worked on...
-source('~/projects/NWT/modules/caribouPopGrowthModel/R/plotCaribouPopGrowth.R')
-plotCaribou <- plotCaribouPopGrowth(startTime = 2011,
+pathOutputs <- "~/projects/NWT/outputs/landscapeRuns/LandR.CS_fS/caribouPlots/"
+source('~/projects/NWT/posthocFunctions/plotCaribouPopGrowthMS.R')
+plotCaribou <- plotCaribouPopGrowthMS(startTime = 2011,
                                     currentTime = 2100,
                                     endTime = 2100,
+                                    climateModel = c("CCSM4", "CanESM2"),
+                                    reps = paste0("run", 1:5),
                                     resultsMainFolder = "~/projects/NWT/outputs/landscapeRuns/LandR.CS_fS",
                                     yearSimulationStarts = 2011,
+                                    whichPolys = c("Dehcho South_v2", "Dehcho North_v2", 
+                                                   "Hay River Lowlands", "GSA South", "GSA North"),
                                     outputFolder = pathOutputs)
 
 # Digest disturbance

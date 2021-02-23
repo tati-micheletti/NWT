@@ -61,19 +61,30 @@ if (runBirds){
                           availableCores = rep(52, times = 6),
                           availableRAM = c(rep(470, times = 5), 920))
 
-  cores <- birdPredictionCoresCalc(birdSpecies = c("ALFL", "AMCR", "AMRE", "AMRO", "ATSP", "BAWW", "BBWA", "BBWO", 
-                                                   "BCCH", "BHCO", "BHVI", "BLPW", "BOCH", "BRBL", "BRCR", "BTNW", 
-                                                   "CAWA", "CHSP", "CORA", "COYE", "DEJU", "EAKI", "EAPH", "FOSP", 
-                                                   "GRAJ", "HETH", "HOLA", "LCSP", "LEFL", "LISP", "MAWA", "NOFL", 
-                                                   "NOWA", "OCWA", "OSFL", "OVEN", "PAWA", "PISI", "PIWO", "PUFI", 
-                                                   "RBGR", "RBNU", "RCKI", "REVI", "RUGR", "RWBL", "SAVS", "SOSP", 
-                                                   "SWSP", "SWTH", "TEWA", "TRES", "WAVI", "WCSP", "WETA", "WEWP", 
-                                                   "WIWA", "WIWR", "WTSP", "WWCR", "YBFL", "YBSA", "YEWA", "YRWA"
-                                                   ),
+  #TODO
+  # WHICH BIRD SPECIES DO I HAVE?  
+  source('~/projects/NWT/functions/getBirdsAvailable.R')
+  # bds <- getBirdsAvailable() # To compare with allb --> have all models?
+  allb <- usefulFuns::substrBoth(list.files("~/projects/NWT/modules/birdsNWT/data/models/",
+                                            pattern = "brt8.R"),
+             howManyCharacters = 4,
+             fromEnd = FALSE)
+  # THIS ARE AVAILABLE IN V8
+  # c("ALFL", "AMCR", "AMRE", "AMRO", "ATSP", "BAWW", "BBWA", "BBWO",
+  # "BCCH", "BHCO", "BHVI", "BLPW", "BOCH", "BRBL", "BRCR", "BTNW",
+  # "CAWA", "CCSP", "CHSP", "CORA", "COYE", "DEJU", "EAKI", "FOSP",
+  # "GRAJ", "HAFL", "HETH", "HOLA", "LCSP", "LEFL", "LISP", "MAWA",
+  # "NOFL", "NOWA", "OCWA", "OVEN", "PAWA", "PHVI", "PISI", "PIWO",
+  # "PUFI", "RBGR", "RBNU", "RCKI", "REVI", "RUBL", "RUGR", "RWBL",
+  # "SAVS", "SOSP", "SWSP", "SWTH", "TEWA", "TRES", "VATH", "WAVI",
+  # "WCSP", "WETA", "WEWP", "WIWA", "WIWR", "WTSP", "WWCR", "YBFL",
+  # "YBSA", "YEWA", "YRWA")
+# Test the diff between 79 amd 104 (40 and 52GB per bird) ?
+  cores <- birdPredictionCoresCalc(birdSpecies = allb,
                                    ipEnd = hostIp,
                                    availableCores = hostTable[hostIp == ipEnd, availableCores],
                                    availableRAM = hostTable[hostIp == ipEnd, availableRAM],
-                                   sizeGbEachProcess = ifelse(bMod == 4, 5, 7),
+                                   sizeGbEachProcess = ifelse(bMod == 4, 5, 13.7), # For V6a is 7, 15 is for V8
                                    localHostEndIp = hostIp)
   parameters <- list(
     birdsNWT = list(
@@ -142,7 +153,7 @@ saveRDS(sim$activePixelIndex, file = file.path(outputPath(sim), 'pixelsWithDataA
   
   objects <- c(objects, list(
     "uplandsRaster" = uplandsRaster,
-    "climateDataFolder" = file.path(originalInputsPath, climateModel, "CCSM4_RCP85_annual"), # <~~~~~~~~~~~~ FIX THIS FOR BIRDS!
+    "climateDataFolder" = file.path(originalInputsPath, climateModel), 
     "pixelsWithDataAtInitialization" = pixelsWithDataAtInitialization
   ))
   for (GROUP in 1:length(cores$birdSpecies)) {

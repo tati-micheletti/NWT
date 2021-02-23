@@ -97,3 +97,6 @@
 [submodule "modules/caribouRSF_NT"]
 	path = modules/caribouRSF_NT
 	url = git@github.com:tati-micheletti/caribouRSF_NT.git
+[submodule "modules/waterfowl"]
+	path = modules/waterfowl
+	url = git@github.com:tati-micheletti/waterfowl.git

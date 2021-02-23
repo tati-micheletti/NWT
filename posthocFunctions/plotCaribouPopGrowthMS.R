@@ -44,16 +44,16 @@ plotCaribouPopGrowthMS <- function(startTime,
       }))
       return(addedTB)
     }))
-
+    
     if (!is.null(whichPolys)){
       predictedCaribou <- predictedCaribou[polygon %in% whichPolys, ]
     }
     tableAll <- predictedCaribou
   }
-
+  
   yaxis <- if (timeSpan == "annual") "annualLambda" else "growth"
   yaxisName <- yaxis
-
+  
   names(tableAll)[names(tableAll) == "polygon"] <- "Polygon"
   tableAll[, minRib := min(get(paste0(yaxis, "Min"))), by = c("Year", "Polygon", 
                                                               "climateModel", "femSurvMod_recrMod")]
@@ -61,80 +61,80 @@ plotCaribouPopGrowthMS <- function(startTime,
                                                               "climateModel", "femSurvMod_recrMod")]
   tableAll[, paste0("average", yaxis) := mean(get(yaxis)), by = c("Year", "Polygon", "climateModel", 
                                                                   "femSurvMod_recrMod")]
-
-    yrReady <- lapply(X = unique(tableAll[["area"]]), 
-                                            FUN = function(shp){
-        polyReady <- lapply(X = unique(tableAll[area == shp, femSurvMod_recrMod]), 
-                                                  FUN = function(mod){
-          message(paste0("Plotting caribou population growth for ", shp, 
-                         " for ", mod))
-          DT <- tableAll[area == shp & femSurvMod_recrMod == mod, ]
-          survMod <- strsplit(strsplit(mod, "::")[[1]][1], "_National")[[1]][1]
-          recMod <- strsplit(strsplit(mod, "::")[[1]][2], "_National")[[1]][1]
-          
-          tryCatch(quickPlot::clearPlot(), error = function(e){
-            message(crayon::red("quickPlot::clearPlot() failed"))
-            })
-          
-          # a) increase the resolution (300 dpi tiff file), [DONE]
-          # b) remove the grey background so that the 1-dashed lambda line stands out more [OK]
-          # c) remove the title and save what is being presented in the image name. [OK]
-          # Each GCM needs to be a different linetype
-          # Each ribbon belongs to a climate scenario and is overplotted
-          # Add the table with values coming from the other function -- NULL default!
-          # data.table(Area, climateModel, averageRSF) --> needs to match in the strip!
-
-            popModelPlot <- ggplot2::ggplot(data = DT, aes(x = Year,
-                                                           colour = Polygon, 
-                                                           group = climateModel)) +
-              geom_line(size = 0.9, aes(y = get(paste0("average", yaxis)),
-                                        group = climateModel,
-                                        linetype = climateModel)) +
-              facet_grid(rows = vars(Polygon)) +
-              geom_hline(yintercept = 1, linetype = "dotted", 
-                         color = "grey73", size = 1) +
-              geom_ribbon(aes(ymin = minRib, 
-                              ymax = maxRib,
-                              group = climateModel,
-                              fill = Polygon), alpha = 0.1, colour = NA) +
-              theme_linedraw() +
-              # ggtitle(label = paste0("Caribou population dynamics: ", climateModel),
-              #         subtitle = paste0("Female Survival Model: ", survMod,
-              #                           "\nRecruitment Model: ", recMod)) +
-              theme(legend.position = "bottom",
-                    title = element_blank(),
-                    strip.text.y = element_blank(),
-                    legend.key = element_blank(),
-                    legend.title = element_blank()) +
-              ylab(yaxisName) 
-            
-            if ("Replicate" %in% names(DT)){
-              popModelPlot <- popModelPlot + geom_jitter(data = DT, aes(x = Year,
-                                                                        y = get(yaxis)),
-                                                         size = 1, colour = "grey40",
-                                                         width = 1)
-            }
-            
-            if(currentTime == endTime){
-              tryCatch(quickPlot::clearPlot(), 
-                       error = function(e){
-                         message(crayon::red("quickPlot::clearPlot() failed"))
-                         })
-              png(file.path(outputFolder, 
-                            paste0("caribou_", shp, "_allCM",
-                                   "_", recMod,"_", survMod,
-                                   ifelse(!is.null(resultsMainFolder), "_reps", ""),
-                                   ".png")),
-                  units = "cm",
-                  width = 29, height = 21)
-              print(popModelPlot)
-              dev.off()
-            }
-            return(popModelPlot)
-          })
-        names(polyReady) <- unique(tableAll[area == shp, femSurvMod_recrMod])
-        return(polyReady)
-    })
-    names(yrReady) <- unique(tableAll[["area"]])
-    return(yrReady)
+  
+  yrReady <- lapply(X = unique(tableAll[["area"]]), 
+                    FUN = function(shp){
+                      polyReady <- lapply(X = unique(tableAll[area == shp, femSurvMod_recrMod]), 
+                                          FUN = function(mod){
+                                            message(paste0("Plotting caribou population growth for ", shp, 
+                                                           " for ", mod))
+                                            DT <- tableAll[area == shp & femSurvMod_recrMod == mod, ]
+                                            survMod <- strsplit(strsplit(mod, "::")[[1]][1], "_National")[[1]][1]
+                                            recMod <- strsplit(strsplit(mod, "::")[[1]][2], "_National")[[1]][1]
+                                            
+                                            tryCatch(quickPlot::clearPlot(), error = function(e){
+                                              message(crayon::red("quickPlot::clearPlot() failed"))
+                                            })
+                                            
+                                            # a) increase the resolution (300 dpi tiff file), [DONE]
+                                            # b) remove the grey background so that the 1-dashed lambda line stands out more [OK]
+                                            # c) remove the title and save what is being presented in the image name. [OK]
+                                            # Each GCM needs to be a different linetype
+                                            # Each ribbon belongs to a climate scenario and is overplotted
+                                            # Add the table with values coming from the other function -- NULL default!
+                                            # data.table(Area, climateModel, averageRSF) --> needs to match in the strip!
+                                            
+                                            popModelPlot <- ggplot2::ggplot(data = DT, aes(x = Year,
+                                                                                           colour = Polygon, 
+                                                                                           group = climateModel)) +
+                                              geom_line(size = 0.9, aes(y = get(paste0("average", yaxis)),
+                                                                        group = climateModel,
+                                                                        linetype = climateModel)) +
+                                              facet_grid(rows = vars(Polygon)) +
+                                              geom_hline(yintercept = 1, linetype = "dotted", 
+                                                         color = "grey73", size = 1) +
+                                              geom_ribbon(aes(ymin = minRib, 
+                                                              ymax = maxRib,
+                                                              group = climateModel,
+                                                              fill = Polygon), alpha = 0.1, colour = NA) +
+                                              theme_linedraw() +
+                                              # ggtitle(label = paste0("Caribou population dynamics: ", climateModel),
+                                              #         subtitle = paste0("Female Survival Model: ", survMod,
+                                              #                           "\nRecruitment Model: ", recMod)) +
+                                              theme(legend.position = "bottom",
+                                                    title = element_blank(),
+                                                    strip.text.y = element_blank(),
+                                                    legend.key = element_blank(),
+                                                    legend.title = element_blank()) +
+                                              ylab(yaxisName) 
+                                            
+                                            if ("Replicate" %in% names(DT)){
+                                              popModelPlot <- popModelPlot + geom_jitter(data = DT, aes(x = Year,
+                                                                                                        y = get(yaxis)),
+                                                                                         size = 1, colour = "grey40",
+                                                                                         width = 0.2)
+                                            }
+                                            
+                                            if(currentTime == endTime){
+                                              tryCatch(quickPlot::clearPlot(), 
+                                                       error = function(e){
+                                                         message(crayon::red("quickPlot::clearPlot() failed"))
+                                                       })
+                                              png(file.path(outputFolder, 
+                                                            paste0("caribou_", shp, "_allCM",
+                                                                   "_", recMod,"_", survMod,
+                                                                   ifelse(!is.null(resultsMainFolder), "_reps", ""),
+                                                                   ".png")),
+                                                  units = "cm", res = 300,
+                                                  width = 29, height = 21)
+                                              print(popModelPlot)
+                                              dev.off()
+                                            }
+                                            return(popModelPlot)
+                                          })
+                      names(polyReady) <- unique(tableAll[area == shp, femSurvMod_recrMod])
+                      return(polyReady)
+                    })
+  names(yrReady) <- unique(tableAll[["area"]])
+  return(yrReady)
 }

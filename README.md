@@ -1,18 +1,8 @@
 # NWT
-This repo is dedicated to the NWT integrated project.
+This repo is dedicated to the NWT integrated project and to the following manuscript:
 
-Please, use this repo to upload all code related to the project here:
+Micheletti et al., in review. Teasing apart the pathways of climate change effects on boreal landbird distributions in Northwestern Canada using SpaDES. Frontier in Ecology and Evolution.
 
-* **Shared data**: The `inputs` folder is the place for (small and specific) shared data. Please note that your code should, preferably, be able to download data from fixed repositories (i.e. the project's GDrive folder) as github has a limit on the size of files that it can upload. This is why most of the contents of this folder are in the `.gitignore` file. If you add data to your local `inputs` folder that you want to be uploaded to github, please specify the file's name in the `.gitignore` file with the format `!dataToUpload.ext`.
+To run this analysis, please run the scripts I to V, in order. Data will be downloaded, unzipped and placed in the paths determined in the first script. Please note that a very large amount of data needs to be downloaded in this process. Also, there are proprietary data that might need data sharing agreement. These data will fail when trying to download if you don't have access to it.
 
-* **Shared outputs**: For the same reason as above, the folder `outputs` is also in `.gitignore`.
-
-* **SpaDES modules**: Should be inside the folder `modules`. Remember that to create a SpaDES module, you can easily install and update the `SpaDES` library and use the command: newModule("moduleName", path/to/folder).
-
-* **Random or temporary codes**: Place these codes in the `temp` folder. Please, keep in mind that once the project is over, we should be able to remove these files without a problem.
-
-* **Shared functions** : The folder `functions` should host the ones that are used outside of modules.
-
-* Diana created her own repo for the national bird model (`NationalModel` folder), so I added a submodule of it in this repo. This is like creating a shortcut in Windows for a specific file.
-
-Please, feel free to edit this file if you feel like. :)
+Please contact me (tati.micheletti@gmail.com) if you need access to any of the proprietary data. 

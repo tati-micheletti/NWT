@@ -61,25 +61,67 @@ if (runBirds){
   
   bMod <- ifelse(length(birdModelVersion) == 1, birdModelVersion, birdModelVersion[1])
   
-  if (!exists("hostIp")) stop("hostIp needs to be specified!") # Default if not provided
-  hostTable <- data.table::data.table(ipEnd = c(97, 189, 213, 220, 58, 68),
-                          availableCores = rep(52, times = 6),
-                          availableRAM = c(rep(470, times = 5), 920))
-
-  cores <- birdPredictionCoresCalc(birdSpecies = c("ALFL", "AMCR", "AMRE", "AMRO", "ATSP", "BAWW", "BBWA", "BBWO", 
-                                                   "BCCH", "BHCO", "BHVI", "BLPW", "BOCH", "BRBL", "BRCR", "BTNW", 
-                                                   "CAWA", "CHSP", "CORA", "COYE", "DEJU", "EAKI", "EAPH", "FOSP", 
-                                                   "GRAJ", "HETH", "HOLA", "LCSP", "LEFL", "LISP", "MAWA", "NOFL", 
-                                                   "NOWA", "OCWA", "OSFL", "OVEN", "PAWA", "PISI", "PIWO", "PUFI", 
-                                                   "RBGR", "RBNU", "RCKI", "REVI", "RUGR", "RWBL", "SAVS", "SOSP", 
-                                                   "SWSP", "SWTH", "TEWA", "TRES", "WAVI", "WCSP", "WETA", "WEWP", 
-                                                   "WIWA", "WIWR", "WTSP", "WWCR", "YBFL", "YBSA", "YEWA", "YRWA"
-                                                   ),
-                                   ipEnd = hostIp,
-                                   availableCores = hostTable[hostIp == ipEnd, availableCores],
-                                   availableRAM = hostTable[hostIp == ipEnd, availableRAM],
-                                   sizeGbEachProcess = ifelse(bMod == 4, 5, 7),
-                                   localHostEndIp = hostIp)
+  if (!exists("hostIp")){
+    cores <-
+      list(
+        cores = 3L,
+        birdSpecies = list(
+          Group1 = c("ALFL", "AMCR"),
+          Group2 = c("AMRE", "AMRO", "ATSP"),
+          Group3 = c("BAWW", "BBWA",
+                     "BBWO"),
+          Group4 = c("BCCH", "BHCO", "BHVI"),
+          Group5 = c("BLPW",
+                     "BOCH", "BRBL"),
+          Group6 = c("BRCR", "BTNW", "CAWA"),
+          Group7 = c("CCSP",
+                     "CHSP", "CORA"),
+          Group8 = c("COYE", "DEJU", "EAKI"),
+          Group9 = c("FOSP",
+                     "GRAJ", "HAFL"),
+          Group10 = c("HETH", "HOLA", "LCSP"),
+          Group11 = c("LEFL",
+                      "LISP", "MAWA"),
+          Group12 = c("NOFL", "NOWA", "OCWA"),
+          Group13 = c("OVEN",
+                      "PAWA", "PHVI"),
+          Group14 = c("PISI", "PIWO", "PUFI"),
+          Group15 = c("RBGR",
+                      "RBNU", "RCKI"),
+          Group16 = c("REVI", "RUBL", "RUGR"),
+          Group17 = c("RWBL",
+                      "SAVS", "SOSP"),
+          Group18 = c("SWSP", "SWTH", "TEWA"),
+          Group19 = c("TRES",
+                      "VATH", "WAVI"),
+          Group20 = c("WCSP", "WETA", "WEWP"),
+          Group21 = c("WIWA",
+                      "WIWR", "WTSP"),
+          Group22 = c("WWCR", "YBFL", "YBSA"),
+          Group23 = c("YEWA",
+                      "YRWA")
+        )
+      )
+  } else {
+    hostTable <- data.table::data.table(ipEnd = c(97, 189, 213, 220, 58, 68),
+                                        availableCores = rep(52, times = 6),
+                                        availableRAM = c(rep(470, times = 5), 920))
+    
+    cores <- birdPredictionCoresCalc(birdSpecies = c("ALFL", "AMCR", "AMRE", "AMRO", "ATSP", "BAWW", "BBWA", "BBWO", 
+                                                     "BCCH", "BHCO", "BHVI", "BLPW", "BOCH", "BRBL", "BRCR", "BTNW", 
+                                                     "CAWA", "CHSP", "CORA", "COYE", "DEJU", "EAKI", "EAPH", "FOSP", 
+                                                     "GRAJ", "HETH", "HOLA", "LCSP", "LEFL", "LISP", "MAWA", "NOFL", 
+                                                     "NOWA", "OCWA", "OSFL", "OVEN", "PAWA", "PISI", "PIWO", "PUFI", 
+                                                     "RBGR", "RBNU", "RCKI", "REVI", "RUGR", "RWBL", "SAVS", "SOSP", 
+                                                     "SWSP", "SWTH", "TEWA", "TRES", "WAVI", "WCSP", "WETA", "WEWP", 
+                                                     "WIWA", "WIWR", "WTSP", "WWCR", "YBFL", "YBSA", "YEWA", "YRWA"
+    ),
+    ipEnd = hostIp,
+    availableCores = hostTable[hostIp == ipEnd, availableCores],
+    availableRAM = hostTable[hostIp == ipEnd, availableRAM],
+    sizeGbEachProcess = ifelse(bMod == 4, 5, 7),
+    localHostEndIp = hostIp)
+  }
   parameters <- list(
     birdsNWT = list(
       "predictLastYear" = TRUE,
@@ -218,62 +260,3 @@ saveRDS(sim$activePixelIndex, file = file.path(outputPath(sim), 'pixelsWithDataA
     } # ENd for-loop GROUPS
   } # End of second bird model
 } # End of run birds
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ CARIBOU
-
-if (!exists("runCaribou")) runCaribou <- FALSE # Default if not provided
-if (runCaribou){
-  message(crayon::white(paste0("Starting simulations for CARIBOUS using ", definedRun$whichRUN, " ", 
-                               definedRun$whichReplicate, " for ", runName)))
-  if (all(runLandR == FALSE, runBirds == FALSE)){
-    if (is.null(originalDateAnalysis)) 
-      stop("If runLandR == FALSE you need to pass the date for the
-           analysis (i.e. where LandR results are)")
-    newInputPath <- gsub(x = paths$outputPath, pattern = toupper(format(Sys.time(), "%d%b%y")), 
-                         replacement = originalDateAnalysis)
-    newOutputPath <- gsub(x = paths$outputPath, pattern = toupper(format(Sys.time(), "%d%b%y")), 
-                          replacement = originalDateAnalysis)
-    setPaths(inputPath = newInputPath,
-             outputPath = file.path(newOutputPath, "caribouPredictions"))
-  } else {
-    if (runBirds == TRUE){ # input path is correct, independently if I ran LandR before birds
-      caribouOutPath <- checkPath(file.path(dirname(Paths$outputPath), "caribouPredictions"), create = TRUE)
-      setPaths(outputPath = caribouOutPath)
-    } else { # only if I didn't run birds, only LandR
-      caribouOutPath <- checkPath(file.path(dirname(Paths$outputPath), "caribouPredictions"), create = TRUE)
-      setPaths(inputPath = Paths$outputPath,
-               outputPath = caribouOutPath)
-    }
-  }
-  
-  invisible(sapply(X = list.files(file.path(Paths$modulePath, "caribouRSF/R/"), 
-                                  full.names = TRUE), FUN = source))
-  parameters <- list(
-    caribouRSF = list(
-      "decidousSp" = c("Betu_Pap", "Popu_Tre", "Popu_Bal"),
-      "predictionInterval" = 20,
-      plotTime = NA
-    )
-  )
-  modules <- list("caribouRSF")
-  simulationBoo <- paste0(definedRun$whichRUN, "_caribou")
-  trackSeed(replic = definedRun$whichReplicate, runName = runName)
-  assign(x = simulationBoo,
-         do.call(
-           get(spadesFun),
-           args = alist(
-             times = Times,
-             params = parameters,
-             modules = modules,
-             objects = objects,
-             paths = Paths,
-             loadOrder = unlist(modules),
-             outputs = outputsLandR,
-             debug = 1
-           )
-         ))
-  rm(simulationBoo)
-}
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-

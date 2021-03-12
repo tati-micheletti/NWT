@@ -1,7 +1,7 @@
 # NWT
 This repository is dedicated to the NWT integrated project. 
 
-Please run the script _sourceFEE.R_ to run the analysis for the following manuscript:
+Please run the script _!sourceScript.R_ to run the analysis for the following manuscript:
 
 _Micheletti et al., in review. Teasing apart the pathways of climate change effects on boreal landbird distributions in Northwestern Canada using SpaDES. Frontier in Ecology and Evolution._
 

@@ -1,5 +1,5 @@
 # NWT
-This repo is dedicated to the NWT integrate project from ECCC/BAM. As it has proprietary data, it is a private repo.
+This repo is dedicated to the NWT integrated project.
 
 Please, use this repo to upload all code related to the project here:
 

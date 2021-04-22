@@ -474,6 +474,37 @@ metaHeards <- Cache(prepInputs,
 listSACaribou <- list(caribouArea1, caribouArea2, Edehzhie, metaHeards)
 names(listSACaribou) <- c("caribouArea1", "caribouArea2", "Edehzhie", "metaHeards")
 
+# Protected areas
+protectedAreas <- Cache(prepInputs, 
+                    targetFile = "protAreas_NT1_BCR6.shp",
+                    archive = "protAreas_NT1_BCR6.zip",
+                    alsoExtract = "similar",
+                    url = "https://drive.google.com/file/d/1byUcmQXvxbgTT3Q-3DwVKTVRmnqwsRVO",
+                    studyArea = studyArea,
+                    destinationPath = Paths$inputPath,
+                    filename2 = NULL,
+                    rasterToMatch = rasterToMatch,
+                    userTags = c(stepCacheTag, 
+                                 "outFun:Cache",
+                                 "step:protectedAreas_NT1_BCR6"))
+
+
+landscapeUnits <- Cache(prepInputs, 
+                        archive = "ca_all_slc_v3r2.zip",
+                        alsoExtract = "similar",
+                        url = "https://sis.agr.gc.ca/nsdb/ca/cac003/cac003.20110308.v3.2/ca_all_slc_v3r2.zip",
+                        studyArea = studyArea,
+                        destinationPath = Paths$inputPath,
+                        filename2 = NULL,
+                        rasterToMatch = rasterToMatch,
+                        userTags = c(stepCacheTag,
+                                     "outFun:Cache",
+                                     "step:landscapeUnits_NT1_BCR6"))
+
+landscapeUnitSF <- sf::st_as_sf(landscapeUnits)
+landscapeUnitsRAS <- fasterize::fasterize(sf = landscapeUnitSF, 
+                                     raster = rstLCC, 
+                                     field = "POLY_ID")
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ CLIMATE ~~~~~~~~~~~~~~~~~~~~~~~~
 

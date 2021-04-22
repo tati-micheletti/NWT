@@ -90,6 +90,8 @@ library("future")
 library("future.apply")
 library("fireSenseUtils")
 library("parallel")
+library("BAMMtools")
+library("tictoc")
 
 # Source all common functions
 
@@ -106,6 +108,12 @@ source("functions/makeCMIandATA.R")
 source('functions/runSquarenessTest.R')
 source('functions/checkRasterStackIsInMemory.R')
 source('functions/adjustSpeciesLayersWithEOSD.R')
+source('functions/binRSFtoDeMars2019.R')
+source('functions/calculatePenalty.R')
+source('functions/makePlanningUnit.R')
+source('functions/makeCoarseFilterStack.R')
+source('functions/makeRelativeTarget.R')
+source('functions/definePPtargetsAndLayers.R')
 
 if (!exists("vegetation")) vegetation <- "LandR" # Default if not provided
 if (!exists("fire")) fire <- "SCFM" # Default if not provided
@@ -144,6 +152,7 @@ preambleCache <- checkPath(file.path(generalCacheFolder, "preamble", runName), c
 fittingCache <- checkPath(file.path(generalCacheFolder, "fitting", runName), create = TRUE)
 simulationsCache <- checkPath(file.path(generalCacheFolder, "simulations", runName), create = TRUE)
 posthocCache <- checkPath(file.path(generalCacheFolder, "posthoc", runName), create = TRUE)
+hotspotsCache <- checkPath(file.path(generalCacheFolder, "hotspots", runName), create = TRUE)
 
 SpaDES.core::setPaths(modulePath = paths$modulePath, 
                       inputPath = paths$inputPath, 
@@ -153,6 +162,11 @@ SpaDES.core::setPaths(modulePath = paths$modulePath,
 message("Your current temporary directory is ", tempdir())
 maxMemory <- 5e+12
 scratchDir <- file.path("~/scratch")
+if (pemisc::user("tmichele")){
+  unixtools::set.tempdir(reproducible::checkPath(path = file.path(getwd(), "tmp2"), 
+                                                 create = TRUE))
+  message("Your current temporary was relocated to ", tempdir())
+}
 raster::rasterOptions(default = TRUE)
 options(rasterMaxMemory = maxMemory, rasterTmpDir = scratchDir)
 if(dir.create(scratchDir)) system(paste0("chmod -R 777 ", scratchDir), wait = TRUE) 

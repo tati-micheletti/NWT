@@ -10,8 +10,6 @@ SpaDES.core::setPaths(cachePath = posthocCache,
                       outputPath = checkPath(file.path(resultsFolder, 
                                                        "caribouPlots"),
                                              create = TRUE))
-source('posthocFunctions/makeCaribouRSFAverageMap.R')
-source('posthocFunctions/convertShpToRas.R')
 # Make Caribou RSF map
 # This will be a difference (2100-2011) map, averaged across all reps
 # and then across all simulations. Need also to summarize by polygons and
@@ -30,7 +28,9 @@ binningTable <- Cache(prepInputs,
 booSHP <- objects$listSACaribou$metaHeards[objects$listSACaribou$metaHeards$HERD %in% 
                                              c("Dehcho South_v2", "Dehcho North_v2", 
                                                "Hay River Lowlands", "GSA South", "GSA North"),]
-
+Require("RColorBrewer")
+source('posthocFunctions/convertShpToRas.R')
+source('posthocFunctions/makeCaribouRSFAverageMap.R')
 booRSF <- makeCaribouRSFAverageMap(resultsFolder = resultsFolder,
                                    runs = paste0("run", 1:5), 
                                    climateModels = c("CCSM4", "CanESM2", "INM-CM4"), 
@@ -40,9 +40,24 @@ booRSF <- makeCaribouRSFAverageMap(resultsFolder = resultsFolder,
                                    initialYear = 2011,
                                    lastYear = 2100)
 
-# MAKE AVERAGE PER YEAR FOR EACH CLIMATE SCENARIO -- time series of average RSF?
-# HERE <~~~~~~~~~~~~~~~~~~~~~~~~~~ Average per year per climate scenario
-# REDO SDs!!
+meanPolys <- qs::qread("/home/tmichele/projects/NWT/outputs/landscapeRuns/LandR.CS_fS/caribouPlots/meanRSFperPolygon.qs")
+Require("Rmisc")
+meanPolys[, upperCI := Rmisc::CI(x = RSF, ci = 0.95)[["upper"]], by = c("Area", "climateModel")]
+meanPolys[, lowerCI := Rmisc::CI(x = RSF, ci = 0.95)[["lower"]], by = c("Area", "climateModel")]
+meanPolys[, sdRSF := sd(RSF), by = c("Area", "climateModel")]
+meanPolys[, sdRSFall := sd(RSF), by = c("Area")]
+meanPolys[, meanRSFall := mean(RSF), by = c("Area")]
+meanPolys[, upperCIall := Rmisc::CI(x = RSF, ci = 0.95)[["upper"]], by = "Area"]
+meanPolys[, lowerCIall := Rmisc::CI(x = RSF, ci = 0.95)[["lower"]], by = "Area"]
+
+sMP <- unique(meanPolys[, c("Area","climateModel", "meanRSF", "upperCI", "lowerCI", 
+                            "sdRSF", 
+                            "meanRSFall",
+                            "sdRSFall", "upperCIall","lowerCIall") ])
+qs::qsave(x = sMP, file = "/home/tmichele/projects/NWT/outputs/landscapeRuns/LandR.CS_fS/caribouPlots/meanRSFperPolygonSummary.qs")
+library("googledrive")
+drive_upload("/home/tmichele/projects/NWT/outputs/landscapeRuns/LandR.CS_fS/caribouPlots/meanRSFperPolygonSummary.qs", path = as_id("1toWGstfAdu3fB7nzh3tTO_dZXjQbSHts"))
+
 source('~/projects/NWT/posthocFunctions/makeCaribouAverageTS.R')
 library("tictoc")
 booTS <- makeCaribouAverageTS(climateScenarios = c("CCSM4", "CanESM2", 
@@ -169,3 +184,33 @@ booFolder <- as_id("1FWflq45Sqv0x90C0nug103Vjzhxv9_P4")
 landFolder <- as_id("18V3xTu4tC9VWi9xp-F8ifxf-J3xP7YvS")
 lapply(landFiles, drive_upload, path = landFolder)
 lapply(booFiles, drive_upload, path = booFolder)
+
+drive_update("TEST.txt", as_id("1toWGstfAdu3fB7nzh3tTO_dZXjQbSHts"))
+
+############ 
+############ GET CARIBOU POP GROWTH DATA
+############ 
+source('~/projects/NWT/posthocFunctions/extractPopGrowthData.R')
+pathOutputs <- "~/projects/NWT/outputs/landscapeRuns/LandR.CS_fS/caribouPlots/"
+popGrowthTable <- extractPopGrowthData(currentTime = 2100,
+                                      climateModel = c("CCSM4", "CanESM2", "INM-CM4"),
+                                      resultsMainFolder = "~/projects/NWT/outputs/landscapeRuns/LandR.CS_fS",
+                                      whichPolys = c("Dehcho South_v2", "Dehcho North_v2", 
+                                                     "Hay River Lowlands", "GSA South", "GSA North"),
+                                      outputFolder = pathOutputs)
+
+popGrowthTableSim <- unique(popGrowthTable[, c("Polygon", "femSurvMod_recrMod", 
+                                               "climateModel", "Year", "minRib", 
+                                               "maxRib", "averageannualLambda")])
+popGrowthTableSim[, meanLambda := mean(averageannualLambda), 
+                  by = c("Polygon", "femSurvMod_recrMod", "Year")]
+
+popGrowthTableSim[, minLambda := min(minRib), 
+                  by = c("Polygon", "femSurvMod_recrMod", "Year")]
+
+popGrowthTableSim[, maxLambda := max(maxRib), 
+                  by = c("Polygon", "femSurvMod_recrMod", "Year")]
+
+popGrowthTableSim2 <- unique(popGrowthTableSim[, c("Polygon", "femSurvMod_recrMod",
+                                                   "Year", "minLambda", 
+                                                   "maxLambda", "meanLambda")])

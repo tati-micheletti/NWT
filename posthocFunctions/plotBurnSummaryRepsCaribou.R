@@ -39,7 +39,7 @@ plotBurnSummaryRepsCaribou <- function(dataPath,
   }
   
   ####################### Area burned #######################
-
+browser()
   burnSumm[, sumAB := sum(areaBurned), by = c("year", "repetition")]
   areaB <- unique(burnSumm[, c("year", "repetition", "sumAB")])
   
@@ -142,7 +142,7 @@ plotBurnSummaryRepsCaribou <- function(dataPath,
     names(Fstats) <- NULL
     pValueA <- ifelse(pf(Fstats[1], Fstats[2], Fstats[3], lower.tail = F) < 0.05, " \n(significant)", " \n(non-significant)")
   }
-  
+  browser()
   p1 <- ggplot2::ggplot(data = dt[var == "area_burned",], aes(x = year, y = val)) +
     geom_point(colour = "grey70") +
     stat_smooth(method = "lm", color = "darkred", fill = "red") +

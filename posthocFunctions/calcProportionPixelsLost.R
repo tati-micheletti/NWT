@@ -3,6 +3,7 @@ calcProportionPixelsLost <- function(listOfRasters = NULL,
                                      newSortOrder,
                                      species,
                                      outputFolder,
+                                     folderToSave,
                                      noCorner,  # <~~~~~~~~ TEMPORARY!!!
                                      netChangeTable, # Needs to have the netChange column! This col is in areas 6.25*(sum(probabilities))
                                      # netChangeTable comes from plotsPaper_NotFun.R
@@ -83,7 +84,7 @@ calcProportionPixelsLost <- function(listOfRasters = NULL,
   lapply(X = species, function(sp){
     DT <- allBirds[species == sp,]
     signal <- ifelse(unique(DT[["proportionOfAreaChanged"]]) > 0, "> 0", "< 0")
-    jit <- ifelse(unique(DT[["proportionOfAreaChanged"]]) > 0, 0.2, -0.2)
+    jit <- ifelse(unique(DT[["proportionOfAreaChanged"]]) > 0, 0.4, -0.4)
     S <-  sum(DT[eval(parse(text = paste0("proportionOfAreaChanged", 
                                           signal))), 
                  proportionOfAreaChanged])
@@ -96,30 +97,35 @@ calcProportionPixelsLost <- function(listOfRasters = NULL,
   
   # Now the plot
   allBirds[, species := factor(species, levels = newSortOrder)]
-  p4 <- ggplot(data = allBirds, mapping = aes(x = proportionOfAreaChanged, y = species, 
+  p4 <- ggplot(data = allBirds, mapping = aes(x = round(proportionOfAreaChanged*100, 0), y = species, 
                                               fill = colonization, group = colonization,
                                               color = colonization)) +
     geom_col() +
     geom_vline(xintercept = 0, color = "black") + 
-    xlab("(C) Expected proportion of habitat area \ncolonized or lost due to climate change") +
+    xlab("(C) Expected percentage of habitat area colonized\nor extirpated due to climate change") +
     theme(legend.position = "none",
           axis.title.y = element_blank(),
-          # axis.text.y = element_blank(),
           legend.title = element_blank(),
-          axis.ticks.y = element_blank()) + #,
+          axis.ticks.y = element_blank(),
+          text = element_text(size = 16, 
+                              family = "Consolas"),
+          axis.title.x = element_text(family = "Arial"),
+          axis.text.x = element_text(family = "Arial"),
+          axis.text.y = element_text(family = "Consolas")) + #,
           # plot.margin = unit(c(5.5,5.5,5.5,0), "pt")) +
     scale_color_manual(values = c("increase" = "slateblue3", 
                                   "decrease" = "goldenrod3")) + 
     scale_fill_manual(values = c("increase" = "slateblue1", 
                                  "decrease" = "goldenrod1")) +
-    geom_text(aes(x = labelMark, 
-                  label = round(proportionOfAreaChanged, 2)), 
-              size = 2.5, color = "grey10", check_overlap = TRUE) +
-    scale_x_continuous(breaks = seq(-1, 5.3, by = 0.5)) +
+    geom_text(aes(x = labelMark*100, 
+                  label = round(100*proportionOfAreaChanged, 0)), 
+              family = "Arial",
+              size = 4, color = "grey10", check_overlap = TRUE) +
+    scale_x_continuous(breaks = seq(-100, 500, by = 100)) +
     scale_y_discrete(position = "right")
   p4
   
-  ggsave(device = "png", filename = file.path(outputFolder, 
+  ggsave(device = "png", filename = file.path(folderToSave, 
                                               "proportionalChangeInArea.png"), 
          width = 8, height = 11)
   

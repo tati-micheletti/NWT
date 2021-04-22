@@ -76,13 +76,19 @@ plotCaribouPopGrowthMS <- function(startTime,
                                               message(crayon::red("quickPlot::clearPlot() failed"))
                                             })
                                             
+                                            DT[Polygon == "Dehcho North_v2", Polygon := "Dehcho North"]
+                                            DT[Polygon == "Dehcho South_v2", Polygon := "Dehcho South"]
+                                            
                                             # a) increase the resolution (300 dpi tiff file), [DONE]
                                             # b) remove the grey background so that the 1-dashed lambda line stands out more [OK]
                                             # c) remove the title and save what is being presented in the image name. [OK]
-                                            # Each GCM needs to be a different linetype
-                                            # Each ribbon belongs to a climate scenario and is overplotted
-                                            # Add the table with values coming from the other function -- NULL default!
-                                            # data.table(Area, climateModel, averageRSF) --> needs to match in the strip!
+                                            # d) Each GCM needs to be a different linetype
+                                            # e) Each ribbon belongs to a climate scenario and is overplotted
+                                            # f) Add the table with values coming from the other function -- NULL default!
+                                            # g) data.table(Area, climateModel, averageRSF) --> needs to match in the strip!
+                                            # h) label the y axis with the lambda symbol as ("Mean lambda") [OK]
+                                            # i) label the x axis as "year"  [OK]
+                                            # j) Change "Dehcho North_v2" to just "Dehcho North". Same with Dehcho South. [OK]
                                             
                                             popModelPlot <- ggplot2::ggplot(data = DT, aes(x = Year,
                                                                                            colour = Polygon, 
@@ -105,8 +111,10 @@ plotCaribouPopGrowthMS <- function(startTime,
                                                     title = element_blank(),
                                                     strip.text.y = element_blank(),
                                                     legend.key = element_blank(),
-                                                    legend.title = element_blank()) +
-                                              ylab(yaxisName) 
+                                                    legend.title = element_blank(),
+                                                    axis.title = element_text(family = "Arial")) +
+                                              ylab(expression(Mean~annual~lambda)) +
+                                              xlab("year")
                                             
                                             if ("Replicate" %in% names(DT)){
                                               popModelPlot <- popModelPlot + geom_jitter(data = DT, aes(x = Year,

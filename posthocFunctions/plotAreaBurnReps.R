@@ -3,7 +3,8 @@ plotAreaBurnReps <- function(dataPath,
                                 lastYear,
                                 theObject = NULL,
                              yCrossingPlot = FALSE,
-                                overwrite = FALSE){
+                                overwrite = FALSE,
+                             addEquationToPlot = TRUE){
   
   # Make the difference between the two scenarios passed in typeSim
   fileName <- file.path(dataPath, paste0("areaBurnedReps_", paste(typeSim, collapse = "_"), ".png"))
@@ -51,8 +52,9 @@ plotAreaBurnReps <- function(dataPath,
     coeff <- coefficients(tend)
     Fstats <- summary(tend)$fstatistic
     names(Fstats) <- NULL
-    pValueA <- ifelse(pf(Fstats[1], Fstats[2], Fstats[3], lower.tail = F) < 0.01, " \n(significant)", " \n(non-significant)")
-    return(list(coefficients = coeff, mod = tend, pVal = pValueA))
+    pValueCalculated <- pf(Fstats[1], Fstats[2], Fstats[3], lower.tail = F)
+    pValueA <- ifelse(pValueCalculated < 0.01, " \n(significant)", " \n(non-significant)")
+    return(list(coefficients = coeff, mod = tend, pVal = pValueA, pValueCalculated = pValueCalculated))
   })
   names(trends) <- typeSim
   
@@ -75,8 +77,8 @@ plotAreaBurnReps <- function(dataPath,
   coeff <- coefficients(diffInPredictlm)
   Fstats <- summary(diffInPredictlm)$fstatistic
   names(Fstats) <- NULL
-  pValueA <- ifelse(pf(Fstats[1], Fstats[2], 
-                       Fstats[3], lower.tail = F) < 0.01, 
+  pValueCalculated <- pf(Fstats[1], Fstats[2], Fstats[3], lower.tail = F)
+  pValueA <- ifelse(pValueCalculated < 0.01, 
                     " \n(significant)", 
                     " \n(non-significant)")
   coefXA1 <- round(coeff[2],1)
@@ -93,17 +95,22 @@ plotAreaBurnReps <- function(dataPath,
   # PLOT
     p1 <- ggplot2::ggplot(data = DT) +
     geom_point(aes(x = year, y = diffPoints), alpha = 0.4) +
-    scale_colour_manual(values = "darkblue") +
-    facet_grid(var ~ ., labeller = labeller(var = replacementNames)) +
+    scale_colour_manual(values = "darkblue")
+    if (addEquationToPlot){
+      p1 <- p1 + facet_grid(var ~ ., labeller = labeller(var = replacementNames))
+    }
+    p1 <- p1 + 
     theme(legend.position = "none",
-          strip.text.y = element_text(size = 9, face = "bold"),
+          strip.text.y = element_text(size = 12, face = "bold"),
           plot.margin = unit(c(0.2, 0.2, -0.01, 0.2), "cm"),
           panel.background = element_rect(fill = "white"),
           panel.grid.major.y = element_line(size = 0.15, linetype = 'solid',
                                           colour = "grey"), 
           panel.grid.minor.y = element_blank(),
           panel.grid.major.x = element_blank(), 
-          panel.grid.minor.x = element_blank()
+          panel.grid.minor.x = element_blank(),
+          text = element_text(size = 16, 
+                              family = "Arial")
           ) +
       ylim(min(DT[["diffPoints"]]), 1500) +
       scale_y_continuous(breaks = scales::pretty_breaks(n = 30)) +
@@ -120,7 +127,9 @@ plotAreaBurnReps <- function(dataPath,
     #           size = 0.8)
   if (yCrossingPlot)
     p1 <- p1 + xlim(1950, 2100)
-    
   ggsave(fileName, plot = p1, width = 11, height = 8)
-  return(list(fileName = fileName, mod1 = diffInPredictlm, mod2 = diffInPredictlm2))
+  return(list(fileName = fileName, 
+              mod1 = diffInPredictlm, 
+              mod2 = diffInPredictlm2, 
+              pVal1 = pValueCalculated))
 }

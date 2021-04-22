@@ -32,7 +32,7 @@ noCorner <- raster("~/projects/NWT/inputs/NWT_BCR6/RTM_noCorner.tif") # TODO tem
 #                        "WWCR", "ATSP", "BOCH", "COYE", "CAWA", "REVI", "WCSP")
 # speciesExample <- c("COYE", "CAWA", "REVI", "WCSP")
 
-modsPath <- "~/projects/NWT/outputs/SIMULATIONS/birdCovariates.qs"
+modsPath <- "/mnt/SpaDES/data/Micheletti/NWT_Outputs/PAPER_EffectsOfClimateChange/SIMULATIONS/birdCovariates.qs"
 
 if (!file.exists(modsPath)){
   mods <- lapply(Species, FUN = function(sp){
@@ -100,9 +100,10 @@ p0 <- ggplot(dt0, aes(x = proportion, y = species,
   scale_fill_manual(values = c("blue", "darkgoldenrod2", "darkgreen")) +
   theme(axis.title.y = element_blank(),
         legend.position = "bottom",
-        legend.title = element_blank()) +
+        legend.title = element_blank(),
+        text = element_text(size = 16, family = "Consolas")) +
   coord_cartesian(xlim = c(0, 1), expand = FALSE) +
-  xlab("Proportional relative influence of climate sensitive landbird models' covariates")
+  xlab("Proportional relative influence of climate\nsensitive landbird models' covariates")
 p0
 
 ggsave(plot = p0, 
@@ -126,62 +127,65 @@ ggsave(plot = p0,
 
 ############################################# PLOT1
 #### ~~~ FULL TABLE ~~~ ####
-
-tic("Full table elapsed time:")
-fullTablePath <- file.path(folderColonization, "fullTablePlot.qs")
-if (!file.exists(fullTablePath)){
-  fullTable <- lapply(Species, function(sp){
-    spTable <- rbindlist(lapply(Effect, function(eff){
-      effTable <- rbindlist(lapply(Process, function(proc){
-        ras <- raster(file.path(folderColonization, paste0("difference_", eff,
-                                                           "_", sp, 
-                                                           "_", proc, ".tif")))
-        # TODO Temporary fixing corner
-        ras[is.na(noCorner)] <- NA # <~~~~~REMOVE
-        DT <- na.omit(data.table(probability = round(getValues(ras), 3),
-                                 species = sp,
-                                 process = proc,
-                                 effect = eff))
-        return(DT)
+if (FALSE){
+  tic("Full table elapsed time:")
+  fullTablePath <- file.path(folderColonization, "fullTablePlot.qs")
+  if (!file.exists(fullTablePath)){
+    fullTable <- lapply(Species, function(sp){
+      spTable <- rbindlist(lapply(Effect, function(eff){
+        effTable <- rbindlist(lapply(Process, function(proc){
+          ras <- raster(file.path(folderColonization, paste0("difference_", eff,
+                                                             "_", sp, 
+                                                             "_", proc, ".tif")))
+          # TODO Temporary fixing corner
+          ras[is.na(noCorner)] <- NA # <~~~~~REMOVE
+          DT <- na.omit(data.table(probability = round(getValues(ras), 3),
+                                   species = sp,
+                                   process = proc,
+                                   effect = eff))
+          return(DT)
+        }))
+        return(effTable)
       }))
-      return(effTable)
-    }))
-    return(spTable)
-  }) 
-  names(fullTable) <- Species
-  qs::qsave(fullTable, fullTablePath)
-} else {
-  fullTable <- qs::qread(fullTablePath)
-}
-toc()
-
-tic("Full table netEffect elapsed time:")
-fullTableNEPath <- file.path(folderColonization, "fullTableNEPlot.qs")
-if (!file.exists(fullTableNEPath)){
-  fullTableNE <- lapply(Species, function(sp){
-    spTable <- rbindlist(lapply("netEffect", function(eff){
-      effTable <- rbindlist(lapply(Process, function(proc){
-        ras <- raster(file.path(folderColonization, paste0("difference_", eff,
-                                                           "_", sp, 
-                                                           "_", proc, ".tif")))
-        # TODO Temporary fixing corner
-        ras[is.na(noCorner)] <- NA # <~~~~~REMOVE
-        DT <- na.omit(data.table(probability = round(getValues(ras), 3),
-                                 species = sp,
-                                 process = proc,
-                                 effect = eff))
-        return(DT)
+      return(spTable)
+    }) 
+    names(fullTable) <- Species
+    qs::qsave(fullTable, fullTablePath)
+  } else {
+    fullTable <- qs::qread(fullTablePath)
+  }
+  toc()
+  
+  tic("Full table netEffect elapsed time:")
+  fullTableNEPath <- file.path(folderColonization, "fullTableNEPlot.qs")
+  if (!file.exists(fullTableNEPath)){
+    fullTableNE <- lapply(Species, function(sp){
+      spTable <- rbindlist(lapply("netEffect", function(eff){
+        effTable <- rbindlist(lapply(Process, function(proc){
+          ras <- raster(file.path(folderColonization, paste0("difference_", eff,
+                                                             "_", sp, 
+                                                             "_", proc, ".tif")))
+          # TODO Temporary fixing corner
+          ras[is.na(noCorner)] <- NA # <~~~~~REMOVE
+          DT <- na.omit(data.table(probability = round(getValues(ras), 3),
+                                   species = sp,
+                                   process = proc,
+                                   effect = eff))
+          return(DT)
+        }))
+        return(effTable)
       }))
-      return(effTable)
-    }))
-    return(spTable)
-  })
-  names(fullTableNE) <- Species
-  qs::qsave(fullTableNE, fullTableNEPath)
-} else {
-  fullTableNE <- qs::qread(fullTableNEPath)
-}
-toc()
+      return(spTable)
+    })
+    names(fullTableNE) <- Species
+    qs::qsave(fullTableNE, fullTableNEPath)
+  } else {
+    fullTableNE <- qs::qread(fullTableNEPath)
+  }
+  toc()
+} # This gives you the fullTable and the fullTableNE but takes a long time to 
+                # load. If you just want the tables for the plots, go straight for the next 
+                # one
 
 tic("netChangeTable")
 netChangeTablePath <- file.path(folderColonization, "netChangeTablePlot.qs")
@@ -209,13 +213,13 @@ if (!file.exists(netChangeTablePath)){
 }
 toc()
 
-netEffTable <- netChangeTable[effect == "netEffect", c("species", "netChange")] # <~~~~~~~~~~~~~~~~~~~~~~~ REMOVE BRBL
+netEffTable <- netChangeTable[effect == "netEffect", c("species", "netChange")]
 names(netEffTable) <- c("species", "totalNetEffect")
 netChangeTable <- merge(netChangeTable, netEffTable, by = "species")
 lapply(X = Species, function(sp){
   DT <- netChangeTable[species == sp & effect != "netEffect",]
   signal <- ifelse(unique(DT[["totalNetEffect"]]) > 0, "> 0", "< 0")
-  jit <- ifelse(unique(DT[["totalNetEffect"]]) > 0, 0.13, -0.13)
+  jit <- ifelse(unique(DT[["totalNetEffect"]]) > 0, 0.18, -0.2)
   S <-  sum(DT[eval(parse(text = paste0("netChange", 
                                         signal))), 
                netChange])
@@ -240,7 +244,11 @@ p1 <- ggplot(data = netChangeTable[effect != "netEffect"], aes(x = netChange/(10
   # facet_wrap(group ~ ., scales = "free_y") + # Only if bird grouping is done!
   theme(legend.position = "none",
         axis.title.y = element_blank(),
-        legend.title = element_blank()) +
+        legend.title = element_blank(),
+        text = element_text(size = 16, family = "Consolas"),
+        axis.title.x = element_text(family = "Arial"),
+        axis.text.x = element_text(family = "Arial"),
+        axis.text.y = element_text(family = "Consolas")) +
         # plot.margin = unit(c(5.5,0,5.5,5.5), "pt")) + 
   scale_color_manual(values = c("fire" = "firebrick3", 
                                 "vegetation" = "darkgreen", 
@@ -256,18 +264,19 @@ p1 <- ggplot(data = netChangeTable[effect != "netEffect"], aes(x = netChange/(10
                                 "climate" = "Direct Climate Effect")) +
   xlab("(A) Expected area in ha colonized \nand extirpated (x 10\u2077)") +
   geom_vline(xintercept = 0, color = "black") + 
-  geom_text(aes(x = labelMark, 
-                label = round(totalNetEffect/(10^7), 2)), 
-            size = 2.5, color = "grey10", check_overlap = TRUE) + # check_overlap = TRUE
+  geom_text(aes(x = labelMark, label = round(totalNetEffect/(10^7), 2)),
+            family = "Arial",
+            size = 4, color = "grey10", check_overlap = FALSE) + # check_overlap = TRUE
   geom_vline(xintercept = sum(unique(netChangeTable[, totalNetEffect]))/(64*(10^7)), 
              color = "grey40", linetype = "dotdash") +
-  geom_text(aes(x = ifelse(species == netChangeTable[["species"]][(NROW(netChangeTable)-7)], -1.1, NA), 
+  geom_text(aes(x = ifelse(species == netChangeTable[["species"]][(NROW(netChangeTable)-7)], -1.2, NA), #-1.1 
                 label = paste0("Expected net area across species",
                                "\naffected by climate change")),
-             color = "grey40", fill = "white", size = 2.8, check_overlap = TRUE)
+            # family = "Consolas",
+            size = 4, color = "grey40", fill = "white", check_overlap = TRUE)
 
 p1
-ggsave(device = "png", filename = file.path(folderColonization, 
+ggsave(device = "png", filename = file.path("/mnt/SpaDES/data/Micheletti/NWT_Outputs/PAPER_EffectsOfClimateChange",#folderColonization, 
                                             "affectedAreaByClimateChange.png"), 
        width = 8, height = 11)
 
@@ -280,7 +289,20 @@ ggsave(device = "png", filename = file.path(folderColonization,
 
 netChangeTable[, totalNetEffectByEffect := sum(netChange), by = "effect"]
 
-p2 <- ggplot(data = netChangeTable[effect != "netEffect"], aes(y = species,
+breaks_fun <- function(x) {
+  if (max(x) > 0.5) {
+    c(-1.5, 0, 1.5)
+  } else {
+    if (max(x) > 0.05){
+      c(-0.06, 0, 0.06)
+    } else {
+    c(-0.06, 0)
+  }
+  }
+}
+netChangeTableNoNet <- netChangeTable[effect != "netEffect"]
+netChangeTableNoNet[, effect := factor(effect, levels = c("climate", "fire", "vegetation"))]
+p2 <- ggplot(data = netChangeTableNoNet, aes(y = species,
                                                                group = effect,
                                                                color = effect,
                                                                fill = effect)) +
@@ -302,6 +324,7 @@ p2 <- ggplot(data = netChangeTable[effect != "netEffect"], aes(y = species,
                                "vegetation" = "Climate Effect via Vegetation", 
                                "climate" = "Direct Climate Effect")) +
   xlab("(B) Expected area in ha colonized \nand extirpated (x 10\u2077)") +
+  scale_x_continuous(breaks = breaks_fun) +
   geom_vline(xintercept = 0, color = "black") + 
   geom_vline(data = netChangeTable[effect == "climate"], 
              aes(xintercept = totalNetEffectByEffect/(64*(10^7))), 
@@ -321,17 +344,19 @@ p2 <- ggplot(data = netChangeTable[effect != "netEffect"], aes(y = species,
         strip.text = element_blank(),
         strip.background = element_blank(),
         legend.position = "none",
-        legend.title = element_blank())
+        legend.title = element_blank(),
+        text = element_text(size = 16, 
+                            family = "Arial"))
 p2
-ggsave(device = "png", filename = file.path(folderColonization, 
+ggsave(device = "png", filename = file.path("/mnt/SpaDES/data/Micheletti/NWT_Outputs/PAPER_EffectsOfClimateChange", #folderColonization, 
                                             "affectedAreaByClimateChangePerEffect.png"), 
        width = 8, height = 11)
 ##########
 
 ############################################# PLOT3
 #### ~~~ SUMMARIZED TABLE FOR PLOT (DENSITY PLOT) ~~~ ####
-# We have decided not to use this one
-if (FALSE){
+
+if (FALSE){ # We have decided not to use this one
   tic("Summary table elapsed time:")
   summTablePath <- file.path(folderColonization, "summTablePlot.qs")
   if (!file.exists(summTablePath)){
@@ -390,6 +415,7 @@ file.exists(file.path(folderColonization, "proportionPixelsChangedTable.qs"))
 
 p4 <- calcProportionPixelsLost(species = Species,
                                newSortOrder = newSortOrder,
+                               folderToSave = "/mnt/SpaDES/data/Micheletti/NWT_Outputs/PAPER_EffectsOfClimateChange",
                                     outputFolder = folderColonization,
                                     netChangeTable = qs::qread("/home/tmichele/projects/NWT/outputs/posthoc/colonization/netChangeTablePlot.qs"),
                                     # Needs to have the netChange column! This col is in area in ha 6.25*(sum(probabilities))
@@ -397,7 +423,7 @@ p4 <- calcProportionPixelsLost(species = Species,
                                     useFuture = TRUE)
 ##########
 
-############################################# PLOT5 
+############################################# PLOT XX -- New paper 
 #### ~~~ CHANGE IN ABUNDANCE ~~~ ####
 
 # 1. Try to compare abundance change. 
@@ -497,13 +523,13 @@ ggsave(device = "png", filename = file.path(folderColonization,
 # Put all three plots together in one big landscape plot
 
 birdPlots <- gridExtra::grid.arrange(p1, p2, p4, ncol = 3)
-
-ggsave(file.path(folderColonization, "birdPlotWithAbundance.png"), device = "png",
-       plot = birdPlots, width = 20, height = 9)
+# folderColonization
+ggsave(file.path("/mnt/SpaDES/data/Micheletti/NWT_Outputs/PAPER_EffectsOfClimateChange", "birdPlotWithAbundance.png"), device = "png",
+       plot = birdPlots, width = 20, height = 11)
 
 ######
 
-############################################# PLOT 6
+############################################# PLOT 5
 #### ~~~ CORRELATION RELATIVE INFLUENCE AND NET EFFECT ~~~ ####
 
 netChange <- unique(netChangeTable[, c("species", "totalNetEffect")])
@@ -535,13 +561,15 @@ P5 <- ggplot(data = corTable, aes(x = totalNetEffect/(10^7), y = Climate)) +
                    point.padding = 0.5,
                    segment.color = 'grey50') +
   stat_smooth(method = "lm", color = "blue") + 
-  theme(plot.title = element_text(hjust = 0)) +
+  theme(plot.title = element_text(hjust = 0),
+        text = element_text(size = 16, 
+                            family = "Arial")) +
   ylab("Relative Influence of Climate Covariates") +
   xlab("Total net effect of climate change (x 10\u2077)") + 
   labs(subtitle = paste0(SUB, "\n Total Relative Influence"), 
        title = "Total Net Effect ~ Relative Influence of Climate Covariates")
 P5
-ggsave(file.path(folderColonization, "relativeInfluencePlot.png"), 
+ggsave(file.path("/mnt/SpaDES/data/Micheletti/NWT_Outputs/PAPER_EffectsOfClimateChange/relativeInfluencePlot.png"),#folderColonization, "relativeInfluencePlot.png"), 
        device = "png",
        plot = P5, width = 12, height = 12)
 
@@ -1171,7 +1199,7 @@ lapply(fl, drive_upload, as_id(folderToUpload))
 
 #####
 
-############################################### PLOTX -- Paper 1
+############################################### PLOT2 -- Paper 1
 ##### VEGETATION PLOTS #############
 source('~/projects/NWT/posthocFunctions/vegetationBiomassPlot.R')
 posthocFolder <- dirname(folderColonization)
@@ -1244,7 +1272,7 @@ DTvegSimple <- unique(DTveg[, c("effectType", "Median", "stdDev", "stdErr")])
 
 library("ggplot2")
 pVeg <- ggplot(data = unique(plotDT[val != 0,]), aes(x = val, 
-                                                     y = Count*6.25,
+                                                     y = (Count*6.25)/(10^5),
                                                      group = effectType,
                                                      color = effectType,
                                                      fill = effectType))+
@@ -1259,12 +1287,18 @@ pVeg <- ggplot(data = unique(plotDT[val != 0,]), aes(x = val,
   geom_vline(xintercept = na.omit(unique(plotDT[effectType == "Indirect Effect", Median])), 
              colour = "red", linetype = "dashed") +
   theme(legend.position = "bottom",
-        legend.title = element_blank()) +
+        legend.title = element_blank(),
+        text = element_text(size = 16, 
+                            family = "Arial"),
+        panel.background = element_rect(colour = "black", fill = "white"),
+        panel.grid.major = element_line(colour = "grey"),
+        panel.grid.minor = element_line(colour = "lightgrey", linetype = "dashed"),
+        ) +
   xlim(-5000, 5000) +
   xlab("Change in total biomass due to climate effects") +
-  ylab("Area (ha)")
-
-ggsave(plot = pVeg, device = "png", filename = file.path(posthocFolder, "vegetationResults", 
+  ylab("Area in ha (x 10\u2075)")
+pVeg # <~~~~~~~~~~~~~~~~~~~~~~~~ HERE
+ggsave(plot = pVeg, device = "png", filename = file.path("/mnt/SpaDES/data/Micheletti/NWT_Outputs/PAPER_EffectsOfClimateChange/posthoc", "vegetationResults", #posthocFolder, "vegetationResults", 
                                                          "biomassAffectedByClimateChange.png"), 
        width = 8, height = 11)
 # library(viridis)
@@ -1412,8 +1446,59 @@ source('~/projects/NWT/posthocFunctions/plotAreaBurnReps.R')
 # outPath <- Paths$outputPath
 library(ggplot2)
 library(gridExtra)
-outPath <-"~/projects/NWT/outputs/SIMULATIONS"
+outPath <-"/mnt/SpaDES/data/Micheletti/NWT_Outputs/PAPER_EffectsOfClimateChange/SIMULATIONS"
 burnPlot <- plotAreaBurnReps(dataPath = outPath, 
                                          typeSim = c("LandR.CS_fS", "LandR_SCFM"),
                                          lastYear = 2100, 
-                                      overwrite = TRUE)
+                                      overwrite = TRUE, addEquationToPlot = FALSE)
+
+############## BIRD POINT COUNTS
+source("modules/birdsNWT/R/loadBirdModels.R")
+library("usefulFuns")
+birdModels <- loadBirdModels(birdsList = Species,
+                             folderUrl = "https://drive.google.com/open?id=1DD2lfSsVEOfHoob3fKaTvqOjwVG0ZByQ",
+                             pathData = "modules/birdsNWT/data",
+                             version = "6a")
+allSS <- rbindlist(lapply(names(birdModels), function(BIRD){
+  message("Processing ", BIRD)
+  bd  <- birdModels[[BIRD]]
+  allSS <- unique(bd$gbm.call$dataframe$SS)
+  return(data.table(allSS))
+}))
+allSS <- unique(allSS)
+allSS <- allSS$allSS
+write.csv(x = allSS, file = "/mnt/SpaDES/data/Micheletti/NWT_Outputs/PAPER_EffectsOfClimateChange/birdsPoints.csv")
+library("googledrive")
+drive_upload("/mnt/SpaDES/data/Micheletti/NWT_Outputs/PAPER_EffectsOfClimateChange/birdsPoints.csv", 
+             path = as_id("1qZaqmE2NTaraP4Z4ABG-zjjr9E2Zi-Pq"))
+
+finalPoints2010 <- fread("/mnt/SpaDES/data/Micheletti/borealBirdsAndForestry/modules/glmerBirdModels/data/Final_points_2010.csv")
+
+finalPoints2010 <- unique(finalPoints2010[, c("SS", "X", "Y")])
+pointsWithSS <- merge(data.table(SS = allSS), finalPoints2010, all.x = TRUE, by = "SS")
+
+crsToAdd <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"
+                          
+pntsDF <- SpatialPointsDataFrame(coords = na.omit(pointsWithSS[, 2:3]), 
+                                 data = data.frame(val = rep(1, NROW(na.omit(pointsWithSS[, 2:3])))))
+crs(pntsDF) <- crsToAdd
+raster::plot(pntsDF)
+
+rgdal::writeOGR(obj = pntsDF, 
+                dsn = "/mnt/SpaDES/data/Micheletti/NWT_Outputs/PAPER_EffectsOfClimateChange",
+                layer = "birdPoints",
+                driver = "ESRI Shapefile")
+
+fls <- list.files("/mnt/SpaDES/data/Micheletti/NWT_Outputs/PAPER_EffectsOfClimateChange", 
+                  pattern = "birdPoints", full.names = TRUE)
+
+zip(zipfile = '/mnt/SpaDES/data/Micheletti/NWT_Outputs/PAPER_EffectsOfClimateChange/birdPoints', files = fls)
+
+drive_upload("/mnt/SpaDES/data/Micheletti/NWT_Outputs/PAPER_EffectsOfClimateChange/birdPoints.zip", 
+             path = as_id("1qZaqmE2NTaraP4Z4ABG-zjjr9E2Zi-Pq"))
+
+allPredictors <- unique(unlist(lapply(names(birdModels), function(BIRD){
+  message("Processing ", BIRD)
+  bd  <- birdModels[[BIRD]]
+  return(sort(bd$var.names))
+})))

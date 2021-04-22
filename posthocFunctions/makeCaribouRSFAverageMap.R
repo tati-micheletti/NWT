@@ -6,7 +6,8 @@ makeCaribouRSFAverageMap <- function(resultsFolder,
                                      initialYear,
                                      lastYear,
                                      binningTable, 
-                                     overwriteCalc = FALSE){
+                                     overwriteCalc = FALSE,
+                                     overwriteCalcAll = FALSE){
   
   reclassMatrix <- matrix(cbind(binningTable[["Min.Value"]],
                                 binningTable[["Max.Value"]],
@@ -39,15 +40,43 @@ makeCaribouRSFAverageMap <- function(resultsFolder,
                      initialYear, " and ", lastYear, " for ", cm))
       diffRas <- lastRas-firstRas
       names(diffRas) <- paste0("DiffRas_", cm, "_", RUN)
-      return(diffRas)
+      
+      # As chatted with Eliot on April 15th, to extract the values 
+      # for each polygon, we should do the averaging across replicates as
+      # the last step. So I will get all points inside each heard, from all 
+      # replicates and then average and get the deviation to represent the polygons's
+      # mean RSF and variation 
+      # 
+      # Calculate the averages over the shapefile
+      # Fasterize the shapefile
+      caribouShapefileRas <- convertShpToRas(genericShp = shp, 
+                                             rasterToMatch = diffRas,
+                                             destinationPath = outputsPath,
+                                             rasStk = TRUE, # Because polys overlap
+                                             shapefileName = "rasterizedCaribouShp")
+      
+      polyRSF <- rbindlist(lapply(1:nlayers(caribouShapefileRas), function(layIndex){
+        nm <- names(caribouShapefileRas)[layIndex]
+        r <- caribouShapefileRas[[layIndex]]
+        DT <- data.table(Area = nm,
+                         climateModel = cm,
+                         replicate = RUN,
+                         RSF = diffRas[!is.na(r)])
+        return(DT)
+      }))
+      return(list(diffRas = diffRas,
+                  polyRSF = polyRSF))
     })
+    names(runsMaps) <- runs
+    allMaps <- lapply(runsMaps, `[[`, "diffRas")
+    allTables <- rbindlist(lapply(runsMaps, `[[`, "polyRSF"))
     meanDiffName <- file.path(outputsPath,
                             paste0("averageRSFdiff_", cm))
     
     if (any(overwriteCalc,
             !file.exists(paste0(meanDiffName, ".tif")))){
       message(paste0("Calculating averages for ", cm))
-      averageCM <- calc(stack(runsMaps), fun = mean, 
+      averageCM <- calc(stack(allMaps), fun = mean, 
                         na.rm = TRUE, overwrite = TRUE,
                         filename = meanDiffName,
                         format = "GTiff")
@@ -61,7 +90,7 @@ makeCaribouRSFAverageMap <- function(resultsFolder,
     if (any(overwriteCalc,
             !file.exists(paste0(sdDiffName, ".tif")))){
       message(paste0("Calculating SD for ", cm))
-      sdCM <- calc(stack(runsMaps), fun = sd, 
+      sdCM <- calc(stack(allMaps), fun = sd, 
                    na.rm = TRUE, overwrite = TRUE,
                    filename = sdDiffName, 
                    format = "GTiff") 
@@ -71,25 +100,6 @@ makeCaribouRSFAverageMap <- function(resultsFolder,
     names(averageCM) <- "averageDifference"
     names(sdCM) <- "sdDifference"
     cmStk <- stack(averageCM, sdCM)
-    # Calculate the averages over the shapefile
-    # Fasterize the shapefile
-    caribouShapefileRas <- convertShpToRas(genericShp = shp, 
-                                           rasterToMatch = averageCM,
-                                           destinationPath = outputsPath,
-                                           rasStk = TRUE, # Because polys overlap
-                                           shapefileName = "rasterizedCaribouShp")
-
-    calcMeanRSF <- rbindlist(lapply(1:nlayers(caribouShapefileRas), function(layIndex){
-      nm <- names(caribouShapefileRas)[layIndex]
-      r <- caribouShapefileRas[[layIndex]]
-      message("Averaging RSF difference values for ", nm)
-      aveRSF <- mean(averageCM[!is.na(r)], na.rm = TRUE)
-      # sdRSF <- mean(sdCM[!is.na(r)], na.rm = TRUE)
-      DT <- data.table(Area = nm,
-                       climateModel = cm,
-                       averageRSF = aveRSF)
-    }))
-    
   
     library("lattice")
     library("rasterVis")
@@ -117,40 +127,69 @@ makeCaribouRSFAverageMap <- function(resultsFolder,
                "#32a699", "#109196", "#047c8d", "#1b6685", "#2e4f7a")
       att <- "ID"
       typePlot <- "Average"
+      png(filename = pngPath,
+          width = 21, height = 29,
+          units = "cm", res = 300)
+      print(rasterVis::levelplot(cmStk[[layName]],
+                                 sub = paste0(typePlot, " RSF change for ", cm),
+                                 att = att,
+                                 margin = FALSE,
+                                 maxpixels = 6e6,
+                                 colorkey = list(
+                                   space = 'bottom',
+                                   axis.line = list(col = 'black'),
+                                   width = 0.75
+                                 ),
+                                 par.settings = list(
+                                   strip.border = list(col = 'transparent'),
+                                   strip.background = list(col = 'transparent'),
+                                   axis.line = list(col = 'transparent')),
+                                 scales = list(draw = FALSE),
+                                 col.regions = Pal,
+                                 par.strip.text = list(cex = 0.8,
+                                                       lines = 1,
+                                                       col = "black"),
+                                 panel = function(...){
+                                   lattice::panel.levelplot.raster(...)
+                                   sp::sp.polygons(shpLoaded, fill = 'black', lwd = 2.5)
+                                 }))
+      
+      dev.off()
     } else {
-      Pal <- viridis_pal(option = "D")(10) 
+      Pal <- rev(heat.colors(n = 10+round(maxValue(cmStk[[layName]]))))
       att <- NULL
       typePlot <- "SD"
+      AT <- round(minValue(cmStk[[layName]])):round(maxValue(cmStk[[layName]]))
+      png(filename = pngPath,
+          width = 21, height = 29,
+          units = "cm", res = 300)
+      print(rasterVis::levelplot(cmStk[[layName]],
+                                 sub = paste0(typePlot, " RSF change for ", cm),
+                                 att = att,
+                                 margin = FALSE,
+                                 maxpixels = 6e6,
+                                 colorkey = list(
+                                   space = 'bottom',
+                                   at = AT,
+                                   axis.line = list(col = 'black'),
+                                   width = 0.75
+                                 ),
+                                 par.settings = list(
+                                   strip.border = list(col = 'transparent'),
+                                   strip.background = list(col = 'transparent'),
+                                   axis.line = list(col = 'transparent')),
+                                 scales = list(draw = FALSE),
+                                 col.regions = Pal,
+                                 par.strip.text = list(cex = 0.8,
+                                                       lines = 1,
+                                                       col = "black"),
+                                 panel = function(...){
+                                   lattice::panel.levelplot.raster(...)
+                                   sp::sp.polygons(shpLoaded, fill = 'black', lwd = 2.5)
+                                 }))
+      
+      dev.off()
     }
-    png(filename = pngPath,
-        width = 21, height = 29,
-        units = "cm", res = 300)
-    print(rasterVis::levelplot(cmStk[[layName]],
-                               sub = paste0(typePlot, " RSF difference for ", cm),
-                               att = att,
-                               margin = FALSE,
-                               maxpixels = 6e6,
-                               colorkey = list(
-                                 space = 'bottom',
-                                 # at = -9:9,
-                                 axis.line = list(col = 'black'),
-                                 width = 0.75
-                               ),
-                               par.settings = list(
-                                 strip.border = list(col = 'transparent'),
-                                 strip.background = list(col = 'transparent'),
-                                 axis.line = list(col = 'transparent')),
-                               scales = list(draw = FALSE),
-                               col.regions = Pal,
-                               par.strip.text = list(cex = 0.8,
-                                                     lines = 1,
-                                                     col = "black"),
-                               panel = function(...){
-                                 lattice::panel.levelplot.raster(...)
-                                 sp::sp.polygons(shpLoaded, fill = 'black', lwd = 1)
-                               }))
-    
-    dev.off()
     DTs <- data.table(climateModel = cm,
                       fileType = typePlot, 
                       fileLocation = pngPath)
@@ -159,17 +198,16 @@ makeCaribouRSFAverageMap <- function(resultsFolder,
     
    return(list(mapsFilepath = bothMaps, 
                diffRas = runsMaps, 
-               meanRSFPoly = calcMeanRSF))
-
+               meanRSFPoly = allTables))
   })
   names(booMaps) <- climateModels
-  allRepsMaps <- unlist(x = lapply(booMaps, `[[`, "diffRas"),
-                        recursive = FALSE)
-  
+  allRepsMaps <- lapply(unlist(x = lapply(booMaps, `[[`, "diffRas"),
+                        recursive = FALSE), `[[`, "diffRas")
+
   ## Average and sd of all maps
   meanDiffName <- file.path(outputsPath,
                             paste0("averageRSFdiff"))
-  if (any(overwriteCalc,
+  if (any(overwriteCalcAll,
           !file.exists(paste0(meanDiffName, ".tif")))){
     message(paste0("Calculating average for all climate scenarios"))
     averageCM <- calc(stack(allRepsMaps), fun = mean, 
@@ -183,7 +221,7 @@ makeCaribouRSFAverageMap <- function(resultsFolder,
   # Values need to go from -9 to 9 (RSF is only from 1 to 10)
   sdDiffName <- file.path(outputsPath,
                           paste0("sdRSFdiff"))
-  if (any(overwriteCalc,
+  if (any(overwriteCalcAll,
           !file.exists(paste0(sdDiffName, ".tif")))){
     message(paste0("Calculating SD for all climate scenarios"))
     sdCM <- calc(stack(allRepsMaps), fun = sd, 
@@ -200,9 +238,7 @@ makeCaribouRSFAverageMap <- function(resultsFolder,
   # MAKE FINAL MAPS!
   pathSHP <- file.path(outputsPath, "RSFshp.shp")
   shpLoaded <- maptools::readShapeLines(pathSHP)
-  
-  bothMapsAllCS <- rbindlist(lapply(X = names(cmStk), cmStk = cmStk, 
-                               FUN = function(layName, cmStk){
+  bothMapsAllCS <- rbindlist(lapply(X = names(cmStk), FUN = function(layName){
     
     pngPath <- file.path(outputsPath, paste0(layName, "_allScenarios.png"))
     
@@ -215,47 +251,76 @@ makeCaribouRSFAverageMap <- function(resultsFolder,
                "#32a699", "#109196", "#047c8d", "#1b6685", "#2e4f7a")
       att <- "ID"
       typePlot <- "Average"
+      png(filename = pngPath,
+          width = 21, height = 29,
+          units = "cm", res = 300)
+      print(rasterVis::levelplot(cmStk[[layName]],
+                                 sub = paste0(typePlot, " RSF change across all climate scenarios"),
+                                 att = att,
+                                 margin = FALSE,
+                                 maxpixels = 6e6,
+                                 colorkey = list(
+                                   space = 'bottom',
+                                   axis.line = list(col = 'black'),
+                                   width = 0.75
+                                 ),
+                                 par.settings = list(
+                                   strip.border = list(col = 'transparent'),
+                                   strip.background = list(col = 'transparent'),
+                                   axis.line = list(col = 'transparent')),
+                                 scales = list(draw = FALSE),
+                                 col.regions = Pal,
+                                 par.strip.text = list(cex = 0.8,
+                                                       lines = 1,
+                                                       col = "black"),
+                                 panel = function(...){
+                                   lattice::panel.levelplot.raster(...)
+                                   sp::sp.polygons(shpLoaded, fill = 'black', lwd = 2.5)
+                                 }))
+      
+      dev.off()
     } else {
-      Pal <- viridis_pal(option = "D")(10) 
+      Pal <- rev(heat.colors(n = 10+round(maxValue(cmStk[[layName]]))))
       att <- NULL
       typePlot <- "SD"
+      AT <- round(minValue(cmStk[[layName]])):round(maxValue(cmStk[[layName]]))
+      png(filename = pngPath,
+          width = 21, height = 29,
+          units = "cm", res = 300)
+      print(rasterVis::levelplot(cmStk[[layName]],
+                                 sub = paste0(typePlot, " RSF change across all climate scenarios"),
+                                 att = att,
+                                 margin = FALSE,
+                                 maxpixels = 6e6,
+                                 colorkey = list(
+                                   space = 'bottom',
+                                   at = AT,
+                                   axis.line = list(col = 'black'),
+                                   width = 0.75
+                                 ),
+                                 par.settings = list(
+                                   strip.border = list(col = 'transparent'),
+                                   strip.background = list(col = 'transparent'),
+                                   axis.line = list(col = 'transparent')),
+                                 scales = list(draw = FALSE),
+                                 col.regions = Pal,
+                                 par.strip.text = list(cex = 0.8,
+                                                       lines = 1,
+                                                       col = "black"),
+                                 panel = function(...){
+                                   lattice::panel.levelplot.raster(...)
+                                   sp::sp.polygons(shpLoaded, fill = 'black', lwd = 2.5)
+                                 }))
+      
+      dev.off()
     }
-    png(filename = pngPath,
-        width = 21, height = 29,
-        units = "cm", res = 300)
-    
-    print(rasterVis::levelplot(cmStk[[layName]],
-                               sub = paste0(typePlot, " RSF difference for all climate scenarios"),
-                               att = att,
-                               margin = FALSE,
-                               maxpixels = 6e6,
-                               colorkey = list(
-                                 space = 'bottom',
-                                 # at = -9:9,
-                                 axis.line = list(col = 'black'),
-                                 width = 0.75
-                               ),
-                               par.settings = list(
-                                 strip.border = list(col = 'transparent'),
-                                 strip.background = list(col = 'transparent'),
-                                 axis.line = list(col = 'transparent')),
-                               scales = list(draw = FALSE),
-                               col.regions = Pal,
-                               par.strip.text = list(cex = 0.8,
-                                                     lines = 1,
-                                                     col = "black"),
-                               panel = function(...){
-                                 lattice::panel.levelplot.raster(...)
-                                 sp::sp.polygons(shpLoaded, fill = 'black', lwd = 1)
-                               }))
-    
-    dev.off()
+
     DTs <- data.table(climateModel = "allScenarios",
                       fileType = typePlot, 
                       fileLocation = pngPath)
     return(DTs) # Return the location of the file 
   }))
-  
+
   allRepsFilepath <- rbindlist(lapply(booMaps, `[[`, "mapsFilepath")) 
   finalMapsPath <- rbindlist(list(allRepsFilepath, bothMapsAllCS))
   meanRSFPoly <- rbindlist(lapply(booMaps, `[[`, "meanRSFPoly"))

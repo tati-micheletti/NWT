@@ -2,6 +2,7 @@ vegetationBiomassPlot <- function(years = c(2011, 2100),
                                   runs = paste0("run", 1:10),
                                   pathData,
                                   pathOutputs,
+                                  simulationName = FALSE, # Or character
                                   typeSim = c("LandR_SCFM", "LandR.CS_fS"),
                                   leadingPercentage = 0.8,
                                   quickCheck = TRUE,
@@ -15,6 +16,7 @@ vegetationBiomassPlot <- function(years = c(2011, 2100),
   library(rasterVis)
   #~~~~~~~~~~~~~~~~~~~~~~ Bring cohortData and pixel group #~~~~~~~~~~~~~~~~~~~~~~
   finalPlots <- lapply(typeSim, function(sim){
+    if (isTRUE(simulationName)) simulationName <- sim
     cohorDataListAll <- lapply(years, function(y){
       e <- environment()
       biomassSpeciesRuns <- lapply(runs, FUN = function(RUN) {
@@ -131,7 +133,7 @@ vegetationBiomassPlot <- function(years = c(2011, 2100),
             units = "cm", res = 300)
         print(levelplot(leadingSpeciesRaster,
                         att = "landcover",
-                        sub = paste0("Leading species in ", y," for ", sim),
+                        sub = paste0("Leading species in ", y),
                         margin = FALSE,
                         maxpixels = 6e6,
                         colorkey = list(
@@ -152,7 +154,6 @@ vegetationBiomassPlot <- function(years = c(2011, 2100),
       }
       
       return(list(biomassRaster = totalBiomass, leadingSpRaster = leadingSpeciesBiomassPath))
->>>>>>> 2096fbe9d29371c325298a39af6638017518fbca
     })
     names(cohorDataListAll) <- paste0("year", years)
     # --> need to subtract total biomass 2100 - 2011 to present the difference!
@@ -168,7 +169,8 @@ vegetationBiomassPlot <- function(years = c(2011, 2100),
           width = 21, height = 29,
           units = "cm", res = 300)
       print(levelplot(changedBiomass,
-                      sub = paste0("Difference in biomass from 2011 to 2100 for ", sim),
+                      sub = paste0("Difference in tree biomass from ", 
+                                   years[1]," to ", years[length(years)]),
                       margin = FALSE,
                       maxpixels = 6e6,
                       colorkey = list(

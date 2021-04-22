@@ -90,11 +90,11 @@ names(allScenarios) <- Scenarios
 eachScenarioAverage <- lapply(names(allScenarios), FUN = function(eachScenario){
   rasStk <- raster::stack(allScenarios[[eachScenario]])
   biomassDiffPath <- file.path(outputFolder, paste("averageChange",
-                                                   eachScenario, "Biomass",
+                                                   eachScenario, "Leading",
                                                    sep = "_"))
   
   biomassDiffPlotPath <- file.path(outputFolder, paste0(paste("averageChange",
-                                                              eachScenario, "Biomass",
+                                                              eachScenario, "Leading",
                                                               sep = "_"), ".png"))
   climateDiffAverage <- calc(x = rasStk, fun = mean, 
                              na.rm = TRUE,

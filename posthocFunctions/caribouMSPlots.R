@@ -214,3 +214,8 @@ popGrowthTableSim[, maxLambda := max(maxRib),
 popGrowthTableSim2 <- unique(popGrowthTableSim[, c("Polygon", "femSurvMod_recrMod",
                                                    "Year", "minLambda", 
                                                    "maxLambda", "meanLambda")])
+write.csv(popGrowthTableSim2, file.path(pathOutputs, "lambdaTable.csv"))
+Require("googledrive")
+drive_upload(media = file.path(pathOutputs, "lambdaTable.csv"), 
+             path = as_id("11H-Chg-EyO6zQ-KwggiLzN6D54sjnRp4"))
+

@@ -15,16 +15,23 @@
 # 10JAN20; used only if runLandR == FALSE and runBirds == TRUE)
 
 # usrEmail <- "your.email@gmail.com" # Your e.mail for GDrive authorization
-
 RUN <- "1"
-# Sys.sleep(600*(as.numeric(RUN)-1))
-climateModel <- "CCSM4_RCP85" # :: Running...
-  # climateModel <- "CanESM2_RCP85" # :: NEXT
-  # climateModel <- "ACCESS1-0_RCP85" # :: 
-  # climateModel <- "CSIRO-Mk3-6-0_RCP85" ::   
-  # climateModel <- "INM-CM4_RCP85" # :: 
+setwd("~/projects/NWT/")
+
+# source('functions/waitingTime.R')
+# allExp <- c("XIII", "XIV")
+
+# experimentName <- I # And II, III ... XIV
+# waitingTime(experimentName, mins = 10)
+# Sys.sleep(60*25*(as.numeric(RUN)-1))
+
+climateModel <- "CCSM4_RCP85" # :: DONE
+  # climateModel <- "CanESM2_RCP85" # :: DONE
+  # climateModel <- "ACCESS1-0_RCP85" # ::POSTPONED! (3 and 4 already did it)
+  # climateModel <- "CSIRO-Mk3-6-0_RCP85" ::
+  # climateModel <- "INM-CM4_RCP85" # :: DONE
   # climateModel <- "CNRM-CM5_RCP85" # :: 
-Times <- list(start = 2011, end = 2100)
+Times <- list(start = 2031, end = 2071)
     usrEmail <- "tati.micheletti@gmail.com" # Your e.mail for GDrive authorization
     hostIp <- 68 # Specify which machine this is running for
     updateCRAN <- FALSE
@@ -37,24 +44,34 @@ Times <- list(start = 2011, end = 2100)
     onlyLoadDEOptim <- TRUE
     runName <- "NWT_NT1_BCR6_2011" #"NWT_BCR6"
     runPosthocBirds <- FALSE
-    # originalDateAnalysis <- "10FEB21"
+    originalDateAnalysis <- "landscapeRuns"
     Sys.sleep(1)
     replicateNumber <- paste(strsplit(climateModel, split = "_")[[1]][1], 
                              paste0("run", RUN), sep = "_")
     Sys.sleep(1)
     vegetation <- "LandR.CS"
     fire <- "fS"
-    runLandR <- TRUE
-    runBirds <- TRUE
-    runCaribou <- TRUE
+    runLandR <- FALSE
+    runBirds <- FALSE
+    runCaribou <- FALSE
     birdModelVersion <- 8
-    Sys.sleep(3)
+    Sys.sleep(4)
     source("1_generalSetup.R")
+    Sys.sleep(4)
     source("2_generatingInputs.R")
-    source("3_preamble_2011layers.R")
-    source("4_fittingModules.R")
-    source("5_runningSimulations.R")
-    
+    # source("3_preamble_2011layers.R")
+    # source("4_fittingModules.R")
+    # source("5_runningSimulations.R")
+    Sys.sleep(4)
+    # source("7_hotspotsAnalysis.R")
+    source("8_hotspotsPosthoc.R")
+
+    # source('~/projects/NWT/functions/uploadFilesToGDrive.R')
+    # uploadFilesToGDrive(resultsFolderPath = "~/projects/NWT/outputs/landscapeRuns/LandR.CS_fS/", 
+    #                     filePatterns = "predicted", 
+    #                     UnwantedPatterns = "caribou", 
+    #                     Recursive = TRUE,
+    #                     Gfolder = "1tNCmQEJqGJp9s9PDbNHaa2Gfy1Jql9_b")
     
     # source("6_posthocAnalysis.R")
 # if (runOnlySimInit){

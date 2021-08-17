@@ -2,12 +2,26 @@
 ##                  P O S T H O C                      ##
 #########################################################
 
+# Run only script: 
+# source("1_generalSetup.R")
+# There is no need for the inputs at this moment
+
+print("Sourcing script 1")
+source("!sourceScript.R")
+
+print("Starting script 6_posthocAnalysis.R")
 stepCacheTag <- c(paste0("cache:6_posthocAnalysis"), 
                   paste0("runName:", runName))
 
+# SpaDES.core::setPaths(cachePath = posthocCache,
+#                       outputPath = checkPath(file.path(getwd(), #"outputs",
+#                                                        "posthoc"),
+#                                              create = TRUE),
+#                       modulePath = "~/projects/NWT/modules/")
+# After archiving the data
 SpaDES.core::setPaths(cachePath = posthocCache,
-                      outputPath = checkPath(file.path(getwd(), "outputs",
-                                                       "posthoc"),
+                      outputPath = checkPath(file.path(getwd(), "outputs", paste0("PAPER_EffectsOfClimateChange",
+                                                              "/posthoc")),
                                              create = TRUE))
 
 #########################################################
@@ -15,7 +29,7 @@ SpaDES.core::setPaths(cachePath = posthocCache,
 #########################################################
 if (!exists("runPosthocBirds")) runPosthocBirds <- FALSE
 if (runPosthocBirds){
-  if (!exists("originalDateAnalysis")) originalDateAnalysis <- "SIMULATIONS" # Default if not provided 
+  if (!exists("originalDateAnalysis")) originalDateAnalysis <- "SIMULATION" # Default if not provided 
   if (!exists("birdModelVersion")) birdModelVersion <- c("4", "6a") # Default if not provided 
   comparisons <- list(climate = c("V6a", "V4"),
                       vegetation = c("LandR.CS_", "LandR_"),
@@ -72,9 +86,17 @@ testthat::expect_true(all(Species %in% SpeciesNoClim))
 
 
 #############################
-
 # Shapefile to summarize
 urlGNWTEcoregions <- "https://drive.google.com/file/d/1Cf--HP0Zq1_VziN_BLN7erBFHnzxvUsy/view?usp=sharing"
+
+if (!exists("studyArea")){
+  studyArea <- prepInputs(url = runNamesList()[RunName == runName, studyArea],
+                          destinationPath = Paths$inputPath,
+                          filename2 = NULL,
+                          userTags = c("objectName:studyArea", stepCacheTag), 
+                          omitArgs = c("destinationPath", "filename2"))
+}
+
 shpSummary <- prepInputs(url = urlGNWTEcoregions,
                         destinationPath = Paths$inputPath,
                         studyArea = studyArea,
@@ -94,8 +116,8 @@ parameters <- list(
     "runs" = runs,
     "useFuture" = TRUE,
     "shpFieldToUse" = "ECO3_NAM_1",
-    "eventsToSchedule" = c("makeSummary",
-                           "averageThroughTimeComparison"),
+    "eventsToSchedule" = "makeDeltaRasters",
+      #c("makeSummary", "averageThroughTimeComparison"),
     # "nBootReps" = 50 # To be uncommented if want bootstrapping. Not done yet.
     # "uploadPlots" = TRUE  # To be uncommented if want uploading. Not done yet.
     "birdModels" = c("V4", "V6a")
@@ -125,15 +147,25 @@ dataFolder <- lapply(vegetationFireModels, function(scenario){
 })
 names(dataFolder) <- vegetationFireModels
 
+### GROUP 1
+# Species1 <- Species[1:32] # CURRENTLY DOING THIS ONE!
+# Species2 <- Species[33:length(Species)]
+
 source("modules/posthocBirdsNWT/R/retrieveRasters.R")
 listOfRasters <- retrieveRasters(dataFolder = dataFolder,
-                                 years = c(seq(2011, 2091, by = 20), 2100),
+                                 years = c(2011, 2100), # c(seq(2011, 2091, by = 20), 2100),
                                  patternsToRetrieveRasters = c("predicted", ".tif"),
                                  species = Species)
 
+tableThreshold <- prepInputs(url = "https://drive.google.com/file/d/1H4da59wf3ORU1yl-aZbnzb1wpsL_QbQ1/view?usp=sharing",
+                             destinationPath = Paths$inputPath,
+                             userTags = c("objectName:thresholdTable", stepCacheTag), 
+                             omitArgs = c("destinationPath"), 
+                             fun = "data.table::fread")
+
 objects <- list(
+  "tableThreshold" = tableThreshold,
   "dataFolder" = dataFolder,
-  "rasterToMatch" = rasterToMatch,
   "comparisons" = comparisons,
   "studyAreaPosthoc" = shpSummary,
   "listOfRasters" = listOfRasters,

@@ -33,7 +33,10 @@ studyArea <- prepInputs(url = runNamesList()[RunName == runName, studyArea],
                    userTags = c("objectName:studyArea", stepCacheTag), 
                    omitArgs = c("destinationPath", "filename2"))
 
-rasterToMatch <- Cache(prepInputs, url = runNamesList()[RunName == runName, rasterToMatch],
+rasterToMatch <- Cache(prepInputs, url = runNamesList()[RunName == runName, rasterToMatch], 
+                       # https://drive.google.com/file/d/11yCDc2_Wia2iw_kz0f0jOXrLpL8of2oM/view?usp=sharing
+                       # The previous URL has been compromised. It might work only because of cached obj
+                       # I uploaded it again to the url above [TM: 30APR21] 
                        studyArea = studyArea,
                        destinationPath = Paths$inputPath,
                        overwrite = TRUE,
@@ -264,97 +267,97 @@ rstLCC[waterRaster == 1] <- 37 # 37 is LCC05 classification for water
 # ===================================================================
 
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ FIRE ~~~~~~~~~~~~~~~~~~~~~~~~
-
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ FIRE ~~~~~~~~~~~~~~~~~~~~~~~~ # TEMPORARELY COMMENTING OUT BECAUSE OF NEW SPATIAL STUFF
+# 
   nonFlammClass <- c(33, 36:39)
   flammableRTM <- rasterToMatch
   # Remove LCC non flammable classes first
   flammableRTM[rstLCC[] %in% nonFlammClass] <- NA
   # Remove more detailed water from Water layer
   flammableRTM[waterRaster[] == 1] <- NA
-
+# 
 fireYears <- 1991:2017
-firePolys <- Cache(getFirePolys, years = fireYears,
-                   studyArea = aggregate(studyArea),
-                   version = c(20200921, 20200703, 20191129, 20190919),
-                   pathInputs = Paths$inputPath, 
-                 userTags = paste0("years:", range(fireYears)))
-
-# THere are duplicate NFIREID
-firePolys <- Cache(lapply, firePolys, function(x) {
-  x <- spTransform(x, crs(studyArea))
-  x <- x[!duplicated(x$NFIREID), ]
-})
-
-if (!exists("useCentroids")){
-  if (fire == "SCFM"){
-    useCentroids <- FALSE    
-  } else {
-    if (fire == "fS"){
-      useCentroids <- TRUE    
-    } else {
-     stop("Fire model has not been specified.") 
-    }
-  }
-} 
-if (useCentroids) {
-    message("... preparing polyCentroids")
-    yr <- min(fireYears)
-    firePoints <- Cache(mclapply, X = firePolys, 
-                            mc.cores = pemisc::optimalClusterNum(2e3, 
-                                                                 maxNumClusters = length(firePolys)),
-                            function(X){
-                              print(yr)
-                              ras <- X
-                              ras$ID <- 1:NROW(ras)
-                              centCoords <- rgeos::gCentroid(ras, byid = TRUE)
-                              cent <- SpatialPointsDataFrame(centCoords, 
-                                                             as.data.frame(ras))
-                              yr <<- yr + 1
-                              return(cent)
-                            },
-                            userTags = c("what:polyCentroids", "forWhat:fireSense_SpreadFit"),
-                            omitArgs = c("userTags", "mc.cores", "useCloud", "cloudFolderID")
-                        ) # "cacheId:a6f02820c0ff9fa6"
-    names(firePoints) <- names(firePolys)
-} else {
-  NFDBPath <- checkPath(file.path(Paths$inputPath, "NFDB_pointFolder"), create = TRUE)
-  if (!file.exists(file.path(NFDBPath, "CHECKSUMS.txt"))){
-    Checksums(NFDBPath)
-  }
-    firePoints <- Cache(getFirePoints_NFDB_V2,
-                            url = paste0("http://cwfis.cfs.nrcan.gc.ca/downloads/nfdb/fire_pnt/",
-                                         "current_version/NFDB_point.zip"),
-                            studyArea = studyArea,
-                            rasterToMatch = rasterToMatch,
-                            NFDB_pointPath = NFDBPath,
-                        years = fireYears,
-                        userTags = c("what:firePoints",
-                        "forWhat:SCFM"),
-                        omitArgs = c("useCache", "purge")
-                        )
-  }
-  
-# For Caribou --> Need fires older than what we have for fireSense
-historicalFires <- Cache(prepInputs, url = "https://drive.google.com/file/d/1WPfNrB-nOejOnIMcHFImvnbouNFAHFv7",
-                         alsoExtract = "similar",
-                         destinationPath = Paths$inputPath,
-                         studyArea = studyArea,
-                         userTags = c("objectName:historicalFires", 
-                                      "extension:BCR6_NWT",
-                                      stepCacheTag, "outFun:Cache"))
-# simplifying
-historicalFiresS <- historicalFires[, names(historicalFires) %in% c("YEAR", "DECADE")]
-historicalFiresDT <- data.table(historicalFiresS@data)
-historicalFiresDT[, decadeYear := 5+(as.numeric(unlist(lapply(strsplit(historicalFiresDT$DECADE, split = "-"), `[[`, 1))))]
-historicalFiresDT[, fireYear := ifelse(YEAR == -9999, decadeYear, YEAR)]
-historicalFiresS$fireYear <- historicalFiresDT$fireYear
-historicalFires <- historicalFiresS[, "fireYear"]
-historicalFiresReproj <- projectInputs(historicalFires, targetCRS = as.character(crs(studyArea)))
-
-# Discard fires with more than 60 from starting time
-olderstFireYear <- Times$start-60
-historicalFires <- historicalFiresReproj[historicalFiresReproj$fireYear >= olderstFireYear,]
+# firePolys <- Cache(getFirePolys, years = fireYears,
+#                    studyArea = aggregate(studyArea),
+#                    version = c(20200921, 20200703, 20191129, 20190919),
+#                    pathInputs = Paths$inputPath, 
+#                  userTags = paste0("years:", range(fireYears)))
+# 
+# # THere are duplicate NFIREID
+# firePolys <- Cache(lapply, firePolys, function(x) {
+#   x <- spTransform(x, crs(studyArea))
+#   x <- x[!duplicated(x$NFIREID), ]
+# })
+# 
+# if (!exists("useCentroids")){
+#   if (fire == "SCFM"){
+#     useCentroids <- FALSE    
+#   } else {
+#     if (fire == "fS"){
+#       useCentroids <- TRUE    
+#     } else {
+#      stop("Fire model has not been specified.") 
+#     }
+#   }
+# } 
+# if (useCentroids) {
+#     message("... preparing polyCentroids")
+#     yr <- min(fireYears)
+#     firePoints <- Cache(mclapply, X = firePolys, 
+#                             mc.cores = pemisc::optimalClusterNum(2e3, 
+#                                                                  maxNumClusters = length(firePolys)),
+#                             function(X){
+#                               print(yr)
+#                               ras <- X
+#                               ras$ID <- 1:NROW(ras)
+#                               centCoords <- rgeos::gCentroid(ras, byid = TRUE)
+#                               cent <- SpatialPointsDataFrame(centCoords, 
+#                                                              as.data.frame(ras))
+#                               yr <<- yr + 1
+#                               return(cent)
+#                             },
+#                             userTags = c("what:polyCentroids", "forWhat:fireSense_SpreadFit"),
+#                             omitArgs = c("userTags", "mc.cores", "useCloud", "cloudFolderID")
+#                         ) # "cacheId:a6f02820c0ff9fa6"
+#     names(firePoints) <- names(firePolys)
+# } else {
+#   NFDBPath <- checkPath(file.path(Paths$inputPath, "NFDB_pointFolder"), create = TRUE)
+#   if (!file.exists(file.path(NFDBPath, "CHECKSUMS.txt"))){
+#     Checksums(NFDBPath)
+#   }
+#     firePoints <- Cache(getFirePoints_NFDB_V2,
+#                             url = paste0("http://cwfis.cfs.nrcan.gc.ca/downloads/nfdb/fire_pnt/",
+#                                          "current_version/NFDB_point.zip"),
+#                             studyArea = studyArea,
+#                             rasterToMatch = rasterToMatch,
+#                             NFDB_pointPath = NFDBPath,
+#                         years = fireYears,
+#                         userTags = c("what:firePoints",
+#                         "forWhat:SCFM"),
+#                         omitArgs = c("useCache", "purge")
+#                         )
+#   }
+#   
+# # For Caribou --> Need fires older than what we have for fireSense
+# historicalFires <- Cache(prepInputs, url = "https://drive.google.com/file/d/1WPfNrB-nOejOnIMcHFImvnbouNFAHFv7",
+#                          alsoExtract = "similar",
+#                          destinationPath = Paths$inputPath,
+#                          studyArea = studyArea,
+#                          userTags = c("objectName:historicalFires", 
+#                                       "extension:BCR6_NWT",
+#                                       stepCacheTag, "outFun:Cache"))
+# # simplifying
+# historicalFiresS <- historicalFires[, names(historicalFires) %in% c("YEAR", "DECADE")]
+# historicalFiresDT <- data.table(historicalFiresS@data)
+# historicalFiresDT[, decadeYear := 5+(as.numeric(unlist(lapply(strsplit(historicalFiresDT$DECADE, split = "-"), `[[`, 1))))]
+# historicalFiresDT[, fireYear := ifelse(YEAR == -9999, decadeYear, YEAR)]
+# historicalFiresS$fireYear <- historicalFiresDT$fireYear
+# historicalFires <- historicalFiresS[, "fireYear"]
+# historicalFiresReproj <- projectInputs(historicalFires, targetCRS = as.character(crs(studyArea)))
+# 
+# # Discard fires with more than 60 from starting time
+# olderstFireYear <- Times$start-60
+# historicalFires <- historicalFiresReproj[historicalFiresReproj$fireYear >= olderstFireYear,]
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ OTHER LAYERS ~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -823,10 +826,10 @@ objects <- list(
   "anthropogenicLayers" = raster::stack(anthropogenicLayers), # New RSF anthropogenic layers for NT1+BCR6 (exp_dist_sett, exp_maj_rod, etc)
   "caribouLCC" = caribouLCC,
   # "roadDensity" = roadDensity, # Used only in the older caribouRSF module
-  "firePolys" = firePolys,
-  "firePoints" = firePoints,
+  # "firePolys" = firePolys,
+  # "firePoints" = firePoints,
   "listSACaribou" = listSACaribou,
-  "historicalFires" = historicalFires,
+  # "historicalFires" = historicalFires,
   "NT1shapefile" = caribouArea2,
   ".studyAreaName" = runName
 )

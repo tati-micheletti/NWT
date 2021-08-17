@@ -16,10 +16,29 @@ birdModels <- loadBirdModels(birdsList = birdsList,
                              pathData = "~/projects/NWT/modules/birdsNWT/data",
                              version = "6a")
 
-birdModels4 <- loadBirdModels(birdsList = "ALFL",
+birdModels4 <- loadBirdModels(birdsList = birdsList,
                              folderUrl = "https://drive.google.com/drive/u/0/folders/17RhA0KkmAJPpf4qss65I0F1wC77XmhzE",
                              pathData = "~/projects/NWT/modules/birdsNWT/data",
                              version = "4")
+
+# Get all covariate values for each bird for each model
+birdCovariatesTable <- rbindlist(lapply(birdsList, function(BIRD){
+  # Birds CS
+  V6a <- birdModels[[BIRD]]
+  DT6 <- data.table(V6a[["contributions"]])
+  DT6[, birdModel := "CS"]
+  DT6[, species := BIRD]
+  # Birds non-CS
+  V4 <- birdModels4[[BIRD]]
+  DT4 <- data.table(V4[["contributions"]])
+  DT4[, birdModel := "non-CS"]
+  DT4[, species := BIRD]
+  DT <- rbind(DT6, DT4)
+  return(DT)
+}))
+write.csv(birdCovariatesTable, file = file.path(getwd(), "birdCovariates.csv"))
+library("googledrive")
+drive_upload(file.path(getwd(), "birdCovariates.csv"), path = as_id("1wxQ6xtIg3A6OgVivuqCi4vbvr5uEQppd"))
 
 # Table with information for the paper
 birdInfo <- rbindlist(lapply(birdsList, function(sp){

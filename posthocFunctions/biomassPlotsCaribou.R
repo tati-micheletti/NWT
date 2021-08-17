@@ -3,6 +3,7 @@ biomassPlotsCaribou <- function(years = c(2011, 2100),
                                   pathOutputs,
                                   Scenarios = "LandR.CS_fS",
                                 runs = paste0("run", 1:5),
+                                shpPoly = NULL,
                                   flammableRTM){
     Require::Require("reproducible")
     outputFolder <- checkPath(file.path(pathOutputs, "vegetationPlots"), create = TRUE)
@@ -55,8 +56,10 @@ eachScenarioAverage <- lapply(names(allScenarios), FUN = function(eachScenario){
                              overwrite = TRUE,
                              format = "GTiff")
   # Now plotting
-  pal <- RColorBrewer::brewer.pal(11, "RdYlBu")
-  pal[6] <- "#f7f4f2"
+  # pal <- RColorBrewer::brewer.pal(11, "RdYlBu")
+  # pal[6] <- "#f7f4f2"
+  pal <- c('#9e0142','#d53e4f','#f46d43','#fdae61','#fee08b','#ffffbf','#e6f598','#abdda4','#66c2a5','#3288bd','#5e4fa2')
+  
   library("lattice")
   library("rasterVis")
   library("viridis")
@@ -115,8 +118,9 @@ eachScenarioAverage <- lapply(names(allScenarios), FUN = function(eachScenario){
                                overwrite = TRUE,
                                format = "GTiff")
     # Now plotting
-    pal <- RColorBrewer::brewer.pal(11, "RdYlBu")
-    pal[6] <- "#f7f4f2"
+    # pal <- RColorBrewer::brewer.pal(11, "RdYlBu")
+    # pal[6] <- "#f7f4f2"
+    pal <- c('#9e0142','#d53e4f','#f46d43','#fdae61','#fee08b','#ffffbf','#e6f598','#abdda4','#66c2a5','#3288bd','#5e4fa2')
     library("lattice")
     library("rasterVis")
     library("viridis")
@@ -153,7 +157,11 @@ eachScenarioAverage <- lapply(names(allScenarios), FUN = function(eachScenario){
                       col.regions = pal,
                       par.strip.text = list(cex = 0.8,
                                             lines = 1,
-                                            col = "black")))
+                                            col = "black"),
+                      panel = function(...){
+                        lattice::panel.levelplot.raster(...)
+                        sp::sp.polygons(shpPoly, fill = 'black', lwd = 1)
+                      }))
       dev.off()
     }
     

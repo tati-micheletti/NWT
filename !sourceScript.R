@@ -15,23 +15,24 @@
 # 10JAN20; used only if runLandR == FALSE and runBirds == TRUE)
 
 # usrEmail <- "your.email@gmail.com" # Your e.mail for GDrive authorization
-RUN <- "1"
-setwd("~/projects/NWT/")
+usrEmail <- "tati.micheletti@gmail.com" # Your e.mail for GDrive authorization
+googledrive::drive_auth(usrEmail)
+RUN <- "1" # Next
 
 # source('functions/waitingTime.R')
 # allExp <- c("XIII", "XIV")
 
 # experimentName <- I # And II, III ... XIV
 # waitingTime(experimentName, mins = 10)
-# Sys.sleep(60*25*(as.numeric(RUN)-1))
+# Sys.sleep(60*5*(as.numeric(RUN)-1))
 
-climateModel <- "CCSM4_RCP85" # :: DONE
+# climateModel <- "CCSM4_RCP85" # :: DONE
   # climateModel <- "CanESM2_RCP85" # :: DONE
+  climateModel <- "INM-CM4_RCP85" # :: DONE (next for birds)
   # climateModel <- "ACCESS1-0_RCP85" # ::POSTPONED! (3 and 4 already did it)
   # climateModel <- "CSIRO-Mk3-6-0_RCP85" ::
-  # climateModel <- "INM-CM4_RCP85" # :: DONE
   # climateModel <- "CNRM-CM5_RCP85" # :: 
-Times <- list(start = 2031, end = 2071)
+Times <- list(start = 2011, end = 2100)
     usrEmail <- "tati.micheletti@gmail.com" # Your e.mail for GDrive authorization
     hostIp <- 68 # Specify which machine this is running for
     updateCRAN <- FALSE
@@ -52,8 +53,10 @@ Times <- list(start = 2031, end = 2071)
     vegetation <- "LandR.CS"
     fire <- "fS"
     runLandR <- FALSE
-    runBirds <- FALSE
+    runBirds <- TRUE
     runCaribou <- FALSE
+    runPosthocBirds <- FALSE
+    # birdModelVersion <- c("4", "6a")
     birdModelVersion <- 8
     Sys.sleep(4)
     source("1_generalSetup.R")
@@ -62,9 +65,9 @@ Times <- list(start = 2031, end = 2071)
     # source("3_preamble_2011layers.R")
     # source("4_fittingModules.R")
     # source("5_runningSimulations.R")
-    Sys.sleep(4)
+    # Sys.sleep(4)
     # source("7_hotspotsAnalysis.R")
-    source("8_hotspotsPosthoc.R")
+    # source("8_hotspotsPosthoc.R")
 
     # source('~/projects/NWT/functions/uploadFilesToGDrive.R')
     # uploadFilesToGDrive(resultsFolderPath = "~/projects/NWT/outputs/landscapeRuns/LandR.CS_fS/", 

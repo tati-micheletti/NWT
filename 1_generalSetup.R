@@ -76,25 +76,24 @@ if (updateSubmodules){
   system("git submodule", wait = TRUE) # checks if the branches and commits you are using are the correct ones
 } 
 
-library("usefulFuns")
-library("data.table")
-library("LandR")
-library("LandR.CS")
-library("SpaDES")
-library("SpaDES.experiment")
-library("raster")
-library("plyr"); library("dplyr")
-library("amc")
-library("magrittr") # for piping
-library("future")
-library("future.apply")
-library("fireSenseUtils")
-library("parallel")
-library("BAMMtools")
-library("tictoc")
+Require("usefulFuns")
+Require("data.table")
+Require("LandR")
+Require("LandR.CS")
+Require("SpaDES")
+Require("SpaDES.experiment")
+Require("raster")
+Require("plyr"); Require("dplyr")
+Require("amc")
+Require("magrittr") # for piping
+Require("future")
+Require("future.apply")
+Require("fireSenseUtils")
+Require("parallel")
+Require("BAMMtools")
+Require("tictoc")
 
 # Source all common functions
-
 source("functions/defineRun.R")
 source("functions/not_included/runNamesList.R")
 source("functions/getFirePolygons_NFDB.R")

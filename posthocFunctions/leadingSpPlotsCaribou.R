@@ -10,6 +10,7 @@ leadingSpPlotsCaribou <- function(years = c(2011, 2100),
                          treeType = NULL,
                          flammableRTM,
                          rasterToMatch,
+                         shpPoly = NULL,
                          useProportionLeading = FALSE){
   Require::Require("reproducible")
   outputFolder <- checkPath(file.path(pathOutputs, "vegetationPlots"), create = TRUE)
@@ -106,8 +107,9 @@ eachScenarioAverage <- lapply(names(allScenarios), FUN = function(eachScenario){
   # Now plotting
   library(viridis)
   
-  pal <- RColorBrewer::brewer.pal(11, "RdYlBu")
-  pal[6] <- "#f7f4f2"
+  # pal <- RColorBrewer::brewer.pal(11, "RdYlBu")
+  # pal[6] <- "#f7f4f2"
+  pal <- c('#9e0142','#d53e4f','#f46d43','#fdae61','#fee08b','#ffffbf','#e6f598','#abdda4','#66c2a5','#3288bd','#5e4fa2')
   
   maxV <- max(abs(round(minValue(climateDiffAverage), 1)),
               abs(round(maxValue(climateDiffAverage), 1)))
@@ -139,7 +141,11 @@ eachScenarioAverage <- lapply(names(allScenarios), FUN = function(eachScenario){
                     col.regions = pal,
                     par.strip.text = list(cex = 0.8,
                                           lines = 1,
-                                          col = "black")))
+                                          col = "black"),
+          panel = function(...){
+            lattice::panel.levelplot.raster(...)
+            sp::sp.polygons(shpPoly, fill = 'black', lwd = 1)
+          }))
     dev.off()
   }
   
@@ -166,9 +172,10 @@ names(eachScenarioAverage) <- names(allScenarios)
   averageChange <- 100*(mean(climateDiffAverage[], na.rm = TRUE))
   
   # Now plotting
-  library(viridis)
-  pal <- RColorBrewer::brewer.pal(11, "RdYlBu")
-  pal[6] <- "#f7f4f2"
+  library("viridis")
+  # pal <- RColorBrewer::brewer.pal(11, "RdYlBu")
+  # pal[6] <- "#f7f4f2"
+  pal <- c('#9e0142','#d53e4f','#f46d43','#fdae61','#fee08b','#ffffbf','#e6f598','#abdda4','#66c2a5','#3288bd','#5e4fa2')
   
   maxV <- max(abs(round(minValue(climateDiffAverage), 1)),
               abs(round(maxValue(climateDiffAverage), 1)))
@@ -182,11 +189,12 @@ names(eachScenarioAverage) <- names(allScenarios)
         units = "cm", res = 300)
     print(levelplot(climateDiffAverage,
                     sub = paste0("Average proportional change in leading species under all GCMs ",
-                                 "\nRed: conversion to conifer \nBlue: conversion to deciduous"),
+                                 "\nRed: conversion to conifer \nBlue-Purple: conversion to deciduous"),
                     margin = FALSE,
                     maxpixels = 7e6,
                     at = AT,
                     colorkey = list(
+                      labels=list(cex = 1),
                       space = 'bottom',
                       axis.line = list(col = 'black'),
                       width = 0.75
@@ -197,9 +205,13 @@ names(eachScenarioAverage) <- names(allScenarios)
                       axis.line = list(col = 'transparent')),
                     scales = list(draw = FALSE),
                     col.regions = pal,
-                    par.strip.text = list(cex = 0.8,
+                    par.strip.text = list(cex = 1,
                                           lines = 1,
-                                          col = "black")))
+                                          col = "black"),
+                    panel = function(...){
+                      lattice::panel.levelplot.raster(...)
+                      sp::sp.polygons(shpPoly, fill = 'black', lwd = 1)
+                    }))
     dev.off()
   }
   

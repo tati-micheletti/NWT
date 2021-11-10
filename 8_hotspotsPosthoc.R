@@ -1,13 +1,32 @@
 #########################################################
 ##       P O S T H O C         H O T S P O T S         ##
 #########################################################
+# runName <- "NWT_BCR6"
+# setwd("/home/tmichele/projects/NWT/")
+# source("functions/defineRun.R")
+# vegetation <- "LandR.CS"
+# fire <- "fS"
+# runLandR <- FALSE
+# replicateNumber <- "run1"
+# originalDateAnalysis <- "landscapeRuns"
+# if (!exists("Times"))
+#   Times <- list(start = 2011, end = 2100)
+# library("SpaDES")
+# definedRun <- defineRun(replicateNumber = replicateNumber, 
+#                         vegetation = vegetation, 
+#                         fire = fire)
+# generalCacheFolder <- checkPath(file.path(getwd(), "cache"), create = TRUE)
 
+# Run !sourceScript.R until script 2
+
+hotspotsCache <- checkPath(file.path(generalCacheFolder, "hotspots", runName), create = TRUE)
 SpaDES.core::setPaths(cachePath = hotspotsCache,
                       outputPath = checkPath(file.path(getwd(), "outputs",
                                                        toupper(format(Sys.time(), "%d%b%y")),
                                                        definedRun$whichRUN,
                                                        replicateNumber),
                                              create = TRUE))
+
 
 if (all(runLandR == FALSE)){
   if (is.null(originalDateAnalysis)) stop("If runLandR == FALSE you need to pass the date for the 
@@ -475,9 +494,12 @@ if (!file.exists(overlapTablePath)){
   names(overlapTable) <- c("comparison", "scenario", "numberAreas", "sizeAreasHa", "sizeAreasKm2", 
                            "Year", "rho", "x2", "maxOverlap")
   qs::qsave(overlapTable, overlapTablePath)
+} else {
+  overlapTable <- qs::qread(overlapTablePath)
 }
 
 # Table 1: species, focus, target
+Require("data.table")
 DT1 <- Fig1_numbers[species %in% c("Landbirds", "caribou") & 
                       scenario %in% c("VII", "VIII", "VI", "V")]
 DT1[, CaribouTarget := fifelse(scenario %in% c("VI", "VII"),
@@ -662,6 +684,9 @@ overwriteBestPPMap <- FALSE
 umbrellaBirdsPath <- file.path(Paths$outputPath, "umbrellaLandbirdsPA.tif")
 umbrellaBooPath <- file.path(Paths$outputPath, "umbrellaCaribouPA.tif")
 optimizedPath <- file.path(Paths$outputPath, "optimizedPA.tif")
+
+if (!exists("waterRaster"))
+  
 
 if (any(overwriteBestPPMap, 
         !file.exists(umbrellaBirdsPath),
@@ -859,7 +884,7 @@ allMaps <- lapply(wantedMaps, function(scen){
   subTxt <- if (scen %in% c("Caribou", "Landbirds"))
     paste0(scen, " as umbrella species") else 
       paste0(scen, " for both caribou and landbirds")
-  
+
   png(filename = fileNamePNG,
       width = 21, height = 29,
       units = "cm", res = 300)

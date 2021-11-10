@@ -39,7 +39,6 @@ plotBurnSummaryRepsCaribou <- function(dataPath,
   }
   
   ####################### Area burned #######################
-browser()
   burnSumm[, sumAB := sum(areaBurned), by = c("year", "repetition")]
   areaB <- unique(burnSumm[, c("year", "repetition", "sumAB")])
   
@@ -142,40 +141,47 @@ browser()
     names(Fstats) <- NULL
     pValueA <- ifelse(pf(Fstats[1], Fstats[2], Fstats[3], lower.tail = F) < 0.05, " \n(significant)", " \n(non-significant)")
   }
-  browser()
   p1 <- ggplot2::ggplot(data = dt[var == "area_burned",], aes(x = year, y = val)) +
     geom_point(colour = "grey70") +
     stat_smooth(method = "lm", color = "darkred", fill = "red") +
     facet_grid(var ~ ., labeller = labeller(var = replacementNames)) +
     theme(legend.position = "none",
-          strip.text.y = element_text(size = 9, face = "bold"),
+          text = element_text(size = 16, family = "Arial"),
+          strip.text.y = element_text(size = 16, face = "bold"),
           axis.title.x = element_blank(),
           axis.text.x = element_blank(),
           axis.ticks.x = element_blank(),
           plot.margin = unit(c(0.2, 0.2, -0.01, 0.2), "cm")) +
     coord_cartesian(ylim = c(100, 1500)) +
-    labs(y = expression(paste("ha x ", 10^{3}))) 
+    labs(y = expression(paste("ha x ", 10^{3}))) +
+    theme_bw()
+  
   p2 <- ggplot(data = dt[var == "number_fires",], aes(x = year, y = val, colour = "blue")) +
     geom_point(colour = "grey70") +
     stat_smooth(method = "lm", fill = "blue", color = "darkblue") +
     facet_grid(var ~ ., labeller = labeller(var = replacementNames)) +
     theme(legend.position = "none",
-          strip.text.y = element_text(size = 9, face = "bold"),
+          text = element_text(size = 16, family = "Arial"),
+          strip.text.y = element_text(size = 16, face = "bold"),
           plot.margin = unit(c(0.2, 0.2, -0.01, 0.2), "cm"),
           axis.title.x = element_blank(),
           axis.text.x = element_blank(),
           axis.ticks.x = element_blank()) +
     coord_cartesian(ylim = c(200, 700)) +
-    ylab(label = "no. of fires")
+    ylab(label = "no. of fires") +
+    theme_bw()
+    
   p3 <- ggplot2::ggplot(data = dt[var == "fire_size",], aes(x = year, y = val)) +
     geom_point(colour = "grey70") +
     stat_smooth(method = "lm", color = "orange", fill = "orange") +
     facet_grid(var ~ ., labeller = labeller(var = replacementNames)) +
     theme(legend.position = "none",
-          strip.text.y = element_text(size = 9, face = "bold"),
+          text = element_text(size = 16, family = "Arial"),
+          strip.text.y = element_text(size = 16, face = "bold"),
           plot.margin = unit(c(-0.01, 0.2, 0.2, 0.2), "cm")) +
     coord_cartesian(ylim = c(0, 300)) +
-    labs(y = "ha x 10")
+    labs(y = "ha x 10") + 
+    theme_bw()
   
   p <- gridExtra::grid.arrange(p1, p2, p3, ncol=1)#,
                                # top = grid::textGrob(typeSim, gp = grid::gpar(fontsize = 12)))

@@ -1,4 +1,4 @@
-definePPtargetsAndLayers <- function(experimentName){
+definePPtargetsAndLayers <- function(experimentName = NULL){
   # targets = c(physiographic, landscapeUnits(soil), VegetationTypes, Caribou, Stream3, Stream4, Stream5)
   # targets = c(0.3, 0.3, 0.3, 0.7, 0.7, 0.1, 0.1) # I
   # targets = c(0.3, 0.3, 0.3, 0.7, 0.3, 0.1, 0.1) # II
@@ -16,14 +16,18 @@ definePPtargetsAndLayers <- function(experimentName){
   # Remove Boo and Birds
   # targets = c(0.3, 0.3, 0.3, NA, NA, NA, NA) # IX
   
+  if (is.null(experimentName)){
+    stop("Please provide experimentName")
+  }
+  
   # REMOVE
-  dontRemove <- c("I", "II", "III", "IV")
+  dontRemove <- c("I", "II", "III", "IV", "NIL")
   removeBirds <- c("V", "VIII")
   removeBoo <- c("VI", "VII")
   removeBoth <- "IX"
   removeCoarseBirds <- c("X", "XIII")
   removeCoarseBoo <- c("XI", "XIV")  
-  removeCoarse <- c("XII")
+  removeCoarse <- c("XII", "NIL_CFexcl")
 
   removeLayers <- if (experimentName %in% dontRemove)
     NA else if (experimentName %in% removeBirds)
@@ -55,7 +59,9 @@ definePPtargetsAndLayers <- function(experimentName){
                     XI = c(0.3, 0.1, 0.1),
                     XII = c(0.3, 0.3, 0.1, 0.1),
                     XIII = c(0.7),
-                    XIV = c(0.7, 0.1, 0.1)
+                    XIV = c(0.7, 0.1, 0.1),
+                    NIL = c(0.3, 0.3, 0.3, 0.7, 0.6, 0.4, 0.2),
+                    NIL_CFexcl = c(0.7, 0.6, 0.4, 0.2)
                     )
   
   return(list(targets = targets,

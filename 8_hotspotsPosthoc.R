@@ -1,23 +1,18 @@
 #########################################################
 ##       P O S T H O C         H O T S P O T S         ##
 #########################################################
-# runName <- "NWT_BCR6"
-# setwd("/home/tmichele/projects/NWT/")
-# source("functions/defineRun.R")
-# vegetation <- "LandR.CS"
-# fire <- "fS"
-# runLandR <- FALSE
-# replicateNumber <- "run1"
-# originalDateAnalysis <- "landscapeRuns"
-# if (!exists("Times"))
-#   Times <- list(start = 2011, end = 2100)
-# library("SpaDES")
-# definedRun <- defineRun(replicateNumber = replicateNumber, 
-#                         vegetation = vegetation, 
-#                         fire = fire)
-# generalCacheFolder <- checkPath(file.path(getwd(), "cache"), create = TRUE)
 
 # Run !sourceScript.R until script 2
+
+################################
+
+# 1. For each year, get all runs and calculate the mean of each scenario
+stepInterval <- 40 # What is the interval for which there is data?
+yearsWanted <- seq(Times$start, Times$end, by = stepInterval)
+allScenarios <- as.character(utils::as.roman(22:31))
+internalFolder <- "ms1" # Here to set in which folder are the scenarios I am looking for (i.e. ms1)
+
+################################
 
 hotspotsCache <- checkPath(file.path(generalCacheFolder, "hotspots", runName), create = TRUE)
 SpaDES.core::setPaths(cachePath = hotspotsCache,
@@ -26,8 +21,6 @@ SpaDES.core::setPaths(cachePath = hotspotsCache,
                                                        definedRun$whichRUN,
                                                        replicateNumber),
                                              create = TRUE))
-
-
 if (all(runLandR == FALSE)){
   if (is.null(originalDateAnalysis)) stop("If runLandR == FALSE you need to pass the date for the 
                                             analysis (i.e. where LandR results are)")
@@ -37,22 +30,17 @@ if (all(runLandR == FALSE)){
                         replacement = originalDateAnalysis)
   setPaths(inputPath = dirname(newInputPath),
            outputPath = checkPath(file.path(dirname(newOutputPath), 
-                                            "hotspots"), create = TRUE))
+                                            "hotspots", internalFolder), create = TRUE))
 } else {
   setPaths(inputPath = dirname(Paths$outputPath),
            outputPath = checkPath(file.path(dirname(Paths$outputPath), 
-                                            "hotspots")), create = TRUE)
+                                            "hotspots", internalFolder)), create = TRUE)
 }
 
 allb <- usefulFuns::substrBoth(list.files("~/projects/NWT/modules/birdsNWT/data/models/",
                                           pattern = "brt8.R"),
                                howManyCharacters = 4,
                                fromEnd = FALSE)
-################
-# 1. For each year, get all runs and calculate the mean of each scenario
-stepInterval <- 20 # What is the interval for which there is data?
-yearsWanted <- seq(Times$start, Times$end, by = stepInterval)
-allScenarios <- as.character(utils::as.roman(seq(1, 14, 1)))
 
 # I should adapt the allScenarios based on what is already available...
 # Only run the ones that are not yet done, and then combine the original
@@ -100,7 +88,7 @@ while (!thisExists){
                                       full.names = TRUE,
                                       recursive = FALSE), pattern = climMod)
       allFiles <- raster::stack(lapply(allFolds, function(fd){
-        fl <- file.path(fd, "hotspots", paste0(scen, "_solutions_Year", Y, ".tif"))
+        fl <- file.path(fd, "hotspots", internalFolder, paste0(scen, "_solutions_Year", Y, ".tif"))
         if (!file.exists(fl)) stop(paste0("The file ", fl," doesn't exist. Are you sure you ",
                                           "set the right paths?"))
         ras <- raster::raster(fl)
@@ -161,7 +149,7 @@ allb <- usefulFuns::substrBoth(list.files("~/projects/NWT/modules/birdsNWT/data/
 yearsWanted <- c(2031, 2051, 2071)
 whichComparison <- c("synergy30","synergy70")
 # whichComparison <- c("synergy30noCF","synergy70noCF")
-wantedScenarios <- as.character(as.roman(1:14))
+wantedScenarios <-  allScenarios#as.character(as.roman(1:14))
 
 allNumbersPath <- file.path(Paths$outputPath, "allNumbersTable.qs") # Make and save the darn full table!
 

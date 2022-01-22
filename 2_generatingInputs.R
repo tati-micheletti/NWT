@@ -27,16 +27,26 @@ if (!exists("Times"))
 stepCacheTag <- c(paste0("cache:2_simulationSetup"), 
                   paste0("runName:", runName))
 
-studyArea <- prepInputs(url = runNamesList()[RunName == runName, studyArea],
+studyArea <- Cache(prepInputs, 
+                   url = runNamesList()[RunName == runName, studyArea],
                    destinationPath = Paths$inputPath,
                    filename2 = NULL,
                    userTags = c("objectName:studyArea", stepCacheTag), 
                    omitArgs = c("destinationPath", "filename2"))
 
-rasterToMatch <- Cache(prepInputs, url = runNamesList()[RunName == runName, rasterToMatch], 
-                       # https://drive.google.com/file/d/11yCDc2_Wia2iw_kz0f0jOXrLpL8of2oM/view?usp=sharing
-                       # The previous URL has been compromised. It might work only because of cached obj
-                       # I uploaded it again to the url above [TM: 30APR21] 
+# rasterToMatch <- Cache(prepInputs, url = runNamesList()[RunName == runName, rasterToMatch], 
+#                        # https://drive.google.com/file/d/11yCDc2_Wia2iw_kz0f0jOXrLpL8of2oM/view?usp=sharing
+#                        # The previous URL has been compromised. It might work only because of cached obj
+#                        # I uploaded it again to the url above [TM: 30APR21] 
+#                        studyArea = studyArea,
+#                        destinationPath = Paths$inputPath,
+#                        overwrite = TRUE,
+#                        userTags = c("objectName:rasterToMatch", stepCacheTag,
+#                                     "outFun:Cache"),
+#                        omitArgs = c("overwrite", "destinationPath", "filename2"))
+
+rasterToMatch <- Cache(prepInputs, url = "https://drive.google.com/file/d/11yCDc2_Wia2iw_kz0f0jOXrLpL8of2oM/view?usp=sharing", 
+                       # Need to update this url to the function
                        studyArea = studyArea,
                        destinationPath = Paths$inputPath,
                        overwrite = TRUE,
@@ -83,10 +93,10 @@ anthropogenicLayers <- Cache(prepInputs, targetFile = "anthropogenicDisturbanceL
                              destinationPath = Paths$inputPath,
                              studyArea = studyAreaCaribou,
                              rasterToMatch = caribouLCC,
-                             filename2 = "anthropogenicDisturbanceLayers_NT1_BCR6",
+                             filename2 = "anthropogenicDisturbanceLayersNT1_BCR6",
                              fun = "raster::stack",
-                             userTags = c("FUN:Cache",
-                                          "object:anthropogenicLayersNT1BCR6"))
+                             userTags = c("FUN:reCache",
+                                          "object:anthropogenicLayersNT1_BCR6"))
 # [UPDATE 12JAN21]: One of the layers got named wrongly, so I will fix here:
 names(anthropogenicLayers)[names(anthropogenicLayers) == "lineDen1000"] <- "lden1000_2015"
 names(anthropogenicLayers)[names(anthropogenicLayers) == "exp_sett"] <- "exp_settle"
@@ -370,7 +380,8 @@ studyAreaPSP <- Cache(prepInputs, url = runNamesList()[RunName == runName, study
 
 
 ecoRegionSHP <- Cache(prepInputs, targetFile = "ecoregions.shp",
-                                            url = "https://drive.google.com/file/d/1qr9roO6lCMomSfS5tfBdMMJsYk5eB6K7",
+                                            # url = "https://drive.google.com/file/d/1qr9roO6lCMomSfS5tfBdMMJsYk5eB6K7",
+                                            url = "https://drive.google.com/file/d/1i2RallIC66Qvw_coPXoJaZAo_ORdLTil/view?usp=sharing",
                                             alsoExtract = "similar",
                                             destinationPath = Paths$inputPath,
                                             studyArea = studyAreaCaribou,
@@ -491,16 +502,15 @@ protectedAreas <- Cache(prepInputs,
                                  "outFun:Cache",
                                  "step:protectedAreas_NT1_BCR6"))
 
-
-landscapeUnits <- Cache(prepInputs, 
-                        archive = "ca_all_slc_v3r2.zip",
-                        alsoExtract = "similar",
-                        url = "https://sis.agr.gc.ca/nsdb/ca/cac003/cac003.20110308.v3.2/ca_all_slc_v3r2.zip",
-                        studyArea = studyArea,
-                        destinationPath = Paths$inputPath,
-                        filename2 = NULL,
-                        rasterToMatch = rasterToMatch,
-                        userTags = c(stepCacheTag,
+landscapeUnits <- Cache(prepInputs,
+                            archive = "ca_all_slc_v3r2.zip",
+                            alsoExtract = "similar",
+                            url = "https://sis.agr.gc.ca/nsdb/ca/cac003/cac003.20110308.v3.2/ca_all_slc_v3r2.zip",
+                            studyArea = studyArea,
+                            useSAcrs = TRUE,
+                            destinationPath = Paths$inputPath,
+                            filename2 = "landscapeUnits",
+                            userTags = c(stepCacheTag,
                                      "outFun:Cache",
                                      "step:landscapeUnits_NT1_BCR6"))
 
@@ -532,7 +542,8 @@ climateResolution <- "3ArcMin" # Only available for now, matches the created lay
 climateFilePath <- getAnnualClimateZipURL(scenario = climateModel)
 
 # For any climate scenarios that not CCSM4_85, we need to supply CMI and ATA stacks
-# These are annual projected mean annual temperature anomalies, units stored as tenth of a degree (ATA) and annual projected mean climate moisture deficit
+# These are annual projected mean annual temperature anomalies, units stored as tenth of 
+# a degree (ATA) and annual projected mean climate moisture deficit
 
 CMIATA <- makeCMIandATA(pathToNormalRasters = file.path(Paths$inputPath, 
                                                         "Canada3ArcMinute_Normals"),

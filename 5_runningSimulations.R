@@ -65,20 +65,24 @@ if (runBirds){
   # WHICH BIRD SPECIES DO I HAVE?  
   source('~/projects/NWT/functions/getBirdsAvailable.R')
   # bds <- getBirdsAvailable() # To compare with allb --> have all models?
+  
   allb <- usefulFuns::substrBoth(list.files("~/projects/NWT/modules/birdsNWT/data/models/",
                                             pattern = "brt8.R"),
              howManyCharacters = 4,
              fromEnd = FALSE)
+
   # THIS ARE AVAILABLE IN V8
-  # c("ALFL", "AMCR", "AMRE", "AMRO", "ATSP", "BAWW", "BBWA", "BBWO",
-  # "BCCH", "BHCO", "BHVI", "BLPW", "BOCH", "BRBL", "BRCR", "BTNW",
-  # "CAWA", "CCSP", "CHSP", "CORA", "COYE", "DEJU", "EAKI", "FOSP",
-  # "GRAJ", "HAFL", "HETH", "HOLA", "LCSP", "LEFL", "LISP", "MAWA",
-  # "NOFL", "NOWA", "OCWA", "OVEN", "PAWA", "PHVI", "PISI", "PIWO",
-  # "PUFI", "RBGR", "RBNU", "RCKI", "REVI", "RUBL", "RUGR", "RWBL",
-  # "SAVS", "SOSP", "SWSP", "SWTH", "TEWA", "TRES", "VATH", "WAVI",
-  # "WCSP", "WETA", "WEWP", "WIWA", "WIWR", "WTSP", "WWCR", "YBFL",
-  # "YBSA", "YEWA", "YRWA")
+  # c("ALFL", "AMCR", "AMRE", "AMRO", "ATSP", "ATTW", "BARS", "BAWW", 
+  #   "BBWA", "BBWO", "BCCH", "BHCO", "BHVI", "BLPW", "BOCH", "BRBL", 
+  #   "BRCR", "BTNW", "CAWA", "CCSP", "CHSP", "CONW", "CORA", "COYE", 
+  #   "DEJU", "EAKI", "EVGR", "FOSP", "GCKI", "GCTH", "GRAJ", "HAFL", 
+  #   "HETH", "HOLA", "LCSP", "LEFL", "LEYE", "LISP", "MAWA", "NOFL", 
+  #   "NOWA", "OCWA", "OSFL", "OVEN", "PAWA", "PHVI", "PISI", "PIWO", 
+  #   "PUFI", "RBGR", "RBNU", "RCKI", "REVI", "RUBL", "RUGR", "RWBL", 
+  #   "SAVS", "SOSP", "SWSP", "SWTH", "TEWA", "TRES", "VATH", "WAVI", 
+  #   "WCSP", "WETA", "WEWP", "WIWA", "WIWR", "WTSP", "WWCR", "YBFL", 
+  #   "YBSA", "YEWA", "YRWA")
+  
 # Test the diff between 79 amd 104 (40 and 52GB per bird) ?
   cores <- birdPredictionCoresCalc(birdSpecies = allb,
                                    ipEnd = hostIp,
@@ -270,7 +274,10 @@ if (runCaribou){
     ),
     caribouPopGrowthModel = list(
       ".plotInitialTime" = NULL,
+      "climateModel" = climateModel,
+      "useFuture" = FALSE,
       "recoveryTime" = 40,
+      "whichPolysToIgnore" = c("Yates", "Bistcho", "Maxhamish"),
       ".useDummyData" = FALSE,
       ".growthInterval" = 10,
       "recruitmentModelVersion" = "Johnson", # Johnson or ECCC
@@ -284,6 +291,7 @@ if (runCaribou){
     # otherwise it will repeat the recruitmentModelVersion for all recruitmentModelNumber
   )
   modules <- list("caribouPopGrowthModel") # "caribouRSF_NT"
+
   simulationBoo <- paste0(definedRun$whichRUN, "_caribou")
   trackSeed(replic = definedRun$whichReplicate, runName = runName)
   rstCurrentBurnList <- readRDS(file.path(Paths$inputPath, 

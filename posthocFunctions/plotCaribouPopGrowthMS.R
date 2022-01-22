@@ -28,11 +28,10 @@ plotCaribouPopGrowthMS <- function(startTime,
     allcombs <- data.table(expand.grid(climateModel, reps))
     allcombs[, comb := paste0(Var1, "_",Var2)]
     pth <- file.path(resultsMainFolder, allcombs[["comb"]])
-    
     predictedCaribou <- rbindlist(lapply(seq_along(pth), function(filePathIndex){
-      tb <- readRDS(list.files(path = pth[filePathIndex], 
+      tb <- readRDS(list.files(path = file.path(pth[filePathIndex], "caribouPredictions"), 
                                pattern = paste0("predictedCaribou_year", currentTime), 
-                               full.names = TRUE, recursive = TRUE))
+                               full.names = TRUE, recursive = FALSE))
       addedTB <- rbindlist(lapply(names(tb), function(years){
         TB <- tb[[years]]
         climMod <- strsplit(basename(pth[filePathIndex]), "_")[[1]][1]
@@ -112,7 +111,7 @@ plotCaribouPopGrowthMS <- function(startTime,
                                               popModelPlot <- popModelPlot + geom_jitter(data = DT, aes(x = Year,
                                                                                                         y = get(yaxis)),
                                                                                          size = 0.5, colour = "grey40",
-                                                                                         width = 0.7)
+                                                                                         width = 0.1)
                                             }
                                             
                                             if(currentTime == endTime){

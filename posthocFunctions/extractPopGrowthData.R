@@ -29,14 +29,14 @@ if (!is.null(resultsMainFolder)){
   }))
   
   if (!is.null(whichPolys)){
-    predictedCaribou <- predictedCaribou[polygon %in% whichPolys, ]
+    predictedCaribou <- predictedCaribou[Herd %in% whichPolys, ]
   }
-  tableAll <- predictedCaribou
 }
-
+  tableAll <- predictedCaribou
+  
 yaxis <- if (timeSpan == "annual") "annualLambda" else "growth"
 
-names(tableAll)[names(tableAll) == "polygon"] <- "Polygon"
+names(tableAll)[names(tableAll) == "Herd"] <- "Polygon"
 tableAll[, minRib := min(get(paste0(yaxis, "Min"))), by = c("Year", "Polygon", 
                                                             "climateModel", "femSurvMod_recrMod")]
 tableAll[, maxRib := max(get(paste0(yaxis, "Max"))), by = c("Year", "Polygon", 

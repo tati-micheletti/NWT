@@ -223,6 +223,12 @@ popGrowthTableSim2 <- unique(popGrowthTableSim[, c("Polygon", "femSurvMod_recrMo
                                                    "Year", "minLambda", 
                                                    "maxLambda", "meanLambda")])
 write.csv(popGrowthTableSim2, file.path(pathOutputs, "lambdaTable.csv"))
+
+#  To see the difference of means between 2011 and 2100
+popGrowthTableSim3 <- dcast(data = popGrowthTableSim2, formula = Polygon + femSurvMod_recrMod ~ Year, value.var = "meanLambda")
+popGrowthTableSim3[, Diff := `2100`-`2011`]
+popGrowthTableSim3[femSurvMod_recrMod == "Johnson_M4_National::Johnson_M4_National", c("Polygon", "2011", "2100")]
+
 Require("googledrive")
 drive_upload(media = file.path(pathOutputs, "lambdaTable.csv"), 
              path = as_id("11H-Chg-EyO6zQ-KwggiLzN6D54sjnRp4"))

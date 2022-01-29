@@ -37,11 +37,11 @@ if (all(runLandR == FALSE)){
            outputPath = newOutputPath)
   hotOutPath <- checkPath(file.path(newOutputPath, 
                                     "hotspots/ms"), create = TRUE)
+
   setPaths(outputPath = hotOutPath)
 } else {
   newOutputPath <- gsub(x = Paths$outputPath, pattern = toupper(format(Sys.time(), "%d%b%y")), 
                         replacement = originalDateAnalysis)
-  
   hotOutPath <- checkPath(file.path(newOutputPath, 
                                     "hotspots_ms"), create = TRUE)
   setPaths(inputPath = newOutputPath,

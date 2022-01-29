@@ -23,16 +23,16 @@ print(paste0("Sleeping for ", sleepFor/60, " minutes"))
 system("echo $STY")
 # Sys.sleep(sleepFor)
 
-climateModel <- "CCSM4_RCP85"
+# climateModel <- "CCSM4_RCP85"
 # climateModel <- "CanESM2_RCP85"
-# climateModel <- "INM-CM4_RCP85"
+climateModel <- "INM-CM4_RCP85"
 if (climateModel == "CanESM2_RCP85"){
 print(paste0("Sleeping for 10 more minutes"))
-# Sys.sleep(10*60)
+Sys.sleep(10*60)
 }
 if (climateModel == "INM-CM4_RCP85"){
 print(paste0("Sleeping for 20 more minutes"))
-# Sys.sleep(20*60)
+Sys.sleep(20*60)
 }
 
 # source('functions/waitingTime.R')
@@ -46,7 +46,7 @@ print(paste0("Sleeping for 20 more minutes"))
   # climateModel <- "CSIRO-Mk3-6-0_RCP85" ::
   # climateModel <- "CNRM-CM5_RCP85" # :: 
 
-Times <- list(start = 2011, end = 2071)
+Times <- list(start = 2011, end = 2091)
     usrEmail <- "tati.micheletti@gmail.com" # Your e.mail for GDrive authorization
     hostIp <- 68 # Specify which machine this is running for
     updateCRAN <- FALSE
@@ -80,8 +80,8 @@ Times <- list(start = 2011, end = 2071)
     # source("4_fittingModules.R")
     # source("5_runningSimulations.R")
     Sys.sleep(4)
-    predictWithBirds <- TRUE
-    MakeAnalysisForBirdGroup <- TRUE
+    # predictWithBirds <- TRUE
+    # MakeAnalysisForBirdGroup <- TRUE
     # for (GR in c("shrub", "generalist", "deciduous", "conifer",
     #              "wetland", "grassland")){ #, "mixedwood"
     # whichGroup <- #GR
@@ -90,7 +90,8 @@ Times <- list(start = 2011, end = 2071)
     # source("7_hotspotsAnalysis.R")
     # }
     # source("8_hotspotsPosthocMS1_auto.R")
-    source("8_hotspotsPosthocMS2_auto.R")
+    # source("8_hotspotsPosthocMS2_auto.R")
+    source("7_hotspotsAnalysis_V2.R")
     
     # source('~/projects/NWT/functions/uploadFilesToGDrive.R')
     # uploadFilesToGDrive(resultsFolderPath = "~/projects/NWT/outputs/landscapeRuns/LandR.CS_fS/", 

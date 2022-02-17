@@ -16,3 +16,13 @@ Please, use this repo to upload all code related to the project here:
 * Diana created her own repo for the national bird model (`NationalModel` folder), so I added a submodule of it in this repo. This is like creating a shortcut in Windows for a specific file.
 
 Please, feel free to edit this file if you feel like. :)
+
+## Getting the code
+
+```bash
+## master branch
+git clone --recurse-submodules -j8 https://github.com/tati-micheletti/NWT
+
+## development branch
+git clone --single-branch -b development --recurse-submodules -j8 https://github.com/tati-micheletti/NWT
+```

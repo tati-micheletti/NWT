@@ -19,11 +19,17 @@ if (!exists("prepCohortData")) prepCohortData <- FALSE
 # exist in inputs folder) this should NOT be run i.e. FALSE)
 if (prepCohortData){
   outputsPreamble2001 <- data.frame(objectName = c("cohortData", 
-                                                   "pixelGroupMap"),
+                                                   "pixelGroupMap",
+                                                   "speciesLayers",
+                                                   "standAgeMap",
+                                                   "rawBiomassMap"),
                                     saveTime = 2001,
                                     file = c("cohortData2001_fireSense.rds",
-                                             "pixelGroupMap2001_fireSense.rds"))
-  
+                                             "pixelGroupMap2001_fireSense.rds",
+                                             "speciesLayers2001_fireSense.rds",
+                                             "standAgeMap2001_borealDataPrep.rds",
+                                             "rawBiomassMap2001_borealDataPrep.rds"))
+
   # 1. Run borealBiomassDataPrep ALONE and save: cohortData + pixelGroupMap: will be used
   # in fireSense_SizeFit and fireSense_SpreadFit (later on, will be also used in Ignition and 
   # Escape fits)
@@ -31,26 +37,32 @@ if (prepCohortData){
   # 973 unique using ecodistrict
   
   biomassMaps2001 <- simInitAndSpades(times = list(start = 2001, end = 2001),
-                                      params = parameters,
-                                      modules = list("Biomass_borealDataPrep"),
-                                      objects = objects,
-                                      paths = getPaths(),
-                                      loadOrder = "Biomass_borealDataPrep",
-                                      outputs = outputsPreamble2001,
-                                      userTags = c(stepCacheTag, 
-                                                   "objective:preambleBiomassDataPrep",
-                                                   "time:year2001", "version:fixedZeros"))
+                           params = parameters,
+                           modules = list("Biomass_borealDataPrep"),
+                           objects = objects,
+                           overwrite = TRUE,
+                           useCache = "overwrite",
+                           paths = getPaths(),
+                           loadOrder = "Biomass_borealDataPrep",
+                           outputs = outputsPreamble2001)#,
+  # 06JAN21: Having some sort of caching problem...
+                           # userTags = c(stepCacheTag,
+                           #              "objective:preambleBiomassDataPrep",
+                           #              "time:year2001",
+                           #              "version:fixedZeros"))
   # 2. Load these:
-  speciesLayers2011 <- loadkNNSpeciesLayersValidation(dPath = Paths$inputPath,
-                                                      rasterToMatch = rasterToMatch,
-                                                      studyArea = studyArea, 
-                                                      sppEquiv = sppEquivalencies_CA,
-                                                      knnNamesCol = "KNN",
-                                                      sppEquivCol = sppEquivCol,
-                                                      thresh = 10,
-                                                      url = paste0("http://ftp.maps.canada.ca/pub/nrcan_rncan/Forests_Foret/",
-                                                                   "canada-forests-attributes_attributs-forests-canada/2011-",
-                                                                   "attributes_attributs-2011/"))#,
+  speciesLayers2011 <- loadkNNSpeciesLayersValidation(
+                             dPath = Paths$inputPath,
+                             rasterToMatch = rasterToMatch,
+                             studyArea = studyArea, 
+                             overwrite = TRUE,
+                             sppEquiv = sppEquivalencies_CA,
+                             knnNamesCol = "KNN",
+                             sppEquivCol = sppEquivCol,
+                             thresh = 10,
+                             url = paste0("https://ftp.maps.canada.ca/pub/nrcan_rncan/Forests_Foret/",
+                                          "canada-forests-attributes_attributs-forests-canada/2011-",
+                                          "attributes_attributs-2011/"))#,
   # userTags = c(stepCacheTag, "preamble", 
   # "speciesLayers2011"))
   
@@ -73,13 +85,10 @@ if (prepCohortData){
                                       params = parameters,
                                       modules = list("Biomass_borealDataPrep"),
                                       objects = objectsPre,
+                                      useCache = "overwrite",
                                       paths = getPaths(),
                                       loadOrder = "Biomass_borealDataPrep",
-                                      clearSimEnv = TRUE,
-                                      outputs = outputsPreamble2011,
-                                      userTags = c(stepCacheTag, 
-                                                   "objective:preambleBiomassDataPrep", 
-                                                   "time:year2011"))
+                                      outputs = outputsPreamble2011)
   
   cohortData2001 <- biomassMaps2001[["cohortData"]]
   pixelGroupMap2001 <- biomassMaps2001[["pixelGroupMap"]]
@@ -94,12 +103,25 @@ if (prepCohortData){
   pixelGroupMap2001 <- readRDS(file.path(Paths$inputPath, "pixelGroupMap2001_fireSense_year2001.rds"))
   cohortData2011 <- readRDS(file.path(Paths$inputPath, "cohortData2011_fireSense_year2011.rds"))
   pixelGroupMap2011 <- readRDS(file.path(Paths$inputPath, "pixelGroupMap2011_fireSense_year2011.rds"))
-  speciesLayers2011 <- readRDS(file.path(Paths$inputPath, "speciesLayers2011_fireSense_year2001.rds"))
-  standAgeMap2011 <- readRDS(file.path(Paths$inputPath, "standAgeMap2011_borealDataPrep.rds"))
-  rawBiomassMap2011 <- readRDS(file.path(Paths$inputPath, "rawBiomassMap2011_borealDataPrep.rds"))
+  speciesLayers2011 <- readRDS(file.path(Paths$inputPath, "speciesLayers2011_fireSense_year2011.rds"))
+  standAgeMap2011 <- readRDS(file.path(Paths$inputPath, "standAgeMap2011_borealDataPrep_year2011.rds"))
+  rawBiomassMap2011 <- readRDS(file.path(Paths$inputPath, "rawBiomassMap2011_borealDataPrep_year2011.rds"))
 }
 
 ##################################### Update objects
+
+# I will "improve" species layer with EOSD by using the  deciduous leading and conifer leading.
+#  While total pixel biomass is kept constant, the proportions are adjusted based on 
+#  the EOSD class. 
+#  If deciduous leading, we set/adjust deciduous biomass to 75% of the total biomass.
+if (!exists("adjustSpeciesLayer")) adjustSpeciesLayer <- TRUE
+if (adjustSpeciesLayer){
+  message(crayon::yellow("speciesLayer being adjusted based on land cover layer..."))
+  speciesLayers2011 <- Cache(adjustSpeciesLayersWithEOSD, 
+                             rstLCC = rstLCC,
+                             speciesLayers = speciesLayers2011, 
+                             userTags = "updateSpeciesLayersWithEOSD")
+}
 
 objects <- c(objects, list(
   "standAgeMap" = standAgeMap2011,

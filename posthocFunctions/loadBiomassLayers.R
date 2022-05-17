@@ -20,6 +20,7 @@ loadBiomassLayers <- function(scenarios, path, years){
           return(maxBiomassPlot)
         }))
         # Calculate the average total biomass across all runs, per pixel
+        writeRaster(x = allRuns[[1]], RASfilePath)
         runMean <- raster::calc(x = allRuns, fun = mean, na.rm = TRUE, 
                                 filename = RASfilePath, format = "GTiff")
         return(RASfilePath)

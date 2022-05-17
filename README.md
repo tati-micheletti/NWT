@@ -19,3 +19,13 @@ git clone --recurse-submodules -j8 https://github.com/tati-micheletti/NWT
 ## development branch
 git clone --single-branch -b development --recurse-submodules -j8 https://github.com/tati-micheletti/NWT
 ```
+
+## Getting the code
+
+```bash
+## master branch
+git clone --recurse-submodules -j8 https://github.com/tati-micheletti/NWT
+
+## development branch
+git clone --single-branch -b development --recurse-submodules -j8 https://github.com/tati-micheletti/NWT
+```

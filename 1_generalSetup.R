@@ -3,7 +3,10 @@
 #    I n  i t i a l     S e t u p          #  
 ############################################
 ############################################
+library("Require")
+Require::setLibPaths(libPaths = file.path(getwd(), "libraryNWT"))
 
+Require("PredictiveEcology/pemisc@development")
 # Authorize GDrive
 if (!exists("usrEmail"))
   usrEmail <- if (pemisc::user() %in% c("tmichele", "Tati")) "tati.micheletti@gmail.com" else 
@@ -32,14 +35,19 @@ if (updateCRAN)
 if (updateGithubPackages){
   if (pemisc::user() %in% c("emcintir", "tmichele")) Sys.setenv("R_REMOTES_UPGRADE"="never")
   Pkg <- c("PredictiveEcology/Require@master",
-           "PredictiveEcology/pemisc@development",
-              "PredictiveEcology/LandR@master",
-           ifelse(pemisc::user() %in% "tmichele", # <~~~~~~~~~~~~~~~~~~~~~~~~ HERE
-                  "tati-micheletti/usefulFuns@fileMystery",
-                  "PredictiveEcology/usefulFuns@development"),
-              "ianmseddy/LandR.CS@master",
-              "PredictiveEcology/fireSenseUtils@iterative",
-              "PredictiveEcology/SpaDES@development")
+           # 26JAN21 :: Bug fixes not implemented in LandR@master yet
+           # [cc59e2f648695b54bcfcc2878ab519cd1e5de678]
+           "PredictiveEcology/LandR@development", 
+           # 26JAN21 :: Bug fixes not implemented in LandR@master yet
+           #  [215c6e2c6ffba0d16952090706431b1a909834eb]
+           "ianmseddy/LandR.CS@master",
+           "PredictiveEcology/fireSenseUtils@V.2.0_NWT")
+  if (pemisc::user() %in% "tmichele") {
+    Pkg <- c(Pkg, "tati-micheletti/usefulFuns@fileMystery")
+  } else {
+    Pkg <- c(Pkg, "PredictiveEcology/usefulFuns@master")
+  }
+  
   pkg <- lapply(Pkg, function(p){
     capture.output(devtools::install_github(p))
     })
@@ -53,8 +61,6 @@ if (updateGithubPackages){
                                    "Your setup will continue.")))
   }
 }
-
-library("Require")
 
 if (!exists("updateSpaDES")) updateSpaDES <- FALSE
 if (updateSpaDES){
@@ -70,23 +76,24 @@ if (updateSubmodules){
   system("git submodule", wait = TRUE) # checks if the branches and commits you are using are the correct ones
 } 
 
-library("usefulFuns")
-library("data.table")
-library("LandR")
-library("LandR.CS")
-library("SpaDES")
-library("SpaDES.experiment")
-library("raster")
-library("plyr"); library("dplyr")
-library("amc")
-library("magrittr") # for piping
-library("future")
-library("future.apply")
-library("fireSenseUtils")
-library("parallel")
+Require("usefulFuns")
+Require("data.table")
+Require("LandR")
+Require("LandR.CS")
+Require("SpaDES")
+Require("SpaDES.experiment")
+Require("raster")
+Require("plyr"); Require("dplyr")
+Require("amc")
+Require("magrittr") # for piping
+Require("future")
+Require("future.apply")
+Require("fireSenseUtils")
+Require("parallel")
+Require("BAMMtools")
+Require("tictoc")
 
 # Source all common functions
-
 source("functions/defineRun.R")
 source("functions/not_included/runNamesList.R")
 source("functions/getFirePolygons_NFDB.R")
@@ -99,6 +106,13 @@ source("functions/getAnnualClimateZipURL.R")
 source("functions/makeCMIandATA.R")
 source('functions/runSquarenessTest.R')
 source('functions/checkRasterStackIsInMemory.R')
+source('functions/adjustSpeciesLayersWithEOSD.R')
+source('functions/binRSFtoDeMars2019.R')
+source('functions/calculatePenalty.R')
+source('functions/makePlanningUnit.R')
+source('functions/makeCoarseFilterStack.R')
+source('functions/makeRelativeTarget.R')
+source('functions/definePPtargetsAndLayers.R')
 
 if (!exists("vegetation")) vegetation <- "LandR" # Default if not provided
 if (!exists("fire")) fire <- "SCFM" # Default if not provided
@@ -137,6 +151,7 @@ preambleCache <- checkPath(file.path(generalCacheFolder, "preamble", runName), c
 fittingCache <- checkPath(file.path(generalCacheFolder, "fitting", runName), create = TRUE)
 simulationsCache <- checkPath(file.path(generalCacheFolder, "simulations", runName), create = TRUE)
 posthocCache <- checkPath(file.path(generalCacheFolder, "posthoc", runName), create = TRUE)
+hotspotsCache <- checkPath(file.path(generalCacheFolder, "hotspots", runName), create = TRUE)
 
 SpaDES.core::setPaths(modulePath = paths$modulePath, 
                       inputPath = paths$inputPath, 
@@ -146,6 +161,11 @@ SpaDES.core::setPaths(modulePath = paths$modulePath,
 message("Your current temporary directory is ", tempdir())
 maxMemory <- 5e+12
 scratchDir <- file.path("~/scratch")
+if (pemisc::user("tmichele")){
+  unixtools::set.tempdir(reproducible::checkPath(path = file.path(getwd(), "tmp2"), 
+                                                 create = TRUE))
+  message("Your current temporary was relocated to ", tempdir())
+}
 raster::rasterOptions(default = TRUE)
 options(rasterMaxMemory = maxMemory, rasterTmpDir = scratchDir)
 if(dir.create(scratchDir)) system(paste0("chmod -R 777 ", scratchDir), wait = TRUE) 

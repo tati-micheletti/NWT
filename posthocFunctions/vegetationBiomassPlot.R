@@ -2,6 +2,7 @@ vegetationBiomassPlot <- function(years = c(2011, 2100),
                                   runs = paste0("run", 1:10),
                                   pathData,
                                   pathOutputs,
+                                  simulationName = FALSE, # Or character
                                   typeSim = c("LandR_SCFM", "LandR.CS_fS"),
                                   leadingPercentage = 0.8,
                                   quickCheck = TRUE,
@@ -11,11 +12,11 @@ vegetationBiomassPlot <- function(years = c(2011, 2100),
                                   pal = NULL,
                                   overwritePlots = FALSE,
                                   flammableRTM) {
-
+# Leading species is done in its own function now: leadingChangePlot
   library(rasterVis)
   #~~~~~~~~~~~~~~~~~~~~~~ Bring cohortData and pixel group #~~~~~~~~~~~~~~~~~~~~~~
-
   finalPlots <- lapply(typeSim, function(sim){
+    if (isTRUE(simulationName)) simulationName <- sim
     cohorDataListAll <- lapply(years, function(y){
       e <- environment()
       biomassSpeciesRuns <- lapply(runs, FUN = function(RUN) {
@@ -77,6 +78,8 @@ vegetationBiomassPlot <- function(years = c(2011, 2100),
       } else {
         totalBiomass <- raster::raster(paste0(totalBiomassFilePath, ".tif"))
       }
+
+      return(list(biomassRaster = totalBiomass))
       
       #  ~~~ LEADING SPECIES
       averageDT <- data.table(pixelID = 1:raster::ncell(averageBiomass), 
@@ -130,7 +133,7 @@ vegetationBiomassPlot <- function(years = c(2011, 2100),
             units = "cm", res = 300)
         print(levelplot(leadingSpeciesRaster,
                         att = "landcover",
-                        sub = paste0("Leading species in ", y," for ", sim),
+                        sub = paste0("Leading species in ", y),
                         margin = FALSE,
                         maxpixels = 6e6,
                         colorkey = list(
@@ -166,7 +169,8 @@ vegetationBiomassPlot <- function(years = c(2011, 2100),
           width = 21, height = 29,
           units = "cm", res = 300)
       print(levelplot(changedBiomass,
-                      sub = paste0("Difference in biomass from 2011 to 2100 for ", sim),
+                      sub = paste0("Difference in tree biomass from ", 
+                                   years[1]," to ", years[length(years)]),
                       margin = FALSE,
                       maxpixels = 6e6,
                       colorkey = list(
@@ -185,9 +189,7 @@ vegetationBiomassPlot <- function(years = c(2011, 2100),
                                             col = "black")))
       dev.off()
     }
-    return(list(biomass = totalBiomassPath, leadingSp = cohorDataListAll[[paste0("year", years[length(years)])]][["leadingSpRaster"]]))
-    # --> Nothing anymore with the leading species. It should have plots for both 2011 and 2100
-    # Return also the paths for leading sp plots
+    return(list(biomass = totalBiomassPath))
   })
 
 }

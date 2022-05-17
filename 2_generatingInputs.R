@@ -27,13 +27,26 @@ if (!exists("Times"))
 stepCacheTag <- c(paste0("cache:2_simulationSetup"), 
                   paste0("runName:", runName))
 
-studyArea <- prepInputs(url = runNamesList()[RunName == runName, studyArea],
+studyArea <- Cache(prepInputs, 
+                   url = runNamesList()[RunName == runName, studyArea],
                    destinationPath = Paths$inputPath,
                    filename2 = NULL,
                    userTags = c("objectName:studyArea", stepCacheTag), 
                    omitArgs = c("destinationPath", "filename2"))
 
-rasterToMatch <- Cache(prepInputs, url = runNamesList()[RunName == runName, rasterToMatch],
+# rasterToMatch <- Cache(prepInputs, url = runNamesList()[RunName == runName, rasterToMatch], 
+#                        # https://drive.google.com/file/d/11yCDc2_Wia2iw_kz0f0jOXrLpL8of2oM/view?usp=sharing
+#                        # The previous URL has been compromised. It might work only because of cached obj
+#                        # I uploaded it again to the url above [TM: 30APR21] 
+#                        studyArea = studyArea,
+#                        destinationPath = Paths$inputPath,
+#                        overwrite = TRUE,
+#                        userTags = c("objectName:rasterToMatch", stepCacheTag,
+#                                     "outFun:Cache"),
+#                        omitArgs = c("overwrite", "destinationPath", "filename2"))
+
+rasterToMatch <- Cache(prepInputs, url = "https://drive.google.com/file/d/11yCDc2_Wia2iw_kz0f0jOXrLpL8of2oM/view?usp=sharing", 
+                       # Need to update this url to the function
                        studyArea = studyArea,
                        destinationPath = Paths$inputPath,
                        overwrite = TRUE,
@@ -80,12 +93,13 @@ anthropogenicLayers <- Cache(prepInputs, targetFile = "anthropogenicDisturbanceL
                              destinationPath = Paths$inputPath,
                              studyArea = studyAreaCaribou,
                              rasterToMatch = caribouLCC,
-                             filename2 = "anthropogenicDisturbanceLayers_NT1_BCR6",
+                             filename2 = "anthropogenicDisturbanceLayersNT1_BCR6",
                              fun = "raster::stack",
-                             userTags = c("FUN:Cache",
-                                          "object:anthropogenicLayersNT1BCR6"))
+                             userTags = c("FUN:reCache",
+                                          "object:anthropogenicLayersNT1_BCR6"))
 # [UPDATE 12JAN21]: One of the layers got named wrongly, so I will fix here:
 names(anthropogenicLayers)[names(anthropogenicLayers) == "lineDen1000"] <- "lden1000_2015"
+names(anthropogenicLayers)[names(anthropogenicLayers) == "exp_sett"] <- "exp_settle"
 
 # ~~~~~~~~~~~~~~~~~~~~ 
 
@@ -230,9 +244,11 @@ caribouRSFTable <- Cache(prepInputs, url = paste0("https://drive.google.com",
 reclassTB <- Cache(prepInputs, url = paste0("https://drive.google.com/file/d/",
                                             "1YUXcx8Gc6dI4vy76l2k_P6tUm6X2m7M",
                                             "G/view?usp=sharing"),
+                   targetFile = "EOSD_LCC05_ConversionTable.csv",
                    destinationPath = Paths$inputPath,
                    fun = "data.table::fread", 
-                   userTags = "conversionEOSD_LCC05")
+                   userTags = c("version:noSparse", 
+                                "conversionEOSD_LCC05"))
 
 reclassMatrix <- usefulFuns::makeReclassifyMatrix(table = reclassTB, 
                                                   originalCol = "EOSD_Class", 
@@ -261,97 +277,97 @@ rstLCC[waterRaster == 1] <- 37 # 37 is LCC05 classification for water
 # ===================================================================
 
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ FIRE ~~~~~~~~~~~~~~~~~~~~~~~~
-
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ FIRE ~~~~~~~~~~~~~~~~~~~~~~~~ # TEMPORARELY COMMENTING OUT BECAUSE OF NEW SPATIAL STUFF
+# 
   nonFlammClass <- c(33, 36:39)
   flammableRTM <- rasterToMatch
   # Remove LCC non flammable classes first
   flammableRTM[rstLCC[] %in% nonFlammClass] <- NA
   # Remove more detailed water from Water layer
   flammableRTM[waterRaster[] == 1] <- NA
-
+# 
 fireYears <- 1991:2017
-firePolys <- Cache(getFirePolys, years = fireYears,
-                   studyArea = aggregate(studyArea),
-                   version = c(20200921, 20200703, 20191129, 20190919),
-                   pathInputs = Paths$inputPath, 
-                 userTags = paste0("years:", range(fireYears)))
-
-# THere are duplicate NFIREID
-firePolys <- Cache(lapply, firePolys, function(x) {
-  x <- spTransform(x, crs(studyArea))
-  x <- x[!duplicated(x$NFIREID), ]
-})
-
-if (!exists("useCentroids")){
-  if (fire == "SCFM"){
-    useCentroids <- FALSE    
-  } else {
-    if (fire == "fS"){
-      useCentroids <- TRUE    
-    } else {
-     stop("Fire model has not been specified.") 
-    }
-  }
-} 
-if (useCentroids) {
-    message("... preparing polyCentroids")
-    yr <- min(fireYears)
-    firePoints <- Cache(mclapply, X = firePolys, 
-                            mc.cores = pemisc::optimalClusterNum(2e3, 
-                                                                 maxNumClusters = length(firePolys)),
-                            function(X){
-                              print(yr)
-                              ras <- X
-                              ras$ID <- 1:NROW(ras)
-                              centCoords <- rgeos::gCentroid(ras, byid = TRUE)
-                              cent <- SpatialPointsDataFrame(centCoords, 
-                                                             as.data.frame(ras))
-                              yr <<- yr + 1
-                              return(cent)
-                            },
-                            userTags = c("what:polyCentroids", "forWhat:fireSense_SpreadFit"),
-                            omitArgs = c("userTags", "mc.cores", "useCloud", "cloudFolderID")
-                        ) # "cacheId:a6f02820c0ff9fa6"
-    names(firePoints) <- names(firePolys)
-} else {
-  NFDBPath <- checkPath(file.path(Paths$inputPath, "NFDB_pointFolder"), create = TRUE)
-  if (!file.exists(file.path(NFDBPath, "CHECKSUMS.txt"))){
-    Checksums(NFDBPath)
-  }
-    firePoints <- Cache(getFirePoints_NFDB_V2,
-                            url = paste0("http://cwfis.cfs.nrcan.gc.ca/downloads/nfdb/fire_pnt/",
-                                         "current_version/NFDB_point.zip"),
-                            studyArea = studyArea,
-                            rasterToMatch = rasterToMatch,
-                            NFDB_pointPath = NFDBPath,
-                        years = fireYears,
-                        userTags = c("what:firePoints",
-                        "forWhat:SCFM"),
-                        omitArgs = c("useCache", "purge")
-                        )
-  }
-  
-# For Caribou --> Need fires older than what we have for fireSense
-historicalFires <- Cache(prepInputs, url = "https://drive.google.com/file/d/1WPfNrB-nOejOnIMcHFImvnbouNFAHFv7",
-                         alsoExtract = "similar",
-                         destinationPath = Paths$inputPath,
-                         studyArea = studyArea,
-                         userTags = c("objectName:historicalFires", 
-                                      "extension:BCR6_NWT",
-                                      stepCacheTag, "outFun:Cache"))
-# simplifying
-historicalFiresS <- historicalFires[, names(historicalFires) %in% c("YEAR", "DECADE")]
-historicalFiresDT <- data.table(historicalFiresS@data)
-historicalFiresDT[, decadeYear := 5+(as.numeric(unlist(lapply(strsplit(historicalFiresDT$DECADE, split = "-"), `[[`, 1))))]
-historicalFiresDT[, fireYear := ifelse(YEAR == -9999, decadeYear, YEAR)]
-historicalFiresS$fireYear <- historicalFiresDT$fireYear
-historicalFires <- historicalFiresS[, "fireYear"]
-historicalFiresReproj <- projectInputs(historicalFires, targetCRS = as.character(crs(studyArea)))
-
-# Discard fires with more than 60 from starting time
-olderstFireYear <- Times$start-60
-historicalFires <- historicalFiresReproj[historicalFiresReproj$fireYear >= olderstFireYear,]
+# firePolys <- Cache(getFirePolys, years = fireYears,
+#                    studyArea = aggregate(studyArea),
+#                    version = c(20200921, 20200703, 20191129, 20190919),
+#                    pathInputs = Paths$inputPath, 
+#                  userTags = paste0("years:", range(fireYears)))
+# 
+# # THere are duplicate NFIREID
+# firePolys <- Cache(lapply, firePolys, function(x) {
+#   x <- spTransform(x, crs(studyArea))
+#   x <- x[!duplicated(x$NFIREID), ]
+# })
+# 
+# if (!exists("useCentroids")){
+#   if (fire == "SCFM"){
+#     useCentroids <- FALSE    
+#   } else {
+#     if (fire == "fS"){
+#       useCentroids <- TRUE    
+#     } else {
+#      stop("Fire model has not been specified.") 
+#     }
+#   }
+# } 
+# if (useCentroids) {
+#     message("... preparing polyCentroids")
+#     yr <- min(fireYears)
+#     firePoints <- Cache(mclapply, X = firePolys, 
+#                             mc.cores = pemisc::optimalClusterNum(2e3, 
+#                                                                  maxNumClusters = length(firePolys)),
+#                             function(X){
+#                               print(yr)
+#                               ras <- X
+#                               ras$ID <- 1:NROW(ras)
+#                               centCoords <- rgeos::gCentroid(ras, byid = TRUE)
+#                               cent <- SpatialPointsDataFrame(centCoords, 
+#                                                              as.data.frame(ras))
+#                               yr <<- yr + 1
+#                               return(cent)
+#                             },
+#                             userTags = c("what:polyCentroids", "forWhat:fireSense_SpreadFit"),
+#                             omitArgs = c("userTags", "mc.cores", "useCloud", "cloudFolderID")
+#                         ) # "cacheId:a6f02820c0ff9fa6"
+#     names(firePoints) <- names(firePolys)
+# } else {
+#   NFDBPath <- checkPath(file.path(Paths$inputPath, "NFDB_pointFolder"), create = TRUE)
+#   if (!file.exists(file.path(NFDBPath, "CHECKSUMS.txt"))){
+#     Checksums(NFDBPath)
+#   }
+#     firePoints <- Cache(getFirePoints_NFDB_V2,
+#                             url = paste0("http://cwfis.cfs.nrcan.gc.ca/downloads/nfdb/fire_pnt/",
+#                                          "current_version/NFDB_point.zip"),
+#                             studyArea = studyArea,
+#                             rasterToMatch = rasterToMatch,
+#                             NFDB_pointPath = NFDBPath,
+#                         years = fireYears,
+#                         userTags = c("what:firePoints",
+#                         "forWhat:SCFM"),
+#                         omitArgs = c("useCache", "purge")
+#                         )
+#   }
+#   
+# # For Caribou --> Need fires older than what we have for fireSense
+# historicalFires <- Cache(prepInputs, url = "https://drive.google.com/file/d/1WPfNrB-nOejOnIMcHFImvnbouNFAHFv7",
+#                          alsoExtract = "similar",
+#                          destinationPath = Paths$inputPath,
+#                          studyArea = studyArea,
+#                          userTags = c("objectName:historicalFires", 
+#                                       "extension:BCR6_NWT",
+#                                       stepCacheTag, "outFun:Cache"))
+# # simplifying
+# historicalFiresS <- historicalFires[, names(historicalFires) %in% c("YEAR", "DECADE")]
+# historicalFiresDT <- data.table(historicalFiresS@data)
+# historicalFiresDT[, decadeYear := 5+(as.numeric(unlist(lapply(strsplit(historicalFiresDT$DECADE, split = "-"), `[[`, 1))))]
+# historicalFiresDT[, fireYear := ifelse(YEAR == -9999, decadeYear, YEAR)]
+# historicalFiresS$fireYear <- historicalFiresDT$fireYear
+# historicalFires <- historicalFiresS[, "fireYear"]
+# historicalFiresReproj <- projectInputs(historicalFires, targetCRS = as.character(crs(studyArea)))
+# 
+# # Discard fires with more than 60 from starting time
+# olderstFireYear <- Times$start-60
+# historicalFires <- historicalFiresReproj[historicalFiresReproj$fireYear >= olderstFireYear,]
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ OTHER LAYERS ~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -364,7 +380,8 @@ studyAreaPSP <- Cache(prepInputs, url = runNamesList()[RunName == runName, study
 
 
 ecoRegionSHP <- Cache(prepInputs, targetFile = "ecoregions.shp",
-                                            url = "https://drive.google.com/file/d/1qr9roO6lCMomSfS5tfBdMMJsYk5eB6K7",
+                                            # url = "https://drive.google.com/file/d/1qr9roO6lCMomSfS5tfBdMMJsYk5eB6K7",
+                                            url = "https://drive.google.com/file/d/1i2RallIC66Qvw_coPXoJaZAo_ORdLTil/view?usp=sharing",
                                             alsoExtract = "similar",
                                             destinationPath = Paths$inputPath,
                                             studyArea = studyAreaCaribou,
@@ -411,17 +428,17 @@ buffAnthroDist500m <- Cache(postProcess, x = bufferedAnthropogenicDisturbance500
                                   userTags = c(stepCacheTag,
                                                "step:maskAnthropogenicDistLayer", "outFun:Cache"))
  
-# Older version of road density. To update it, a 10km buffered layer still needs to be
+# Older version of road density for ECCC 2011 RSF. To update it, a 10km buffered layer still needs to be
 # created. The current one used for the DeMars et al., 2019 model for NWT is 1km density.
-roadDensity <- Cache(prepInputs, targetFile = "roadDensity_BCR6_NWT_t0.tif",
-                          url = "https://drive.google.com/open?id=1C0Y0z1cgQKwa3_-X2qWrhNIzEHIl9m5e",
-                          destinationPath = Paths$inputPath,
-                          studyArea = studyArea,
-                          rasterToMatch = rasterToMatch,
-                          userTags = c(stepCacheTag,
-                                       "step:prepRoadDensity",
-                                       "objectName:roadDensity",
-                                       "outFun:Cache"))
+# roadDensity <- Cache(prepInputs, targetFile = "roadDensity_BCR6_NWT_t0.tif",
+#                           url = "https://drive.google.com/open?id=1C0Y0z1cgQKwa3_-X2qWrhNIzEHIl9m5e",
+#                           destinationPath = Paths$inputPath,
+#                           studyArea = studyArea,
+#                           rasterToMatch = rasterToMatch,
+#                           userTags = c(stepCacheTag,
+#                                        "step:prepRoadDensity",
+#                                        "objectName:roadDensity",
+#                                        "outFun:Cache"))
 
 caribouArea1 <- Cache(prepInputs, url = "https://drive.google.com/open?id=1Qbt2pOvC8lGg25zhfMWcc3p6q3fZtBtO",
                            targetFile = "NWT_Regions_2015_LCs_DC_SS_combined_NT1_clip_inc_Yukon.shp",
@@ -454,9 +471,53 @@ Edehzhie <- Cache(prepInputs, targetFile = "Edehzhie.shp",
                                "step:prepEdehzhie"))
 Edehzhie$Name <- Edehzhie$NAME_1
 
-listSACaribou <- list(caribouArea1, caribouArea2, Edehzhie)
-names(listSACaribou) <- c("caribouArea1", "caribouArea2", "Edehzhie")
 
+metaHeards <- Cache(prepInputs, 
+                       targetFile = "Enhanced_MetaHerds_20191029.shp",
+                       archive = "Johnsonetal2020_studyareas.zip",
+                       alsoExtract = "similar",
+                       url = "https://drive.google.com/file/d/1lH_Oy2pEHv9dtSsAXn-UrDHrW1aJOOCd",
+                       studyArea = studyArea,
+                       destinationPath = Paths$inputPath,
+                       filename2 = NULL,
+                       rasterToMatch = rasterToMatch,
+                       userTags = c(stepCacheTag, 
+                                    "outFun:Cache",
+                                    "step:prepHeardsPoly"))
+  
+listSACaribou <- list(caribouArea1, caribouArea2, Edehzhie, metaHeards)
+names(listSACaribou) <- c("caribouArea1", "caribouArea2", "Edehzhie", "metaHeards")
+
+# Protected areas
+protectedAreas <- Cache(prepInputs, 
+                    targetFile = "protAreas_NT1_BCR6.shp",
+                    archive = "protAreas_NT1_BCR6.zip",
+                    alsoExtract = "similar",
+                    url = "https://drive.google.com/file/d/1byUcmQXvxbgTT3Q-3DwVKTVRmnqwsRVO",
+                    studyArea = studyArea,
+                    destinationPath = Paths$inputPath,
+                    filename2 = NULL,
+                    rasterToMatch = rasterToMatch,
+                    userTags = c(stepCacheTag, 
+                                 "outFun:Cache",
+                                 "step:protectedAreas_NT1_BCR6"))
+
+landscapeUnits <- Cache(prepInputs,
+                            archive = "ca_all_slc_v3r2.zip",
+                            alsoExtract = "similar",
+                            url = "https://sis.agr.gc.ca/nsdb/ca/cac003/cac003.20110308.v3.2/ca_all_slc_v3r2.zip",
+                            studyArea = studyArea,
+                            useSAcrs = TRUE,
+                            destinationPath = Paths$inputPath,
+                            filename2 = "landscapeUnits",
+                            userTags = c(stepCacheTag,
+                                     "outFun:Cache",
+                                     "step:landscapeUnits_NT1_BCR6"))
+
+landscapeUnitSF <- sf::st_as_sf(landscapeUnits)
+landscapeUnitsRAS <- fasterize::fasterize(sf = landscapeUnitSF, 
+                                     raster = rstLCC, 
+                                     field = "POLY_ID")
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ CLIMATE ~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -481,7 +542,8 @@ climateResolution <- "3ArcMin" # Only available for now, matches the created lay
 climateFilePath <- getAnnualClimateZipURL(scenario = climateModel)
 
 # For any climate scenarios that not CCSM4_85, we need to supply CMI and ATA stacks
-# These are annual projected mean annual temperature anomalies, units stored as tenth of a degree (ATA) and annual projected mean climate moisture deficit
+# These are annual projected mean annual temperature anomalies, units stored as tenth of 
+# a degree (ATA) and annual projected mean climate moisture deficit
 
 CMIATA <- makeCMIandATA(pathToNormalRasters = file.path(Paths$inputPath, 
                                                         "Canada3ArcMinute_Normals"),
@@ -523,7 +585,6 @@ attributes(sppColorVect)$names[length(sppColorVect)] <- "Mixed"
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ MODULES' PARAMETERS ~~~~~~~~~~~~~~~~~~~~~~~~
-
 
 #SCFM
 defaultInterval <- 1.0
@@ -632,7 +693,11 @@ parameters <- list(
     "pixelGroupAgeClass" = 20,
     ".useCache" = c(".inputObjects", "init"),
     "subsetDataBiomassModel" = 50,
-    "exportModels" = "all"
+    "exportModels" = "all" #, [01FEB21: TM -- This below was in 213 but not here. It might be needed 
+    #                         when running directly from EOSD layer instead of converting to LCC05 as
+    #                         I am doing now.]
+    # "LCCClassesToReplaceNN" = 11:12, #Cloud/Shadow
+    # "forestedLCCClasses" = forestedClasses
   ),
   Biomass_regeneration = list(
     "fireTimestep" = 1,
@@ -694,7 +759,12 @@ parameters <- list(
                                   DEoptimCache], # This is NWT DEoptim Cache
     "cloudFolderID_DE" = "1kUZczPyArGIIkbl-4_IbtJWBhVDveZFZ",
     "useCloud_DE" = TRUE
-  )
+  )#, [01FEB21: TM -- This below was in 213 but not here. It is needed 
+  #                         when running directly from EOSD layer instead of converting to LCC05 as
+  #                         I am doing now. But might (most likele will) be useless when we actually have the 
+  #                         whole fireSense scheme working.]
+  # LBMR2LCC_DataPrep = list(
+  # "trainingAndMappingFuns" = c("trainXGBModel_EOSD", "MapBiomassToLCC_EOSD"))
 )
 
 
@@ -703,6 +773,8 @@ parameters <- list(
 
 succTS <- c(seq(Times$start, Times$end, 
                 by = parameters$Biomass_core$successionTimestep), Times$end)
+if (Times$end > 2017)
+  succTS <- sort(c(2017, succTS))
 outputsLandR <- data.frame(
   objectName = rep(c("burnMap",
                      "cohortData",
@@ -718,7 +790,8 @@ lastYears <- data.frame(objectName = c("predictedCaribou", "plotCaribou",
                                        "fireRegimeRas", "speciesEcoregion", 
                                        "species", "gcsModel", "mcsModel", 
                                        "spreadPredictedProbability", 
-                                       "rstCurrentBurnList"),
+                                       "rstCurrentBurnList",
+                                       "caribouPredictions", "disturbances"),
                         saveTime = Times$end)
 if (length(usefulFuns::grepMulti(x = definedRun$modules, "Biomass_core")) != 0){
   clim <- data.frame(objectName = rep(c("fireSense_IgnitionPredicted", 
@@ -762,16 +835,14 @@ objects <- list(
   "rstLCC" = rstLCC,
   "bufferedAnthropogenicDisturbance500m" = buffAnthroDist500m, # Buffered disturbances 500m
   "anthropogenicLayers" = raster::stack(anthropogenicLayers), # New RSF anthropogenic layers for NT1+BCR6 (exp_dist_sett, exp_maj_rod, etc)
-  # "caribouArea1" = caribouArea1,
-  # "caribouArea2" = caribouArea2,
   "caribouLCC" = caribouLCC,
-  # "Edehzhie" = Edehzhie,
   # "roadDensity" = roadDensity, # Used only in the older caribouRSF module
-  "firePolys" = firePolys,
-  "firePoints" = firePoints,
+  # "firePolys" = firePolys,
+  # "firePoints" = firePoints,
   "listSACaribou" = listSACaribou,
-  "historicalFires" = historicalFires,
-  "NT1shapefile" = caribouArea2
+  # "historicalFires" = historicalFires,
+  "NT1shapefile" = caribouArea2,
+  ".studyAreaName" = runName
 )
 
 data.table::setDTthreads(2) # Data.table has all threads by default, 

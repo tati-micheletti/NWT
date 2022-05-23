@@ -17,5 +17,3 @@ plotCaribou <- plotCaribouPopGrowthMSSD(whichPolys = c("Bistcho", "Maxhamish", "
 library("googledrive")
 fl <- list.files(path = pathOutputs, pattern = "caribou_", full.names = TRUE)
 lapply(fl, drive_upload, path = as_id("11H-Chg-EyO6zQ-KwggiLzN6D54sjnRp4"))
-
-

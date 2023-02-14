@@ -111,12 +111,6 @@ studyArea <- studyAreaCaribou
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ WATER ~~~~~~~~~~~~~~~~~~~~~~~~
 
-#  THE PROBLEM WITH THE SIMULATIONS IS HERE!!! IT IS THE WATER LAYER!
-#  WE ONLY HAVE THE WATER FOR NWT_BCR6, and it is setting whatever 
-#  outside of this area to water!! 
-#  SOLUTION: EXTRACT THE WATER LAYER FROM THE LCC (EOSD). Won't change much, but will
-#  keep consistency!
-
 # New EOSD Water, Uplands and Lowlands derived
 UplandClass <- c(32:34, 40, 51:52, 211:213, 221:223, 231:233)
 WaterClass <- c(20, 31)

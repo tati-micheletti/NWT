@@ -16,8 +16,8 @@ yearsWanted <- seq(Times$start, Times$end, by = stepInterval)
 allScenarios <- as.character(utils::as.roman(22:51))
 internalFolder <- "ms1" # Here to set in which folder are the scenarios I am looking for (i.e. ms1)
 wantedScenarios <- allScenarios
-excludeWaterFromArea <- TRUE
-excludeLastYear <- TRUE
+excludeWaterFromArea <- FALSE
+excludeLastYear <- FALSE
 
 ################################
 overwriteFig1Numbers <- FALSE ### <~~~~ IMPORTANT!!! ATTENTION!!!
@@ -337,6 +337,7 @@ if(any(overwriteFig1Numbers,
 } else {
   Fig1_numbers <- qs::qread(allNumbersPath)
 }
+Fig1_numbers <- Fig1_numbers[Species != "caribou", ]
 
 ################
 #              #
@@ -364,8 +365,10 @@ if (excludeWaterFromArea){
   totalAreaWater <- sum(waterRaster[], na.rm = TRUE)*6.25 # Area in ha to match the table
   Fig1_numbers[, TotalAreaHaNWT := TotalAreaHaNWT-totalAreaWater]
   Fig1_numbers[, ProportionAreaChosen := TotalAreaChosen/TotalAreaHaNWT]
-} 
-Fig1_numbers[, ProportionAreaChosen  := round(ProportionAreaChosen , 1)]
+  Fig1_numbers[, ProportionAreaChosen  := round(ProportionAreaChosen , 1)]
+  # Now we should also remove any proportions of area that are above 1
+  Fig1_numbers <- Fig1_numbers[ProportionAreaChosen  < 1, ]
+  } 
 
 # We also have some weird results for the last year of simulations (2091).
 # This is especially true for grassland (proportionAreaChosen == 0.8) and shrub species 
@@ -374,9 +377,6 @@ Fig1_numbers[, ProportionAreaChosen  := round(ProportionAreaChosen , 1)]
 if (excludeLastYear){
   Fig1_numbers <- Fig1_numbers[Year < 2090, ]
 }
-
-# Now we should also remove any proportions of area that are above 1
-Fig1_numbers <- Fig1_numbers[ProportionAreaChosen  < 1, ]
 
 # First thing to do, is to group the birds into their original groups. We then recalculate the
 # ProportionIndividualsConserved by summing for all species the TotalIndividualsInitial and the 
@@ -416,11 +416,18 @@ names(DT2)[names(DT2) == "Habitat"] <- "Species"
 # FINAL PLOT AND TABLE #
 ########################
 
-CI <- function (x, ci = 0.95, toReturn = "mean"){
+CI <- function (x, ci = 0.95, toReturn = "mean", type = "deviation"){
   a <- mean(x)
   s <- sd(x)
   n <- length(x)
-  error <- qt(ci + (1 - ci)/2, df = n - 1) * s/sqrt(n)
+  if (type == "error"){
+    error <- qt(ci + (1 - ci)/2, df = n - 1) * s/sqrt(n) 
+  } else {
+    if (type == "deviation"){
+      error <- qt(ci + (1 - ci)/2, df = n - 1) * s
+    } else 
+      stop("Type mus be either 'error' or 'deviation'")
+  }
   if (toReturn == "mean")
     return(a) else
       if (toReturn == "L")
@@ -435,7 +442,7 @@ CI <- function (x, ci = 0.95, toReturn = "mean"){
 
 DT3 <- Copy(Fig1_numbers2)
 DT3[, c("TotalAreaHaNWT", "TotalAreaChosen", "Scenario") := NULL]
-DT3[is.na(Habitat), Habitat := "caribou"]
+DT3 <- DT3[Species != "caribou",]
 
 # umbrellaTable1 <- rbindlist(lapply(unique(DT3$Species), function(sp){
 #   DT <- dcast(DT3[Species == sp],
@@ -455,7 +462,14 @@ DT3[is.na(Habitat), Habitat := "caribou"]
 #   return(DTr)
 # }))
 
-DTx1 <- dcast(DT3[Species != "caribou",], 
+
+DT3[Species == "YRWA" & Run == "run5" & ClimateScenario == "INM-CM4" &
+      ProportionAreaChosen == "0.95" & Habitat == "conifer" & Year == 2091, ]
+
+DT3x1[Species == "YRWA" & Run == "run5" & #ClimateScenario == "INM-CM4" &
+        ProportionAreaChosen == "0.95" & Habitat == "conifer" & Year == 2091, ]
+
+DTx1 <- dcast(DT3x1, 
              Species + Run + Year + ClimateScenario + ProportionAreaChosen + Habitat ~ PrioritizedFor,
              value.var = "ProportionIndividualsConserved")
 

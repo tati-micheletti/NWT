@@ -685,7 +685,7 @@ if (doBoxplot){
   cols <- c(pal, "grey")
   sps <- c("conifer", "deciduous", "generalist", "grassland", 
            "mixedwood", "shrub", "wetland", "average")
-  
+ nm <- file.path(Paths$outputPath, "groupsAveraged_boxplot.png")
   if (make2scenarios){
     pB <- ggplot(finalTableSpecies2[proportionOfArea %in% as.character(c(0.15, 0.45)), ], 
                  aes(x = Species, y = umbrellaIndex, fill = Species)) +
@@ -703,8 +703,7 @@ if (doBoxplot){
       facet_grid(proportionOfArea ~ .)
     
     pB
-    nm <- file.path(Paths$outputPath, 
-                    "groupsAveraged_boxplot.png")
+
     ggsave(device = "png", filename = nm, 
            width = 9, height = 6)
     drive_upload(nm, as_id(figuresFolder))
